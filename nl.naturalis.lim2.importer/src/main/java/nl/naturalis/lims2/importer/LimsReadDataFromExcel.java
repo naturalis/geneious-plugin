@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
-import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
@@ -26,11 +27,12 @@ import com.opencsv.CSVReader;
  */
 public class LimsReadDataFromExcel extends DocumentAction {
 
+	static final Logger logger = LoggerFactory.getLogger(LimsReadDataFromExcel.class);
 	PluginDocument annotatedPluginDocument;
 	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	LimsExcelFields limsExcelFields = new LimsExcelFields();
 	LimsNotes limsNotes = new LimsNotes();
-	
+	//private FileSelectionOption fileSelectionOption;
 	String extractIDfileName = null;
 	
 	List<String> listExtractID = new ArrayList<String>();
@@ -38,48 +40,19 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] annotatedPluginDocuments) {
-
-		readDataFromExcel(annotatedPluginDocuments);
-/*		extractIDfileName = getExtractIDFromAB1FileName(annotatedPluginDocuments);
-		System.out.println("File extractID: " + extractIDfileName);	
-		if (extractIDfileName != null)
-		{		
-			readDataFromExcel(annotatedPluginDocuments);
-			System.out.println("List Result: " + listExtractID.toString());	
-			
-			
-			System.out.println("#1 iterator");
-			Iterator<String> iterator = listExtractID.iterator();
-			while (iterator.hasNext()) {
-				System.out.println("# FileName: " + iterator.next());
-				if (iterator.next().equals(extractIDfileName))
-				{
-				   System.out.println("Iterator: " + iterator.next());
-				}
-			}
-			
-			// for loop
-			System.out.println("#2 for");
-			for (int i = 0; i < listExtractID.size(); i++) {
-				if (listExtractID.get(i).equals(extractIDfileName))
-				{
-					System.out.println(listExtractID.get(i));
-				}
-			}*/
 		
-/*			for (String record : listExtractID) {
-				System.out.println("Record Reinier List: " + record);
-				System.out.println("ExtractID: " + record);	
-			
-				if (record.equals(extractIDfileName))
-				{
-					extractPlaatNummer = listExtractID.get(0);
-					extractID = listExtractID.get(1);
-					System.out.println("FileName: " + extractIDfileName);	
-					setNoteForExtractPlaatNummerFromAB1FileName(annotatedPluginDocuments);
-				}
-			}*/
-		//}
+		//annotatedPluginDocuments = fileSelectionOption.setAllowMultipleSelection(true);
+ 
+		logger.info("-----------------------------------------------------------------");
+		logger.info("Start");
+		
+		if (annotatedPluginDocuments[0] != null)
+		{
+			readDataFromExcel(annotatedPluginDocuments);
+		}
+		logger.info("-----------------------------------------------------------------");
+		logger.info("Done with reading excel file. ");
+
 	}
 
 	@Override
@@ -94,10 +67,21 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
-		return new DocumentSelectionSignature[] {new DocumentSelectionSignature(NucleotideSequenceDocument.class,0,Integer.MAX_VALUE)};
+		//return new DocumentSelectionSignature.forNucleotideSequences(2,Integer.MAX_VALUE);
+		return new DocumentSelectionSignature[] {new DocumentSelectionSignature(PluginDocument.class,0,Integer.MAX_VALUE)};
 	}
 	
 	
+	
+	/*public LimsReadDataFromExcel() {
+		
+		//.addFileSelectionOption("Test", "Test1", "Test2"); //)addBooleanOption("sampleOption", "text displayed the user", true);
+    }
+	
+	public LimsReadDataFromExcel getOptions(final AnnotatedPluginDocument[] documents, final SelectionRange selectionRange) throws DocumentOperationException {
+	     return new LimsReadDataFromExcel();
+	 }
+	*/
 	private void readDataFromExcel(AnnotatedPluginDocument[] annotatedPluginDocuments) 
 	{
 		String csvPath = null;
@@ -111,14 +95,18 @@ public class LimsReadDataFromExcel extends DocumentAction {
 		{
 			e.printStackTrace();
 		}
-		System.out.println("CSV file: " + csvPath);
+		logger.info("CSV file: " + csvPath);
+		//System.out.println("CSV file: " + csvPath);
 		
 		try
 		{
 		CSVReader csvReader = new CSVReader(new FileReader(csvPath), '\t', '\'', 0);
 		
+		extractIDfileName = getExtractIDFromAB1FileName(annotatedPluginDocuments);
+		
 		String[] record = null;
 		csvReader.readNext();
+		
 
 		try {
 			while ((record = csvReader.readNext()) != null) 
@@ -126,9 +114,6 @@ public class LimsReadDataFromExcel extends DocumentAction {
 				if (record.length == 0) {
 					continue;
 				}
-				
-				extractIDfileName = getExtractIDFromAB1FileName(annotatedPluginDocuments);
-				//System.out.println("File extractID: " + extractIDfileName);	
 				
 				/*try {
 					annotatedPluginDocument = annotatedPluginDocuments[5].getDocument();
@@ -151,12 +136,13 @@ public class LimsReadDataFromExcel extends DocumentAction {
 					limsExcelFields.setTaxonNaam(record[5]);
 					//limsExcelFields.setSubSample(record[0]);
 				
-				
-					System.out.println("Extract-ID: " + limsExcelFields.getExtractID());
-					System.out.println("Extract plaatnummer: " + limsExcelFields.getExtractPlaatNummer());
-					System.out.println("Project plaatnummer: " + limsExcelFields.getProjectPlaatNummer());
-				
-					
+				    logger.info("Extract-ID: " + limsExcelFields.getExtractID());
+				    logger.info("Project plaatnummer: " + limsExcelFields.getProjectPlaatNummer());
+				    logger.info("Extract plaatnummer: " + limsExcelFields.getExtractPlaatNummer());
+				    logger.info("Taxon naam: " + limsExcelFields.getTaxonNaam());
+				    logger.info("Registrationnumber: " + limsExcelFields.getRegistrationNumber());
+				    logger.info("Plaat positie: " + limsExcelFields.getPlaatPositie());
+				    
 					/* setNoteToAB1FileName(AnnotatedPluginDocument[] annotatedPluginDocuments, String fieldCode, 
 										    String textNoteField, String noteTypeCode, String fieldValue)*/
 					
@@ -178,6 +164,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 					/* set note for Plaat positie */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments, "PlaatpositieCode", "Plaat positie", "Plaat positie", limsExcelFields.getPlaatPositie());
 					
+					logger.info("Done with adding notes to the document");
 					
 				} // end IF
 			} // end While
@@ -205,39 +192,9 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	{
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
 		String fileName = annotatedPluginDocuments[0].getName().toString();
+		logger.info("Document Filename: " + fileName);
 		String[] underscore = StringUtils.split(fileName, "_");
 		return underscore[0];
 	}
-	
-	
-	/*private void setNoteForExtractPlaatNummerFromAB1FileName(AnnotatedPluginDocument[] annotatedPluginDocuments)
-	{
-		List<DocumentNoteField> listExtractPlaatnummer =  new ArrayList<DocumentNoteField>();
-		String fieldExtractPlaatnr  = "ExtractPlaatNummerCode";
-		
-		listExtractPlaatnummer.add(DocumentNoteField.createTextNoteField("ExtractPlaatNummer",  "Naturalis AB1 file Extract-Plaatnummer note", fieldExtractPlaatnr,  (List) Collections.emptyList(), false));
-		 Check if note type exists 
-		String noteTypeCodeExtractPlaatnr  = "DocumentNoteUtilities-Extract Plaatnummer";
-		DocumentNoteType noteTypeExtractPlaatnr = DocumentNoteUtilities.getNoteType(noteTypeCodeExtractPlaatnr);
-		 Extract-ID note 
-		if (noteTypeExtractPlaatnr == null)
-		{
-			noteTypeExtractPlaatnr = DocumentNoteUtilities.createNewNoteType("Extract Plaatnummer", noteTypeCodeExtractPlaatnr, "Naturalis AB1 file Extract-Plaatnummer note",  listExtractPlaatnummer, false);
-			DocumentNoteUtilities.setNoteType(noteTypeExtractPlaatnr);
-		}
-		
-		 Create note for Extract-ID 
-		DocumentNote documentNoteExtractID = noteTypeExtractPlaatnr.createDocumentNote();
-		documentNoteExtractID.setFieldValue(fieldExtractPlaatnr, getExtractPlaatNummerValue());
-		
-		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) annotatedPluginDocuments[0].getDocumentNotes(true);
-		
-		 Set note for Project plaatnummer
-		documentNotes.setNote(documentNoteExtractID);
-		 Save the selected sequence document 
-		documentNotes.saveNotes();
-		System.out.println("Note Extract- Plaatnummer saved succesful");
-	}
-*/
 
 }

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
@@ -24,6 +27,18 @@ public class LimsNotes {
 	private String description;
 	private String noteTypeCode;
 	
+	static final Logger logger = LoggerFactory.getLogger(LimsNotes.class);
+	
+	
+	/**
+	 * Package for Setting notes in a selected sequence document.
+	 * @param annotatedPluginDocuments set annotatedPluginDocuments
+	 * @param fieldCode set fieldCode for the Notes
+	 * @param textNoteField set textNoteField for the Notes
+	 * @param noteTypeCode set NotetTypeCode Label
+	 * @param fieldValue Set the Value for the Note
+	 */
+	 
 	void setNoteToAB1FileName(AnnotatedPluginDocument[] annotatedPluginDocuments, String fieldCode, 
 															 String textNoteField, String noteTypeCode,  String fieldValue)
 	{
@@ -46,6 +61,7 @@ public class LimsNotes {
 		{
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(noteTypeCode, this.noteTypeCode, this.description,  listNotes, false);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
+			logger.info("NoteType " + noteTypeCode + " created succesful");
 		}
 		
 		/* Create note for Extract-ID */
@@ -58,7 +74,7 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-		System.out.println("Note " + noteTypeCode + " saved succesful");
+		logger.info("Note value " + noteTypeCode + " saved succesful");
 	}
 
 }

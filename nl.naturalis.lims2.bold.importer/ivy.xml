@@ -21,7 +21,7 @@
        xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
     <info
         organisation="Naturalis"
-        module="Lims2ImportUpdater"
+        module="nl.naturalis.lims2.bold.importer"
         status="integration">
 	</info>
 	<dependencies>

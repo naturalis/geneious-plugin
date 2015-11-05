@@ -5,7 +5,6 @@ package nl.naturalis.lims2.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +28,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.security.auth.login.ConfigFile;
 
 /**
  * @author Reinier.Kartowikromo
@@ -62,7 +60,6 @@ public class LimsImporterUtil {
 		try {
 			outputRoot = required("lims.import.input.cs_dir");
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		Path path = FileSystems.getDefault().getPath(outputRoot, "data");
@@ -98,6 +95,7 @@ public class LimsImporterUtil {
 			if (inputStream != null) {
 				prop.load(inputStream);
 			} else {
+				logger.info("property file '" + propFileName + "' not found in the classpath");
 				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
 			}
  
@@ -105,8 +103,8 @@ public class LimsImporterUtil {
 			String csvPath =  prop.getProperty("lims.import.input.cs_dir");
  
 			result = csvPath;
-			System.out.println(result);
 		} catch (Exception e) {
+			logger.info("Exception: " + e);
 			System.out.println("Exception: " + e);
 		} finally {
 			inputStream.close();
@@ -125,6 +123,7 @@ public class LimsImporterUtil {
 			if (inputStream != null) {
 				prop.load(inputStream);
 			} else {
+				logger.info("property file '" + propFileName + "' not found in the classpath");
 				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
 			}
  
@@ -132,8 +131,8 @@ public class LimsImporterUtil {
 			String csvFileName =  prop.getProperty("file");
  
 			result = csvFileName;
-			System.out.println(result);
 		} catch (Exception e) {
+			logger.info("Exception: " + e);
 			System.out.println("Exception: " + e);
 		} finally {
 			inputStream.close();
