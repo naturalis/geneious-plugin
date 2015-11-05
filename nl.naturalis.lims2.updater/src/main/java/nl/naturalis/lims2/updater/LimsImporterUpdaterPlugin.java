@@ -4,8 +4,6 @@
 package nl.naturalis.lims2.updater;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
-import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
-import com.biomatters.geneious.publicapi.plugin.DocumentType;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**

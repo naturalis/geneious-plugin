@@ -251,7 +251,8 @@ public class LimsImporterUtil {
 	   * @param fileContent The content from which to read an encoding value.
 	   * @return The charset name if it exists and is supported, <code>null</code> otherwise
 	   */
-	  private static String getCharset(String fileContent){
+	  @SuppressWarnings("unused")
+	private static String getCharset(String fileContent){
 	    String trimmedContent=fileContent.trim();
 	    String charsetName=null;
 	    if (trimmedContent.length() > 0) {
@@ -288,16 +289,7 @@ public class LimsImporterUtil {
 		}
 
 	
-	  public String readFileInputStream1(File file, String fileAb1) throws IOException {
-		 ByteBuffer sContent= null;
-		 
-		    return null; //sContent.toString();
-		  }
-		
-
-	  
-	
-	  
+	  	  
 	  byte[] bytearrayfromfile(File f) throws IOException {
 		  int filesize=(int)f.length();
 		  byte[] buffer=new byte[filesize];
@@ -306,6 +298,7 @@ public class LimsImporterUtil {
 		    buffer[i]=(byte)instream.read();
 		    if (i % 1024 == 0)     System.out.print(".");
 		  }
+		  instream.close();
 		  return buffer;
 		}
 }
