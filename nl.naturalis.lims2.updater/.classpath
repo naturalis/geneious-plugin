@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/GeneiousFiles"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=nl.naturalis.lims2.updater&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/nl.naturalis.lims2.utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/nl.naturalis.lims2.importer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
