@@ -30,5 +30,6 @@
 		<dependency org="org.biojava" name="biojava" rev="4.1.0"/>
 		<dependency org="org.biojava" name="biojava-core" rev="4.1.0"/>
 		<dependency org="org.biojava" name="sequencing" rev="1.9.2"/>
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.4"/>
     </dependencies>
 </ivy-module>
