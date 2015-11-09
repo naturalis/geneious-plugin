@@ -12,6 +12,8 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
  */
 public class LimsImportAB1Plugin extends GeneiousPlugin {
 
+	static final String HELP = "Naturalis imported ab1 file with Chromatogram and DNA sequence(s)";
+
 	@Override
 	public String getAuthors() {
 		return "Natauralis Reinier.Kartowikromo";
@@ -24,7 +26,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getHelp() {
-		return null;
+		return HELP;
 	}
 
 	@Override

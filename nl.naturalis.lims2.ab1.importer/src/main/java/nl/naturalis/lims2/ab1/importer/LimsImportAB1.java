@@ -4,8 +4,8 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import jebl.util.ProgressListener;
@@ -17,11 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
@@ -34,7 +33,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	SequenceDocument sequence;
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
 	LimsNotes limsNotes = new LimsNotes();
-	AnnotatedPluginDocument[] annotatedPluginDocuments;
+	PluginDocument annotatedPluginDocuments;
+	AnnotatedPluginDocument[] annotatedPluginDocument;
 
 	static {
 		logger = LoggerFactory.getLogger(LimsImportAB1.class);
@@ -47,7 +47,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	@Override
 	public String[] getPermissibleExtensions() {
-		return new String[] { ".ab1", ".ab", "geneious" };
+		return new String[] { "ab1", "abi" };
 	}
 
 	@Override
@@ -55,58 +55,65 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
-		String ab1File = file.getAbsolutePath();
-		logger.info("ab1File: " + ab1File);
-		String name = file.getName();
-		String description = name;
-		SequenceDocument nucleotideSequenceDocument = null;
-
-		long fileSize = file.length();
-		long count = 0;
-		// progressListener.setMessage("Importing sequence data");
-
-		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
-				new File(ab1File), progressListener.EMPTY);
-
 		try {
-			sequence = (DefaultNucleotideSequence) docs.get(0).getDocument();
-		} catch (DocumentOperationException e1) {
-			e1.printStackTrace();
-		}
+			String ab1File = file.getCanonicalPath();
+			logger.info("ab1File: " + ab1File);
 
-		nucleotideSequenceDocument = new DefaultNucleotideSequence(
-				file.getName(), "", sequence.getSequenceString(), new Date(
-						file.lastModified()));
+			progressListener.setMessage("Importing sequence data");
 
-		importCallback.addDocument(nucleotideSequenceDocument);
+			List<AnnotatedPluginDocument> docs = PluginUtilities
+					.importDocuments(new File(ab1File), ProgressListener.EMPTY);
 
-		for (int cnt = 0; cnt < docs.size(); cnt++) {
-			logger.info("Selected document: " + sequence.getName());
+			/*
+			 * try { sequence = (DefaultNucleotideSequence) docs.get(0)
+			 * .getDocument(); } catch (DocumentOperationException e1) {
+			 * e1.printStackTrace(); }
+			 * 
+			 * DefaultNucleotideSequence nucleotideSequenceDocument = new
+			 * DefaultNucleotideSequence( file.getName(), "",
+			 * sequence.getSequenceString(), new Date( file.lastModified()));
+			 */
 
-			if (sequence.getName() != null) {
-				setExtractIDFromAB1FileName(sequence.getName());
-				logger.info("Extract-ID: " + limsAB1Flieds.getExtractID());
-				logger.info("PCR plaat-ID: " + limsAB1Flieds.getPcrPlaatID());
-				logger.info("Mark: " + limsAB1Flieds.getMarker());
+			// importCallback.addDocument(nucleotideSequenceDocument);
 
-				/** set note for Extract-ID */
-				/*
-				 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				 * "ExtractIdCode", "Extract ID", "Extract-ID",
-				 * limsAB1Flieds.getExtractID(), cnt);
-				 *//** set note for PCR Plaat-ID */
-				/*
-				 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				 * "PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
-				 * limsAB1Flieds.getPcrPlaatID(), cnt);
-				 *//** set note for Marker */
-				/*
-				 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				 * "MarkerCode", "Marker", "Marker", limsAB1Flieds.getMarker(),
-				 * cnt);
-				 */
+			// DocumentUtilities.addGeneratedDocuments(docs, true);
+			importCallback.addDocument(docs.iterator().next());
 
+			for (int cnt = 0; cnt < docs.size(); cnt++) {
+				logger.info("Selected document: " + file.getName());
+
+				if (file.getName() != null) {
+					setExtractIDFromAB1FileName(file.getName());
+					logger.info("Extract-ID: " + limsAB1Flieds.getExtractID());
+					logger.info("PCR plaat-ID: "
+							+ limsAB1Flieds.getPcrPlaatID());
+					logger.info("Mark: " + limsAB1Flieds.getMarker());
+
+					/** set note for Extract-ID */
+
+					if (annotatedPluginDocuments != null) {
+						/*
+						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
+						 * , "ExtractIdCode", "Extract ID", "Extract-ID",
+						 * limsAB1Flieds.getExtractID(), cnt); -/ // ** set note
+						 * for PCR Plaat-ID
+						 */
+						/*
+						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
+						 * , "PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
+						 * limsAB1Flieds.getPcrPlaatID(), cnt);
+						 *//** set note for Marker */
+						/*
+						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
+						 * , "MarkerCode", "Marker", "Marker",
+						 * limsAB1Flieds.getMarker(), cnt);
+						 */
+					}
+				}
 			}
+		} catch (FileNotFoundException ex) {
+			throw new DocumentImportException("File not found: "
+					+ file.getName(), ex);
 		}
 	}
 
