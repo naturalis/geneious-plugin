@@ -33,8 +33,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	SequenceDocument sequence;
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
 	LimsNotes limsNotes = new LimsNotes();
-	PluginDocument annotatedPluginDocuments;
-	AnnotatedPluginDocument[] annotatedPluginDocument;
+	PluginDocument pluginDocuments;
+	AnnotatedPluginDocument documents;
+	private AnnotatedPluginDocument[] annotatedPluginDocuments;
 
 	static {
 		logger = LoggerFactory.getLogger(LimsImportAB1.class);
@@ -54,33 +55,29 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public void importDocuments(File file, ImportCallback importCallback,
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
-
+		AnnotatedPluginDocument annotatedPluginDocuments = null;
 		try {
 			String ab1File = file.getCanonicalPath();
-			logger.info("ab1File: " + ab1File);
 
 			progressListener.setMessage("Importing sequence data");
 
 			List<AnnotatedPluginDocument> docs = PluginUtilities
 					.importDocuments(new File(ab1File), ProgressListener.EMPTY);
 
-			/*
-			 * try { sequence = (DefaultNucleotideSequence) docs.get(0)
-			 * .getDocument(); } catch (DocumentOperationException e1) {
-			 * e1.printStackTrace(); }
-			 * 
-			 * DefaultNucleotideSequence nucleotideSequenceDocument = new
-			 * DefaultNucleotideSequence( file.getName(), "",
-			 * sequence.getSequenceString(), new Date( file.lastModified()));
-			 */
-
-			// importCallback.addDocument(nucleotideSequenceDocument);
-
 			// DocumentUtilities.addGeneratedDocuments(docs, true);
 			importCallback.addDocument(docs.iterator().next());
 
 			for (int cnt = 0; cnt < docs.size(); cnt++) {
 				logger.info("Selected document: " + file.getName());
+
+				documents = docs.stream().iterator().next();
+
+				/*
+				 * try { EditableSequenceDocument seq =
+				 * (DefaultNucleotideSequence) docs .get(cnt).getDocument(); }
+				 * catch (DocumentOperationException e1) { e1.printStackTrace();
+				 * }
+				 */
 
 				if (file.getName() != null) {
 					setExtractIDFromAB1FileName(file.getName());
@@ -91,13 +88,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 					/** set note for Extract-ID */
 
-					if (annotatedPluginDocuments != null) {
-						/*
-						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
-						 * , "ExtractIdCode", "Extract ID", "Extract-ID",
-						 * limsAB1Flieds.getExtractID(), cnt); -/ // ** set note
-						 * for PCR Plaat-ID
-						 */
+					if (pluginDocuments != null) {
+
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "ExtractIdCode",
+								"Extract ID", "Extract-ID",
+								limsAB1Flieds.getExtractID(), cnt);
+
+						/* set note for PCR Plaat-ID */
 						/*
 						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
 						 * , "PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
