@@ -68,8 +68,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					/* set note for Col.Registratie code */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ColRegistratieCode", "Col.Registratie code",
-							"Col.Registratie code",
+							"ColRegistratieCode", "Col Registratie code",
+							"Col Registratie code",
 							limsBoldFields.getColRegistratiecode(), cnt);
 
 					/* set note for BOLD-ID */
@@ -79,7 +79,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					/* Set note for Marker */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"MarkerBoldCode", "Marker", "Marker",
+							"MarkerCode", "Marker", "Marker",
 							limsBoldFields.getMarker(), cnt);
 
 					/* set note for TraceFile Presence */
@@ -151,13 +151,14 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					String ID = "e" + record[3];
 
-					if (ID.equals(getExtractIDfileName())) {
-						limsBoldFields.setBoldID(record[0]);
-						limsBoldFields.setColRegistratiecode(record[1]);
-						limsBoldFields.setGenBankID(record[2]);
-						limsBoldFields.setMarker(record[4]);
-						limsBoldFields.setNucleotideLength(record[5]);
-						limsBoldFields.setTraceFilePresence(record[0]);
+					// if (ID.equals(getExtractIDfileName()))
+					if (record[1].contains("NLCOA731-12")) {
+						limsBoldFields.setMarker(record[1]);
+						limsBoldFields.setBoldID(record[4]);
+						limsBoldFields.setColRegistratiecode(record[5]);
+						limsBoldFields.setNucleotideLength(record[6]);
+						limsBoldFields.setTraceFilePresence(record[7]);
+						limsBoldFields.setGenBankID(record[15]);
 
 						logger.info("Bold-ID: " + limsBoldFields.getBoldID());
 						logger.info("Col.Registratiecode: "
@@ -220,7 +221,6 @@ public class LimsReadDataFromBold extends DocumentAction {
 	 */
 	private String getExtractIDFromAB1FileName(String fileName) {
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
-		logger.info("Document Filename: " + fileName);
 		String[] underscore = StringUtils.split(fileName, "_");
 		return underscore[0];
 	}
