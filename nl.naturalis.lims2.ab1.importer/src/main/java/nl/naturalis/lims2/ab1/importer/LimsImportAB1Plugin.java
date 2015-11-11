@@ -4,6 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
+import com.biomatters.geneious.publicapi.plugin.DocumentType;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
@@ -47,6 +48,11 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	@Override
 	public String getVersion() {
 		return "1.0";
+	}
+
+	public DocumentType[] getDocumentTypes() {
+		return new DocumentType[] { new DocumentType<LimsImportAB1FieldDocument>(
+				"AB1 File Import", LimsImportAB1FieldDocument.class, null) };
 	}
 
 	public DocumentFileImporter[] getDocumentFileImporters() {
