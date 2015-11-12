@@ -16,16 +16,15 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
  */
 public class LimsAB1Fields {
 
-	public static List<DocumentField> displayFields;
-	public static QueryField[] searchFields;
-	private static List<Condition> conditionsList;
-	Condition[] conditions;
+	public List<DocumentField> displayFields;
+	public QueryField[] searchFields;
+	private List<Condition> conditionsList;
 
 	private static final String KEY_EXTRACT_ID = "ExtractCode";
 	private static final String KEY_PCR_PLAAT_ID = "PcrPlaatCode";
 	private static final String KEY_MARKER = "MarkerCode";
 
-	public static void init() {
+	public void init() {
 		displayFields = new ArrayList<DocumentField>();
 
 		DocumentField extractID = DocumentField.createStringField("ExtractID",
@@ -57,25 +56,22 @@ public class LimsAB1Fields {
 		conditionsList.add(Condition.NOT_CONTAINS);
 		conditionsList.add(Condition.NOT_EQUAL);
 
-		// for (int index = 0; index < conditionsList.size(); index++) {
-		// if (conditionsList.iterator().hasNext()) {
-		Condition[] conditions = { Condition.CONTAINS, Condition.BEGINS_WITH,
-				Condition.EQUAL }; // conditionsList.iterator().next()
-		// };
+		for (int index = 0; index < conditionsList.size(); index++) {
+			Condition[] conditions = { conditionsList.get(index) };
 
-		/* Extract-ID */
-		QueryField qryExtractID = new QueryField(extractID, conditions);
+			/* Extract-ID */
+			QueryField qryExtractID = new QueryField(extractID, conditions);
 
-		/* PCR Plaat-ID */
-		QueryField qryPcrPlaatID = new QueryField(pcrPlaatField, conditions);
+			/* PCR Plaat-ID */
+			QueryField qryPcrPlaatID = new QueryField(pcrPlaatField, conditions);
 
-		/* Marker */
-		QueryField qryMarker = new QueryField(markerField, conditions);
+			/* Marker */
+			QueryField qryMarker = new QueryField(markerField, conditions);
 
-		/* Add all fields to the "search fields" */
-		searchFields[0] = qryExtractID;
-		searchFields[1] = qryPcrPlaatID;
-		searchFields[2] = qryMarker;
-		// }
+			/* Add all fields to the "search fields" */
+			searchFields[0] = qryExtractID;
+			searchFields[1] = qryPcrPlaatID;
+			searchFields[2] = qryMarker;
+		}
 	}
 }
