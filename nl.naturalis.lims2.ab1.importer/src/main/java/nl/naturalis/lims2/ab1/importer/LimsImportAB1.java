@@ -25,11 +25,11 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
@@ -74,7 +74,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public void importDocuments(File file, ImportCallback importCallback,
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
-		AnnotatedPluginDocument annotatedPluginDocuments = null;
 		try {
 			String ab1File = file.getCanonicalPath();
 
@@ -83,7 +82,27 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			List<AnnotatedPluginDocument> docs = PluginUtilities
 					.importDocuments(new File(ab1File), ProgressListener.EMPTY);
 
-			// DocumentUtilities.addGeneratedDocuments(docs, true);
+			DocumentUtilities.addGeneratedDocuments(docs, true);
+
+			if (file.getName() != null) {
+				setExtractIDFromAB1FileName(file.getName());
+
+				setNotes(annotatedPluginDocuments[1], "ExtractIdCode",
+						"Extract ID", "Extract-ID",
+						limsAB1Flieds.getExtractID(), 1);
+			}
+
+			/*
+			 * new LimsImportAB1FieldDocument(file.getName(), new Date(), "",
+			 * docs .iterator().next());
+			 */
+
+			/*
+			 * 
+			 * for (int cnt = 0; cnt < docs.size(); cnt++) {
+			 * logger.info("Selected document: " + file.getName());
+			 * this.annotatedPluginDocuments = docs; }
+			 */
 
 			/*
 			 * ab1Docs = docs;
@@ -91,7 +110,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			 * DocumentUtilities.addGeneratedDocuments(docs, true, ab1Docs);
 			 * System.out.println("Test Docs: " + ab1Docs);
 			 */
-			importCallback.addDocument(docs.iterator().next());
+			// importCallback.addDocument(docs.iterator().next());
 
 			/*
 			 * try { pluginDocuments = documents.getDocument(); } catch
@@ -99,90 +118,100 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			 * block e1.printStackTrace(); }
 			 */
 
-			documents = docs.stream().iterator().next();
-			System.out.println("Documents: " + documents);
+			/*
+			 * documents = docs.stream().iterator().next();
+			 * System.out.println("Documents: " + documents);
+			 */
 
-			try {
-				sequence = (SequenceDocument) documents.getDocument();
-			} catch (DocumentOperationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			/*
+			 * try { sequence = (SequenceDocument) documents.getDocument(); }
+			 * catch (DocumentOperationException e) { // TODO Auto-generated
+			 * catch block e.printStackTrace(); }
+			 */
 
-			System.out.println("Test: " + ab1Docs);
-			for (int cnt = 0; cnt < docs.size(); cnt++) {
-				logger.info("Selected document: " + file.getName());
+			/*
+			 * String name = file.getName(); Date createDate = new
+			 * Date(file.lastModified()); Chromatogram trace; try { trace =
+			 * ChromatogramFactory.create(file); System.out.println("Trace:" +
+			 * trace);
+			 * 
+			 * SymbolList symbols = ChromatogramTools.getDNASequence(trace);
+			 * System.out.println("Symbols:" + symbols);
+			 * 
+			 * SimpleSequence seq = new SimpleSequence(symbols, file.getName(),
+			 * file.getName(), Annotation.EMPTY_ANNOTATION); String output =
+			 * docs.iterator().next().toString(); // seq.seqString();
+			 * System.out.println("Sequence:" + output);
+			 * 
+			 * importCallback.addDocument(new LimsImportAB1FieldDocument(name,
+			 * createDate, output, docs.iterator().next()));
+			 * 
+			 * } catch (UnsupportedChromatogramFormatException e) { // TODO
+			 * Auto-generated catch block e.printStackTrace(); }
+			 */
 
-				// importCallback.addDocument(new
-				// LimsImportAB1FieldDocument(file,
-				// file.getName()));
-
-				try {
-					pluginDocuments = docs.get(cnt).getDocument();
-
-					// annotatedPluginDocuments =
-
-				} catch (DocumentOperationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// DocumentUtilities.getAnnotatedPluginDocumentThatContains(pluginDocuments);
-
-				if (file.getName() != null) {
-					setExtractIDFromAB1FileName(file.getName());
-					logger.info("Extract-ID: " + limsAB1Flieds.getExtractID());
-					logger.info("PCR plaat-ID: "
-							+ limsAB1Flieds.getPcrPlaatID());
-					logger.info("Mark: " + limsAB1Flieds.getMarker());
-
-					/*
-					 * setNotes(annotatedPluginDocuments, "ExtractIdCode",
-					 * "Extract ID", "Extract-ID", limsAB1Flieds.getExtractID(),
-					 * cnt);
-					 */
-
-					/*
-					 * List<AnnotationGeneratorResult> resultsList = new
-					 * ArrayList
-					 * <SequenceAnnotationGenerator.AnnotationGeneratorResult
-					 * >();
-					 * 
-					 * AnnotationGeneratorResult result = new
-					 * AnnotationGeneratorResult(); DocumentField barcodeField =
-					 * makeExtractcodeField(); result.addDocumentFieldToSet(new
-					 * DocumentFieldAndValue( barcodeField,
-					 * limsAB1Flieds.getExtractID()));
-					 * System.out.println(barcodeField);
-					 * 
-					 * resultsList.add(result);
-					 * System.out.println(resultsList.toString());
-					 */
-
-					/** set note for Extract-ID */
-
-					if (pluginDocuments != null) {
-
-						/*
-						 * limsNotes.setNoteToAB1FileName(
-						 * annotatedPluginDocuments, "ExtractIdCode",
-						 * "Extract ID", "Extract-ID",
-						 * limsAB1Flieds.getExtractID(), cnt);
-						 */
-
-						/* set note for PCR Plaat-ID */
-						/*
-						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
-						 * , "PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
-						 * limsAB1Flieds.getPcrPlaatID(), cnt);
-						 *//** set note for Marker */
-						/*
-						 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments
-						 * , "MarkerCode", "Marker", "Marker",
-						 * limsAB1Flieds.getMarker(), cnt);
-						 */
-					}
-				}
-			}
+			/*
+			 * System.out.println("Test: " + ab1Docs); for (int cnt = 0; cnt <
+			 * docs.size(); cnt++) { logger.info("Selected document: " +
+			 * file.getName());
+			 * 
+			 * try { pluginDocuments = docs.get(cnt).getDocument();
+			 * 
+			 * // annotatedPluginDocuments =
+			 * 
+			 * } catch (DocumentOperationException e) { // TODO Auto-generated
+			 * catch block e.printStackTrace(); } //
+			 * DocumentUtilities.getAnnotatedPluginDocumentThatContains
+			 * (pluginDocuments);
+			 * 
+			 * if (file.getName() != null) {
+			 * setExtractIDFromAB1FileName(file.getName());
+			 * logger.info("Extract-ID: " + limsAB1Flieds.getExtractID());
+			 * logger.info("PCR plaat-ID: " + limsAB1Flieds.getPcrPlaatID());
+			 * logger.info("Mark: " + limsAB1Flieds.getMarker());
+			 * 
+			 * 
+			 * setNotes(annotatedPluginDocuments, "ExtractIdCode", "Extract ID",
+			 * "Extract-ID", limsAB1Flieds.getExtractID(), cnt);
+			 * 
+			 * 
+			 * 
+			 * List<AnnotationGeneratorResult> resultsList = new ArrayList
+			 * <SequenceAnnotationGenerator.AnnotationGeneratorResult >();
+			 * 
+			 * AnnotationGeneratorResult result = new
+			 * AnnotationGeneratorResult(); DocumentField barcodeField =
+			 * makeExtractcodeField(); result.addDocumentFieldToSet(new
+			 * DocumentFieldAndValue( barcodeField,
+			 * limsAB1Flieds.getExtractID())); System.out.println(barcodeField);
+			 * 
+			 * resultsList.add(result);
+			 * System.out.println(resultsList.toString());
+			 *//** set note for Extract-ID */
+			/*
+			 * 
+			 * if (pluginDocuments != null) {
+			 * 
+			 * 
+			 * limsNotes.setNoteToAB1FileName( annotatedPluginDocuments,
+			 * "ExtractIdCode", "Extract ID", "Extract-ID",
+			 * limsAB1Flieds.getExtractID(), cnt);
+			 * 
+			 * 
+			 * set note for PCR Plaat-ID
+			 * 
+			 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments ,
+			 * "PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
+			 * limsAB1Flieds.getPcrPlaatID(), cnt);
+			 *//** set note for Marker */
+			/*
+			 * 
+			 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments ,
+			 * "MarkerCode", "Marker", "Marker", limsAB1Flieds.getMarker(),
+			 * cnt);
+			 * 
+			 * } } }
+			 */
 		} catch (FileNotFoundException ex) {
 			throw new DocumentImportException("File not found: "
 					+ file.getName(), ex);

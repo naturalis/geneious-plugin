@@ -3,33 +3,30 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import jebl.util.ProgressListener;
 import nl.naturalis.lims2.updater.LimsAB1Fields;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdom.CDATA;
 import org.jdom.Element;
 
+import com.biomatters.geneious.publicapi.documents.AdditionalSearchContent;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.URN;
 import com.biomatters.geneious.publicapi.documents.XMLSerializationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
-import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
  * @author Reinier.Kartowikromo
  *
  */
-public class LimsImportAB1FieldDocument implements PluginDocument {
+public class LimsImportAB1FieldDocument implements PluginDocument,
+		AdditionalSearchContent {
 
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
 	private static final String KEY_EXTRACT_ID = "ExtractCode";
@@ -43,17 +40,25 @@ public class LimsImportAB1FieldDocument implements PluginDocument {
 	final DocumentField markerField = DocumentField.createStringField("Marker",
 			"Marker in the document", KEY_MARKER);
 
-	private String fileName;
-	private AnnotatedPluginDocument documents;
-	private String extractid;
+	private String name;
+	private Date creationDate; // creation date of file
+	private String text;
+	private AnnotatedPluginDocument sequence;
 
-	public LimsImportAB1FieldDocument(File file, String fileName)
-			throws IOException, DocumentImportException {
-		this.fileName = fileName;
-		setExtractIDFromAB1FileName(fileName);
+	public LimsImportAB1FieldDocument(String name
+	/*
+	 * , Date creationDate, String text, AnnotatedPluginDocument sequence
+	 */) throws IOException, DocumentImportException {
+		// this.name = name;
+		// this.creationDate = creationDate;
+		// this.text = text;
+		setExtractIDFromAB1FileName(name);
+		// this.sequence = sequence;
 
-		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
-				new File(file.getAbsolutePath()), ProgressListener.EMPTY);
+		/*
+		 * List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
+		 * new File(file.getAbsolutePath()), ProgressListener.EMPTY);
+		 */
 
 		/*
 		 * * List<AnnotationGeneratorResult> resultsList = new
@@ -67,31 +72,48 @@ public class LimsImportAB1FieldDocument implements PluginDocument {
 		 * resultsList.add(result); System.out.println(resultsList.toString());
 		 */
 
-		this.documents = docs.iterator().next();
-		DocumentUtilities.addGeneratedDocuments(docs, true);
+		/*
+		 * this.documents = text; docs.add(documents);
+		 * DocumentUtilities.addGeneratedDocuments(docs, true);
+		 */
 	}
 
 	public LimsImportAB1FieldDocument() {
 	}
 
 	String getText() {
-		System.out.println(documents);
-		return documents.toString();
+		return text;
 	}
 
 	@Override
 	public void fromXML(Element element) throws XMLSerializationException {
-		fileName = element.getChildText("fileName");
-		// documents = element.getChild("documents").getText();
+
+		name = element.getChildText("name");
+		/*
+		 * final String dateText = element.getChildText("date"); try {
+		 * creationDate = new Date(Long.parseLong(dateText)); } catch
+		 * (NumberFormatException e) { // should not happen } text =
+		 * element.getChild("text").getText(); CharSequence cs; String seqText =
+		 * element.getChildText("sequence");
+		 */
+		/*
+		 * cs = seqText.subSequence(0, seqText.length()); sequence =
+		 * (AnnotatedPluginDocument) cs .subSequence(0, seqText.length());
+		 */
 	}
 
 	@Override
 	public Element toXML() {
+
 		Element root = new Element("TextDocument");
-		root.addContent(new Element("fileName").setText(fileName));
-		root.addContent(new Element("documents").setContent(new CDATA(documents
-				.toString())));
-		// root.addContent(new Element("extractid").setText(extractid));
+		root.addContent(new Element("name").setText(name));
+		/*
+		 * root.addContent(new Element("date").setText("" +
+		 * creationDate.getTime())); root.addContent(new
+		 * Element("text").setContent(new CDATA(text .toString())));
+		 * root.addContent(new Element("sequence").setContent(new CDATA(
+		 * (String) sequence.toString())));
+		 */
 		return root;
 	}
 
@@ -132,7 +154,7 @@ public class LimsImportAB1FieldDocument implements PluginDocument {
 
 	@Override
 	public String getName() {
-		return fileName;
+		return name;
 	}
 
 	@Override
@@ -143,7 +165,7 @@ public class LimsImportAB1FieldDocument implements PluginDocument {
 	@Override
 	public String toHTML() {
 		/*
-		 * return "<pre>" + documents.replace("<", "&lt;").replace(">", "&gt;")
+		 * return "<pre>" + text.replace("<", "&lt;").replace(">", "&gt;")
 		 * .replace("&", "&amp;") + "</pre>";
 		 */
 		return null;
@@ -157,10 +179,11 @@ public class LimsImportAB1FieldDocument implements PluginDocument {
 		limsAB1Flieds.setMarker(underscore[4]);
 	}
 
-	/*
-	 * @Override public Result[] getSearchContent() { return new Result[] { new
-	 * Result(null, documents.toString()), new Result(extractIDField,
-	 * limsAB1Flieds.getExtractID()) }; }
-	 */
+	@Override
+	public Result[] getSearchContent() {
+		return new Result[] { new Result(null, text.toString()),
+				new Result(null, sequence.toString()),
+				new Result(extractIDField, limsAB1Flieds.getExtractID()) };
+	}
 
 }
