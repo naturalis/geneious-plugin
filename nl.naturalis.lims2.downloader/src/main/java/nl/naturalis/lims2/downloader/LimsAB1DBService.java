@@ -51,10 +51,12 @@ public class LimsAB1DBService extends DatabaseService {
 		SequenceDocument seq = new DefaultAminoAcidSequence("Reinier Seq",
 				fields.toString(), "CCYTTAAGAATGGGT", new Date(), null);
 
-		LimsAB1DownLoader documents = new LimsAB1DownLoader("Reinier",
-				"CCYTTAAGAATGGGT", new Date(), fields);
-
 		retrieveCallback.add(seq, null);
+
+		LimsAB1DownLoader documents = new LimsAB1DownLoader(new Date(),
+				"Reinier", "CCYTTAAGAATGGGT", null, fields);
+		retrieveCallback.add(documents, null);
+
 	}
 
 	@Override
@@ -67,9 +69,19 @@ public class LimsAB1DBService extends DatabaseService {
 		return "Help is in construction";
 	}
 
+	protected ImageIcon createImageIcon(String path, String description) {
+		java.net.URL imgURL = getClass().getResource(path);
+		if (imgURL != null) {
+			return new ImageIcon(imgURL, description);
+		} else {
+			System.err.println("Couldn't find file: " + path);
+			return null;
+		}
+	}
+
 	@Override
 	public Icons getIcons() {
-		ImageIcon icon = new ImageIcon("../../../../images/dbicon.jpg");
+		ImageIcon icon = createImageIcon("dbicon.jpg", "Downloader Tool");
 		return new Icons(icon);
 	}
 

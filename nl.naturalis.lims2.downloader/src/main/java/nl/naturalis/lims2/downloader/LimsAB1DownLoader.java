@@ -24,17 +24,19 @@ public class LimsAB1DownLoader implements PluginDocument {
 	private Date creationDate;
 	private String name;
 	private String residues;
+	private URN urn;
 	private ArrayList<String> fields;
+	private LimsAB1Data data;
 
 	public LimsAB1DownLoader() {
 	}
 
-	public LimsAB1DownLoader(String name, String residues, Date creationDate,
-			ArrayList<String> fields) {
-
+	public LimsAB1DownLoader(Date creationDate, String name, String residues,
+			URN urn, ArrayList<String> fields) {
+		this.creationDate = creationDate;
 		this.name = name;
 		this.residues = residues;
-		this.creationDate = creationDate;
+		this.urn = urn;
 		this.fields = fields;
 	}
 
