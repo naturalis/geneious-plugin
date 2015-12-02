@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="nl.naturalis.lims2.importer" default="distribute" basedir=".">
+<project name="nl.naturalis.lims2.excel.importer" default="distribute" basedir=".">
 
     <property file="plugin.properties"/>
     <property name="build" location="build"/>
@@ -65,12 +65,12 @@
         To use it, enter the appropriate values for the first 3 properties and then run it.
         The 3rd property value must be identical to the second except with "." replaced with "/" -->
         <property name="newPluginName" value="LimsImportUpdater"/>
-        <property name="newPluginPackageName" value="nl.naturalis.lims2.importer.nl.naturalis.lims2.importer"/>
-        <property name="newPluginPackagePath" value="nl/naturalis/lims2.importer/nl.naturalis.lims2.importer"/>
+        <property name="newPluginPackageName" value="nl.naturalis.lims2.excel.importer.nl.naturalis.lims2.excel.importer"/>
+        <property name="newPluginPackagePath" value="nl/naturalis/lims2.excel.importer/nl.naturalis.lims2.excel.importer"/>
 
         <property name="oldPluginName" value="LimsImportUpdater"/>
-        <property name="oldPluginPackageName" value="nl.naturalis.lims2.importer.nl.naturalis.lims2.importer"/>
-        <property name="oldPluginPackagePath" value="nl/naturalis/lims2.importer/nl.naturalis.lims2.importer"/>
+        <property name="oldPluginPackageName" value="nl.naturalis.lims2.excel.importer.nl.naturalis.lims2.excel.importer"/>
+        <property name="oldPluginPackagePath" value="nl/naturalis/lims2.excel.importer/nl.naturalis.lims2.excel.importer"/>
         <!--It doesn't appear we can automatically replace "." with "/" in a property in basic ant without relying on the ant-contrib package being installed-->
 
         <property name="destDir" value="../${newPluginName}"/>

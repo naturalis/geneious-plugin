@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nl.naturalis.lims2.importer;
+package nl.naturalis.lims2.excel.importer;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
@@ -48,7 +48,6 @@ public class LimsReadDataFromExcelPlugin extends GeneiousPlugin {
 	}
 
 	public DocumentAction[] getDocumentActions() {
-        return new DocumentAction[]{
-        		new LimsReadDataFromExcel()};
-    }
+		return new DocumentAction[] { new LimsReadDataFromExcel() };
+	}
 }

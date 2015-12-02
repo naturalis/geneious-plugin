@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import nl.naturalis.lims2.importer.LimsNotes;
+import nl.naturalis.lims2.excel.importer.LimsNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 
 import org.apache.commons.lang3.StringUtils;

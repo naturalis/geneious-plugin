@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nl.naturalis.lims2.importer;
+package nl.naturalis.lims2.excel.importer;
 
 /**
  * @author Reinier.Kartowikromo
