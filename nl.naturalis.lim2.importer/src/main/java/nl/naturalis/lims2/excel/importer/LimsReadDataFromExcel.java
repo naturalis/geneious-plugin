@@ -116,7 +116,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read data from Excel")
+		return new GeneiousActionOptions("Update from Excel")
 				.setInMainToolbar(true);
 	}
 

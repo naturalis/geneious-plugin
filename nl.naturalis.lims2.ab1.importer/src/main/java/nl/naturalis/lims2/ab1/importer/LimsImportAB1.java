@@ -71,7 +71,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		if (file.getName() != null) {
 			setExtractIDFromAB1FileName(file.getName());
 
-			logger.info("------------------------------");
+			logger.info("-----------------------------------------------------------------");
 			logger.info("Import file: " + file.getName());
 
 			/* set note for Extract-ID */
@@ -159,6 +159,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
-				+ " saved succesful");
+				+ " added succesful");
 	}
 }

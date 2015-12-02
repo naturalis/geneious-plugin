@@ -92,4 +92,52 @@ public class LimsNotes {
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
 	}
+
+	public void setImportNotes(AnnotatedPluginDocument document,
+			String fieldCode, String textNoteField, String noteTypeCode,
+			String fieldValue) {
+
+		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+
+		/* "ExtractPlaatNummerCode" */
+		this.fieldCode = fieldCode;
+		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
+		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+
+		/*
+		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
+		 * fieldcode
+		 */
+		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
+				this.description, this.fieldCode,
+				Collections.<Constraint> emptyList(), true));
+
+		/* Check if note type exists */
+		/* Parameter noteTypeCode get value "Extract Plaatnummer" */
+		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
+		DocumentNoteType documentNoteType = DocumentNoteUtilities
+				.getNoteType(this.noteTypeCode);
+		/* Extract-ID note */
+		if (documentNoteType == null) {
+			documentNoteType = DocumentNoteUtilities.createNewNoteType(
+					noteTypeCode, this.noteTypeCode, this.description,
+					listNotes, false);
+			DocumentNoteUtilities.setNoteType(documentNoteType);
+			logger.info("NoteType " + noteTypeCode + " created succesful");
+		}
+
+		/* Create note for Extract-ID */
+		DocumentNote documentNote = documentNoteType.createDocumentNote();
+		documentNote.setFieldValue(this.fieldCode, fieldValue);
+
+		AnnotatedPluginDocument.DocumentNotes documentNotes = document
+				.getDocumentNotes(true);
+
+		/* Set note */
+		documentNotes.setNote(documentNote);
+		/* Save the selected sequence document */
+		documentNotes.saveNotes();
+		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+				+ " added succesful");
+	}
 }
