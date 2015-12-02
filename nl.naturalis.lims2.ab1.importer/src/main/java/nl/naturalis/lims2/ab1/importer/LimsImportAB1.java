@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.lims2.importer.LimsNotes;
 import nl.naturalis.lims2.updater.LimsAB1Fields;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,15 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
-import com.biomatters.geneious.publicapi.documents.DocumentField;
+import com.biomatters.geneious.publicapi.documents.Constraint;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
-import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
@@ -38,13 +34,9 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 public class LimsImportAB1 extends DocumentFileImporter {
 
 	static final Logger logger;
-	SequenceDocument sequence;
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
-	LimsNotes limsNotes = new LimsNotes();
 	PluginDocument pluginDocuments;
-	AnnotatedPluginDocument documents;
-	private AnnotatedPluginDocument[] annotatedPluginDocuments;
-	List<AnnotatedPluginDocument> ab1Docs;
+	private AnnotatedPluginDocument document;
 
 	private String fieldCode;
 	private String description;
@@ -64,69 +56,46 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		return new String[] { "ab1", "abi" };
 	}
 
-	private DocumentField makeExtractcodeField() {
-		return DocumentField.createStringField("Extract-ID",
-				"Extract-id in the document", "Extract.code");
-	}
-
 	@Override
 	public void importDocuments(File file, ImportCallback importCallback,
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
-		// try {
-
-		String ab1File = file.getCanonicalPath();
 
 		progressListener.setMessage("Importing sequence data");
-
 		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
-				new File(ab1File), ProgressListener.EMPTY);
+				file, ProgressListener.EMPTY);
 
-		/*
-		 * ImportUtilities.importDocuments(file, importCallback,
-		 * ImportUtilities.ActionWhenInvalid.ImportWithInvalidBases,
-		 * ImportUtilities.ImportDocumentType.AskUser, progressListener);
-		 */
+		logger.info("Document size: " + docs.size());
 
-		// ab1Docs = docs;
+		document = importCallback.addDocument(docs.iterator().next());
+		if (file.getName() != null) {
+			setExtractIDFromAB1FileName(file.getName());
 
-		// DocumentUtilities.addAndReturnGeneratedDocuments(docs, true,
-		// ab1Docs);
+			logger.info("------------------------------");
+			logger.info("Import file: " + file.getName());
 
-		try {
-			DocumentUtilities.addGeneratedDocuments(docs, false);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			/* set note for Extract-ID */
+			try {
+				setNotes(document, "ExtractIdCode", "Extract ID", "Extract-ID",
+						limsAB1Flieds.getExtractID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 
-		}
+			/* set note for PCR Plaat-ID */
+			try {
+				setNotes(document, "PcrPlaatIdCode", "PCR plaat ID",
+						"PCR plaat ID", limsAB1Flieds.getPcrPlaatID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 
-		// importCallback.addDocument(docs.iterator().next());
-
-		documents = docs.iterator().next();
-
-		// docs = DocumentUtilities.getSelectedDocuments();
-
-		// documents = docs.iterator().next();
-
-		for (int count = 0; count < docs.size(); count++) {
-			if (file.getName() != null) {
-				setExtractIDFromAB1FileName(file.getName());
-
-				/* set note for Extract-ID */
-				setNotes(documents, "ExtractIdCode", "Extract ID",
-						"Extract-ID", limsAB1Flieds.getExtractID(), count);
-				logger.info("Extract-ID: " + limsAB1Flieds.getExtractID());
-
-				/* set note for PCR Plaat-ID */
-				setNotes(documents, "PcrPlaatIdCode", "PCR plaat ID",
-						"PCR plaat ID", limsAB1Flieds.getPcrPlaatID(), count);
-				logger.info("PCR plaat-ID: " + limsAB1Flieds.getPcrPlaatID());
-
-				/* set note for Marker */
-				setNotes(documents, "MarkerCode", "Marker", "Marker",
-						limsAB1Flieds.getMarker(), count);
-				logger.info("Mark: " + limsAB1Flieds.getMarker());
-
+			/* set note for Marker */
+			try {
+				setNotes(document, "MarkerCode", "Marker", "Marker",
+						limsAB1Flieds.getMarker());
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		}
 
@@ -173,9 +142,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		limsAB1Flieds.setMarker(underscore[4]);
 	}
 
-	public void setNotes(final AnnotatedPluginDocument documents,
-			String fieldCode, String textNoteField, String noteTypeCode,
-			String fieldValue, int count) {
+	public void setNotes(AnnotatedPluginDocument document, String fieldCode,
+			String textNoteField, String noteTypeCode, String fieldValue) {
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
@@ -189,8 +157,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		 * fieldcode
 		 */
 		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-				this.description, this.fieldCode, Collections.emptyList(),
-				false));
+				this.description, this.fieldCode,
+				Collections.<Constraint> emptyList(), true));
 
 		/* Check if note type exists */
 		/* Parameter noteTypeCode get value "Extract Plaatnummer" */
@@ -210,13 +178,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
 		documentNote.setFieldValue(this.fieldCode, fieldValue);
 
-		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) documents
+		AnnotatedPluginDocument.DocumentNotes documentNotes = document
 				.getDocumentNotes(true);
 
 		/* Set note */
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-		logger.info("Note value " + noteTypeCode + " saved succesful");
+		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+				+ " saved succesful");
 	}
 }

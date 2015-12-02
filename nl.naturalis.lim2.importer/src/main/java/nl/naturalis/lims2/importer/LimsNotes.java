@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
+import com.biomatters.geneious.publicapi.documents.Constraint;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
@@ -50,25 +51,25 @@ public class LimsNotes {
 			String fieldValue, int count) {
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
-		/* "ExtractPlaatNummerCode" */
+		/** "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
 		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
 
-		/*
+		/**
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 		 * fieldcode
 		 */
 		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-				this.description, this.fieldCode, Collections.emptyList(),
-				false));
+				this.description, this.fieldCode,
+				Collections.<Constraint> emptyList(), false));
 
-		/* Check if note type exists */
-		/* Parameter noteTypeCode get value "Extract Plaatnummer" */
+		/** Check if note type exists */
+		/** Parameter noteTypeCode get value "Extract Plaatnummer" */
 		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCode);
-		/* Extract-ID note */
+		/** Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
 					noteTypeCode, this.noteTypeCode, this.description,
@@ -88,7 +89,7 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-		logger.info("Note value " + noteTypeCode + " saved succesful");
+		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+				+ " saved succesful");
 	}
-
 }

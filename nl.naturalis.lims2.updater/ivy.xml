@@ -25,6 +25,7 @@
         status="integration">
 	</info>
 	<dependencies>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.13"/>
 		<dependency org="ch.qos.logback" name="logback-classic" rev="1.1.3"/>
 		<dependency org="com.opencsv" name="opencsv" rev="3.4"/>
 		<dependency org="org.biojava" name="biojava" rev="4.1.0"/>
