@@ -39,6 +39,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private String fieldCode;
 	private String description;
 	private String noteTypeCode;
+	private int count = 0;
 
 	static {
 		logger = LoggerFactory.getLogger(LimsImportAB1.class);
@@ -63,9 +64,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
 				file, ProgressListener.EMPTY);
 
-		logger.info("Document size: " + docs.size());
+		count += docs.size();
 
 		document = importCallback.addDocument(docs.iterator().next());
+
 		if (file.getName() != null) {
 			setExtractIDFromAB1FileName(file.getName());
 
@@ -96,6 +98,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ex.printStackTrace();
 			}
 		}
+		logger.info("Total of document(s) imported: " + count);
 	}
 
 	@Override

@@ -49,12 +49,6 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return "1.0";
 	}
 
-	/*
-	 * public DocumentType[] getDocumentTypes() { return new DocumentType[] {
-	 * new DocumentType<LimsImportAB1FieldDocument>( "AB1 File Import",
-	 * LimsImportAB1FieldDocument.class, null) }; }
-	 */
-
 	public DocumentFileImporter[] getDocumentFileImporters() {
 		return new DocumentFileImporter[] { new LimsImportAB1() };
 	}
