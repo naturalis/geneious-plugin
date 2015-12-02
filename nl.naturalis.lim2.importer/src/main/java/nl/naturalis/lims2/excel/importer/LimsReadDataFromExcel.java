@@ -5,7 +5,6 @@ package nl.naturalis.lims2.excel.importer;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -30,35 +29,34 @@ import com.opencsv.CSVReader;
  */
 public class LimsReadDataFromExcel extends DocumentAction {
 
+	private List<AnnotatedPluginDocument> docs;
 	static final Logger logger;
 
 	static {
 		logger = LoggerFactory.getLogger(LimsReadDataFromExcel.class);
 	}
-	PluginDocument annotatedPluginDocument;
+
 	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	LimsExcelFields limsExcelFields = new LimsExcelFields();
 	LimsNotes limsNotes = new LimsNotes();
-	String extractIDfileName = null;
-
-	List<String> listExtractID = new ArrayList<String>();
-	SequenceDocument seq;
+	private String extractIDfileName = "";
+	private SequenceDocument seq;
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		logger.info("-----------------------------------------------------------------");
-		logger.info("Start");
+		logger.info("Start updating selected document(s).");
 
 		if (annotatedPluginDocuments[0] != null) {
-			List<AnnotatedPluginDocument> docs;
 			try {
+				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
+					logger.info("-----------------------------------");
+
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
-					logger.info("Selected document: " + seq.getName());
 					extractIDfileName = getExtractIDFromAB1FileName(seq
 							.getName());
 					readDataFromExcel(annotatedPluginDocuments);
@@ -102,14 +100,17 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							"PlaatpositieCode", "Plaat positie",
 							"Plaat positie", limsExcelFields.getPlaatPositie(),
 							cnt);
-
+					logger.info("Done with adding notes to the document");
 				}
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
+			logger.info("-------------------------------------------------------------");
+			logger.info("Total of document(s) updated: " + docs.size());
 		}
+
 		logger.info("-----------------------------------------------------------------");
-		logger.info("Done with reading excel file. ");
+		logger.info("Done with updating the selected document(s). ");
 
 	}
 
@@ -149,6 +150,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 			String[] record = null;
 			csvReader.readNext();
 
+			logger.info("Start with adding notes to the document");
 			try {
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
@@ -180,8 +182,6 @@ public class LimsReadDataFromExcel extends DocumentAction {
 								+ limsExcelFields.getRegistrationNumber());
 						logger.info("Plaat positie: "
 								+ limsExcelFields.getPlaatPositie());
-
-						logger.info("Done with adding notes to the document");
 
 					} // end IF
 				} // end While

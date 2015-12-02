@@ -90,6 +90,6 @@ public class LimsNotes {
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
-				+ " saved succesful");
+				+ " added succesful");
 	}
 }
