@@ -10,7 +10,7 @@
 	</appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>@nl.naturalis.lim2.ab1.importer@/lims2-import.${date}.log</file>
+		<file>C:/Geneious 8.1 Data/log/nl.naturalis.lim2.ab1.importer/lims2-import.${date}.log</file>
 		<append>true</append>
 		<encoder>
 			<pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>

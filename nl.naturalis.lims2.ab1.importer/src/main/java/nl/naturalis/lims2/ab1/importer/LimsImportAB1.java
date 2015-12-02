@@ -5,11 +5,10 @@ package nl.naturalis.lims2.ab1.importer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.lims2.excel.importer.LimsNotes;
 import nl.naturalis.lims2.updater.LimsAB1Fields;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.Constraint;
-import com.biomatters.geneious.publicapi.documents.DocumentNote;
-import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
-import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
-import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
@@ -34,11 +28,13 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	static final Logger logger;
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
+	LimsNotes limsNotes = new LimsNotes();
 
 	private AnnotatedPluginDocument document;
-	private String fieldCode;
-	private String description;
-	private String noteTypeCode;
+	/*
+	 * private String fieldCode; private String description; private String
+	 * noteTypeCode;
+	 */
 	private int count = 0;
 
 	static {
@@ -72,11 +68,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			setExtractIDFromAB1FileName(file.getName());
 
 			logger.info("-----------------------------------------------------------------");
-			logger.info("Import file: " + file.getName());
+			logger.info("Start extracting value from file: " + file.getName());
 
 			/* set note for Extract-ID */
 			try {
-				setNotes(document, "ExtractIdCode", "Extract ID", "Extract-ID",
+				limsNotes.setImportNotes(document, "ExtractIdCode",
+						"Extract ID", "Extract-ID",
 						limsAB1Flieds.getExtractID());
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -84,21 +81,23 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			/* set note for PCR Plaat-ID */
 			try {
-				setNotes(document, "PcrPlaatIdCode", "PCR plaat ID",
-						"PCR plaat ID", limsAB1Flieds.getPcrPlaatID());
+				limsNotes.setImportNotes(document, "PcrPlaatIdCode",
+						"PCR plaat ID", "PCR plaat ID",
+						limsAB1Flieds.getPcrPlaatID());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
 			/* set note for Marker */
 			try {
-				setNotes(document, "MarkerCode", "Marker", "Marker",
-						limsAB1Flieds.getMarker());
+				limsNotes.setImportNotes(document, "MarkerCode", "Marker",
+						"Marker", limsAB1Flieds.getMarker());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
 		logger.info("Total of document(s) imported: " + count);
+		logger.info("DONE");
 	}
 
 	@Override
@@ -115,50 +114,42 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		limsAB1Flieds.setMarker(underscore[4]);
 	}
 
-	public void setNotes(AnnotatedPluginDocument document, String fieldCode,
-			String textNoteField, String noteTypeCode, String fieldValue) {
-
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-
-		/* "ExtractPlaatNummerCode" */
-		this.fieldCode = fieldCode;
-		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
-
-		/*
-		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
-		 * fieldcode
-		 */
-		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-				this.description, this.fieldCode,
-				Collections.<Constraint> emptyList(), true));
-
-		/* Check if note type exists */
-		/* Parameter noteTypeCode get value "Extract Plaatnummer" */
-		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
-		DocumentNoteType documentNoteType = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCode);
-		/* Extract-ID note */
-		if (documentNoteType == null) {
-			documentNoteType = DocumentNoteUtilities.createNewNoteType(
-					noteTypeCode, this.noteTypeCode, this.description,
-					listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteType);
-			logger.info("NoteType " + noteTypeCode + " created succesful");
-		}
-
-		/* Create note for Extract-ID */
-		DocumentNote documentNote = documentNoteType.createDocumentNote();
-		documentNote.setFieldValue(this.fieldCode, fieldValue);
-
-		AnnotatedPluginDocument.DocumentNotes documentNotes = document
-				.getDocumentNotes(true);
-
-		/* Set note */
-		documentNotes.setNote(documentNote);
-		/* Save the selected sequence document */
-		documentNotes.saveNotes();
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
-				+ " added succesful");
-	}
+	/*
+	 * public void setNotes(AnnotatedPluginDocument document, String fieldCode,
+	 * String textNoteField, String noteTypeCode, String fieldValue) {
+	 * 
+	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+	 * 
+	 * "ExtractPlaatNummerCode" this.fieldCode = fieldCode; Parameter example
+	 * noteTypeCode = "Extract-Plaatnummer" this.description =
+	 * "Naturalis AB1 file " + noteTypeCode + " note";
+	 * 
+	 * 
+	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
+	 * fieldcode
+	 * 
+	 * listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
+	 * this.description, this.fieldCode, Collections.<Constraint> emptyList(),
+	 * true));
+	 * 
+	 * Check if note type exists Parameter noteTypeCode get value
+	 * "Extract Plaatnummer" this.noteTypeCode = "DocumentNoteUtilities-" +
+	 * noteTypeCode; DocumentNoteType documentNoteType = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCode); Extract-ID note if (documentNoteType ==
+	 * null) { documentNoteType = DocumentNoteUtilities.createNewNoteType(
+	 * noteTypeCode, this.noteTypeCode, this.description, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteType);
+	 * logger.info("NoteType " + noteTypeCode + " created succesful"); }
+	 * 
+	 * Create note for Extract-ID DocumentNote documentNote =
+	 * documentNoteType.createDocumentNote();
+	 * documentNote.setFieldValue(this.fieldCode, fieldValue);
+	 * 
+	 * AnnotatedPluginDocument.DocumentNotes documentNotes = document
+	 * .getDocumentNotes(true);
+	 * 
+	 * Set note documentNotes.setNote(documentNote); Save the selected sequence
+	 * document documentNotes.saveNotes(); logger.info("Note value " +
+	 * noteTypeCode + ": " + fieldValue + " added succesful"); }
+	 */
 }
