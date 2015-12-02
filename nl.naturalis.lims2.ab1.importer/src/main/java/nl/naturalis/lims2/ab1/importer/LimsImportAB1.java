@@ -22,7 +22,6 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
-import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
@@ -35,9 +34,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	static final Logger logger;
 	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
-	PluginDocument pluginDocuments;
-	private AnnotatedPluginDocument document;
 
+	private AnnotatedPluginDocument document;
 	private String fieldCode;
 	private String description;
 	private String noteTypeCode;
@@ -98,34 +96,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ex.printStackTrace();
 			}
 		}
-
-		/*
-		 * For Dummy Files String name = file.getName(); Date createDate = new
-		 * Date(file.lastModified()); Chromatogram trace; try { trace =
-		 * ChromatogramFactory.create(file); System.out.println("Trace:" +
-		 * trace);
-		 * 
-		 * SymbolList symbols = ChromatogramTools.getDNASequence(trace);
-		 * System.out.println("Symbols:" + symbols);
-		 * 
-		 * SimpleSequence seq = new SimpleSequence(symbols, file.getName(),
-		 * file.getName(), Annotation.EMPTY_ANNOTATION); String output =
-		 * docs.iterator().next().toString(); // seq.seqString();
-		 * System.out.println("Sequence:" + output);
-		 * 
-		 * importCallback.addDocument(new LimsImportAB1FieldDocument(name,
-		 * createDate, output, docs.iterator().next()));
-		 * 
-		 * } catch (UnsupportedChromatogramFormatException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 */
-
-		/*
-		 * } catch (FileNotFoundException ex) { throw new
-		 * DocumentImportException("File not found: " + file.getName(), ex);
-		 * 
-		 * }
-		 */
 	}
 
 	@Override
