@@ -14,7 +14,7 @@
             <include name="jebl.jar"/>
         	<include name="commons-lang3-3.4.jar"/>
         	<include name="opencsv-3.5.jar"/>
-        	<include name="slf4j-api-1.7.12.jar"/>
+        	<include name="slf4j-api-1.7.13.jar"/>
         </fileset>
        <fileset dir="${utilities.dir}">
             <include name=".java"/>

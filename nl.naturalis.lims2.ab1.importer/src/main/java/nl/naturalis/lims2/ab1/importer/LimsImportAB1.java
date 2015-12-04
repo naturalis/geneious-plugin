@@ -26,14 +26,8 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 public class LimsImportAB1 extends DocumentFileImporter {
 
 	static final Logger logger;
-	private LimsAB1Fields limsAB1Fields = null;
-	private LimsNotes limsNotes = null;
-
-	public LimsImportAB1(LimsAB1Fields limsAB1Fields, LimsNotes limsNotes) {
-		this.limsAB1Fields = limsAB1Fields;
-		this.limsNotes = limsNotes;
-	}
-
+	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
+	private LimsNotes limsNotes = new LimsNotes();
 	private AnnotatedPluginDocument document;
 	/*
 	 * private String fieldCode; private String description; private String

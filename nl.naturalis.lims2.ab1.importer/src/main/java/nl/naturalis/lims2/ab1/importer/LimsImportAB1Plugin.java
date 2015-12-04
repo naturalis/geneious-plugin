@@ -47,12 +47,12 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public int getMaximumApiVersion() {
-		return 9;
+		return 4;
 	}
 
 	@Override
 	public String getMinimumApiVersion() {
-		return "7.0";
+		return "4.1";
 	}
 
 	@Override
@@ -62,11 +62,11 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getVersion() {
-		return "1.0";
+		return "0.1";
 	}
 
 	public DocumentFileImporter[] getDocumentFileImporters() {
-		return new DocumentFileImporter[] { new LimsImportAB1(null, null) };
+		return new DocumentFileImporter[] { new LimsImportAB1() };
 	}
 
 	public DocumentAction[] getDocumentActions() {
