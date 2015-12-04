@@ -5,6 +5,7 @@
     <property name="build" location="build"/>
     <property name="classes" location="classes"/>
     <property name="src/main/java" location="src/main/java"/>
+	<property name="utilities.dir" value="../nl.naturalis.lims2.utils/src/main/java"/>
 
     <path id="classpath">
         <fileset dir="../../GeneiousFiles/lib">
@@ -15,14 +16,12 @@
         	<include name="opencsv-3.5.jar"/>
         	<include name="slf4j-api-1.7.12.jar"/>
         </fileset>
-        <fileset dir="../nl.naturalis.lims2.utils/src/main/java">
-            <include name="LimsAB1Fields"/>
+       <fileset dir="${utilities.dir}">
+            <include name=".java"/>
         </fileset>
     </path>
 	
-	
-	
-    <target name= "distribute" depends="build">
+	<target name= "distribute" depends="build">
         <zip zipfile="${build}/${short-plugin-name}.gplugin">
             <fileset dir="${build}" includes="${plugin-name}/**" />
         </zip>
@@ -37,6 +36,7 @@
         <jar jarfile="${build}/${plugin-name}/${short-plugin-name}.jar">
             <fileset dir="${classes}"/>
         </jar>
+    	    	
         <copy todir="${build}/${plugin-name}">
             <fileset dir="resources">
              <!--   <include name="/NaturalisGeneiousServicedb.fasta"/>-->
@@ -49,6 +49,7 @@
         <javac target="1.6" source="1.6" destdir="${classes}" includeantruntime="true" debug="false">
             <classpath refid="classpath"/>
             <src path="${src/main/java}"/>
+        	<src path="${utilities.dir}"/>
         </javac>
     	<copy  todir="nl.naturalis.lims2.utils">
     	      <fileset dir="src/main/java"/>
