@@ -9,6 +9,7 @@ import java.util.List;
 
 import nl.naturalis.lims2.excel.importer.LimsNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,20 +36,24 @@ public class LimsReadDataFromBold extends DocumentAction {
 	LimsNotes limsNotes = new LimsNotes();
 	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	LimsBoldFields limsBoldFields = new LimsBoldFields();
+	LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	SequenceDocument seq;
 
 	private String boldFilePath;
 	private String boldFile;
 	private String extractIDfileName;
+	private final String noteCode = "DocumentNoteUtilities-Registrationnumber";
+	private final String fieldName = "BasisOfRecordCode";
+	private List<AnnotatedPluginDocument> docs;
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 		logger.info("-----------------------------------------------------------------");
-		logger.info("Start Bold import");
+		logger.info("Start adding Bold metadata to AB1 File(s)");
 
 		if (annotatedPluginDocuments[0] != null) {
-			List<AnnotatedPluginDocument> docs;
+
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
@@ -58,7 +63,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					setExtractIDfileName(seq.getName());
 					extractIDfileName = getExtractIDFromAB1FileName(seq
 							.getName());
-					readDataFromBold(annotatedPluginDocuments);
+					readDataFromBold(annotatedPluginDocuments[cnt]);
 
 					/*
 					 * setNoteToAB1FileName(AnnotatedPluginDocument[]
@@ -103,6 +108,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
+			logger.info("Total of document(s) updated: " + docs.size());
 		}
 		logger.info("-----------------------------------------------------------------");
 		logger.info("Done with reading bold file. ");
@@ -111,7 +117,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read data from Bold")
+		return new GeneiousActionOptions("Update file with data from Bold")
 				.setInMainToolbar(true);
 	}
 
@@ -127,9 +133,9 @@ public class LimsReadDataFromBold extends DocumentAction {
 	}
 
 	private void readDataFromBold(
-			AnnotatedPluginDocument[] annotatedPluginDocuments) {
+			AnnotatedPluginDocument annotatedPluginDocument) {
 		try {
-			setBoldFile(limsImporterUtil.getFileFromPropertieFile());
+			setBoldFile(limsImporterUtil.getFileFromPropertieFile("bold"));
 			setBoldFilePath(limsImporterUtil.getPropValues() + getBoldFile());
 			logger.info("CSV file: " + getBoldFilePath());
 		} catch (IOException e) {
@@ -151,8 +157,21 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					String ID = "e" + record[3];
 
+					/** DocumentNoteUtilities-Registrationnumber */
+					/** Get value from "BasisOfRecordCode" */
+					Object fieldValue = readGeneiousFieldsValues
+							.readValueFromAnnotatedPluginDocument(
+									annotatedPluginDocument, noteCode,
+									fieldName);
+
 					// if (ID.equals(getExtractIDfileName()))
-					if (record[1].contains("NLCOA731-12")) {
+					if (record[5].equals(fieldValue)) {
+
+						logger.info("Registrationnumber "
+								+ record[5]
+								+ " from the Bold file is equal to the fieldvalue: "
+								+ fieldValue + " from the AB1 file.");
+
 						limsBoldFields.setMarker(record[1]);
 						limsBoldFields.setBoldID(record[4]);
 						limsBoldFields.setColRegistratiecode(record[5]);

@@ -43,7 +43,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	@Override
 	public String getFileTypeDescription() {
-		return "Naturalis Chromatogram AB1 Importer";
+		return "Naturalis Extract AB1 Filename Importer";
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ex.printStackTrace();
 			}
 		}
-		logger.info("Total of document(s) imported: " + count);
+		logger.info("Total of document(s) filename extracted: " + count);
 		logger.info("DONE");
 	}
 

@@ -133,10 +133,11 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	private void readDataFromExcel(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-		String csvPath = null;
-		String csvFile = null;
+		String csvPath = "";
+		String csvFile = "";
+
 		try {
-			csvFile = limsImporterUtil.getFileFromPropertieFile();
+			csvFile = limsImporterUtil.getFileFromPropertieFile("excel");
 			csvPath = limsImporterUtil.getPropValues() + csvFile;
 		} catch (IOException e) {
 			e.printStackTrace();

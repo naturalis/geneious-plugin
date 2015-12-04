@@ -26,5 +26,6 @@
 	</info>
 	<dependencies>
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.10"/>
+		<dependency org="commons-io" name="commons-io" rev="2.4"/>
     </dependencies>
 </ivy-module>

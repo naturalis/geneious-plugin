@@ -84,7 +84,7 @@ public class LimsReadDataFromExcelPlugin extends GeneiousPlugin {
 
 			@Override
 			public String getFileTypeDescription() {
-				return "Naturalis Excel files.";
+				return "Naturalis add metadata from Excel files.";
 			}
 
 			@Override
@@ -169,7 +169,8 @@ public class LimsReadDataFromExcelPlugin extends GeneiousPlugin {
 				String csvPath = null;
 				String csvFile = null;
 				try {
-					csvFile = limsImporterUtil.getFileFromPropertieFile();
+					csvFile = limsImporterUtil
+							.getFileFromPropertieFile("excel");
 					csvPath = limsImporterUtil.getPropValues() + csvFile;
 				} catch (IOException e) {
 					e.printStackTrace();
