@@ -10,6 +10,7 @@ import java.util.List;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

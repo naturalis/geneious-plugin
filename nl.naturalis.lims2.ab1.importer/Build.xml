@@ -15,7 +15,12 @@
         	<include name="opencsv-3.5.jar"/>
         	<include name="slf4j-api-1.7.12.jar"/>
         </fileset>
+        <fileset dir="../nl.naturalis.lims2.utils/src/main/java">
+            <include name="LimsAB1Fields"/>
+        </fileset>
     </path>
+	
+	
 	
     <target name= "distribute" depends="build">
         <zip zipfile="${build}/${short-plugin-name}.gplugin">

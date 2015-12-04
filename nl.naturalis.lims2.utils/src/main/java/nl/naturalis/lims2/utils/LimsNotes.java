@@ -1,7 +1,7 @@
 /**
  * 
  */
-package nl.naturalis.lims2.excel.importer;
+package nl.naturalis.lims2.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;

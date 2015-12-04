@@ -5,8 +5,8 @@ package nl.naturalis.lims2.ab1.importer;
 
 import java.util.List;
 
-import nl.naturalis.lims2.excel.importer.LimsNotes;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
