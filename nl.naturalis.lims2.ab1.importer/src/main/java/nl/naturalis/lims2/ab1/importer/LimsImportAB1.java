@@ -9,9 +9,8 @@ import java.util.List;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.excel.importer.LimsNotes;
-import nl.naturalis.lims2.updater.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsAB1Fields;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 public class LimsImportAB1 extends DocumentFileImporter {
 
 	static final Logger logger;
-	LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
+	LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	LimsNotes limsNotes = new LimsNotes();
 
 	private AnnotatedPluginDocument document;
@@ -65,7 +64,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		document = importCallback.addDocument(docs.iterator().next());
 
 		if (file.getName() != null) {
-			setExtractIDFromAB1FileName(file.getName());
+			limsAB1Fields.setFieldValuesFromAB1FileName(file.getName());
 
 			logger.info("-----------------------------------------------------------------");
 			logger.info("Start extracting value from file: " + file.getName());
@@ -74,7 +73,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			try {
 				limsNotes.setImportNotes(document, "ExtractIdCode",
 						"Extract ID", "Extract-ID",
-						limsAB1Flieds.getExtractID());
+						limsAB1Fields.getExtractID());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -83,7 +82,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			try {
 				limsNotes.setImportNotes(document, "PcrPlaatIdCode",
 						"PCR plaat ID", "PCR plaat ID",
-						limsAB1Flieds.getPcrPlaatID());
+						limsAB1Fields.getPcrPlaatID());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -91,27 +90,20 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* set note for Marker */
 			try {
 				limsNotes.setImportNotes(document, "MarkerCode", "Marker",
-						"Marker", limsAB1Flieds.getMarker());
+						"Marker", limsAB1Fields.getMarker());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
 		logger.info("Total of document(s) filename extracted: " + count);
-		logger.info("DONE");
+		logger.info("-----------------------------------------------------------------");
+		logger.info("Done with extracting Ab1 file name. ");
 	}
 
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
 			String fileContentsStart) {
 		return AutoDetectStatus.ACCEPT_FILE;
-	}
-
-	private void setExtractIDFromAB1FileName(String fileName) {
-		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
-		String[] underscore = StringUtils.split(fileName, "_");
-		limsAB1Flieds.setExtractID(underscore[0]);
-		limsAB1Flieds.setPcrPlaatID(underscore[3]);
-		limsAB1Flieds.setMarker(underscore[4]);
 	}
 
 	/*

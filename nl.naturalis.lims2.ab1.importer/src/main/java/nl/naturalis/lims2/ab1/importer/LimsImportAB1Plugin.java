@@ -6,9 +6,8 @@ package nl.naturalis.lims2.ab1.importer;
 import java.util.List;
 
 import nl.naturalis.lims2.excel.importer.LimsNotes;
-import nl.naturalis.lims2.updater.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsAB1Fields;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +77,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 			SequenceDocument seq;
 			LimsNotes limsNotes = new LimsNotes();
-			LimsAB1Fields limsAB1Flieds = new LimsAB1Fields();
+			LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 			private List<AnnotatedPluginDocument> docs;
 
 			@Override
@@ -93,30 +92,31 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 								+ seq.getName());
 
 						if (seq.getName() != null) {
-							setFieldValuesFromAB1FileName(seq.getName());
+							limsAB1Fields.setFieldValuesFromAB1FileName(seq
+									.getName());
 							logger.info("Extract-ID: "
-									+ limsAB1Flieds.getExtractID());
+									+ limsAB1Fields.getExtractID());
 							logger.info("PCR plaat-ID: "
-									+ limsAB1Flieds.getPcrPlaatID());
-							logger.info("Mark: " + limsAB1Flieds.getMarker());
+									+ limsAB1Fields.getPcrPlaatID());
+							logger.info("Mark: " + limsAB1Fields.getMarker());
 
 							/** set note for Extract-ID */
 							limsNotes.setNoteToAB1FileName(
 									annotatedPluginDocuments, "ExtractIdCode",
 									"Extract ID", "Extract-ID",
-									limsAB1Flieds.getExtractID(), cnt);
+									limsAB1Fields.getExtractID(), cnt);
 
 							/** set note for PCR Plaat-ID */
 							limsNotes.setNoteToAB1FileName(
 									annotatedPluginDocuments, "PcrPlaatIdCode",
 									"PCR plaat ID", "PCR plaat ID",
-									limsAB1Flieds.getPcrPlaatID(), cnt);
+									limsAB1Fields.getPcrPlaatID(), cnt);
 
 							/** set note for Marker */
 							limsNotes.setNoteToAB1FileName(
 									annotatedPluginDocuments, "MarkerCode",
 									"Marker", "Marker",
-									limsAB1Flieds.getMarker(), cnt);
+									limsAB1Fields.getMarker(), cnt);
 						}
 					}
 				} catch (DocumentOperationException e) {
@@ -147,18 +147,6 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 			public DocumentSelectionSignature[] getSelectionSignatures() {
 				return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
 						NucleotideSequenceDocument.class, 0, Integer.MAX_VALUE) };
-			}
-
-			private void setFieldValuesFromAB1FileName(String ab1FileName) {
-				/*
-				 * for example:
-				 * e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
-				 */
-				String[] underscore = StringUtils.split(ab1FileName, "_");
-				limsAB1Flieds.setExtractID(underscore[0]);
-				limsAB1Flieds.setPcrPlaatID(underscore[3]);
-				limsAB1Flieds.setMarker(underscore[4]);
-
 			}
 
 		}
