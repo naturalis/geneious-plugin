@@ -12,7 +12,7 @@
 				<datestamp>2015-030-11T16:48:53Z</datestamp>
 				<setSpec>dnaSamples</setSpec>
 			</header>
-			<! --- Let op! Dit zijn concept veldnamen. Ze zijn nog niet definitief --->
+			<!-- Let op! Dit zijn concept veldnamen. Ze zijn nog niet definitief -->
 			<metadata>
 				<oai_dc:dc
 					xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
