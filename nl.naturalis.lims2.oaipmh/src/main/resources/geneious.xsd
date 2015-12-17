@@ -1,0 +1,37 @@
+<xs:schema targetNamespace="http://data.naturalis.nl/lims2"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://data.naturalis.nl/lims2"
+	xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.1"
+	xmlns="http://www.tdwg.org/schemas/abcd/2.1"
+	version="0.1">
+
+	<!-- Als we alsnog ABCD elementen willen nesten binnen onze eigen elementen: -->
+	<!-- xs:import namespace="http://www.tdwg.org/schemas/abcd/2.1" schemaLocation="ABCDGGBN.xsd"></xs:import -->
+
+	<xs:element name="Geneious">
+		<xs:complexType>
+			<xs:choice maxOccurs="1">
+				<xs:element name="Specimen" type="tns:Specimen"
+					maxOccurs="1"></xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="Specimen">
+		<xs:sequence>
+			<!-- Nest het ABCD Unit element binnen het Specimen element -->
+			<!-- xs:element name="Unit" type="abcd:Unit"></xs:element -->
+			<xs:element type="xs:string" name="UnitID" minOccurs="1"
+				maxOccurs="1" />
+			<xs:element type="xs:string" name="AssociatedUnitID"
+				minOccurs="1" maxOccurs="1" />
+			<xs:element type="xs:anyURI" name="URI" minOccurs="1"
+				maxOccurs="1" />
+			<xs:element type="xs:int" name="MultiMediaObjectComment"
+				minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+
+</xs:schema>

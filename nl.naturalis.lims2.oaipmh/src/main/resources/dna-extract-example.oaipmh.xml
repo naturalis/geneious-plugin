@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <OAI-PMH
 	xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
-	xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.openarchives.org/OAI/2.0/ http://data.ggbn.org/schemas/GGBN/terms/ABCDGGBN.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:atlantis="urn:atlantis" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<responseDate>2016-01-14T12:22:39Z</responseDate>
 	<request verb="ListRecords" resumptionToken="______oai_geneious_dnasamples__3415000">http://geneious.naturalis.nl/geneiouspubliek/oai.axd</request>
@@ -44,7 +44,7 @@
 										<abcdggbn:geneticAccessionNumberURI>http://www.ncbi.nlm.nih.gov/nuccore/JQ412562</abcdggbn:geneticAccessionNumberURI>
 										<abcdggbn:BOLDProcessID>
 											ANTVI001-11
-											<abcdggbn:BOLDProcessID>
+										</abcdggbn:BOLDProcessID>
 									</abcdggbn:geneticAccession>
 									<abcdggbn:sequencing>
 					</dnalabproject>

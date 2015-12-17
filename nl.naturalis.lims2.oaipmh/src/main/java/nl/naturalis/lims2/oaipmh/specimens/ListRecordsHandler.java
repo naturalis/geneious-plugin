@@ -2,11 +2,12 @@ package nl.naturalis.lims2.oaipmh.specimens;
 
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiDcFactory;
-import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
+import static nl.naturalis.oaipmh.api.util.ObjectFactories.*;
 
 import java.util.Date;
 
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
+import nl.naturalis.oaipmh.api.jaxb.abcd.Unit;
 
 import org.openarchives.oai._2.HeaderType;
 import org.openarchives.oai._2.ListRecordsType;
@@ -34,8 +35,12 @@ public class ListRecordsHandler {
 		header.setDatestamp(dateTimeFormatter.format(new Date()));
 		MetadataType metadata = oaiFactory.createMetadataType();
 		record.setMetadata(metadata);
-		OaiDcType oaiDc = oaiDcFactory.createOaiDcType();
-		metadata.setAny(oaiDc);
+		// OaiDcType oaiDc = oaiDcFactory.createOaiDcType();
+		// metadata.setAny(oaiDc);
+		// DataSets
+		// Unit unit = abcdFactory.createUnit();
+		// metadata.setAny(unit);
+
 		return listRecords;
 
 	}
