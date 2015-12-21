@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for Specimen complex type.
+ * <p>Java class for DNASlide complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="Specimen">
+ * &lt;complexType name="DNASlide">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="unit" type="{http://data.naturalis.nl/lims2}SpecimenUnit"/>
+ *         &lt;element name="unit" type="{http://data.naturalis.nl/lims2}SlideUnit"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,23 +34,23 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Specimen", propOrder = {
+@XmlType(name = "DNASlide", propOrder = {
     "unit"
 })
-public class Specimen {
+public class DNASlide {
 
     @XmlElement(required = true)
-    protected SpecimenUnit unit;
+    protected SlideUnit unit;
 
     /**
      * Gets the value of the unit property.
      * 
      * @return
      *     possible object is
-     *     {@link SpecimenUnit }
+     *     {@link SlideUnit }
      *     
      */
-    public SpecimenUnit getUnit() {
+    public SlideUnit getUnit() {
         return unit;
     }
 
@@ -59,10 +59,10 @@ public class Specimen {
      * 
      * @param value
      *     allowed object is
-     *     {@link SpecimenUnit }
+     *     {@link SlideUnit }
      *     
      */
-    public void setUnit(SpecimenUnit value) {
+    public void setUnit(SlideUnit value) {
         this.unit = value;
     }
 
