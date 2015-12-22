@@ -3,13 +3,13 @@
  */
 package nl.naturalis.lims2.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.Constraint;
@@ -27,8 +27,7 @@ public class LimsNotes {
 	private String fieldCode;
 	private String description;
 	private String noteTypeCode;
-
-	static final Logger logger = LoggerFactory.getLogger(LimsNotes.class);
+	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 
 	/**
 	 * Package for Setting notes in a selected sequence document.
@@ -49,6 +48,12 @@ public class LimsNotes {
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue, int count) {
+
+		String logFileName = limsImporterUtil.getLogPath() + File.separator
+				+ limsImporterUtil.getLogFilename();
+
+		LimsLogger limsLogger = new LimsLogger(logFileName);
+
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/** "ExtractPlaatNummerCode" */
@@ -75,7 +80,8 @@ public class LimsNotes {
 					noteTypeCode, this.noteTypeCode, this.description,
 					listNotes, false);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
-			logger.info("NoteType " + noteTypeCode + " created succesful");
+			limsLogger.logMessage("NoteType " + noteTypeCode
+					+ " created succesful");
 		}
 
 		/* Create note for Extract-ID */
@@ -89,13 +95,20 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+		limsLogger.logMessage("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
+		limsLogger.flushCloseFileHandler();
+		limsLogger.removeConsoleHandler();
 	}
 
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue) {
+
+		String logFileName = limsImporterUtil.getLogPath() + File.separator
+				+ limsImporterUtil.getLogFilename();
+
+		LimsLogger limsLogger = new LimsLogger(logFileName);
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
@@ -123,7 +136,8 @@ public class LimsNotes {
 					noteTypeCode, this.noteTypeCode, this.description,
 					listNotes, false);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
-			logger.info("NoteType " + noteTypeCode + " created succesful");
+			limsLogger.logMessage("NoteType " + noteTypeCode
+					+ " created succesful");
 		}
 
 		/* Create note for Extract-ID */
@@ -137,7 +151,9 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+		limsLogger.logMessage("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
+		limsLogger.flushCloseFileHandler();
+		limsLogger.removeConsoleHandler();
 	}
 }

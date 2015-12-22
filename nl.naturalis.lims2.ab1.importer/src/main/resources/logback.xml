@@ -11,9 +11,13 @@
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
 		<file>C:/Geneious 8.1 Data/log/nl.naturalis.lim2.ab1.importer/lims2-import.${date}.log</file>
+		<file>C:/Geneious 8.1 Data/log/nl.naturalis.lim2.ab1.importer/AB1-Import.${date}.xml</file>
 		<append>true</append>
-		<encoder>
-			<pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+		 <layout class="ch.qos.logback.classic.log4j.XMLLayout">
+            <locationInfo>false</locationInfo>
+         </layout>
+		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>
 		</encoder>
 	</appender>
 
