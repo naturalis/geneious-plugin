@@ -25,9 +25,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Reinier.Kartowikromo
  *
@@ -35,8 +32,12 @@ import org.slf4j.LoggerFactory;
 public class LimsImporterUtil {
 
 	private final Properties config = null;
-	static final Logger logger = LoggerFactory
-			.getLogger(LimsImporterUtil.class);
+	private String result = "";
+	private InputStream inputStream;
+	private Properties prop = new Properties();
+	private static String propFileName = "lims-import.properties";
+	private static String workingDatadirectory = System.getProperty("user.dir");
+	private static String absoluteFilePath = null;
 
 	public String required(String property) throws Exception {
 		if (config.containsKey(property)) {
@@ -53,10 +54,64 @@ public class LimsImporterUtil {
 		return config.getProperty(property);
 	}
 
+	public String getLogFilename() {
+		String logFileName = "";
+
+		if (workingDatadirectory != null) {
+			absoluteFilePath = workingDatadirectory + File.separator
+					+ propFileName;
+		}
+
+		try {
+			inputStream = new FileInputStream(absoluteFilePath);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
+		if (inputStream != null) {
+			try {
+				prop.load(inputStream);
+				logFileName = prop.getProperty("logname");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return logFileName;
+	}
+
+	public String getLogPath() {
+		String logPath = "";
+
+		if (workingDatadirectory != null) {
+			absoluteFilePath = workingDatadirectory + File.separator
+					+ propFileName;
+		}
+
+		try {
+			inputStream = new FileInputStream(absoluteFilePath);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
+		if (inputStream != null) {
+			try {
+				prop.load(inputStream);
+				logPath = prop.getProperty("logpath");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return logPath;
+	}
+
 	public File getLimsImportDir() throws ExportException {
+		String logFileName = getLogPath() + File.separator + getLogFilename();
+		LimsLogger limsLogger = new LimsLogger(logFileName);
+
 		String outputRoot = null;
 		try {
 			outputRoot = required("lims.import.input.cs_dir");
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -68,23 +123,25 @@ public class LimsImporterUtil {
 						"Directory not writable: \"%s\"", path));
 			}
 		} else {
-			logger.warn(String
-					.format("No such directory (lims.import.input.cs_dir): \"%s\". Will attempt to create it",
-							path));
+			limsLogger
+					.logMessage(String
+							.format("No such directory (lims.import.input.cs_dir): \"%s\". Will attempt to create it",
+									path));
 			try {
 				java.nio.file.Files.createDirectories(path);
 			} catch (IOException e) {
 				throw new ExportException(String.format(
 						"Failed to create directory \"%s\"", path), e);
 			}
+			limsLogger.flushCloseFileHandler();
+			limsLogger.removeConsoleHandler();
 		}
 		return exportDir;
 	}
 
-	String result = "";
-	InputStream inputStream;
-
 	public String getPropValues() throws IOException {
+		String logFileName = getLogPath() + File.separator + getLogFilename();
+		LimsLogger limsLogger = new LimsLogger(logFileName);
 
 		try {
 			Properties prop = new Properties();
@@ -96,14 +153,13 @@ public class LimsImporterUtil {
 			if (workingDatadirectory != null) {
 				absoluteFilePath = workingDatadirectory + File.separator
 						+ propFileName;
-				// System.out.println("Pad: " + absoluteFilePath);
 			}
 
 			inputStream = new FileInputStream(absoluteFilePath);
 			if (inputStream != null) {
 				prop.load(inputStream);
 			} else {
-				logger.info("property file '" + propFileName
+				limsLogger.logMessage("property file '" + propFileName
 						+ "' not found in the classpath");
 				throw new FileNotFoundException("property file '"
 						+ propFileName + "' not found in the classpath");
@@ -114,16 +170,18 @@ public class LimsImporterUtil {
 
 			result = csvPath;
 		} catch (Exception e) {
-			logger.info("Exception: " + e);
-			System.out.println("Exception: " + e);
+			limsLogger.logMessage("Exception: " + e);
 		} finally {
 			inputStream.close();
+			limsLogger.flushCloseFileHandler();
+			limsLogger.removeConsoleHandler();
 		}
 		return result;
 	}
 
 	public String getFileFromPropertieFile(String fileType) throws IOException {
-
+		String logFileName = getLogPath() + File.separator + getLogFilename();
+		LimsLogger limsLogger = new LimsLogger(logFileName);
 		try {
 			Properties prop = new Properties();
 
@@ -135,14 +193,13 @@ public class LimsImporterUtil {
 			if (workingDatadirectory != null) {
 				absoluteFilePath = workingDatadirectory + File.separator
 						+ propFileName;
-				// System.out.println("Pad: " + absoluteFilePath);
 			}
 
 			inputStream = new FileInputStream(absoluteFilePath);
 			if (inputStream != null) {
 				prop.load(inputStream);
 			} else {
-				logger.info("property file '" + propFileName
+				limsLogger.logMessage("property file '" + propFileName
 						+ "' not found in the classpath");
 				throw new FileNotFoundException("property file '"
 						+ propFileName + "' not found in the classpath");
@@ -159,11 +216,13 @@ public class LimsImporterUtil {
 
 			result = csvFileName;
 		} catch (Exception e) {
-			logger.info("Exception: " + e);
+			limsLogger.logMessage("Exception: " + e);
 			System.out.println("Exception: " + e);
 		} finally {
 			if (inputStream != null)
 				inputStream.close();
+			limsLogger.flushCloseFileHandler();
+			limsLogger.removeConsoleHandler();
 		}
 		return result;
 	}
@@ -174,10 +233,12 @@ public class LimsImporterUtil {
 	}
 
 	byte[] read(String aInputFileName) {
-		LimsImporterUtil.logger.info("Reading in binary file named : "
+		String logFileName = getLogPath() + File.separator + getLogFilename();
+		LimsLogger limsLogger = new LimsLogger(logFileName);
+		limsLogger.logMessage("Reading in binary file named : "
 				+ aInputFileName);
 		File file = new File(aInputFileName);
-		LimsImporterUtil.logger.info("File size: " + file.length());
+		limsLogger.logMessage("File size: " + file.length());
 		byte[] result = new byte[(int) file.length()];
 		try {
 			InputStream input = null;
@@ -198,17 +259,18 @@ public class LimsImporterUtil {
 				 * 'result' array; 'result' is an output parameter; the while
 				 * loop usually has a single iteration only.
 				 */
-				LimsImporterUtil.logger.info("Num bytes read: "
-						+ totalBytesRead);
+				limsLogger.logMessage("Num bytes read: " + totalBytesRead);
 			} finally {
-				LimsImporterUtil.logger.info("Closing input stream.");
+				limsLogger.logMessage("Closing input stream.");
 				input.close();
 			}
 		} catch (FileNotFoundException ex) {
-			LimsImporterUtil.logger.info("File not found.");
+			limsLogger.logMessage("File not found.");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		limsLogger.flushCloseFileHandler();
+		limsLogger.removeConsoleHandler();
 		return result;
 	}
 
@@ -248,9 +310,12 @@ public class LimsImporterUtil {
 
 	/** Read the given binary file, and return its contents as a byte array. */
 	byte[] readAlternateImpl(String aInputFileName) {
-		logger.info("Reading in binary file named : " + aInputFileName);
+		String logFileName = getLogPath() + File.separator + getLogFilename();
+		LimsLogger limsLogger = new LimsLogger(logFileName);
+		limsLogger.logMessage("Reading in binary file named : "
+				+ aInputFileName);
 		File file = new File(aInputFileName);
-		logger.info("File size: " + file.length());
+		limsLogger.logMessage("File size: " + file.length());
 		byte[] result = null;
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(
@@ -259,6 +324,8 @@ public class LimsImporterUtil {
 		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
 		}
+		limsLogger.flushCloseFileHandler();
+		limsLogger.removeConsoleHandler();
 		return result;
 	}
 
@@ -311,7 +378,7 @@ public class LimsImporterUtil {
 			final FileChannel fc = stream.getChannel();
 			final ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0,
 					fc.size());
-			String ENCODING = StandardCharsets.US_ASCII.toString();// "ASCII";
+			String ENCODING = StandardCharsets.US_ASCII.toString();
 			return Charset.forName(ENCODING).decode(bb).toString();
 		} finally {
 			stream.close();
