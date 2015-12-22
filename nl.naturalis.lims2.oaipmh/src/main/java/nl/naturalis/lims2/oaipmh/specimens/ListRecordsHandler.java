@@ -6,7 +6,6 @@ import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
 import java.util.Date;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
 import nl.naturalis.lims2.oaipmh.jaxb.Specimen;
