@@ -36,44 +36,38 @@ public class SpecimenOAIRepository implements IOAIRepository {
 	}
 
 	@Override
-	public GetRecordType getRecord() throws RepositoryException
+	public String getRecord() throws RepositoryException
 	{
 		return null;
 	}
 
 	@Override
-	public ListRecordsType listRecords() throws RepositoryException
+	public String listRecords() throws RepositoryException
 	{
 		ListRecordsHandler handler = new ListRecordsHandler(request);
 		return handler.handleRequest();
 	}
 
 	@Override
-	public ListIdentifiersType listIdentifiers() throws RepositoryException
+	public String listIdentifiers() throws RepositoryException
 	{
 		return null;
 	}
 
 	@Override
-	public ListMetadataFormatsType listMetaDataFormats() throws RepositoryException
+	public String listMetaDataFormats() throws RepositoryException
 	{
 		return null;
 	}
 
 	@Override
-	public ListSetsType listSets() throws RepositoryException
+	public String listSets() throws RepositoryException
 	{
 		return null;
 	}
 
 	@Override
-	public IdentifyType identify() throws RepositoryException
-	{
-		return null;
-	}
-
-	@Override
-	public List<OAIPMHerrorType> getErrors()
+	public String identify() throws RepositoryException
 	{
 		return null;
 	}
