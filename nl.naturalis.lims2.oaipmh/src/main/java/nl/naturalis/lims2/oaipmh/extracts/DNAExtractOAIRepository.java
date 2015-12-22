@@ -1,15 +1,15 @@
-package nl.naturalis.lims2.oaipmh.specimens;
+package nl.naturalis.lims2.oaipmh.extracts;
 
 import nl.naturalis.oaipmh.api.IOAIRepository;
 import nl.naturalis.oaipmh.api.IResumptionTokenParser;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
 
-public class SpecimenOAIRepository implements IOAIRepository {
+public class DNAExtractOAIRepository implements IOAIRepository {
 
 	private OAIPMHRequest request;
 
-	public SpecimenOAIRepository()
+	public DNAExtractOAIRepository()
 	{
 	}
 
