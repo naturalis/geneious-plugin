@@ -55,6 +55,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	}
 
 	public DocumentAction[] getDocumentActions() {
-		return new DocumentAction[] { new LimsImportAB1Update() };
+		return new DocumentAction[] { new LimsImportAB1Update(),
+				new LimsReadDataFromExcel() };
 	}
+
 }
