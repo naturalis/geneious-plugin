@@ -1,28 +1,13 @@
 package nl.naturalis.lims2.oaipmh.extracts;
 
-import nl.naturalis.oaipmh.api.IOAIRepository;
-import nl.naturalis.oaipmh.api.IResumptionTokenParser;
-import nl.naturalis.oaipmh.api.OAIPMHRequest;
+import nl.naturalis.lims2.oaipmh.Lims2OAIRepository;
 import nl.naturalis.oaipmh.api.RepositoryException;
 
-public class DNAExtractOAIRepository implements IOAIRepository {
-
-	private OAIPMHRequest request;
+public class DNAExtractOAIRepository extends Lims2OAIRepository {
 
 	public DNAExtractOAIRepository()
 	{
-	}
-
-	@Override
-	public void init(OAIPMHRequest request)
-	{
-		this.request = request;
-	}
-
-	@Override
-	public IResumptionTokenParser getResumptionTokenParser()
-	{
-		return null;
+		super();
 	}
 
 	@Override
@@ -45,12 +30,6 @@ public class DNAExtractOAIRepository implements IOAIRepository {
 	}
 
 	@Override
-	public String listMetaDataFormats() throws RepositoryException
-	{
-		return null;
-	}
-
-	@Override
 	public String listSets() throws RepositoryException
 	{
 		return null;
@@ -60,11 +39,6 @@ public class DNAExtractOAIRepository implements IOAIRepository {
 	public String identify() throws RepositoryException
 	{
 		return null;
-	}
-
-	@Override
-	public void done()
-	{
 	}
 
 }

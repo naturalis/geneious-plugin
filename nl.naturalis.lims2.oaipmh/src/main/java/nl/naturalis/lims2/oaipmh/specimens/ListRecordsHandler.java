@@ -21,7 +21,7 @@ import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 
-public class ListRecordsHandler {
+class ListRecordsHandler {
 
 	private final OAIPMHRequest request;
 

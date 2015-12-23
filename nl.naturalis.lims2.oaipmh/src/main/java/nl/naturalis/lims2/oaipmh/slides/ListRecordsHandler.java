@@ -10,8 +10,6 @@ import javax.xml.bind.JAXBException;
 import nl.naturalis.lims2.oaipmh.jaxb.DNASlide;
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
 import nl.naturalis.lims2.oaipmh.jaxb.SlideUnit;
-import nl.naturalis.lims2.oaipmh.jaxb.Specimen;
-import nl.naturalis.lims2.oaipmh.jaxb.SpecimenUnit;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
 import nl.naturalis.oaipmh.api.util.OAIPMHMarshaller;
@@ -23,7 +21,7 @@ import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 
-public class ListRecordsHandler {
+class ListRecordsHandler {
 
 	private final OAIPMHRequest request;
 
