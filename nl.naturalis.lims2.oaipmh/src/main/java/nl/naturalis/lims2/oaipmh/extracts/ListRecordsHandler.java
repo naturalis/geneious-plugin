@@ -1,12 +1,12 @@
 package nl.naturalis.lims2.oaipmh.extracts;
 
+import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.createResponseSkeleton;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
 
 import java.util.Date;
 
-import javax.xml.bind.JAXBException;
-
+import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
 import nl.naturalis.lims2.oaipmh.jaxb.Amplification;
 import nl.naturalis.lims2.oaipmh.jaxb.DNAExtract;
 import nl.naturalis.lims2.oaipmh.jaxb.DNALabProject;
@@ -14,10 +14,8 @@ import nl.naturalis.lims2.oaipmh.jaxb.ExtractUnit;
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
 import nl.naturalis.lims2.oaipmh.jaxb.GeneticAccession;
 import nl.naturalis.lims2.oaipmh.jaxb.Sequencing;
+import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
-import nl.naturalis.oaipmh.api.RepositoryException;
-import nl.naturalis.oaipmh.api.util.OAIPMHMarshaller;
-import nl.naturalis.oaipmh.api.util.OAIPMHUtil;
 
 import org.openarchives.oai._2.HeaderType;
 import org.openarchives.oai._2.ListRecordsType;
@@ -27,16 +25,11 @@ import org.openarchives.oai._2.RecordType;
 
 class ListRecordsHandler {
 
-	private final OAIPMHRequest request;
-
-	public ListRecordsHandler(OAIPMHRequest request)
+	@SuppressWarnings("static-method")
+	OAIPMHtype handleRequest(OAIPMHRequest request) throws OAIPMHException
 	{
-		this.request = request;
-	}
-
-	public String handleRequest() throws RepositoryException
-	{
-		OAIPMHtype root = OAIPMHUtil.createResponseSkeleton(request);
+		Lims2OAIUtil.checkMetadataPrefix(request);
+		OAIPMHtype root = createResponseSkeleton(request);
 		ListRecordsType listRecords = oaiFactory.createListRecordsType();
 		root.setListRecords(listRecords);
 		RecordType record = oaiFactory.createRecordType();
@@ -78,18 +71,7 @@ class ListRecordsHandler {
 		amp.setAmplificationStaff("");
 		amp.setMarker("CO1");
 
-		OAIPMHMarshaller marshaller = new OAIPMHMarshaller();
-		marshaller.setRootElement(root);
-		marshaller.addJaxbPackage("nl.naturalis.lims2.oaipmh.jaxb");
-		marshaller.addSchemaLocation("http://data.naturalis.nl/lims2",
-				"http://data.naturalis.nl/lims2/LIMS2.xsd");
-		try {
-			return marshaller.marshal();
-		}
-		catch (JAXBException e) {
-			throw new RepositoryException(e);
-		}
-
+		return root;
 	}
 
 }
