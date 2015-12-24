@@ -16,7 +16,7 @@ public class Lims2OAIUtil {
 	public static void checkMetadataPrefix(OAIPMHRequest request) throws OAIPMHException
 	{
 		if (!request.getMetadataPrefix().equals("lims2"))
-			throw new OAIPMHException(new CannotDisseminateFormatError("lims2"));
+			throw new OAIPMHException(new CannotDisseminateFormatError(request));
 	}
 
 }

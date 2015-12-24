@@ -49,7 +49,9 @@ public abstract class Lims2OAIRepository implements IOAIRepository {
 				throw new RepositoryException(e);
 			}
 		}
-		throw new XSDNotFoundException(prefix);
+		else {
+			throw new XSDNotFoundException(prefix);
+		}
 	}
 
 	@Override
@@ -99,6 +101,13 @@ public abstract class Lims2OAIRepository implements IOAIRepository {
 	{
 	}
 
+	/**
+	 * Writes the OAI-PMH to the specified output stream.
+	 * 
+	 * @param oaipmh
+	 * @param out
+	 * @throws RepositoryException
+	 */
 	protected void marshal(OAIPMHtype oaipmh, OutputStream out) throws RepositoryException
 	{
 		OAIPMHMarshaller marshaller = new OAIPMHMarshaller();

@@ -4,7 +4,7 @@
 	xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.1" xmlns="http://www.tdwg.org/schemas/abcd/2.1"
 	version="0.1">
 
-	<!-- Als we alsnog ABCD elementen willen nesten binnen onze eigen elementen: -->
+	<!-- In case we want to nest ABCD elements within elements defined here: -->
 	<!-- xs:import namespace="http://www.tdwg.org/schemas/abcd/2.1" schemaLocation="ABCDGGBN.xsd"></xs:import -->
 
 	<xs:element name="Geneious">
@@ -38,7 +38,7 @@
 
 	<xs:complexType name="SpecimenUnit">
 		<xs:sequence>
-			<!-- Nest het ABCD Unit element binnen het Specimen element -->
+			<!-- Nest ABCD Unit element within Specimen element -->
 			<!-- xs:element name="Unit" type="abcd:Unit"></xs:element -->
 			<xs:element type="xs:string" name="unitID" />
 			<xs:element type="xs:string" name="associatedUnitID" />
