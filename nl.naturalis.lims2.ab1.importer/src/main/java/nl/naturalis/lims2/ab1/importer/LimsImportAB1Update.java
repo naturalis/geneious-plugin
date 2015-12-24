@@ -95,7 +95,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Update AB1 document")
+		return new GeneiousActionOptions("Read AB1 file")
 				.setInMainToolbar(true);
 	}
 

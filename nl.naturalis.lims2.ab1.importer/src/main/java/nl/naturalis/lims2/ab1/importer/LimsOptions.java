@@ -3,7 +3,7 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import javax.enterprise.deploy.spi.status.ProgressListener;
+import jebl.util.ProgressListener;
 
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogOptions;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
