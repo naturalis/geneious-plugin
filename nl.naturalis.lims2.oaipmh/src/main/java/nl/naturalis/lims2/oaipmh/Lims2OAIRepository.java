@@ -19,6 +19,17 @@ import nl.naturalis.oaipmh.api.util.OAIPMHMarshaller;
 import org.domainobject.util.IOUtil;
 import org.openarchives.oai._2.OAIPMHtype;
 
+/**
+ * Abstract base class for LIMS2/Geneious OAI repositories. Provides the
+ * implementation of
+ * {@link IOAIRepository#getXSDForMetadataPrefix(OutputStream, String)
+ * getXSDForMetadataPrefix} and {@link IOAIRepository#init(OAIPMHRequest) init}
+ * and provides no-op implementations of the other methods defined by
+ * {@link IOAIRepository}.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public abstract class Lims2OAIRepository implements IOAIRepository {
 
 	protected OAIPMHRequest request;
