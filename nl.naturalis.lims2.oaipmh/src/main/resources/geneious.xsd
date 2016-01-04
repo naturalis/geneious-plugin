@@ -7,7 +7,7 @@
 	<!-- In case we still want to nest ABCD elements within elements defined here: -->
 	<!-- xs:import namespace="http://www.tdwg.org/schemas/abcd/2.1" schemaLocation="ABCDGGBN.xsd"></xs:import -->
 
-	<xs:element name="Geneious">
+	<xs:element name="geneious">
 		<xs:complexType>
 			<xs:choice>
 				<xs:element name="specimen" type="self:Specimen"></xs:element>
