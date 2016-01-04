@@ -146,8 +146,8 @@ public class LimsReadDataFromExcel extends DocumentAction {
 			public void run() {
 				options = new LimsOptions(seq.getName());
 				options.addLabel("Done with updating the selected document(s).");
-				Dialogs.showOptionsDialog(options,
-						"Naturalis Geneious Excel file", false);
+				Dialogs.showMessageDialog("Done");
+				// options,"Naturalis Geneious Excel file", false);
 			}
 		});
 
