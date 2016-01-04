@@ -1,44 +1,44 @@
 <xs:schema targetNamespace="http://data.naturalis.nl/lims2"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://data.naturalis.nl/lims2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:self="http://data.naturalis.nl/lims2"
 	xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.1" xmlns="http://www.tdwg.org/schemas/abcd/2.1"
 	version="0.1">
 
-	<!-- Als we alsnog ABCD elementen willen nesten binnen onze eigen elementen: -->
+	<!-- In case we still want to nest ABCD elements within elements defined here: -->
 	<!-- xs:import namespace="http://www.tdwg.org/schemas/abcd/2.1" schemaLocation="ABCDGGBN.xsd"></xs:import -->
 
-	<xs:element name="Geneious">
+	<xs:element name="geneious">
 		<xs:complexType>
 			<xs:choice>
-				<xs:element name="specimen" type="tns:Specimen"></xs:element>
-				<xs:element name="dnaSlide" type="tns:DNASlide"></xs:element>
-				<xs:element name="dnaExtract" type="tns:DNAExtract"></xs:element>
+				<xs:element name="specimen" type="self:Specimen"></xs:element>
+				<xs:element name="dnaSlide" type="self:DNASlide"></xs:element>
+				<xs:element name="dnaExtract" type="self:DNAExtract"></xs:element>
 			</xs:choice>
 		</xs:complexType>
 	</xs:element>
 
 	<xs:complexType name="Specimen">
 		<xs:sequence>
-			<xs:element type="tns:SpecimenUnit" name="unit" />
+			<xs:element type="self:SpecimenUnit" name="unit" />
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="DNASlide">
 		<xs:sequence>
-			<xs:element type="tns:SlideUnit" name="unit" />
+			<xs:element type="self:SlideUnit" name="unit" />
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="DNAExtract">
 		<xs:sequence>
-			<xs:element type="tns:ExtractUnit" name="unit" />
-			<xs:element type="tns:DNALabProject" name="dnaLabProject" />
+			<xs:element type="self:ExtractUnit" name="unit" />
+			<xs:element type="self:DNALabProject" name="dnaLabProject" />
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="SpecimenUnit">
 		<xs:sequence>
-			<!-- Nest het ABCD Unit element binnen het Specimen element -->
+			<!-- Nest ABCD Unit element within Specimen element -->
 			<!-- xs:element name="Unit" type="abcd:Unit"></xs:element -->
 			<xs:element type="xs:string" name="unitID" />
 			<xs:element type="xs:string" name="associatedUnitID" />
@@ -67,8 +67,8 @@
 		<xs:sequence>
 			<xs:element type="xs:string" name="projectID" />
 			<xs:element type="xs:string" name="versionNumber" />
-			<xs:element type="tns:Amplification" name="amplification" />
-			<xs:element type="tns:Sequencing" name="sequencing" />
+			<xs:element type="self:Amplification" name="amplification" />
+			<xs:element type="self:Sequencing" name="sequencing" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -79,7 +79,7 @@
 			<xs:element type="xs:int" name="consensusSequenceLength" />
 			<xs:element type="xs:string" name="consensusSequenceQuality" />
 			<xs:element type="xs:string" name="amplificationStaff" />
-			<xs:element name="geneticAccession" type="tns:GeneticAccession"></xs:element>
+			<xs:element name="geneticAccession" type="self:GeneticAccession"></xs:element>
 		</xs:sequence>
 	</xs:complexType>
 

@@ -1,4 +1,4 @@
-package nl.naturalis.lims2.oaipmh.specimens;
+package nl.naturalis.lims2.oaipmh.slides;
 
 import java.io.OutputStream;
 
@@ -8,15 +8,9 @@ import nl.naturalis.oaipmh.api.RepositoryException;
 
 import org.openarchives.oai._2.OAIPMHtype;
 
-/**
- * OAI repository for specimens.
- * 
- * @author Ayco Holleman
- *
- */
-public class SpecimenOAIRepository extends Lims2OAIRepository {
+public class DNASlideOAIRepository extends Lims2OAIRepository {
 
-	public SpecimenOAIRepository()
+	public DNASlideOAIRepository()
 	{
 		super();
 	}

@@ -1,4 +1,4 @@
-package nl.naturalis.lims2.oaipmh.specimens;
+package nl.naturalis.lims2.oaipmh.slides;
 
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.createResponseSkeleton;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
@@ -7,9 +7,9 @@ import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
 import java.util.Date;
 
 import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
+import nl.naturalis.lims2.oaipmh.jaxb.DNASlide;
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
-import nl.naturalis.lims2.oaipmh.jaxb.Specimen;
-import nl.naturalis.lims2.oaipmh.jaxb.SpecimenUnit;
+import nl.naturalis.lims2.oaipmh.jaxb.SlideUnit;
 import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 
@@ -33,22 +33,21 @@ class ListRecordsHandler {
 
 		HeaderType header = oaiFactory.createHeaderType();
 		record.setHeader(header);
-		header.setIdentifier("154383046");
+		header.setIdentifier("123423046");
 		header.setDatestamp(dateTimeFormatter.format(new Date()));
 
 		MetadataType metadata = oaiFactory.createMetadataType();
 		record.setMetadata(metadata);
 		Geneious geneious = new Geneious();
 		metadata.setAny(geneious);
-		Specimen specimen = new Specimen();
-		geneious.setSpecimen(specimen);
-		SpecimenUnit unit = new SpecimenUnit();
-		specimen.setUnit(unit);
-		unit.setUnitID("RMNH.INS.23917");
-		unit.setAssociatedUnitID("ANTVI001-11");
-		unit.setUri("http://www.boldsystems.org/index.php/Public_RecordView?processid=ANTVI001-11");
-		unit.setMultiMediaObjectComment(1);
+		DNASlide slide = new DNASlide();
+		geneious.setDnaSlide(slide);
+		SlideUnit unit = new SlideUnit();
+		slide.setUnit(unit);
+		unit.setBatchID("BCP1234-99");
+		unit.setInstituePlateID("NBCN123456");
 
 		return root;
 	}
+
 }
