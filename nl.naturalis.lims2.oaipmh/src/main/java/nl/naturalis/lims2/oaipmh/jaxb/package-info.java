@@ -6,7 +6,9 @@
 // schema.
 // Generated on: 2015.12.24 at 09:46:24 AM CET
 //
-
+/**
+ * JAXB classes generated from the LIMS2 XML schema.
+ */
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://data.naturalis.nl/lims2",
 		xmlns = @XmlNs(namespaceURI = "http://data.naturalis.nl/lims2", prefix = "lims2"),
 		elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
