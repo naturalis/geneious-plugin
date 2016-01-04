@@ -8,6 +8,7 @@ import jebl.util.ProgressListener;
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogOptions;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
+import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 /**
@@ -17,14 +18,25 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 public class LimsOptions extends Options {
 
 	private FileSelectionOption fileSelectionOption;
+	private LabelOption labelOption;
 	private DialogOptions dialogOptions;
+	private Icons icon;
 
-	public LimsOptions() {
+	public LimsOptions(String filename) {
+		// dialogOptions.getCustomIcon();
+		// dialogOptions.getDefaultButton();
 		// dialogOptions = getDialogOptions();
-		fileSelectionOption = addFileSelectionOption("Excel",
-				"Select a Excel file", "");
-		fileSelectionOption.setAlwaysUsesDefaultPreferenceLocation(true);
-		fileSelectionOption.setAllowMultipleSelection(true);
+
+		labelOption = (LabelOption) addLabel(filename);
+		labelOption.setCenterText(true);
+		labelOption.isVisible();
+
+		/*
+		 * fileSelectionOption = addFileSelectionOption("Excel",
+		 * "Select a Excel file", "");
+		 * fileSelectionOption.setAlwaysUsesDefaultPreferenceLocation(true);
+		 * fileSelectionOption.setAllowMultipleSelection(true);
+		 */
 
 	}
 
@@ -38,7 +50,7 @@ public class LimsOptions extends Options {
 
 	public Options getOptions(final AnnotatedPluginDocument[] documents)
 			throws DocumentOperationException {
-		return new LimsOptions();
+		return new LimsOptions(null);
 	}
 
 	public void performOperation(AnnotatedPluginDocument[] documentList,

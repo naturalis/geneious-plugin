@@ -3,7 +3,7 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.io.BufferedReader;
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
@@ -23,6 +24,8 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
+import com.biomatters.geneious.publicapi.plugin.Options;
+import com.opencsv.CSVReader;
 
 /**
  * @author Reinier.Kartowikromo
@@ -38,7 +41,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	private String extractIDfileName = "";
 	private SequenceDocument seq;
-	// private Options options;
+	private Options options;
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ limsImporterUtil.getLogFilename();
@@ -136,6 +139,17 @@ public class LimsReadDataFromExcel extends DocumentAction {
 		limsLogger
 				.logMessage("-------------------------- E N D --------------------------");
 		limsLogger.logMessage("Done with updating the selected document(s). ");
+		limsLogger.removeConsoleHandler();
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				options = new LimsOptions(seq.getName());
+				options.addLabel("Done with updating the selected document(s).");
+				Dialogs.showOptionsDialog(options,
+						"Naturalis Geneious Excel file", false);
+			}
+		});
 
 	}
 
@@ -158,16 +172,14 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	private void readDataFromExcel(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, String fileName) {
+
 		String csvPath = "";
-		BufferedReader br = null;
-		String line = "";
-		String cvsSplitBy = "\t";
 		String[] record = null;
 
 		try {
 			// csvFile = limsImporterUtil.getFileFromPropertieFile("excel");
 			csvPath = limsImporterUtil.getPropValues() + fileName;
-			System.out.println("Path is: " + csvPath);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -175,98 +187,57 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 		limsLogger.logMessage("Start with adding notes to the document");
 		try {
-			String ID = "e";
-			br = new BufferedReader(new FileReader(csvPath));
-			while ((line = br.readLine()) != null) {
-				/*
-				 * if (line.length() == 0) { continue; }
-				 */
+			CSVReader csvReader = new CSVReader(new FileReader(csvPath), '\t',
+					'\'', 0);
 
-				// use comma as separator
-				record = line.split(cvsSplitBy);
+			csvReader.readNext();
 
-				if (record[3] != null) {
-					ID = record[3];
-					System.out.println("ID: " + record[3]);
-				}
-
-				if (record[3].equals(extractIDfileName)) {
-					limsExcelFields.setProjectPlaatNummer(record[0]);
-					limsExcelFields.setPlaatPositie(record[1]);
-					limsExcelFields.setExtractPlaatNummer(record[2]);
-					if (record[3] != null) {
-						limsExcelFields.setExtractID(ID);
+			limsLogger.logMessage("Start with adding notes to the document");
+			try {
+				while ((record = csvReader.readNext()) != null) {
+					if (record.length == 0) {
+						continue;
 					}
-					limsExcelFields.setRegistrationNumber(record[4]);
-					limsExcelFields.setTaxonNaam(record[5]);
-					// limsExcelFields.setSubSample(record[0]);
 
-					limsLogger.logMessage("Extract-ID: "
-							+ limsExcelFields.getExtractID());
-					limsLogger.logMessage("Project plaatnummer: "
-							+ limsExcelFields.getProjectPlaatNummer());
-					limsLogger.logMessage("Extract plaatnummer: "
-							+ limsExcelFields.getExtractPlaatNummer());
-					limsLogger.logMessage("Taxon naam: "
-							+ limsExcelFields.getTaxonNaam());
-					limsLogger.logMessage("Registrationnumber: "
-							+ limsExcelFields.getRegistrationNumber());
-					limsLogger.logMessage("Plaat positie: "
-							+ limsExcelFields.getPlaatPositie());
+					String ID = "e" + record[3];
 
-					/*
-					 * CSVReader csvReader = new CSVReader( new
-					 * FileReader(csvPath), '\t', '\'', 0);
-					 * 
-					 * csvReader.readNext();
-					 */
+					if (ID.equals(extractIDfileName)) {
+						limsExcelFields.setProjectPlaatNummer(record[0]);
+						limsExcelFields.setPlaatPositie(record[1]);
+						limsExcelFields.setExtractPlaatNummer(record[2]);
+						if (record[3] != null) {
+							limsExcelFields.setExtractID(ID);
+						}
+						limsExcelFields.setRegistrationNumber(record[4]);
+						limsExcelFields.setTaxonNaam(record[5]);
+						// limsExcelFields.setSubSample(record[0]);
 
-					// limsLogger.logMessage("Start with adding notes to the document");
-					// try {
-					// while ((record = csvReader.readNext()) != null) {
-					// if (record.length == 0) {
-					// continue;
-					// }
-					//
-					// String ID = "e" + record[3];
-					//
-					// if (ID.equals(extractIDfileName)) {
-					// limsExcelFields.setProjectPlaatNummer(record[0]);
-					// limsExcelFields.setPlaatPositie(record[1]);
-					// limsExcelFields.setExtractPlaatNummer(record[2]);
-					// if (record[3] != null) {
-					// limsExcelFields.setExtractID(ID);
-					// }
-					// limsExcelFields.setRegistrationNumber(record[4]);
-					// limsExcelFields.setTaxonNaam(record[5]);
-					// // limsExcelFields.setSubSample(record[0]);
-					//
-					// limsLogger.logMessage("Extract-ID: "
-					// + limsExcelFields.getExtractID());
-					// limsLogger.logMessage("Project plaatnummer: "
-					// + limsExcelFields.getProjectPlaatNummer());
-					// limsLogger.logMessage("Extract plaatnummer: "
-					// + limsExcelFields.getExtractPlaatNummer());
-					// limsLogger.logMessage("Taxon naam: "
-					// + limsExcelFields.getTaxonNaam());
-					// limsLogger.logMessage("Registrationnumber: "
-					// + limsExcelFields.getRegistrationNumber());
-					// limsLogger.logMessage("Plaat positie: "
-					// + limsExcelFields.getPlaatPositie());
+						limsLogger.logMessage("Extract-ID: "
+								+ limsExcelFields.getExtractID());
+						limsLogger.logMessage("Project plaatnummer: "
+								+ limsExcelFields.getProjectPlaatNummer());
+						limsLogger.logMessage("Extract plaatnummer: "
+								+ limsExcelFields.getExtractPlaatNummer());
+						limsLogger.logMessage("Taxon naam: "
+								+ limsExcelFields.getTaxonNaam());
+						limsLogger.logMessage("Registrationnumber: "
+								+ limsExcelFields.getRegistrationNumber());
+						limsLogger.logMessage("Plaat positie: "
+								+ limsExcelFields.getPlaatPositie());
 
-				} // end IF
-			} // end While
+					} // end IF
+				} // end While
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				csvReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// try {
-		// csvReader.close();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
 	}
 
 	/**

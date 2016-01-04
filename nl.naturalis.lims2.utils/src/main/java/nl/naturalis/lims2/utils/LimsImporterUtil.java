@@ -173,7 +173,7 @@ public class LimsImporterUtil {
 			limsLogger.logMessage("Exception: " + e);
 		} finally {
 			inputStream.close();
-			limsLogger.flushCloseFileHandler();
+			// limsLogger.flushCloseFileHandler();
 			limsLogger.removeConsoleHandler();
 		}
 		return result;
