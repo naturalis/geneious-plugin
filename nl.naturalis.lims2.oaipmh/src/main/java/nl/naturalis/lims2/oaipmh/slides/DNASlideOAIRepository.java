@@ -20,7 +20,7 @@ public class DNASlideOAIRepository extends Lims2OAIRepository {
 	{
 		ListRecordsHandler handler = new ListRecordsHandler();
 		OAIPMHtype oaipmh = handler.handleRequest(request);
-		marshal(oaipmh, out);
+		stream(oaipmh, out);
 	}
 
 }

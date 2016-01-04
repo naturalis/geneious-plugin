@@ -14,7 +14,7 @@ import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
 import nl.naturalis.oaipmh.api.XSDNotFoundException;
-import nl.naturalis.oaipmh.api.util.OAIPMHMarshaller;
+import nl.naturalis.oaipmh.api.util.OAIPMHStreamer;
 
 import org.domainobject.util.IOUtil;
 import org.openarchives.oai._2.OAIPMHtype;
@@ -119,15 +119,15 @@ public abstract class Lims2OAIRepository implements IOAIRepository {
 	 * @param out
 	 * @throws RepositoryException
 	 */
-	protected void marshal(OAIPMHtype oaipmh, OutputStream out) throws RepositoryException
+	protected void stream(OAIPMHtype oaipmh, OutputStream out) throws RepositoryException
 	{
-		OAIPMHMarshaller marshaller = new OAIPMHMarshaller();
-		marshaller.setRootElement(oaipmh);
-		marshaller.addJaxbPackage("nl.naturalis.lims2.oaipmh.jaxb");
+		OAIPMHStreamer streamer = new OAIPMHStreamer();
+		streamer.setRootElement(oaipmh);
+		streamer.addJaxbPackage("nl.naturalis.lims2.oaipmh.jaxb");
 		String schemaLocation = repoBaseURL + "xsd/lims2.xsd";
-		marshaller.addSchemaLocation(LIMS2_XMLNS, schemaLocation);
+		streamer.addSchemaLocation(LIMS2_XMLNS, schemaLocation);
 		try {
-			marshaller.marshal(out);
+			streamer.stream(out);
 		}
 		catch (JAXBException e) {
 			throw new RepositoryException(e);
