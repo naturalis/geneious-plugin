@@ -38,7 +38,6 @@ public class LimsFileSelector {
 		try {
 			csvPath = limsImporterUtil.getPropValues();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		JFileChooser chooser = new JFileChooser(csvPath);

@@ -3,13 +3,14 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.io.File;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
@@ -32,33 +33,36 @@ public class LimsImportAB1Update extends DocumentAction {
 	LimsNotes limsNotes = new LimsNotes();
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private List<AnnotatedPluginDocument> docs;
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsImportAB1Update.class);
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		String logFileName = limsImporterUtil.getLogPath() + File.separator
-				+ limsImporterUtil.getLogFilename();
-
-		LimsLogger limsLogger = new LimsLogger(logFileName);
-		limsLogger
-				.logMessage("----------------------------S T A R T -------------------------------");
+		/*
+		 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
+		 * limsImporterUtil.getLogFilename();
+		 * 
+		 * LimsLogger limsLogger = new LimsLogger(logFileName);
+		 */
+		logger.info("----------------------------S T A R T -------------------------------");
 		try {
 			docs = DocumentUtilities.getSelectedDocuments();
 			for (int cnt = 0; cnt < docs.size(); cnt++) {
 				seq = (SequenceDocument) docs.get(cnt).getDocument();
+				System.out.println("Sequence name: " + seq.getName());
 
-				limsLogger.logMessage("Start extracting value from file: "
+				logger.info("Start extracting value from file: "
 						+ seq.getName());
 
 				if (seq.getName() != null) {
 					limsAB1Fields.setFieldValuesFromAB1FileName(seq.getName());
 
-					limsLogger.logMessage("Extract-ID: "
-							+ limsAB1Fields.getExtractID());
-					limsLogger.logMessage("PCR plaat-ID: "
+					logger.info("Extract-ID: " + limsAB1Fields.getExtractID());
+					logger.info("PCR plaat-ID: "
 							+ limsAB1Fields.getPcrPlaatID());
-					limsLogger.logMessage("Mark: " + limsAB1Fields.getMarker());
+					logger.info("Mark: " + limsAB1Fields.getMarker());
 
 					/** set note for Extract-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -84,18 +88,19 @@ public class LimsImportAB1Update extends DocumentAction {
 			}
 		}
 
-		limsLogger.logMessage("Total of document(s) updated: " + docs.size());
-		limsLogger
-				.logMessage("------------------------- E N D--------------------------------------");
-		limsLogger.logMessage("Done with extracting Ab1 file name. ");
-		limsLogger.flushCloseFileHandler();
-		limsLogger.removeConsoleHandler();
+		logger.info("Total of document(s) updated: " + docs.size());
+		logger.info("------------------------- E N D--------------------------------------");
+		logger.info("Done with extracting Ab1 file name. ");
+		/*
+		 * limsLogger.flushCloseFileHandler();
+		 * limsLogger.removeConsoleHandler();
+		 */
 
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read AB1 file")
+		return new GeneiousActionOptions("Update AB1 file")
 				.setInMainToolbar(true);
 	}
 
