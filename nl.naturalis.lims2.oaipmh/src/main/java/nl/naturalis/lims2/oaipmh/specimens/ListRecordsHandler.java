@@ -51,4 +51,10 @@ class ListRecordsHandler {
 
 		return root;
 	}
+
+	void ok()
+	{
+
+	}
+
 }
