@@ -34,7 +34,6 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
-import com.biomatters.geneious.publicapi.utilities.FileUtilities;
 
 /*import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;*/
@@ -90,37 +89,34 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
 				file, ProgressListener.EMPTY);
 
-		System.out.println("Sequence name: " + file.getName());
 		count += docs.size();
 
 		document = importCallback.addDocument(docs.iterator().next());
 
-		QueryField[] queryField = getSearchFields(file.getName());
-		System.out.println(queryField.toString());
-
-		displayFields = new ArrayList<DocumentField>();
-
-		DocumentField extractName = DocumentField.createStringField(
-				"Extract ID", "The sequence name", "Extract-ID");
-
-		searchFields = new QueryField[1];
-
-		Condition[] eqCond = { Condition.EQUAL };
-		QueryField queryField2 = new QueryField(extractName, eqCond);
-
-		searchFields[0] = queryField2;
-
-		// BasicSearchQuery bs = (BasicSearchQuery) queryField2;
-
-		Query query = Query.Factory.createFieldQuery(extractName,
-				Condition.EQUAL, file.getName());
-
-		try {
-			retrieve(query, null, file.getAbsoluteFile());
-		} catch (DatabaseServiceException e) {
-			e.printStackTrace();
-		}
-
+		/*
+		 * QueryField[] queryField = getSearchFields(file.getName());
+		 * System.out.println(queryField.toString());
+		 * 
+		 * displayFields = new ArrayList<DocumentField>();
+		 * 
+		 * DocumentField extractName = DocumentField.createStringField("name",
+		 * "The sequence name", "name");
+		 * 
+		 * searchFields = new QueryField[1];
+		 * 
+		 * Condition[] eqCond = { Condition.EQUAL }; QueryField queryField2 =
+		 * new QueryField(extractName, eqCond);
+		 * 
+		 * searchFields[0] = queryField2;
+		 * 
+		 * // BasicSearchQuery bs = (BasicSearchQuery) queryField2;
+		 * 
+		 * Query query = Query.Factory.createFieldQuery(extractName,
+		 * Condition.EQUAL, file.getName());
+		 * 
+		 * try { retrieve(query, null, file.getAbsoluteFile()); } catch
+		 * (DatabaseServiceException e) { e.printStackTrace(); }
+		 */
 		if (file.getName() != null) {
 			limsAB1Fields.setFieldValuesFromAB1FileName(file.getName());
 
@@ -152,6 +148,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+			/* set note for Marker */
+			try {
+				limsNotes.setImportNotes(document, "VersieCode",
+						"Version number", "Version number",
+						limsAB1Fields.getVersieNummer());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		logger.info("Total of document(s) filename extracted: " + count);
 		logger.info("----------------------------E N D ---------------------------------");
@@ -163,11 +167,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
 			String fileContentsStart) {
+		System.out.println("FileName: " + file.getName());
 		return AutoDetectStatus.ACCEPT_FILE;
 	}
 
 	public QueryField[] getSearchFields(String name) {
-		return new QueryField[] { new QueryField(new DocumentField("Name",
+		return new QueryField[] { new QueryField(new DocumentField("name",
 				"The sequence name", name, String.class, false, false),
 				new Condition[] { Condition.CONTAINS }) };
 	}
@@ -182,12 +187,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					"AB1 file does not exist (file name=" + ab1 + ")", false);
 		}
 
-		try {
-			System.out.println("text=" + fileName);
-			System.out.println(FileUtilities.getTextFromFile(fileName));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		System.out.println("text=" + fileName);
+		// System.out.println(FileUtilities.getTextFromFile(fileName));
+
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			String currentLine = "";
@@ -242,7 +244,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			// now lets loop through the ab1 file
 			while ((currentLine = in.readLine()) != null) {
-				if (currentLine != null) {
+				if (currentLine.startsWith("ABIF")) {
+					// if (currentLine != null) {
 					if (!name.equals("")) {
 						// we get to this part of the code once we have read in
 						// one sequence (a name line and the residue lines)
@@ -259,7 +262,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					}
 
 					// set the name variable to the new sequence name
-					name = currentLine.substring(1, currentLine.length());
+					name = currentLine.substring(0, currentLine.length());
 					System.out.println("name=" + name);
 				}
 			}

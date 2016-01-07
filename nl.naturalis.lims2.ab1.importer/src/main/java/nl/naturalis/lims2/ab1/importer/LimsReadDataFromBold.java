@@ -3,18 +3,21 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.io.File;
+import java.awt.EventQueue;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
@@ -36,11 +39,15 @@ public class LimsReadDataFromBold extends DocumentAction {
 	LimsBoldFields limsBoldFields = new LimsBoldFields();
 	LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	SequenceDocument seq;
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsImportAB1Update.class);
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ limsImporterUtil.getLogFilename();
-
-	LimsLogger limsLogger = new LimsLogger(logFileName);
+	/*
+	 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
+	 * limsImporterUtil.getLogFilename();
+	 * 
+	 * LimsLogger limsLogger = new LimsLogger(logFileName);
+	 */
 
 	private String boldFilePath;
 	private String boldFile;
@@ -49,28 +56,35 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private final String fieldName = "BasisOfRecordCode";
 	private List<AnnotatedPluginDocument> docs;
 	LimsFileSelector fcd = new LimsFileSelector();
+	private List<String> msgList = new ArrayList<String>();
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-		limsLogger
-				.logMessage("------------------------------S T A R T -----------------------------------");
-		limsLogger.logMessage("Start adding Bold metadata to AB1 File(s)");
+		logger.info("------------------------------S T A R T -----------------------------------");
+		logger.info("Start adding Bold metadata to AB1 File(s)");
 
 		if (annotatedPluginDocuments[0] != null) {
 
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
+				String boldFileSelected = fcd.loadSelectedFile();
+				if (boldFileSelected.isEmpty()) {
+					return;
+				}
+
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
-					limsLogger
-							.logMessage("Selected document: " + seq.getName());
+					logger.info("Selected document: " + seq.getName());
 					setExtractIDfileName(seq.getName());
 					extractIDfileName = getExtractIDFromAB1FileName(seq
 							.getName());
+
+					msgList.add(seq.getName());
+
 					readDataFromBold(annotatedPluginDocuments[cnt],
-							fcd.loadSelectedFile());
+							boldFileSelected);
 
 					/*
 					 * setNoteToAB1FileName(AnnotatedPluginDocument[]
@@ -115,19 +129,24 @@ public class LimsReadDataFromBold extends DocumentAction {
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
-			limsLogger.logMessage("Total of document(s) updated: "
-					+ docs.size());
+			logger.info("Total of document(s) updated: " + docs.size());
 		}
-		limsLogger
-				.logMessage("------------------------------E N D -----------------------------------");
-		limsLogger.logMessage("Done with reading bold file. ");
+		logger.info("------------------------------E N D -----------------------------------");
+		logger.info("Done with reading bold file. ");
+		EventQueue.invokeLater(new Runnable() {
 
+			@Override
+			public void run() {
+				Dialogs.showMessageDialog("Bold: Done with updating the selected document(s): "
+						+ msgList.toString());
+				msgList.clear();
+			}
+		});
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read data from Bold")
-				.setInMainToolbar(true);
+		return new GeneiousActionOptions("CRS-Bold").setInMainToolbar(true);
 	}
 
 	@Override
@@ -143,18 +162,18 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	private void readDataFromBold(
 			AnnotatedPluginDocument annotatedPluginDocument, String fileName) {
-		try {
-			// limsImporterUtil.getFileFromPropertieFile("bold")
-			setBoldFile(fileName);
-			setBoldFilePath(limsImporterUtil.getPropValues() + getBoldFile());
-			limsLogger.logMessage("CSV file: " + getBoldFilePath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		/*
+		 * try { // limsImporterUtil.getFileFromPropertieFile("bold")
+		 * setBoldFile(fileName);
+		 * setBoldFilePath(limsImporterUtil.getPropValues() + getBoldFile());
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 */
+		logger.info("CSV file: " + fileName);
 
 		try {
-			CSVReader csvReader = new CSVReader(new FileReader(
-					getBoldFilePath()), '\t', '\'', 0);
+			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
+					'\'', 0);
 
 			String[] record = null;
 			csvReader.readNext();
@@ -177,11 +196,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 					// if (ID.equals(getExtractIDfileName()))
 					if (record[5].equals(fieldValue)) {
 
-						limsLogger
-								.logMessage("Registrationnumber "
-										+ record[5]
-										+ " from the Bold file is equal to the fieldvalue: "
-										+ fieldValue + " from the AB1 file.");
+						logger.info("Registrationnumber "
+								+ record[5]
+								+ " from the Bold file is equal to the fieldvalue: "
+								+ fieldValue + " from the AB1 file.");
 
 						limsBoldFields.setMarker(record[1]);
 						limsBoldFields.setBoldID(record[4]);
@@ -190,21 +208,18 @@ public class LimsReadDataFromBold extends DocumentAction {
 						limsBoldFields.setTraceFilePresence(record[7]);
 						limsBoldFields.setGenBankID(record[15]);
 
-						limsLogger.logMessage("Bold-ID: "
-								+ limsBoldFields.getBoldID());
-						limsLogger.logMessage("Col.Registratiecode: "
+						logger.info("Bold-ID: " + limsBoldFields.getBoldID());
+						logger.info("Col.Registratiecode: "
 								+ limsBoldFields.getColRegistratiecode());
-						limsLogger.logMessage("GenBankID: "
+						logger.info("GenBankID: "
 								+ limsBoldFields.getGenBankID());
-						limsLogger.logMessage("Marker: "
-								+ limsBoldFields.getMarker());
-						limsLogger.logMessage("Nucleotide: "
+						logger.info("Marker: " + limsBoldFields.getMarker());
+						logger.info("Nucleotide: "
 								+ limsBoldFields.getNucleotideLength());
-						limsLogger.logMessage("TraceFile Presence: "
+						logger.info("TraceFile Presence: "
 								+ limsBoldFields.getTraceFilePresence());
 
-						limsLogger
-								.logMessage("Done with adding notes to the document");
+						logger.info("Done with adding notes to the document");
 
 					} // end IF
 				} // end While

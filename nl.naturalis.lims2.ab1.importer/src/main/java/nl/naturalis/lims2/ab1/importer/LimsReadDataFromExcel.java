@@ -63,6 +63,9 @@ public class LimsReadDataFromExcel extends DocumentAction {
 				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
 				String fileSelected = fcd.loadSelectedFile();
+				if (fileSelected == null) {
+					return;
+				}
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					logger.info("-------------------------- S T A R T --------------------------");
@@ -75,25 +78,6 @@ public class LimsReadDataFromExcel extends DocumentAction {
 					msgList.add(seq.getName());
 
 					readDataFromExcel(annotatedPluginDocuments, fileSelected);
-
-					/*
-					 * EventQueue.invokeLater(new Runnable() {
-					 * 
-					 * @Override public void run() { options = new
-					 * LimsOptions(); Dialogs.showOptionsDialog(options,
-					 * "Select a file", true);
-					 * 
-					 * readDataFromExcel(annotatedPluginDocuments, fcd.loadFile(
-					 * new Frame(), "Open...", ".\\", "*.txt"));
-					 * 
-					 * } });
-					 */
-
-					/*
-					 * setNoteToAB1FileName(AnnotatedPluginDocument[]
-					 * annotatedPluginDocuments, String fieldCode, String
-					 * textNoteField, String noteTypeCode, String fieldValue)
-					 */
 
 					/* set note for Extract-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -128,6 +112,17 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							"PlaatpositieCode", "Plaat positie",
 							"Plaat positie", limsExcelFields.getPlaatPositie(),
 							cnt);
+
+					/* set note for Sample method */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"SampleMethodCode", "Sample method",
+							"Sample method", limsExcelFields.getSubSample(),
+							cnt);
+
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"VersieCode", "Version number", "Version number",
+							limsExcelFields.getVersieNummer(), cnt);
+
 					logger.info("Done with adding notes to the document");
 
 				}
@@ -145,7 +140,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 			@Override
 			public void run() {
-				Dialogs.showMessageDialog("Done with updating the selected document(s): "
+				Dialogs.showMessageDialog("Excel: Done with updating the selected document(s): "
 						+ msgList.toString());
 				msgList.clear();
 			}
@@ -154,7 +149,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read data from Excel")
+		return new GeneiousActionOptions("Import Geneious samplesheet")
 				.setInMainToolbar(true);
 	}
 
@@ -175,18 +170,18 @@ public class LimsReadDataFromExcel extends DocumentAction {
 		String csvPath = "";
 		String[] record = null;
 
-		try {
-			// csvFile = limsImporterUtil.getFileFromPropertieFile("excel");
-			csvPath = limsImporterUtil.getPropValues() + fileName;
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.info("CSV file: " + csvPath);
+		/*
+		 * try { // csvFile =
+		 * limsImporterUtil.getFileFromPropertieFile("excel"); //csvPath =
+		 * limsImporterUtil.getPropValues() + fileName;
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 */
+		logger.info("CSV file: " + fileName);
 
 		logger.info("Start with adding notes to the document");
 		try {
-			CSVReader csvReader = new CSVReader(new FileReader(csvPath), '\t',
+			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
 
 			csvReader.readNext();

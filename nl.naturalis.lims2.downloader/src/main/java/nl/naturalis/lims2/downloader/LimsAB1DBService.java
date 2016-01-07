@@ -37,11 +37,10 @@ public class LimsAB1DBService extends DatabaseService {
 			URN[] urns) throws DatabaseServiceException {
 
 		ArrayList<String> fields = new ArrayList<String>();
-		fields.add("Test");
-		fields.add("Test1");
-		fields.add("Test2");
-		fields.add("Test3");
-		fields.add("Test4");
+		fields.add("name");
+		fields.add("ExtractID");
+		fields.add("PCRPlaatID");
+		fields.add("Marker");
 
 		/*
 		 * SequenceDocument documents0 = new DefaultNucleotideSequence(

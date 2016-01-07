@@ -83,4 +83,10 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return new DocumentOperation[] { new LimsDummySequence() };
 	}
 
+	/*
+	 * public GeneiousService[] getServices() { LimsAB1Fields.init();
+	 * GeneiousService[] services = new GeneiousService[1]; services[0] = new
+	 * LimsImportAB1(); return services; }
+	 */
+
 }
