@@ -1,8 +1,18 @@
 package nl.naturalis.lims2.oaipmh;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import nl.naturalis.oaipmh.api.CannotDisseminateFormatError;
 import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
+import nl.naturalis.oaipmh.api.RepositoryException;
+
+import org.domainobject.util.ConfigObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides common functionality for LIMS2/Geneious repositories.
@@ -21,6 +31,8 @@ public class Lims2OAIUtil {
 	 */
 	public static final String LIMS2_XMLNS_PREFIX = "lims2";
 
+	private static final Logger logger = LoggerFactory.getLogger(Lims2OAIUtil.class);
+
 	private Lims2OAIUtil()
 	{
 	}
@@ -35,6 +47,55 @@ public class Lims2OAIUtil {
 	{
 		if (!request.getMetadataPrefix().equals("lims2"))
 			throw new OAIPMHException(new CannotDisseminateFormatError(request));
+	}
+
+	public static ConfigObject getConfig()
+	{
+		String path = "/oai-repo.geneious.properties";
+		return new ConfigObject(Lims2OAIUtil.class.getResourceAsStream(path));
+	}
+
+	/**
+	 * Returns a connection to Geneious database.
+	 * 
+	 * @param cfg
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public static Connection connect(ConfigObject cfg) throws RepositoryException
+	{
+		logger.debug("Connecting to Geneious database");
+		try {
+			@SuppressWarnings("unused")
+			Driver driver = new com.mysql.jdbc.Driver();
+			String dsn = cfg.required("db.dsn");
+			String user = cfg.required("db.user");
+			String password = cfg.required("db.password");
+			Connection conn = DriverManager.getConnection(dsn, user, password);
+			logger.debug("Connected");
+			return conn;
+		}
+		catch (SQLException e) {
+			throw new RepositoryException("Failed to connect to Geneious database", e);
+		}
+	}
+
+	/**
+	 * Closes the specified database connection (null-save).
+	 * 
+	 * @param conn
+	 */
+	public static void disconnect(Connection conn)
+	{
+		if (conn == null)
+			return;
+		logger.debug("Disconnecting from Geneious database");
+		try {
+			conn.close();
+		}
+		catch (SQLException e) {
+			logger.error("Error (ignored) while disconnecting from Geneious database", e);
+		}
 	}
 
 }
