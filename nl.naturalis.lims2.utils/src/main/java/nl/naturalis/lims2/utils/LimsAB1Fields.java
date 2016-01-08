@@ -14,6 +14,7 @@ public class LimsAB1Fields {
 	private String extractID;
 	private String pcrPlaatID;
 	private String marker;
+	private String versieNummer = "1";
 
 	public String getExtractID() {
 		return extractID;
@@ -43,11 +44,21 @@ public class LimsAB1Fields {
 		/*
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
 		 */
-		String[] underscore = StringUtils.split(ab1FileName, "_");
-		setExtractID(underscore[0]);
-		setPcrPlaatID(underscore[3]);
-		setMarker(underscore[4]);
+		if (ab1FileName.contains("_")) {
+			String[] underscore = StringUtils.split(ab1FileName, "_");
+			setExtractID(underscore[0]);
+			setPcrPlaatID(underscore[3]);
+			setMarker(underscore[4]);
+		}
 
+	}
+
+	public String getVersieNummer() {
+		return versieNummer;
+	}
+
+	public void setVersieNummer(String versieNummer) {
+		this.versieNummer = versieNummer;
 	}
 
 }

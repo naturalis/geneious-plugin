@@ -8,9 +8,12 @@ import java.util.Date;
 import java.util.List;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.lims2.utils.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsNotes;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+import com.biomatters.geneious.publicapi.documents.URN;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
@@ -23,6 +26,9 @@ import com.biomatters.geneious.publicapi.plugin.Options;
  *
  */
 public class LimsDummySequence extends DocumentOperation {
+
+	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
+	private LimsNotes limsNotes = new LimsNotes();
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
@@ -60,11 +66,22 @@ public class LimsDummySequence extends DocumentOperation {
 		// the
 		// user entered
 		NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
-				"New Sequence", "A new dummy Sequence", residues, new Date());
+				"New Sequence", "A new dummy Sequence", residues, new Date(),
+				URN.generateUniqueLocalURN("Dummy"));
 
 		// and add it to the list
 		sequenceList.add(DocumentUtilities
 				.createAnnotatedPluginDocument(sequence));
+
+		// AnnotatedPluginDocument annotatedPluginDocument =
+		// (AnnotatedPluginDocument) sequence;
+
+		try {
+			limsNotes.setImportNotes(sequenceList.iterator().next(),
+					"VersieCode", "Version number", "Version number", "0");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 
 		// normally we would set the progress incrementally as we went,
 		// but this

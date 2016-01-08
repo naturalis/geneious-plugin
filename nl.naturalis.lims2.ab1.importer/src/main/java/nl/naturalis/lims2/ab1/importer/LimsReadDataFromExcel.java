@@ -4,16 +4,17 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -24,7 +25,6 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
-import com.biomatters.geneious.publicapi.plugin.Options;
 import com.opencsv.CSVReader;
 
 /**
@@ -41,55 +41,43 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	private String extractIDfileName = "";
 	private SequenceDocument seq;
-	private Options options;
+	// private Options options;
+	private List<String> msgList = new ArrayList<String>();
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ limsImporterUtil.getLogFilename();
+	// String logFileName = limsImporterUtil.getLogPath() + File.separator
+	// + limsImporterUtil.getLogFilename();
 
-	LimsLogger limsLogger = new LimsLogger(logFileName);
+	// LimsLogger limsLogger = new LimsLogger(logFileName);
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsReadDataFromExcel.class);
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		limsLogger.logMessage("Start updating selected document(s).");
+		logger.info("Start updating selected document(s).");
 
 		if (annotatedPluginDocuments[0] != null) {
 			try {
 				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
+				String fileSelected = fcd.loadSelectedFile();
+				if (fileSelected == null) {
+					return;
+				}
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
-					limsLogger
-							.logMessage("-------------------------- S T A R T --------------------------");
-					limsLogger
-							.logMessage("Start Reading data from a excel file.");
+					logger.info("-------------------------- S T A R T --------------------------");
+					logger.info("Start Reading data from a excel file.");
 
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 					extractIDfileName = getExtractIDFromAB1FileName(seq
 							.getName());
 
-					readDataFromExcel(annotatedPluginDocuments,
-							fcd.loadSelectedFile());
+					msgList.add(seq.getName());
 
-					/*
-					 * EventQueue.invokeLater(new Runnable() {
-					 * 
-					 * @Override public void run() { options = new
-					 * LimsOptions(); Dialogs.showOptionsDialog(options,
-					 * "Select a file", true);
-					 * 
-					 * readDataFromExcel(annotatedPluginDocuments, fcd.loadFile(
-					 * new Frame(), "Open...", ".\\", "*.txt"));
-					 * 
-					 * } });
-					 */
-
-					/*
-					 * setNoteToAB1FileName(AnnotatedPluginDocument[]
-					 * annotatedPluginDocuments, String fieldCode, String
-					 * textNoteField, String noteTypeCode, String fieldValue)
-					 */
+					readDataFromExcel(annotatedPluginDocuments, fileSelected);
 
 					/* set note for Extract-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -124,38 +112,44 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							"PlaatpositieCode", "Plaat positie",
 							"Plaat positie", limsExcelFields.getPlaatPositie(),
 							cnt);
-					limsLogger
-							.logMessage("Done with adding notes to the document");
+
+					/* set note for Sample method */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"SampleMethodCode", "Sample method",
+							"Sample method", limsExcelFields.getSubSample(),
+							cnt);
+
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"VersieCode", "Version number", "Version number",
+							limsExcelFields.getVersieNummer(), cnt);
+
+					logger.info("Done with adding notes to the document");
+
 				}
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
-			limsLogger
-					.logMessage("--------------------------------------------------------");
-			limsLogger.logMessage("Total of document(s) updated: "
-					+ docs.size());
+			logger.info("--------------------------------------------------------");
+			logger.info("Total of document(s) updated: " + docs.size());
 		}
 
-		limsLogger
-				.logMessage("-------------------------- E N D --------------------------");
-		limsLogger.logMessage("Done with updating the selected document(s). ");
-		limsLogger.removeConsoleHandler();
+		logger.info("-------------------------- E N D --------------------------");
+		logger.info("Done with updating the selected document(s). ");
+		// limsLogger.removeConsoleHandler();
 		EventQueue.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				options = new LimsOptions(seq.getName());
-				options.addLabel("Done with updating the selected document(s).");
-				Dialogs.showMessageDialog("Done");
-				// options,"Naturalis Geneious Excel file", false);
+				Dialogs.showMessageDialog("Excel: Done with updating the selected document(s): "
+						+ msgList.toString());
+				msgList.clear();
 			}
 		});
-
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Read data from Excel")
+		return new GeneiousActionOptions("Import Geneious samplesheet")
 				.setInMainToolbar(true);
 	}
 
@@ -176,23 +170,23 @@ public class LimsReadDataFromExcel extends DocumentAction {
 		String csvPath = "";
 		String[] record = null;
 
-		try {
-			// csvFile = limsImporterUtil.getFileFromPropertieFile("excel");
-			csvPath = limsImporterUtil.getPropValues() + fileName;
+		/*
+		 * try { // csvFile =
+		 * limsImporterUtil.getFileFromPropertieFile("excel"); //csvPath =
+		 * limsImporterUtil.getPropValues() + fileName;
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 */
+		logger.info("CSV file: " + fileName);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		limsLogger.logMessage("CSV file: " + csvPath);
-
-		limsLogger.logMessage("Start with adding notes to the document");
+		logger.info("Start with adding notes to the document");
 		try {
-			CSVReader csvReader = new CSVReader(new FileReader(csvPath), '\t',
+			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
 
 			csvReader.readNext();
 
-			limsLogger.logMessage("Start with adding notes to the document");
+			logger.info("Start with adding notes to the document");
 			try {
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
@@ -212,17 +206,17 @@ public class LimsReadDataFromExcel extends DocumentAction {
 						limsExcelFields.setTaxonNaam(record[5]);
 						// limsExcelFields.setSubSample(record[0]);
 
-						limsLogger.logMessage("Extract-ID: "
+						logger.info("Extract-ID: "
 								+ limsExcelFields.getExtractID());
-						limsLogger.logMessage("Project plaatnummer: "
+						logger.info("Project plaatnummer: "
 								+ limsExcelFields.getProjectPlaatNummer());
-						limsLogger.logMessage("Extract plaatnummer: "
+						logger.info("Extract plaatnummer: "
 								+ limsExcelFields.getExtractPlaatNummer());
-						limsLogger.logMessage("Taxon naam: "
+						logger.info("Taxon naam: "
 								+ limsExcelFields.getTaxonNaam());
-						limsLogger.logMessage("Registrationnumber: "
+						logger.info("Registrationnumber: "
 								+ limsExcelFields.getRegistrationNumber());
-						limsLogger.logMessage("Plaat positie: "
+						logger.info("Plaat positie: "
 								+ limsExcelFields.getPlaatPositie());
 
 					} // end IF
@@ -249,7 +243,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	 */
 	private String getExtractIDFromAB1FileName(String fileName) {
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
-		limsLogger.logMessage("Document Filename: " + fileName);
+		logger.info("Document Filename: " + fileName);
 		String[] underscore = StringUtils.split(fileName, "_");
 		return underscore[0];
 	}

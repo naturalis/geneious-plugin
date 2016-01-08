@@ -22,21 +22,12 @@ public class LimsOptions extends Options {
 	private DialogOptions dialogOptions;
 	private Icons icon;
 
-	public LimsOptions(String filename) {
-		// dialogOptions.getCustomIcon();
-		// dialogOptions.getDefaultButton();
-		// dialogOptions = getDialogOptions();
+	public LimsOptions() {
 
-		labelOption = (LabelOption) addLabel(filename);
-		labelOption.setCenterText(true);
-		labelOption.isVisible();
-
-		/*
-		 * fileSelectionOption = addFileSelectionOption("Excel",
-		 * "Select a Excel file", "");
-		 * fileSelectionOption.setAlwaysUsesDefaultPreferenceLocation(true);
-		 * fileSelectionOption.setAllowMultipleSelection(true);
-		 */
+		fileSelectionOption = addFileSelectionOption("Excel",
+				"Select a Excel file", "");
+		fileSelectionOption.setAlwaysUsesDefaultPreferenceLocation(true);
+		fileSelectionOption.setAllowMultipleSelection(true);
 
 	}
 
@@ -50,7 +41,7 @@ public class LimsOptions extends Options {
 
 	public Options getOptions(final AnnotatedPluginDocument[] documents)
 			throws DocumentOperationException {
-		return new LimsOptions(null);
+		return new LimsOptions();
 	}
 
 	public void performOperation(AnnotatedPluginDocument[] documentList,

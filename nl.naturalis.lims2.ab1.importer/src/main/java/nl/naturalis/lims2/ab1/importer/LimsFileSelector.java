@@ -10,7 +10,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Reinier.Kartowikromo
@@ -20,10 +22,15 @@ public class LimsFileSelector {
 
 	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ limsImporterUtil.getLogFilename();
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsImportAB1Update.class);
 
-	LimsLogger limsLogger = new LimsLogger(logFileName);
+	/*
+	 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
+	 * limsImporterUtil.getLogFilename();
+	 * 
+	 * LimsLogger limsLogger = new LimsLogger(logFileName);
+	 */
 
 	String csvPath = "";
 
@@ -35,10 +42,11 @@ public class LimsFileSelector {
 	 */
 
 	public String loadSelectedFile() {
+		String fileSelected = "";
+		File fileMap = null;
 		try {
 			csvPath = limsImporterUtil.getPropValues();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		JFileChooser chooser = new JFileChooser(csvPath);
@@ -48,10 +56,27 @@ public class LimsFileSelector {
 				"TXT & XLS, CSV Files", "txt", "xls", "csv");
 		chooser.setFileFilter(filter);
 		int returnVal = chooser.showOpenDialog(chooser);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			limsLogger.logMessage("You chose to open this file: "
+
+		switch (returnVal) {
+		case JFileChooser.APPROVE_OPTION: {
+			logger.info("You chose to open this file: "
 					+ chooser.getSelectedFile().getName());
+			fileMap = chooser.getCurrentDirectory();
+			fileSelected = fileMap.getAbsolutePath() + fileMap.separator
+					+ chooser.getSelectedFile().getName();
+			break;
 		}
-		return chooser.getSelectedFile().getName();
+		case JFileChooser.CANCEL_OPTION: {
+			logger.info("Cancel or the close-dialog icon was clicked.");
+			fileSelected = null;
+			break;
+		}
+		case JFileChooser.ERROR_OPTION: {
+			System.out.println("Error");
+			break;
+		}
+		}
+		return fileSelected;
+
 	}
 }

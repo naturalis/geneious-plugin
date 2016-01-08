@@ -9,18 +9,7 @@
 	<property name="jar.dir" value="jars"/>
 
     <path id="classpath">
-        <fileset dir="../../GeneiousFiles/lib">
-            <include name="GeneiousPublicAPI.jar"/>
-            <include name="jdom.jar"/>
-            <include name="jebl.jar"/>
-        	<include name="commons-lang3-3.4.jar"/>
-        	<include name="opencsv-3.5.jar"/>
-        	
-        	<!--<include name="logback-classic-1.1.3.jar"/>
-        	<include name="logback-core-1.1.3.jar"/>
-        	<include name="log4j-1.2.17.jar"/>
-        	-->
-        </fileset>
+        <fileset dir="../../GeneiousFiles/lib"/>
        <fileset dir="${utilities.dir}">
             <include name=".java"/>
         </fileset>
@@ -47,6 +36,8 @@
         	</fileset>
         	<fileset dir="../../GeneiousFiles/lib">
         	  <include name="opencsv-3.5.jar"/> 
+        	  <include name="slf4j-api-1.7.13.jar"/>
+              <include name="slf4j-log4j12-1.7.13.jar"/> 
         	</fileset>
         	<fileset dir="${jar.dir}">
         	    <include name="LoggerFactory.class"/>
@@ -59,6 +50,8 @@
         	<fileset dir="${build}">
         		   <include name="opencsv-3.5.jar"/>
         		   <include name="plugin.properties"/>
+           		   <include name="slf4j-api-1.7.13.jar"/>
+        		   <include name="slf4j-log4j12-1.7.13.jar"/> 
         		   <include name="LoggerFactory.class"/>
         	       <include name="${short-plugin-name}.jar"/>
         	</fileset>
