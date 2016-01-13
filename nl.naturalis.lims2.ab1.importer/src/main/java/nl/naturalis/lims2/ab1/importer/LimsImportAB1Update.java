@@ -3,6 +3,7 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
@@ -52,7 +54,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	private List<String> msgList = new ArrayList<String>();
 	LimsFileSelector fcd = new LimsFileSelector();
-	private AnnotatedPluginDocument annotatedPluginDocument;
+
+	// private AnnotatedPluginDocument annotatedPluginDocument;
 
 	@Override
 	public void actionPerformed(
@@ -68,13 +71,10 @@ public class LimsImportAB1Update extends DocumentAction {
 				seq = (SequenceDocument) docs.get(cnt).getDocument();
 				System.out.println("Sequence name: " + seq.getName());
 
-				versionNumber = readVersionNumberValue
-						.readValueFromAnnotatedPluginDocument(
-								annotatedPluginDocument, noteCode, fieldName);
-
 				if (seq.getName() != null && seq.getName().contains("_")) {
 					logger.info("Start extracting value from file: "
 							+ seq.getName());
+					msgList.add(seq.getName());
 
 					limsAB1Fields.setFieldValuesFromAB1FileName(seq.getName());
 
@@ -104,18 +104,19 @@ public class LimsImportAB1Update extends DocumentAction {
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 							"VersieCode", "Version number", "Version number",
 							limsAB1Fields.getVersieNummer(), cnt);
-				} else if (seq.getName().contains("New Sequence")
+				}
+
+				versionNumber = readVersionNumberValue
+						.readValueFromAnnotatedPluginDocument(
+								annotatedPluginDocument, noteCode, fieldName);
+
+				if (seq.getName().contains("New Sequence")
 						&& versionNumber.equals("0")) {
 
 					String fileSelected = fcd.loadSelectedFile();
 					if (fileSelected == null) {
 						return;
 					}
-
-					/*
-					 * String fileSelected = fcd.loadSelectedFile(); if
-					 * (fileSelected == null) { return; }
-					 */
 
 					File file = new File(fileSelected);
 
@@ -125,16 +126,11 @@ public class LimsImportAB1Update extends DocumentAction {
 						annotatedPluginDocument = document.iterator().next();
 						DocumentUtilities.addGeneratedDocument(
 								annotatedPluginDocument, true);
-						// importCallback.addDocument(annotatedPluginDocument);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (DocumentImportException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					// docs = fileSelected;
 
 					String fileName = fileSelected.substring(fileSelected
 							.indexOf("\\e") + 1);
@@ -187,7 +183,20 @@ public class LimsImportAB1Update extends DocumentAction {
 						}
 						logger.info("Done with adding notes to the document");
 					}
+
 				}
+				EventQueue.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("AB1-Update: "
+								+ Integer.toString(msgList.size())
+								+ " documents are update." + "\n"
+								+ msgList.toString());
+						logger.info("AB1-Update: Total imported document(s): "
+								+ msgList.toString());
+					}
+				});
 			}
 		} catch (DocumentOperationException e) {
 			try {
@@ -205,7 +214,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Import/Update Geneious AB1")
+		return new GeneiousActionOptions("Update AB1 files")
 				.setInMainToolbar(true);
 	}
 

@@ -4,12 +4,14 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
@@ -34,11 +36,11 @@ import com.opencsv.CSVReader;
  */
 public class LimsReadDataFromBold extends DocumentAction {
 
-	LimsNotes limsNotes = new LimsNotes();
-	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	LimsBoldFields limsBoldFields = new LimsBoldFields();
-	LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	SequenceDocument seq;
+	private LimsNotes limsNotes = new LimsNotes();
+	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+	private LimsBoldFields limsBoldFields = new LimsBoldFields();
+	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private SequenceDocument seq;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
 
@@ -55,8 +57,20 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private final String noteCode = "DocumentNoteUtilities-Registrationnumber";
 	private final String fieldName = "BasisOfRecordCode";
 	private List<AnnotatedPluginDocument> docs;
-	LimsFileSelector fcd = new LimsFileSelector();
+	private LimsFileSelector fcd = new LimsFileSelector();
 	private List<String> msgList = new ArrayList<String>();
+	private List<String> msgUitvalList = new ArrayList<String>();
+	private List<String> verwerkingListCnt = new ArrayList<String>();
+	private List<String> verwerkList = new ArrayList<String>();
+
+	public int importCounter;
+	private int importTotal;
+	private String[] record = null;
+	private String ID = "";
+
+	String logFileName = limsImporterUtil.getLogPath() + File.separator
+			+ "Bold-" + limsImporterUtil.getLogFilename();
+	LimsLogger limsLogger = new LimsLogger(logFileName);
 
 	@Override
 	public void actionPerformed(
@@ -69,10 +83,11 @@ public class LimsReadDataFromBold extends DocumentAction {
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
 				String boldFileSelected = fcd.loadSelectedFile();
-				if (boldFileSelected.isEmpty()) {
+				if (boldFileSelected == null) {
 					return;
 				}
 
+				msgUitvalList.add("Filename: " + boldFileSelected + "\n");
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
@@ -137,16 +152,35 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 			@Override
 			public void run() {
-				Dialogs.showMessageDialog("Bold: Done with updating the selected document(s): "
+				/*
+				 * Dialogs.showMessageDialog(
+				 * "Bold: Done with updating the selected document(s): " +
+				 * msgList.toString()); msgList.clear();
+				 * logger.info("Bold: Total imported document(s): " +
+				 * msgList.toString());
+				 */
+
+				Dialogs.showMessageDialog("Bold: "
+						+ Integer.toString(docs.size()) + " out of "
+						+ Integer.toString(importTotal)
+						+ " documents are imported." + "\n"
 						+ msgList.toString());
+				logger.info("Bold: Total imported document(s): "
+						+ msgList.toString());
+
+				limsLogger.logToFile(logFileName, msgUitvalList.toString());
+
 				msgList.clear();
+				msgUitvalList.clear();
+				verwerkingListCnt.clear();
+				verwerkList.clear();
 			}
 		});
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("CRS-Bold").setInMainToolbar(true);
+		return new GeneiousActionOptions("Bold").setInMainToolbar(true);
 	}
 
 	@Override
@@ -169,22 +203,31 @@ public class LimsReadDataFromBold extends DocumentAction {
 		 * 
 		 * } catch (IOException e) { e.printStackTrace(); }
 		 */
-		logger.info("CSV file: " + fileName);
+		logger.info("CSV Bold file: " + fileName);
+		logger.info("Start with adding notes to the document");
 
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
 
-			String[] record = null;
+			int counter = 0;
+			int cntVerwerkt = 0;
+
 			csvReader.readNext();
 
 			try {
+				msgUitvalList
+						.add("-----------------------------------------------"
+								+ "\n");
+				msgUitvalList.add("Bold filename: " + seq.getName() + "\n");
+
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
 						continue;
 					}
 
-					String ID = "e" + record[3];
+					ID = record[2];
+					// System.out.println("Record: " + record[2]);
 
 					/** DocumentNoteUtilities-Registrationnumber */
 					/** Get value from "BasisOfRecordCode" */
@@ -221,8 +264,25 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 						logger.info("Done with adding notes to the document");
 
+						// counter--;
+						cntVerwerkt++;
+						verwerkingListCnt.add(Integer.toString(cntVerwerkt));
+						verwerkList.add(record[5]);
+
 					} // end IF
+
+					if (!verwerkList.contains(record[5])) {
+						msgUitvalList.add("Catalognumber: " + record[5] + "\n");
+					}
+
+					counter++;
+
 				} // end While
+				importTotal = counter;
+				counter = importTotal - verwerkingListCnt.size();
+				msgUitvalList.add("Total records: " + Integer.toString(counter)
+						+ "\n");
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

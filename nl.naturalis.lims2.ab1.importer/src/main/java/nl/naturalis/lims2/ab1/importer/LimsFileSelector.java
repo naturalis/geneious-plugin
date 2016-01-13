@@ -59,8 +59,8 @@ public class LimsFileSelector {
 
 		switch (returnVal) {
 		case JFileChooser.APPROVE_OPTION: {
-			logger.info("You chose to open this file: "
-					+ chooser.getSelectedFile().getName());
+			logger.info("You chose to open this CSV file: "
+					+ chooser.getSelectedFile().getAbsolutePath());
 			fileMap = chooser.getCurrentDirectory();
 			fileSelected = fileMap.getAbsolutePath() + fileMap.separator
 					+ chooser.getSelectedFile().getName();

@@ -20,7 +20,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getAuthors() {
-		return "Natauralis Reinier.Kartowikromo";
+		return "Naturalis Reinier.Kartowikromo";
 	}
 
 	@Override
@@ -76,7 +76,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsImportAB1Update(),
-				new LimsReadDataFromExcel(), new LimsReadDataFromBold() };
+				new LimsReadDataFromExcel(), new LimsReadDataFromBold(),
+				new LimsCRSImporter() };
 	}
 
 	public DocumentOperation[] getDocumentOperations() {

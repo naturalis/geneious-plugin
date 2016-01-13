@@ -21,8 +21,20 @@
 		</encoder>
 	</appender>
 
+	<appender name="FILE2" class="ch.qos.logback.core.FileAppender">
+		<file>C:/Geneious 8.1 Data/log/nl.naturalis.lim2.ab1.importer/Lims2-Import-Verwerkinglijst.${date}.log</file>  
+		<append>true</append>
+		<encoder>
+		<!--<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+		 <layout class="ch.qos.logback.classic.log4j.XMLLayout">
+            <locationInfo>false</locationInfo>
+         </layout>-->
+		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>
+		</encoder>
+	</appender>
 	<root level="INFO">
 		<appender-ref ref="FILE" />
+		<appender-ref ref="FILE2" />
 		<appender-ref ref="CONSOLE" />
 	</root>
 

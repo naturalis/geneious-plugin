@@ -15,6 +15,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.logging.XMLFormatter;
 
 /**
  * @author Reinier.Kartowikromo
@@ -35,21 +36,46 @@ public final class LimsLogger {
 
 	public LimsLogger(String name) {
 		try {
-			fileHandler = new FileHandler(name, true);
-			consoleHandler = new ConsoleHandler();
+			fileHandler = new FileHandler(name, false);
+			// consoleHandler = new ConsoleHandler();
 
 			simpleFormatter = new SimpleFormatter();
 
 			logger.addHandler(fileHandler);
-			logger.addHandler(consoleHandler);
+			// logger.addHandler(consoleHandler);
 
 			fileHandler.setFormatter(simpleFormatter);
 
 			fileHandler.setLevel(Level.ALL);
-			consoleHandler.setLevel(Level.ALL);
+			// consoleHandler.setLevel(Level.ALL);
 			logger.setLevel(Level.ALL);
 		} catch (IOException exception) {
 			logger.log(Level.SEVERE, "Error occur in FileHandler.", exception);
+		}
+	}
+
+	public void logToFile(String filename, String msg) {
+		try {
+			LogManager lm = LogManager.getLogManager();
+			Logger logger;
+			FileHandler fh = new FileHandler(filename, true);
+
+			logger = Logger.getLogger("LimsLogger");
+
+			lm.addLogger(logger);
+			logger.setLevel(Level.INFO);
+			fh.setFormatter(new XMLFormatter());
+
+			logger.addHandler(fh);
+			// root logger defaults to SimpleFormatter. We don't want messages
+			// logged twice.
+			logger.setUseParentHandlers(false);
+			logger.log(Level.INFO, msg);
+			fh.flush();
+			fh.close();
+		} catch (Exception e) {
+			System.out.println("Exception thrown: " + e);
+			e.printStackTrace();
 		}
 	}
 
