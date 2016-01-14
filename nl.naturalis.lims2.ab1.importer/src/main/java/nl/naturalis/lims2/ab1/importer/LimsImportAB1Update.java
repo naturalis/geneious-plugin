@@ -51,6 +51,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	private final String noteCode = "DocumentNoteUtilities-Version number";
 	private final String fieldName = "VersieCode";
+	private final String noteBOS = "DocumentNoteUtilities-Registrationnumber";
+	private final String fieldBOS = "BasisOfRecordCode";
 
 	private List<String> msgList = new ArrayList<String>();
 	LimsFileSelector fcd = new LimsFileSelector();
@@ -195,6 +197,7 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ msgList.toString());
 						logger.info("AB1-Update: Total imported document(s): "
 								+ msgList.toString());
+						msgList.clear();
 					}
 				});
 			}

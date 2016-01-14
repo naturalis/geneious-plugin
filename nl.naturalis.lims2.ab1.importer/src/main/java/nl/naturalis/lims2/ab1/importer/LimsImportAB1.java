@@ -7,6 +7,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -29,10 +34,14 @@ import com.biomatters.geneious.publicapi.databaseservice.RetrieveCallback;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.Condition;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+import com.biomatters.geneious.publicapi.documents.URN;
+import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /*import org.slf4j.Logger;
@@ -55,6 +64,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	public static List<DocumentField> displayFields;
 	public static QueryField[] searchFields;
+	private LimsExcelFields limsExcelFields = new LimsExcelFields();
 
 	public LimsImportAB1(File ab1File) {
 		this.ab1 = ab1File;
@@ -85,83 +95,89 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		// retrieve(query, importCallback, null);
 
-		progressListener.setMessage("Importing sequence data");
-		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
-				file, ProgressListener.EMPTY);
+		if (!getFileNameFromGeneiousDatabase(file.getName()).equals(
+				file.getName())) {
+			progressListener.setMessage("Importing sequence data");
+			List<AnnotatedPluginDocument> docs = PluginUtilities
+					.importDocuments(file, ProgressListener.EMPTY);
 
-		count += docs.size();
+			count += docs.size();
 
-		document = importCallback.addDocument(docs.iterator().next());
+			document = importCallback.addDocument(docs.iterator().next());
 
-		/*
-		 * QueryField[] queryField = getSearchFields(file.getName());
-		 * System.out.println(queryField.toString());
-		 * 
-		 * displayFields = new ArrayList<DocumentField>();
-		 * 
-		 * DocumentField extractName = DocumentField.createStringField("name",
-		 * "The sequence name", "name");
-		 * 
-		 * searchFields = new QueryField[1];
-		 * 
-		 * Condition[] eqCond = { Condition.EQUAL }; QueryField queryField2 =
-		 * new QueryField(extractName, eqCond);
-		 * 
-		 * searchFields[0] = queryField2;
-		 * 
-		 * // BasicSearchQuery bs = (BasicSearchQuery) queryField2;
-		 * 
-		 * Query query = Query.Factory.createFieldQuery(extractName,
-		 * Condition.EQUAL, file.getName());
-		 * 
-		 * try { retrieve(query, null, file.getAbsoluteFile()); } catch
-		 * (DatabaseServiceException e) { e.printStackTrace(); }
-		 */
-		if (file.getName() != null) {
-			limsAB1Fields.setFieldValuesFromAB1FileName(file.getName());
+			if (file.getName() != null) {
+				limsAB1Fields.setFieldValuesFromAB1FileName(file.getName());
 
-			logger.info("----------------------------S T A R T ---------------------------------");
-			logger.info("Start extracting value from file: " + file.getName());
+				logger.info("----------------------------S T A R T ---------------------------------");
+				logger.info("Start extracting value from file: "
+						+ file.getName());
 
-			/* set note for Extract-ID */
+				/* set note for Extract-ID */
+				try {
+					limsNotes.setImportNotes(document, "ExtractIdCode",
+							"Extract ID", "Extract-ID",
+							limsAB1Fields.getExtractID());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
+				/* set note for PCR Plaat-ID */
+				try {
+					limsNotes.setImportNotes(document, "PcrPlaatIdCode",
+							"PCR plaat ID", "PCR plaat ID",
+							limsAB1Fields.getPcrPlaatID());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
+				/* set note for Marker */
+				try {
+					limsNotes.setImportNotes(document, "MarkerCode", "Marker",
+							"Marker", limsAB1Fields.getMarker());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				/* set note for Marker */
+				try {
+					limsNotes.setImportNotes(document, "VersieCode",
+							"Version number", "Version number",
+							limsAB1Fields.getVersieNummer());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			logger.info("Total of document(s) filename extracted: " + count);
+			logger.info("----------------------------E N D ---------------------------------");
+			logger.info("Done with extracting Ab1 file name. ");
+		} else {
+
+			AnnotatedPluginDocument docs = null;
+			ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
+
+			NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
+					"New Sequence", "A new dummy Sequence", "NNNNNNNNNN",
+					new Date(), URN.generateUniqueLocalURN("Dummy"));
+			importCallback.addDocument(sequence);
+
+			sequenceList.add(DocumentUtilities
+					.createAnnotatedPluginDocument(sequence));
+
+			docs = sequenceList.iterator().next();
 			try {
-				limsNotes.setImportNotes(document, "ExtractIdCode",
-						"Extract ID", "Extract-ID",
-						limsAB1Fields.getExtractID());
+				docs.getDocument();
+			} catch (DocumentOperationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				limsNotes.setImportNotes(docs, "VersieCode", "Version number",
+						"Version number", "0");
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
-			/* set note for PCR Plaat-ID */
-			try {
-				limsNotes.setImportNotes(document, "PcrPlaatIdCode",
-						"PCR plaat ID", "PCR plaat ID",
-						limsAB1Fields.getPcrPlaatID());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-
-			/* set note for Marker */
-			try {
-				limsNotes.setImportNotes(document, "MarkerCode", "Marker",
-						"Marker", limsAB1Fields.getMarker());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			/* set note for Marker */
-			try {
-				limsNotes.setImportNotes(document, "VersieCode",
-						"Version number", "Version number",
-						limsAB1Fields.getVersieNummer());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
 		}
-		logger.info("Total of document(s) filename extracted: " + count);
-		logger.info("----------------------------E N D ---------------------------------");
-		logger.info("Done with extracting Ab1 file name. ");
-		// limsLogger.flushCloseFileHandler();
-		// limsLogger.removeConsoleHandler();
 	}
 
 	@Override
@@ -306,4 +322,104 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 		return null;
 	}
+
+	private String getFileNameFromGeneiousDatabase(String filename) {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		String url = "jdbc:mysql://localhost:3306/Geneious";
+		String user = "root";
+		String password = "Blakapae1964@";
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.name"
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?";
+			// + " WHERE a.name = '" + filename + "'"; //
+
+			con = DriverManager.getConnection(url, user, password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, filename);
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return result;
+	}
+
+	public List<AnnotatedPluginDocument> performOperation(
+			AnnotatedPluginDocument annotatedPluginDocument,
+			ProgressListener progress) {
+		// lets create the list that we're going to return...
+		ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
+
+		// The options that we created in the getOptions() method above
+		// has been
+		// passed to us, hopefully the user has filled in their sequence.
+		// We get the option we added by using its name.
+		// MultiLineStringOption
+		// has a String ValueType, so we can safely cast to a String
+		// object.
+		String residues = "NNNNNNNNNN";// (String)//
+										// options.getValue("residues");
+
+		// lets construct a new sequence document from the residues that
+		// the
+		// user entered
+		NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
+				"New Sequence", "A new dummy Sequence", residues, new Date(),
+				URN.generateUniqueLocalURN("Dummy"));
+
+		// and add it to the list
+		sequenceList.add(DocumentUtilities
+				.createAnnotatedPluginDocument(sequence));
+
+		// AnnotatedPluginDocument annotatedPluginDocument =
+		// (AnnotatedPluginDocument) sequence;
+
+		try {
+			limsNotes.setImportNotes(sequenceList.iterator().next(),
+					"VersieCode", "Version number", "Version number", "0");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// normally we would set the progress incrementally as we went,
+		// but this
+		// operation is quick so we just set it to finished when we're
+		// done.
+		(progress).setProgress(1.0);
+
+		// return the list containing the sequence we just created, and
+		// we're
+		// done!
+		return sequenceList;
+	}
+
 }

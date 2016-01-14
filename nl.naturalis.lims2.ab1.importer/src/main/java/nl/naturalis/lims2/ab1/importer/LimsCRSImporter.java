@@ -257,36 +257,7 @@ public class LimsCRSImporter extends DocumentAction {
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
-			/*
-			 * logger.info("No document(s) match found for : " +
-			 * msgMatchList.toString());
-			 */
-			/*
-			 * if (match) { logger.info(
-			 * "--------------------------------------------------------");
-			 * logger.info("Total of document(s) updated: " + docs.size()); }
-			 */
 		}
-
-		/*
-		 * if (match) {
-		 * logger.info("-------------------------- E N D --------------------------"
-		 * ); logger.info("Done with updating the selected document(s). ");
-		 * 
-		 * EventQueue.invokeLater(new Runnable() {
-		 * 
-		 * @Override public void run() { Dialogs.showMessageDialog("CRS: " +
-		 * Integer.toString(docs.size()) + " out of " +
-		 * Integer.toString(importTotal) + " documents are imported." + "\n" +
-		 * msgList.toString()); logger.info("CRS: Total imported document(s): "
-		 * + msgList.toString());
-		 * 
-		 * limsLogger.logToFile(logFileName, msgUitvalList.toString());
-		 * 
-		 * msgList.clear(); msgUitvalList.clear(); verwerkingCnt.clear();
-		 * verwerkList.clear(); } }); }
-		 */
-
 	}
 
 	@Override
