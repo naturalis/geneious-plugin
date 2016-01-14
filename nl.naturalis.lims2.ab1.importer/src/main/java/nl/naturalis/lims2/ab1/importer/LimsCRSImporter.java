@@ -79,6 +79,9 @@ public class LimsCRSImporter extends DocumentAction {
 				}
 
 				msgUitvalList.add("Filename: " + fileSelected + "\n");
+				msgUitvalList.add("Username: "
+						+ System.getProperty("user.name") + "\n");
+				msgUitvalList.add("Type action: Import CRS data " + "\n");
 
 				logger.info("-------------------------- S T A R T --------------------------");
 				logger.info("Start Reading data from a CRS file.");
@@ -238,13 +241,17 @@ public class LimsCRSImporter extends DocumentAction {
 							}
 						});
 					} else {
-						msgUitvalList.add("No document(s) match found for : "
-								+ seq.getName() + "\n");
+						msgUitvalList
+								.add("Selected document(s) no match found for : "
+										+ seq.getName() + "\n");
 						msgMatchList.add("No document(s) match found for : "
 								+ seq.getName());
 					}
 				}
 				int rest = importTotal - verwerkList.size();
+				msgUitvalList.add("Total selected document that not matched: "
+						+ Integer.toString(docs.size() - verwerkList.size())
+						+ "\n");
 				msgUitvalList.add("Total records not matched: "
 						+ Integer.toString(rest) + "\n");
 			} catch (DocumentOperationException e) {
