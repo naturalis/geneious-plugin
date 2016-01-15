@@ -136,7 +136,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 			AnnotatedPluginDocument annotatedPluginDocument) {
 		try {
 			setBoldFile(limsImporterUtil.getFileFromPropertieFile("bold"));
-			setBoldFilePath(limsImporterUtil.getPropValues() + getBoldFile());
+			setBoldFilePath(limsImporterUtil.getPropValues(getBoldFile()));
 			logger.info("CSV file: " + getBoldFilePath());
 		} catch (IOException e) {
 			e.printStackTrace();

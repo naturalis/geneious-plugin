@@ -69,7 +69,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private String ID = "";
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ "Bold-" + limsImporterUtil.getLogFilename();
+			+ "Bold-Uitvallijst-" + limsImporterUtil.getLogFilename();
 	LimsLogger limsLogger = new LimsLogger(logFileName);
 
 	@Override

@@ -59,8 +59,8 @@ public class LimsCRSImporter extends DocumentAction {
 	private boolean match = false;
 	private String registrationNumber;
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator + "CRS"
-			+ limsImporterUtil.getLogFilename();
+	String logFileName = limsImporterUtil.getLogPath() + File.separator
+			+ "CRS-Uitvallijst-" + limsImporterUtil.getLogFilename();
 
 	LimsLogger limsLogger = new LimsLogger(logFileName);
 

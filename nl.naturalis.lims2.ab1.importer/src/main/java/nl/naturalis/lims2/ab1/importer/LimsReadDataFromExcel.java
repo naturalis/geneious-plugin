@@ -56,7 +56,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	private String ID = "";
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ "Sample-method-" + limsImporterUtil.getLogFilename();
+			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
 
 	LimsLogger limsLogger = new LimsLogger(logFileName);
 

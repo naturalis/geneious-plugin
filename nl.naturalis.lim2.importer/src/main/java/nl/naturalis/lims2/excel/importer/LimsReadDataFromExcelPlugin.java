@@ -172,7 +172,7 @@ public class LimsReadDataFromExcelPlugin extends GeneiousPlugin {
 				try {
 					csvFile = limsImporterUtil
 							.getFileFromPropertieFile("excel");
-					csvPath = limsImporterUtil.getPropValues() + csvFile;
+					csvPath = limsImporterUtil.getPropValues(csvFile);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

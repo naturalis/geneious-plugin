@@ -6,6 +6,7 @@ package nl.naturalis.lims2.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -33,6 +34,7 @@ public final class LimsLogger {
 	private FileHandler fileHandler = null;
 	private Formatter simpleFormatter = null;
 	private Handler consoleHandler = new ConsoleHandler();
+	private String logFileName = "";
 
 	public LimsLogger(String name) {
 		try {
@@ -65,6 +67,7 @@ public final class LimsLogger {
 			lm.addLogger(logger);
 			logger.setLevel(Level.INFO);
 			fh.setFormatter(new XMLFormatter());
+			// fh.setFormatter(new SimpleFormatter());
 
 			logger.addHandler(fh);
 			// root logger defaults to SimpleFormatter. We don't want messages
@@ -180,6 +183,12 @@ public final class LimsLogger {
 
 	public void disableDebug() {
 		logger.setLevel(Level.INFO);
+	}
+
+	public void createLogFile(String fileName, List<String> list) {
+		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
+				+ limsImporterUtil.getLogFilename();
+		logToFile(logFileName, list.toString());
 	}
 
 }
