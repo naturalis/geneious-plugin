@@ -8,6 +8,7 @@ import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,6 +23,7 @@ import nl.naturalis.oaipmh.api.NoRecordsMatchError;
 import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
+import nl.naturalis.oaipmh.api.util.ResumptionToken;
 
 import org.domainobject.util.ConfigObject;
 import org.domainobject.util.FileUtil;
@@ -30,6 +32,7 @@ import org.openarchives.oai._2.ListRecordsType;
 import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
+import org.openarchives.oai._2.ResumptionTokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,19 +87,33 @@ class ListRecordsHandler {
 			conn = connect(cfg);
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(getSQL());
-			if (!rs.next()) {
-				throw new OAIPMHException(new NoRecordsMatchError());
-			}
+
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery("SELECT FOUND_ROWS()");
+			rs2.next();
+			int total = rs2.getInt(1);
+			logger.info("Total: " + total);
+
 			OAIPMHtype root = createResponseSkeleton(request);
 			ListRecordsType listRecords = oaiFactory.createListRecordsType();
 			root.setListRecords(listRecords);
-			do {
-				RecordType record = oaiFactory.createRecordType();
-				listRecords.getRecord().add(record);
-				record.setHeader(createHeader(rs));
-				record.setMetadata(createMetadata(rs));
+
+			int pageSize = cfg.getInt("specimens.repo.pagesize");
+			int i = 0;
+			while (rs.next()) {
+				if (i++ == pageSize)
+					break;
+				addRecord(rs, listRecords);
 			}
-			while (rs.next());
+
+			if (i == 0) {
+				throw new OAIPMHException(new NoRecordsMatchError());
+			}
+
+			int offset = request.getPage() * pageSize;
+			if (offset + i < total) {
+				addResumptionToken(listRecords, total, offset);
+			}
 			return root;
 		}
 		catch (RepositoryException | OAIPMHException e) {
@@ -108,6 +125,25 @@ class ListRecordsHandler {
 		finally {
 			disconnect(conn);
 		}
+	}
+
+	private void addResumptionToken(ListRecordsType listRecords, int numRecords, int offset)
+	{
+		ResumptionTokenType resumptionToken = oaiFactory.createResumptionTokenType();
+		listRecords.setResumptionToken(resumptionToken);
+		resumptionToken.setCompleteListSize(BigInteger.valueOf(numRecords));
+		resumptionToken.setCursor(BigInteger.valueOf(offset));
+		ResumptionToken tokenGenerator = new ResumptionToken();
+		String token = tokenGenerator.compose(request);
+		resumptionToken.setValue(token);
+	}
+
+	private static void addRecord(ResultSet rs, ListRecordsType listRecords) throws SQLException
+	{
+		RecordType record = oaiFactory.createRecordType();
+		listRecords.getRecord().add(record);
+		record.setHeader(createHeader(rs));
+		record.setMetadata(createMetadata(rs));
 	}
 
 	private static HeaderType createHeader(ResultSet rs) throws SQLException
@@ -159,6 +195,12 @@ class ListRecordsHandler {
 		if (request.getUntil() != null) {
 			sb.append(" AND (1000 * modified) <= ").append(request.getUntil().getTime());
 		}
-		return sb.toString();
+		int pageSize = cfg.getInt("specimens.repo.pagesize");
+		int offset = request.getPage() * pageSize;
+		sb.append(" LIMIT ").append(offset).append(",").append(pageSize);
+		String sql = sb.toString();
+		if (logger.isDebugEnabled())
+			logger.debug("Generated SQL:\n" + sql + "\n");
+		return sql;
 	}
 }
