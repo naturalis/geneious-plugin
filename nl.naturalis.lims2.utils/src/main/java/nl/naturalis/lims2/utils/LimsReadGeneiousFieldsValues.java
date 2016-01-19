@@ -103,7 +103,6 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name =?";
-			// + " WHERE a.name = '" + filename + "'"; //
 
 			con = DriverManager.getConnection(url, user, password);
 			pst = con.prepareStatement(SQL);
@@ -115,8 +114,6 @@ public class LimsReadGeneiousFieldsValues {
 						+ " already exists in the geneious database.");
 				limsLogList.UitvalList.add("Filename: " + result
 						+ " already exists in the geneious database." + "\n");
-				// limsLogList.msgUitvalList.add("Filename: " + result
-				// + " already exists in the geneious database." + "\n");
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
