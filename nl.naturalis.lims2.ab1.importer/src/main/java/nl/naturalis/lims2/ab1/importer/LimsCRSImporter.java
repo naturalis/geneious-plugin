@@ -69,6 +69,9 @@ public class LimsCRSImporter extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 		logger.info("Start updating selected document(s) with CRS data.");
 
+		// AnnotatedPluginDocument docus = (AnnotatedPluginDocument)
+		// DocumentUtilities.getSelectedDocuments();
+
 		if (annotatedPluginDocuments[0] != null) {
 			try {
 				/** Add selected documents to a list. */
@@ -92,177 +95,168 @@ public class LimsCRSImporter extends DocumentAction {
 					readDataFromCRSFile(annotatedPluginDocuments[cnt],
 							fileSelected, cnt);
 
-					if (matchRegistrationNumber(annotatedPluginDocuments[cnt],
-							registrationNumber)) {
-						System.out.println("Registration number matched: "
-								+ registrationNumber);
+					System.out.println("Registration number matched: "
+							+ registrationNumber);
 
-						/* Add sequence name for the dialog screen */
-						msgList.add(seq.getName() + "\n");
+					/* Add sequence name for the dialog screen */
+					msgList.add(seq.getName() + "\n");
 
-						/* set note for Phylum */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "PhylumCode",
-								"Phylum", "Phylum", LimsCRSFields.getPhylum(),
-								cnt);
+					/* set note for Phylum */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"PhylumCode", "Phylum", "Phylum",
+							LimsCRSFields.getPhylum(), cnt);
 
-						/* Set note for Rank or Classification */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "ClassificationCode",
-								"Classification", "Classification",
-								LimsCRSFields.getClassification(), cnt);
+					/* Set note for Rank or Classification */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"ClassificationCode", "Classification",
+							"Classification",
+							LimsCRSFields.getClassification(), cnt);
 
-						/* set note for Orde */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "OrdeCode", "Orde",
-								"Orde", LimsCRSFields.getOrde(), cnt);
+					/* set note for Orde */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"OrdeCode", "Orde", "Orde",
+							LimsCRSFields.getOrde(), cnt);
 
-						/* set note for Family */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "FamilyCode",
-								"Family", "Family", LimsCRSFields.getFamily(),
-								cnt);
+					/* set note for Family */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"FamilyCode", "Family", "Family",
+							LimsCRSFields.getFamily(), cnt);
 
-						/* set note for SubFamily */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "SubFamilyCode",
-								"SubFamily", "SubFamily",
-								LimsCRSFields.getSubFamily(), cnt);
+					/* set note for SubFamily */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"SubFamilyCode", "SubFamily", "SubFamily",
+							LimsCRSFields.getSubFamily(), cnt);
 
-						/* set note for Genus */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "GenusCode", "Genus",
-								"Genus", LimsCRSFields.getGenus(), cnt);
+					/* set note for Genus */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"GenusCode", "Genus", "Genus",
+							LimsCRSFields.getGenus(), cnt);
 
-						/* set note for TaxonName */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "TaxonNaamCode",
-								"Taxon naam", "Taxon naam",
-								LimsCRSFields.getTaxon(), cnt);
+					/* set note for TaxonName */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"TaxonNaamCode", "Taxon naam", "Taxon naam",
+							LimsCRSFields.getTaxon(), cnt);
 
-						/* set note for Determination */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "DeterminatorCode",
-								"Determinator", "Determinator",
-								LimsCRSFields.getDeterminator(), cnt);
+					/* set note for Determination */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"DeterminatorCode", "Determinator", "Determinator",
+							LimsCRSFields.getDeterminator(), cnt);
 
-						/* set note for Sex */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "SexCode", "Sex",
-								"Sex", LimsCRSFields.getSex(), cnt);
+					/* set note for Sex */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"SexCode", "Sex", "Sex", LimsCRSFields.getSex(),
+							cnt);
 
-						/* set note for Stadium */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "StadiumCode",
-								"Stadium", "Stadium",
-								LimsCRSFields.getStadium(), cnt);
+					/* set note for Stadium */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"StadiumCode", "Stadium", "Stadium",
+							LimsCRSFields.getStadium(), cnt);
 
-						/* set note for Legavit */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "LegavitCode",
-								"Legavit", "Legavit",
-								LimsCRSFields.getLegavit(), cnt);
+					/* set note for Legavit */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"LegavitCode", "Legavit", "Legavit",
+							LimsCRSFields.getLegavit(), cnt);
 
-						/* set note for CollectingDate */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "CollectingDateCode",
-								"CollectingDate", "CollectingDate",
-								LimsCRSFields.getCollectingDate(), cnt);
+					/* set note for CollectingDate */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"CollectingDateCode", "CollectingDate",
+							"CollectingDate",
+							LimsCRSFields.getCollectingDate(), cnt);
 
-						/* set note for Country */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "CountryCode",
-								"Country", "Country",
-								LimsCRSFields.getCountry(), cnt);
+					/* set note for Country */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"CountryCode", "Country", "Country",
+							LimsCRSFields.getCountry(), cnt);
 
-						/* set note for StateOrProvince */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"StateOrProvinceCode", "StateOrProvince",
-								"StateOrProvince",
-								LimsCRSFields.getStateOrProvince(), cnt);
+					/* set note for StateOrProvince */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"StateOrProvinceCode", "StateOrProvince",
+							"StateOrProvince",
+							LimsCRSFields.getStateOrProvince(), cnt);
 
-						/* set note for Location */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "LocationCode",
-								"Location", "Location",
-								LimsCRSFields.getLocation(), cnt);
+					/* set note for Location */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"LocationCode", "Location", "Location",
+							LimsCRSFields.getLocation(), cnt);
 
-						/* set note for LatitudeDecimal */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"LatitudeDecimalCode", "LatitudeDecimal",
-								"LatitudeDecimal",
-								LimsCRSFields.getLatitudeDecimal(), cnt);
+					/* set note for LatitudeDecimal */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"LatitudeDecimalCode", "LatitudeDecimal",
+							"LatitudeDecimal",
+							LimsCRSFields.getLatitudeDecimal(), cnt);
 
-						/* set note for LongitudeDecimal */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"LongitudeDecimalCode", "LongitudeDecimal",
-								"LongitudeDecimal",
-								LimsCRSFields.getLongitudeDecimal(), cnt);
+					/* set note for LongitudeDecimal */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"LongitudeDecimalCode", "LongitudeDecimal",
+							"LongitudeDecimal",
+							LimsCRSFields.getLongitudeDecimal(), cnt);
 
-						/* set note for Height */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "HeightCode",
-								"Height", "Height", LimsCRSFields.getHeight(),
-								cnt);
+					/* set note for Height */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"HeightCode", "Height", "Height",
+							LimsCRSFields.getHeight(), cnt);
 
-						logger.info("Done with adding notes to the document");
-						importCounter = msgList.size();
-
-						logger.info("--------------------------------------------------------");
-						logger.info("Total of document(s) updated: "
-								+ importCounter);
-						logger.info("-------------------------- E N D --------------------------");
-						logger.info("Done with updating the selected document(s). ");
-
-						EventQueue.invokeLater(new Runnable() {
-
-							@Override
-							public void run() {
-								Dialogs.showMessageDialog("CRS: "
-										+ Integer.toString(msgList.size())
-										+ " out of "
-										+ Integer.toString(importTotal)
-										+ " documents are imported." + "\n"
-										+ msgList.toString());
-								logger.info("CRS: Total imported document(s): "
-										+ msgList.toString());
-
-								limsLogger.logToFile(logFileName,
-										msgUitvalList.toString());
-
-								msgList.clear();
-								msgUitvalList.clear();
-								verwerkingCnt.clear();
-								verwerkList.clear();
-								match = false;
-							}
-						});
-					} else {
-						msgUitvalList
-								.add("Selected document(s) no match found for : "
-										+ seq.getName() + "\n");
-						msgMatchList.add("No document(s) match found for : "
-								+ seq.getName());
-					}
+					logger.info("Done with adding notes to the document");
+					importCounter = msgList.size();
 				}
-				int rest = importTotal - verwerkList.size();
-				msgUitvalList.add("Total selected document that not matched: "
-						+ Integer.toString(docs.size() - verwerkList.size())
-						+ "\n");
-				msgUitvalList.add("Total records not matched: "
-						+ Integer.toString(rest) + "\n");
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
+			logger.info("--------------------------------------------------------");
+			logger.info("Total of document(s) updated: " + importCounter);
+		} else {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Select the document(s)");
+					return;
+				}
+			});
 		}
+		logger.info("-------------------------- E N D --------------------------");
+		logger.info("Done with updating the selected document(s). ");
+
+		/*
+		 * msgUitvalList.add("Selected document(s) no match found for : " +
+		 * seq.getName() + "\n");
+		 */
+		msgMatchList.add("No document(s) match found for : " + seq.getName());
+		int rest = importTotal - verwerkList.size();
+		/*
+		 * msgUitvalList.add("Total selected document that not matched: " +
+		 * Integer.toString(docs.size() - verwerkList.size()) + "\n");
+		 */
+		msgUitvalList.add("Total records not matched: "
+				+ Integer.toString(rest) + "\n");
+
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				Dialogs.showMessageDialog("CRS: "
+						+ Integer.toString(msgList.size()) + " out of "
+						+ Integer.toString(importTotal)
+						+ " documents are imported." + "\n"
+						+ msgList.toString());
+				logger.info("CRS: Total imported document(s): "
+						+ msgList.toString());
+
+				limsLogger.logToFile(logFileName, msgUitvalList.toString());
+				msgList.clear();
+				msgUitvalList.clear();
+				verwerkingCnt.clear();
+				verwerkList.clear();
+				match = false;
+
+			}
+		});
+
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("CRS").setInMainToolbar(true);
+		return new GeneiousActionOptions("3 CRS").setInMainToolbar(true);
 	}
 
 	@Override
@@ -274,6 +268,7 @@ public class LimsCRSImporter extends DocumentAction {
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
+
 	}
 
 	private void readDataFromCRSFile(
@@ -289,9 +284,11 @@ public class LimsCRSImporter extends DocumentAction {
 			csvReader.readNext();
 
 			try {
-				msgUitvalList
-						.add("-----------------------------------------------"
-								+ "\n");
+				/*
+				 * msgUitvalList
+				 * .add("-----------------------------------------------" +
+				 * "\n");
+				 */
 
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {

@@ -171,7 +171,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Sample-Method")
+		return new GeneiousActionOptions("1 of 2 Samples")
 				.setInMainToolbar(true);
 	}
 

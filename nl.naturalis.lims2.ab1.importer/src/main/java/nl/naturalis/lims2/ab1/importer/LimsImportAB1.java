@@ -149,13 +149,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			sequenceList.add(DocumentUtilities
 					.createAnnotatedPluginDocument(sequence));
-			/*
-			 * importCallback.addDocument(sequence); AnnotatedPluginDocument
-			 * docs = DocumentUtilities
-			 * .createAnnotatedPluginDocument(sequence);
-			 * DocumentUtilities.addGeneratedDocument(docs, false);
-			 * DocumentUtilities.selectDocument(docs.getURN());
-			 */
 			try {
 				limsNotes.setImportNotes(sequenceList.iterator().next(),
 						"VersieCode", "Version number", "Version number", "0");

@@ -187,19 +187,7 @@ public class LimsImportAB1Update extends DocumentAction {
 					}
 
 				}
-				EventQueue.invokeLater(new Runnable() {
 
-					@Override
-					public void run() {
-						Dialogs.showMessageDialog("AB1-Update: "
-								+ Integer.toString(msgList.size())
-								+ " documents are update." + "\n"
-								+ msgList.toString());
-						logger.info("AB1-Update: Total imported document(s): "
-								+ msgList.toString());
-						msgList.clear();
-					}
-				});
 			}
 		} catch (DocumentOperationException e) {
 			try {
@@ -212,7 +200,18 @@ public class LimsImportAB1Update extends DocumentAction {
 		logger.info("Total of document(s) updated: " + docs.size());
 		logger.info("------------------------- E N D--------------------------------------");
 		logger.info("Done with extracting Ab1 file name. ");
+		EventQueue.invokeLater(new Runnable() {
 
+			@Override
+			public void run() {
+				Dialogs.showMessageDialog("AB1-Update: "
+						+ Integer.toString(msgList.size())
+						+ " documents are update." + "\n" + msgList.toString());
+				logger.info("AB1-Update: Total imported document(s): "
+						+ msgList.toString());
+				msgList.clear();
+			}
+		});
 	}
 
 	@Override

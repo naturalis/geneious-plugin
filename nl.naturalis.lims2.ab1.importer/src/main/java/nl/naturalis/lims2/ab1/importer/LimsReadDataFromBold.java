@@ -180,7 +180,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Bold").setInMainToolbar(true);
+		return new GeneiousActionOptions("4 Bold").setInMainToolbar(true);
 	}
 
 	@Override
