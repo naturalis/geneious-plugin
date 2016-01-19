@@ -40,6 +40,8 @@ class ListRecordsHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListRecordsHandler.class);
 
+	private static final String XPATH_UNIT_ID = "//ColRegistratieCode";
+
 	private final ConfigObject cfg;
 	private final OAIPMHRequest request;
 
