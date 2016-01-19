@@ -86,13 +86,16 @@ class ListRecordsHandler {
 		try {
 			conn = connect(cfg);
 			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(getSQL());
+			String sql = getSQL();
+			if (logger.isDebugEnabled())
+				logger.debug("Executing query:\n" + sql);
+			ResultSet rs = stmt.executeQuery(sql);
 
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery("SELECT FOUND_ROWS()");
 			rs2.next();
-			int total = rs2.getInt(1);
-			logger.info("Total: " + total);
+			int resultSetSize = rs2.getInt(1);
+			logResultSetInfo(resultSetSize);
 
 			OAIPMHtype root = createResponseSkeleton(request);
 			ListRecordsType listRecords = oaiFactory.createListRecordsType();
@@ -111,8 +114,8 @@ class ListRecordsHandler {
 			}
 
 			int offset = request.getPage() * pageSize;
-			if (offset + i < total) {
-				addResumptionToken(listRecords, total, offset);
+			if (offset + i < resultSetSize) {
+				addResumptionToken(listRecords, resultSetSize, offset);
 			}
 			return root;
 		}
@@ -125,6 +128,18 @@ class ListRecordsHandler {
 		finally {
 			disconnect(conn);
 		}
+	}
+
+	private void logResultSetInfo(int resultSetSize)
+	{
+		int pageSize = cfg.getInt("specimens.repo.pagesize");
+		int offset = request.getPage() * pageSize;
+		int recordsToGo = resultSetSize - offset - pageSize;
+		int requestsToGo = (((int) Math.ceil(resultSetSize / pageSize)) - 1);
+		logger.info("Records satisfying request: " + resultSetSize);
+		logger.info("Records served per request: " + pageSize);
+		logger.info("Remaining records: " + recordsToGo);
+		logger.info("Remaining requests (for full harvest): " + requestsToGo);
 	}
 
 	private void addResumptionToken(ListRecordsType listRecords, int numRecords, int offset)
@@ -199,8 +214,6 @@ class ListRecordsHandler {
 		int offset = request.getPage() * pageSize;
 		sb.append(" LIMIT ").append(offset).append(",").append(pageSize);
 		String sql = sb.toString();
-		if (logger.isDebugEnabled())
-			logger.debug("Generated SQL:\n" + sql + "\n");
 		return sql;
 	}
 }
