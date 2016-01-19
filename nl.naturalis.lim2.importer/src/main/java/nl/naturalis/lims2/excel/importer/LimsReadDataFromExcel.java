@@ -139,7 +139,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 		try {
 			csvFile = limsImporterUtil.getFileFromPropertieFile("excel");
-			csvPath = limsImporterUtil.getPropValues() + csvFile;
+			csvPath = limsImporterUtil.getPropValues(csvFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -25,14 +25,7 @@ public class LimsFileSelector {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
 
-	/*
-	 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
-	 * limsImporterUtil.getLogFilename();
-	 * 
-	 * LimsLogger limsLogger = new LimsLogger(logFileName);
-	 */
-
-	String csvPath = "";
+	private String csvPath = "";
 
 	/*
 	 * public String loadFile(Frame f, String title, String defDir, String
@@ -45,7 +38,8 @@ public class LimsFileSelector {
 		String fileSelected = "";
 		File fileMap = null;
 		try {
-			csvPath = limsImporterUtil.getPropValues();
+			csvPath = limsImporterUtil
+					.getPropValues("lims.import.input.cs_dir");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -59,8 +53,8 @@ public class LimsFileSelector {
 
 		switch (returnVal) {
 		case JFileChooser.APPROVE_OPTION: {
-			logger.info("You chose to open this file: "
-					+ chooser.getSelectedFile().getName());
+			logger.info("You chose to open this CSV file: "
+					+ chooser.getSelectedFile().getAbsolutePath());
 			fileMap = chooser.getCurrentDirectory();
 			fileSelected = fileMap.getAbsolutePath() + fileMap.separator
 					+ chooser.getSelectedFile().getName();

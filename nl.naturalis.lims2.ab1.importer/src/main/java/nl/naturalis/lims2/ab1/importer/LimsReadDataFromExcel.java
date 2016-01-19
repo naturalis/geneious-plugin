@@ -4,12 +4,14 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,16 +43,22 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	private String extractIDfileName = "";
 	private SequenceDocument seq;
-	// private Options options;
 	private List<String> msgList = new ArrayList<String>();
-
-	// String logFileName = limsImporterUtil.getLogPath() + File.separator
-	// + limsImporterUtil.getLogFilename();
-
-	// LimsLogger limsLogger = new LimsLogger(logFileName);
-
+	private List<String> msgUitvalList = new ArrayList<String>();
+	private List<String> verwerkingListCnt = new ArrayList<String>();
+	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadDataFromExcel.class);
+
+	public int importCounter;
+	private int importTotal;
+	private String[] record = null;
+	private String ID = "";
+
+	String logFileName = limsImporterUtil.getLogPath() + File.separator
+			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
+
+	LimsLogger limsLogger = new LimsLogger(logFileName);
 
 	@Override
 	public void actionPerformed(
@@ -66,6 +74,9 @@ public class LimsReadDataFromExcel extends DocumentAction {
 				if (fileSelected == null) {
 					return;
 				}
+
+				msgUitvalList.add("Filename: " + fileSelected + "\n");
+
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					logger.info("-------------------------- S T A R T --------------------------");
@@ -124,7 +135,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							limsExcelFields.getVersieNummer(), cnt);
 
 					logger.info("Done with adding notes to the document");
-
+					importCounter = msgList.size();
 				}
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
@@ -135,21 +146,32 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 		logger.info("-------------------------- E N D --------------------------");
 		logger.info("Done with updating the selected document(s). ");
-		// limsLogger.removeConsoleHandler();
+
 		EventQueue.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				Dialogs.showMessageDialog("Excel: Done with updating the selected document(s): "
+				Dialogs.showMessageDialog("Sample-method: "
+						+ Integer.toString(docs.size()) + " out of "
+						+ Integer.toString(importTotal)
+						+ " documents are imported." + "\n"
 						+ msgList.toString());
+				logger.info("Sample-method: Total imported document(s): "
+						+ msgList.toString());
+
+				limsLogger.logToFile(logFileName, msgUitvalList.toString());
+
 				msgList.clear();
+				msgUitvalList.clear();
+				verwerkingListCnt.clear();
+				verwerkList.clear();
 			}
 		});
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("Import Geneious samplesheet")
+		return new GeneiousActionOptions("1 of 2 Samples")
 				.setInMainToolbar(true);
 	}
 
@@ -167,33 +189,29 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	private void readDataFromExcel(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, String fileName) {
 
-		String csvPath = "";
-		String[] record = null;
+		int counter = 0;
+		int cntVerwerkt = 0;
 
-		/*
-		 * try { // csvFile =
-		 * limsImporterUtil.getFileFromPropertieFile("excel"); //csvPath =
-		 * limsImporterUtil.getPropValues() + fileName;
-		 * 
-		 * } catch (IOException e) { e.printStackTrace(); }
-		 */
 		logger.info("CSV file: " + fileName);
 
 		logger.info("Start with adding notes to the document");
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
-
 			csvReader.readNext();
 
-			logger.info("Start with adding notes to the document");
 			try {
+				msgUitvalList
+						.add("-----------------------------------------------"
+								+ "\n");
+				msgUitvalList.add("Ab1 filename: " + seq.getName() + "\n");
+
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
 						continue;
 					}
 
-					String ID = "e" + record[3];
+					ID = "e" + record[3];
 
 					if (ID.equals(extractIDfileName)) {
 						limsExcelFields.setProjectPlaatNummer(record[0]);
@@ -218,9 +236,26 @@ public class LimsReadDataFromExcel extends DocumentAction {
 								+ limsExcelFields.getRegistrationNumber());
 						logger.info("Plaat positie: "
 								+ limsExcelFields.getPlaatPositie());
+						logger.info("Sample method: "
+								+ limsExcelFields.getSubSample());
+						counter--;
+						cntVerwerkt++;
+						verwerkingListCnt.add(Integer.toString(cntVerwerkt));
+						verwerkList.add(ID);
 
 					} // end IF
+
+					if (!verwerkList.contains(ID)) {
+						msgUitvalList.add("Record ExtractID: " + record[3]
+								+ "\n");
+					}
+					counter++;
 				} // end While
+				importTotal = counter;
+				counter = counter - verwerkingListCnt.size();
+				msgUitvalList.add("Total records: " + Integer.toString(counter)
+						+ "\n");
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
