@@ -54,8 +54,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private String boldFilePath;
 	private String boldFile;
 	private String extractIDfileName;
-	private final String noteCode = "DocumentNoteUtilities-Registrationnumber";
-	private final String fieldName = "BasisOfRecordCode";
+	private final String noteCode = "DocumentNoteUtilities-Registrationnumber (Samples)";
+	private final String fieldName = "RegistrationnumberCode_Samples";
 	private List<AnnotatedPluginDocument> docs;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private List<String> msgList = new ArrayList<String>();
@@ -107,38 +107,30 @@ public class LimsReadDataFromBold extends DocumentAction {
 					 * textNoteField, String noteTypeCode, String fieldValue)
 					 */
 
-					/* set note for Col.Registratie code */
+					/** set note for BOLD-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ColRegistratieCode", "Col Registratie code",
-							"Col Registratie code",
-							limsBoldFields.getColRegistratiecode(), cnt);
-
-					/* set note for BOLD-ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"BOLDIDCode", "BOLD-ID", "BOLD-ID",
+							"BOLDIDCode", "Bold ID", "Bold ID",
 							limsBoldFields.getBoldID(), cnt);
 
-					/* Set note for Marker */
+					/** set note for TraceFile Presence */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"MarkerCode", "Marker", "Marker",
-							limsBoldFields.getMarker(), cnt);
-
-					/* set note for TraceFile Presence */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"TraceFilePresenceCode", "TraceFile Presence",
-							"TraceFile Presence",
+							"TraceFilePresenceCode_Bold",
+							"TraceFile presence (Bold)",
+							"TraceFile presence (Bold)",
 							limsBoldFields.getTraceFilePresence(), cnt);
 
-					/* set note for Nucleotide Length */
+					/** set note for Nucleotide Length */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"NucleotideLengthCode", "Nucleotide Length",
-							"Nucleotide Length",
+							"NucleotideLengthCode_Bold",
+							"Nucleotide length (Bold)",
+							"Nucleotide length (Bold)",
 							limsBoldFields.getNucleotideLength(), cnt);
 
-					/* set note for GenBankID */
+					/** set note for GenBankID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"GenBankIDCode", "GenBank-ID", "GenBank-ID",
-							limsBoldFields.getGenBankID(), cnt);
+							"GenBankIDCode_Bold", "GenBank ID (Bold)",
+							"GenBank ID (Bold)", limsBoldFields.getGenBankID(),
+							cnt);
 
 				}
 			} catch (DocumentOperationException e) {
@@ -230,7 +222,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					// System.out.println("Record: " + record[2]);
 
 					/** DocumentNoteUtilities-Registrationnumber */
-					/** Get value from "BasisOfRecordCode" */
+					/** Get value from "RegistrationnumberCode_Samples" */
 					Object fieldValue = readGeneiousFieldsValues
 							.readValueFromAnnotatedPluginDocument(
 									annotatedPluginDocument, noteCode,

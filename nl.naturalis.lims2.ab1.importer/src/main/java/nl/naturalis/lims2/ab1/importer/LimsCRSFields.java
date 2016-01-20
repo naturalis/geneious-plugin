@@ -12,7 +12,7 @@ public class LimsCRSFields {
 	private String registratienummer;
 	private String phylum;
 	private String classification;
-	private String orde;
+	private String order;
 	private String family;
 	private String subFamily;
 	private String genus;
@@ -24,9 +24,9 @@ public class LimsCRSFields {
 	private String legavit;
 	private String collectingDate;
 	private String country;
-	private String stateOrProvince;
+	private String bioRegion;
 	private String city;
-	private String location;
+	private String Locality;
 	private String latitudeDecimal;
 	private String longitudeDecimal;
 	private String Height;
@@ -55,12 +55,12 @@ public class LimsCRSFields {
 		this.classification = classification;
 	}
 
-	public String getOrde() {
-		return orde;
+	public String getOrder() {
+		return order;
 	}
 
-	public void setOrde(String orde) {
-		this.orde = orde;
+	public void setOrder(String order) {
+		this.order = order;
 	}
 
 	public String getFamily() {
@@ -151,12 +151,12 @@ public class LimsCRSFields {
 		this.country = country;
 	}
 
-	public String getStateOrProvince() {
-		return stateOrProvince;
+	public String getBioRegion() {
+		return bioRegion;
 	}
 
-	public void setStateOrProvince(String stateOrProvince) {
-		this.stateOrProvince = stateOrProvince;
+	public void setBioRegion(String bioRegion) {
+		this.bioRegion = bioRegion;
 	}
 
 	public String getCity() {
@@ -167,12 +167,12 @@ public class LimsCRSFields {
 		this.city = city;
 	}
 
-	public String getLocation() {
-		return location;
+	public String getLocality() {
+		return Locality;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLocality(String Locality) {
+		this.Locality = Locality;
 	}
 
 	public String getLatitudeDecimal() {

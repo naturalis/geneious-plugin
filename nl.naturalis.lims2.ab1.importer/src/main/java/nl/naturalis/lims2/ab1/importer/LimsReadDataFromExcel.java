@@ -13,6 +13,7 @@ import java.util.List;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
+import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
+import com.biomatters.geneious.publicapi.plugin.GeneiousService;
+import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import com.opencsv.CSVReader;
 
 /**
@@ -36,10 +39,12 @@ import com.opencsv.CSVReader;
 public class LimsReadDataFromExcel extends DocumentAction {
 
 	private List<AnnotatedPluginDocument> docs;
-	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	LimsExcelFields limsExcelFields = new LimsExcelFields();
-	LimsNotes limsNotes = new LimsNotes();
-	LimsFileSelector fcd = new LimsFileSelector();
+	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+	private LimsExcelFields limsExcelFields = new LimsExcelFields();
+	private LimsNotes limsNotes = new LimsNotes();
+	private LimsFileSelector fcd = new LimsFileSelector();
+	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsDummySeq limsDummySeq = new LimsDummySeq();
 
 	private String extractIDfileName = "";
 	private SequenceDocument seq;
@@ -64,13 +69,32 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		logger.info("Start updating selected document(s).");
+		List<GeneiousService> list = new ArrayList<GeneiousService>();
+		list = PluginUtilities.getGeneiousServices();
+		System.out.println(list.toString());
+		logger.info(list.toString());
 
-		if (annotatedPluginDocuments[0] != null) {
+		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			Dialogs.showMessageDialog("Select all documents");
+		}
+
+		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+
+			logger.info("Start updating selected document(s).");
+
+			String fileSelected = fcd.loadSelectedFile();
+			System.out.println("OK");
+
+			// Options option = new Options(getClass());
+			// option.addDocumentSelectionOption("Test", "Selected", null,
+			// documentType.NUCLEOTIDE_SEQUENCE_TYPE, displayFields, true,
+			// docs);
+
+			// if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 			try {
 				/** Add selected documents to a list. */
+
 				docs = DocumentUtilities.getSelectedDocuments();
-				String fileSelected = fcd.loadSelectedFile();
 				if (fileSelected == null) {
 					return;
 				}
@@ -88,50 +112,58 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 					msgList.add(seq.getName());
 
-					readDataFromExcel(annotatedPluginDocuments, fileSelected);
+					readDataFromExcel(fileSelected);
 
-					/* set note for Extract-ID */
+					/** set note for Extract-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractIdCode", "Extract ID", "Extract-ID",
+							"ExtractIdCode_Samples", "Extract ID (Samples)",
+							"Extract ID (Samples)",
 							limsExcelFields.getExtractID(), cnt);
 
-					/* set note for Project Plaatnummer */
+					/** set note for Project Plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ProjectPlaatnummerCode", "Project Plaatnummer",
-							"Project Plaatnummer",
+							"ProjectplatenumberCode_Samples",
+							"Project plate number (Samples)",
+							"Project plate number (Samples)",
 							limsExcelFields.getProjectPlaatNummer(), cnt);
 
-					/* Set note for Extract Plaatnummer */
+					/** Set note for Extract plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractPlaatNummerCode", "Extract Plaatnummer",
-							"Extract Plaatnummer",
+							"ExtractplatenumberCode_Samples",
+							"Extract plate number (Samples)",
+							"Extract plate number (Samples)",
 							limsExcelFields.getExtractPlaatNummer(), cnt);
 
-					/* set note for Taxonnaam */
+					/** set note for Taxonname */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"TaxonNaamCode", "Taxon naam", "Taxon naam",
+							"TaxonNameCode_Samples", "Taxon name (Samples)",
+							"Taxon name (Samples)",
 							limsExcelFields.getTaxonNaam(), cnt);
 
-					/* set note for Registrationnumber */
+					/** set note for Registrationnumber */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"BasisOfRecordCode", "Registrationnumber",
-							"Registrationnumber",
+							"RegistrationnumberCode_Samples",
+							"Registrationnumber (Samples)",
+							"Registrationnumber (Samples)",
 							limsExcelFields.getRegistrationNumber(), cnt);
 
-					/* set note for Plaat positie */
+					/** set note for Plate position */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PlaatpositieCode", "Plaat positie",
-							"Plaat positie", limsExcelFields.getPlaatPositie(),
-							cnt);
+							"PlatepositionCode_Samples",
+							"Plate position (Samples)",
+							"Plate position (Samples)",
+							limsExcelFields.getPlaatPositie(), cnt);
 
-					/* set note for Sample method */
+					/** set note for Sample method */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"SampleMethodCode", "Sample method",
-							"Sample method", limsExcelFields.getSubSample(),
-							cnt);
+							"SampleMethodCode_Samples",
+							"Sample method (Samples)",
+							"Sample method (Samples)",
+							limsExcelFields.getSubSample(), cnt);
 
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"VersieCode", "Version number", "Version number",
+							"DocumentversionCode", "Document version",
+							"Document version",
 							limsExcelFields.getVersieNummer(), cnt);
 
 					logger.info("Done with adding notes to the document");
@@ -142,37 +174,46 @@ public class LimsReadDataFromExcel extends DocumentAction {
 			}
 			logger.info("--------------------------------------------------------");
 			logger.info("Total of document(s) updated: " + docs.size());
+
+			/* Set for creating dummy files */
+			setExtractIDFromSamplesSheet(fileSelected);
+
+			// }
+
+			logger.info("-------------------------- E N D --------------------------");
+			logger.info("Done with updating the selected document(s). ");
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Sample-method: "
+							+ Integer.toString(docs.size()) + " out of "
+							+ Integer.toString(importTotal)
+							+ " documents are imported." + "\n"
+							+ msgList.toString());
+					logger.info("Sample-method: Total imported document(s): "
+							+ msgList.toString());
+
+					limsLogger.logToFile(logFileName, msgUitvalList.toString());
+
+					msgList.clear();
+					msgUitvalList.clear();
+					verwerkingListCnt.clear();
+					verwerkList.clear();
+				}
+			});
+
 		}
-
-		logger.info("-------------------------- E N D --------------------------");
-		logger.info("Done with updating the selected document(s). ");
-
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				Dialogs.showMessageDialog("Sample-method: "
-						+ Integer.toString(docs.size()) + " out of "
-						+ Integer.toString(importTotal)
-						+ " documents are imported." + "\n"
-						+ msgList.toString());
-				logger.info("Sample-method: Total imported document(s): "
-						+ msgList.toString());
-
-				limsLogger.logToFile(logFileName, msgUitvalList.toString());
-
-				msgList.clear();
-				msgUitvalList.clear();
-				verwerkingListCnt.clear();
-				verwerkList.clear();
-			}
-		});
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
+		// return new GeneiousActionOptions("1 of 2 Samples")
+		// .setInMainToolbar(true);
 		return new GeneiousActionOptions("1 of 2 Samples")
-				.setInMainToolbar(true);
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
+				.setInMainToolbar(true).setInPopupMenu(true);
 	}
 
 	@Override
@@ -186,8 +227,47 @@ public class LimsReadDataFromExcel extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	private void readDataFromExcel(
-			AnnotatedPluginDocument[] annotatedPluginDocuments, String fileName) {
+	/*
+	 * Create dummy files for samples when there is no match with records in the
+	 * database
+	 */
+	private void setExtractIDFromSamplesSheet(String fileName) {
+		try {
+			logger.info("Read samples file: " + fileName);
+			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
+					'\'', 0);
+			csvReader.readNext();
+
+			try {
+				while ((record = csvReader.readNext()) != null) {
+					if (record.length == 0) {
+						continue;
+					}
+
+					ID = "e" + record[3];
+					if (!ReadGeneiousFieldsValues
+							.getExtractIDFromSamples_GeneiousDB(ID)) {
+
+						limsDummySeq.createDummySampleSequence(ID, ID,
+								record[0], record[2], record[5], record[4],
+								record[1]);
+					}
+
+				} // end While
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				csvReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void readDataFromExcel(String fileName) {
 
 		int counter = 0;
 		int cntVerwerkt = 0;

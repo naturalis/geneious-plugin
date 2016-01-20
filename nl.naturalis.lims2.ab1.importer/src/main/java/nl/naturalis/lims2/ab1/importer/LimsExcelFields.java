@@ -15,7 +15,7 @@ public class LimsExcelFields {
 	private String plaatPositie;
 	private String taxonNaam;
 	private String registrationNumber;
-	private String subSample = "sub-sample";
+	private String subSample = "Sample method";
 	private String versieNummer = "1";
 
 	public String getExtractID() {

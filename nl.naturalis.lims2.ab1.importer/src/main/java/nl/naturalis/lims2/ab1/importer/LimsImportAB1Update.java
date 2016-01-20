@@ -49,10 +49,10 @@ public class LimsImportAB1Update extends DocumentAction {
 	private LimsReadGeneiousFieldsValues readVersionNumberValue = new LimsReadGeneiousFieldsValues();
 	private Object versionNumber = "";
 
-	private final String noteCode = "DocumentNoteUtilities-Version number";
-	private final String fieldName = "VersieCode";
-	private final String noteBOS = "DocumentNoteUtilities-Registrationnumber";
-	private final String fieldBOS = "BasisOfRecordCode";
+	private final String noteCode = "DocumentNoteUtilities-Document version";
+	private final String fieldName = "DocumentversionCode";
+	private final String noteBOS = "DocumentNoteUtilities-Registrationnumber (Samples)";
+	private final String fieldBOS = "RegistrationnumberCode_Samples";
 
 	private List<String> msgList = new ArrayList<String>();
 	LimsFileSelector fcd = new LimsFileSelector();
@@ -80,8 +80,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 					limsAB1Fields.setFieldValuesFromAB1FileName(seq.getName());
 
-					logger.info("Extract-ID: " + limsAB1Fields.getExtractID());
-					logger.info("PCR plaat-ID: "
+					logger.info("Extract ID: " + limsAB1Fields.getExtractID());
+					logger.info("PCR plaat ID: "
 							+ limsAB1Fields.getPcrPlaatID());
 					logger.info("Marker: " + limsAB1Fields.getMarker());
 					logger.info("Versienummer: "
@@ -89,22 +89,25 @@ public class LimsImportAB1Update extends DocumentAction {
 
 					/** set note for Extract-ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractIdCode", "Extract ID", "Extract-ID",
-							limsAB1Fields.getExtractID(), cnt);
+							"ExtractIdCode_Seq", "Extract ID (Seq)",
+							"Extract ID (Seq)", limsAB1Fields.getExtractID(),
+							cnt);
 
-					/** set note for PCR Plaat-ID */
+					/** set note for PCR Plate ID */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PcrPlaatIdCode", "PCR plaat ID", "PCR plaat ID",
+							"PcrPlateIdCode_Seq", "PCR plate ID (Seq)",
+							"PCR plate ID (Seq)",
 							limsAB1Fields.getPcrPlaatID(), cnt);
 
 					/** set note for Marker */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"MarkerCode", "Marker", "Marker",
+							"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
 							limsAB1Fields.getMarker(), cnt);
 
-					/** set note for Versienummer */
+					/** set note for Document version */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"VersieCode", "Version number", "Version number",
+							"DocumentversionCode", "Document version",
+							"Document version",
 							limsAB1Fields.getVersieNummer(), cnt);
 				}
 
