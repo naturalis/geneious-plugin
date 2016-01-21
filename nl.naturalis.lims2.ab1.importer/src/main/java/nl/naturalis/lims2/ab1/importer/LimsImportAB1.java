@@ -140,8 +140,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsLogList.msgUitvalList.add("Type action: Import AB1 file(s) "
 					+ "\n");
 
-			// msgUitvalList.clear();
-
 			ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
 
 			NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
@@ -162,31 +160,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			DocumentUtilities.addGeneratedDocuments(sequenceList, false);
 
 		}
-		// boolean last = false;
-		// // int size = listcnt.size();
-		//
-		// /*
-		// * for (int j = 0; j < listcnt.size(); j++) { // Integer i =
-		// * listcnt.get(j); if (j == (listcnt.size() - 1)) { last = true; } }
-		// */
-		//
-		// for (Iterator it = listcnt.iterator(); it.hasNext();) {
-		//
-		// if (!it.hasNext()) {
-		// last = true;
-		// System.out.println("Last: " + it.next());
-		// }
-		// }
-
 		createLogFile("Import AB1 uitvallijst", limsLogList.UitvalList);
-		/*
-		 * File logfile = new File(logFileName); if (!logfile.exists()) {
-		 * 
-		 * } else { // createLogFile("Import AB1 uitvallijst", msgUitvalList);
-		 * limsLogList.msgUitvalList.add("Filename: " + file.getName() +
-		 * " already exists in the geneious database." + "\n"); }
-		 */
-
 	}
 
 	@Override

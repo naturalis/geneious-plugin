@@ -67,12 +67,20 @@ public class LimsCRSImporter extends DocumentAction {
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-		logger.info("Start updating selected document(s) with CRS data.");
 
-		// AnnotatedPluginDocument docus = (AnnotatedPluginDocument)
-		// DocumentUtilities.getSelectedDocuments();
+		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			EventQueue.invokeLater(new Runnable() {
 
-		if (annotatedPluginDocuments[0] != null) {
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Select all documents");
+					return;
+				}
+			});
+		}
+
+		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			logger.info("Start updating selected document(s) with CRS data.");
 			try {
 				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
@@ -92,8 +100,16 @@ public class LimsCRSImporter extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
-					if (matchRegistrationNumber(docs.iterator().next(),
-							record[0])) {
+					boolean result = false;
+					try {
+						result = readGeneiousFieldsValues
+								.getFileNameFromGeneiousDatabase(seq.getName())
+								.equals(seq.getName());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					if (result) {
 
 						readDataFromCRSFile(annotatedPluginDocuments[cnt],
 								fileSelected, cnt);
@@ -224,59 +240,46 @@ public class LimsCRSImporter extends DocumentAction {
 			}
 			logger.info("--------------------------------------------------------");
 			logger.info("Total of document(s) updated: " + importCounter);
-		} else {
+			logger.info("-------------------------- E N D --------------------------");
+			logger.info("Done with updating the selected document(s). ");
+			if (seq.getName() != null) {
+				msgMatchList.add("No document(s) match found for : "
+						+ seq.getName());
+				int rest = importTotal - verwerkList.size();
+				msgUitvalList.add("Total records not matched: "
+						+ Integer.toString(rest) + "\n");
+			}
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Select the document(s)");
-					return;
+					Dialogs.showMessageDialog("CRS: "
+							+ Integer.toString(msgList.size()) + " out of "
+							+ Integer.toString(importTotal)
+							+ " documents are imported." + "\n"
+							+ msgList.toString());
+					logger.info("CRS: Total imported document(s): "
+							+ msgList.toString());
+
+					limsLogger.logToFile(logFileName, msgUitvalList.toString());
+					msgList.clear();
+					msgUitvalList.clear();
+					verwerkingCnt.clear();
+					verwerkList.clear();
+					match = false;
+
 				}
 			});
+
 		}
-		logger.info("-------------------------- E N D --------------------------");
-		logger.info("Done with updating the selected document(s). ");
-
-		/*
-		 * msgUitvalList.add("Selected document(s) no match found for : " +
-		 * seq.getName() + "\n");
-		 */
-		msgMatchList.add("No document(s) match found for : " + seq.getName());
-		int rest = importTotal - verwerkList.size();
-		/*
-		 * msgUitvalList.add("Total selected document that not matched: " +
-		 * Integer.toString(docs.size() - verwerkList.size()) + "\n");
-		 */
-		msgUitvalList.add("Total records not matched: "
-				+ Integer.toString(rest) + "\n");
-
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				Dialogs.showMessageDialog("CRS: "
-						+ Integer.toString(msgList.size()) + " out of "
-						+ Integer.toString(importTotal)
-						+ " documents are imported." + "\n"
-						+ msgList.toString());
-				logger.info("CRS: Total imported document(s): "
-						+ msgList.toString());
-
-				limsLogger.logToFile(logFileName, msgUitvalList.toString());
-				msgList.clear();
-				msgUitvalList.clear();
-				verwerkingCnt.clear();
-				verwerkList.clear();
-				match = false;
-
-			}
-		});
-
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("3 CRS").setInMainToolbar(true);
+		return new GeneiousActionOptions("3 CRS").setInPopupMenu(true)
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
+				.setInMainToolbar(true).setInPopupMenu(true)
+				.setAvailableToWorkflows(true);
 	}
 
 	@Override

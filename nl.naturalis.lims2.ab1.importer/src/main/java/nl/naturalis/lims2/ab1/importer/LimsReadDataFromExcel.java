@@ -75,7 +75,14 @@ public class LimsReadDataFromExcel extends DocumentAction {
 		logger.info(list.toString());
 
 		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			Dialogs.showMessageDialog("Select all documents");
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Select all documents");
+					return;
+				}
+			});
 		}
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
@@ -120,8 +127,6 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							"Extract ID (Samples)",
 							limsExcelFields.getExtractID(), cnt);
 
-					// System.out.println("Projectplaat nummer "
-					// + limsExcelFields.getProjectPlaatNummer());
 					/** set note for Project Plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 							"ProjectplatenumberCode_Samples",
@@ -211,11 +216,10 @@ public class LimsReadDataFromExcel extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		// return new GeneiousActionOptions("1 of 2 Samples")
-		// .setInMainToolbar(true);
-		return new GeneiousActionOptions("1 of 2 Samples")
-				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
-				.setInMainToolbar(true).setInPopupMenu(true);
+		return new GeneiousActionOptions("1 of 2 Samples").setInPopupMenu(true)
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 1.0)
+				.setInMainToolbar(true).setInPopupMenu(true)
+				.setAvailableToWorkflows(true);
 	}
 
 	@Override
