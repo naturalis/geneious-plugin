@@ -92,114 +92,132 @@ public class LimsCRSImporter extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
-					readDataFromCRSFile(annotatedPluginDocuments[cnt],
-							fileSelected, cnt);
+					if (matchRegistrationNumber(docs.iterator().next(),
+							record[0])) {
 
-					System.out.println("Registration number matched: "
-							+ registrationNumber);
+						readDataFromCRSFile(annotatedPluginDocuments[cnt],
+								fileSelected, cnt);
 
-					/* Add sequence name for the dialog screen */
-					msgList.add(seq.getName() + "\n");
+						System.out.println("Registration number matched: "
+								+ registrationNumber);
 
-					/** set note for Phylum: FieldValue, Label, NoteType, */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PhylumCode_CRS", "Phylum (CRS)", "Phylum (CRS)",
-							LimsCRSFields.getPhylum(), cnt);
+						/* Add sequence name for the dialog screen */
+						msgList.add(seq.getName() + "\n");
 
-					/** Set note for Class */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ClassCode_CRS", "Class (CRS)", "Class (CRS)",
-							LimsCRSFields.getClassification(), cnt);
+						/** set note for Phylum: FieldValue, Label, NoteType, */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "PhylumCode_CRS",
+								"Phylum (CRS)", "Phylum (CRS)",
+								LimsCRSFields.getPhylum(), cnt);
 
-					/** set note for Order */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"OrderCode_CRS", "Order (CRS)", "Order (CRS)",
-							LimsCRSFields.getOrder(), cnt);
+						/** Set note for Class */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "ClassCode_CRS",
+								"Class (CRS)", "Class (CRS)",
+								LimsCRSFields.getClassification(), cnt);
 
-					/* set note for Family */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"FamilyCode_CRS", "Family(CRS)", "Family (CRS)",
-							LimsCRSFields.getFamily(), cnt);
+						/** set note for Order */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "OrderCode_CRS",
+								"Order (CRS)", "Order (CRS)",
+								LimsCRSFields.getOrder(), cnt);
 
-					/** set note for SubFamily */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"SubFamilyCode_CRS", "Subfamily (CRS)",
-							"Subfamily (CRS)", LimsCRSFields.getSubFamily(),
-							cnt);
+						/* set note for Family */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "FamilyCode_CRS",
+								"Family(CRS)", "Family (CRS)",
+								LimsCRSFields.getFamily(), cnt);
 
-					/** set note for Genus */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"GenusCode_CRS", "Genus (CRS)", "Genus (CRS)",
-							LimsCRSFields.getGenus(), cnt);
+						/** set note for SubFamily */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "SubFamilyCode_CRS",
+								"Subfamily (CRS)", "Subfamily (CRS)",
+								LimsCRSFields.getSubFamily(), cnt);
 
-					/** set note for TaxonName */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"TaxonNameCode_CRS", "Taxonname (CRS)",
-							"Taxonname (CRS)", LimsCRSFields.getTaxon(), cnt);
+						/** set note for Genus */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "GenusCode_CRS",
+								"Genus (CRS)", "Genus (CRS)",
+								LimsCRSFields.getGenus(), cnt);
 
-					/** set note for Identifier */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"IdentifierCode_CRS", "Identifier (CRS)",
-							"Identifier (CRS)",
-							LimsCRSFields.getDeterminator(), cnt);
+						/** set note for TaxonName */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "TaxonNameCode_CRS",
+								"Taxonname (CRS)", "Taxonname (CRS)",
+								LimsCRSFields.getTaxon(), cnt);
 
-					/** set note for Sex */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"SexCode_CRS", "Sex (CRS)", "Sex (CRS)",
-							LimsCRSFields.getSex(), cnt);
+						/** set note for Identifier */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "IdentifierCode_CRS",
+								"Identifier (CRS)", "Identifier (CRS)",
+								LimsCRSFields.getDeterminator(), cnt);
 
-					/** set note for Phase Or Stage */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PhaseOrStageCode_CRS", "Phase or stage (CRS)",
-							"Phase or stage (CRS)", LimsCRSFields.getStadium(),
-							cnt);
+						/** set note for Sex */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "SexCode_CRS",
+								"Sex (CRS)", "Sex (CRS)",
+								LimsCRSFields.getSex(), cnt);
 
-					/** set note for Collector */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"CollectorCode_CRS", "Collector (CRS)",
-							"Collector (CRS)", LimsCRSFields.getLegavit(), cnt);
+						/** set note for Phase Or Stage */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments,
+								"PhaseOrStageCode_CRS", "Phase or stage (CRS)",
+								"Phase or stage (CRS)",
+								LimsCRSFields.getStadium(), cnt);
 
-					/** set note for Collecting date */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"CollectingDateCode_CRS", "Collecting date (CRS)",
-							"Collecting date (CRS)",
-							LimsCRSFields.getCollectingDate(), cnt);
+						/** set note for Collector */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "CollectorCode_CRS",
+								"Collector (CRS)", "Collector (CRS)",
+								LimsCRSFields.getLegavit(), cnt);
 
-					/** set note for Country */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"CountryCode_CRS", "Country (CRS)",
-							"Country (CRS)", LimsCRSFields.getCountry(), cnt);
+						/** set note for Collecting date */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments,
+								"CollectingDateCode_CRS",
+								"Collecting date (CRS)",
+								"Collecting date (CRS)",
+								LimsCRSFields.getCollectingDate(), cnt);
 
-					/** set note for BioRegion */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"BioRegionCode_CRS", "Bioregion (CRS)",
-							"Bioregion (CRS)", LimsCRSFields.getBioRegion(),
-							cnt);
+						/** set note for Country */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "CountryCode_CRS",
+								"Country (CRS)", "Country (CRS)",
+								LimsCRSFields.getCountry(), cnt);
 
-					/** set note for Locality */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"LocalityCode_CRS", "Locality (CRS)",
-							"Locality (CRS)", LimsCRSFields.getLocality(), cnt);
+						/** set note for BioRegion */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "BioRegionCode_CRS",
+								"Bioregion (CRS)", "Bioregion (CRS)",
+								LimsCRSFields.getBioRegion(), cnt);
 
-					/** set note for Latitude */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"LatitudeCode_CRS", "Latitude (CRS)",
-							"Latitude (CRS)",
-							LimsCRSFields.getLatitudeDecimal(), cnt);
+						/** set note for Locality */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "LocalityCode_CRS",
+								"Locality (CRS)", "Locality (CRS)",
+								LimsCRSFields.getLocality(), cnt);
 
-					/** set note for Longitude */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"LongitudeCode_CRS", "Longitude (CRS)",
-							"Longitude (CRS)",
-							LimsCRSFields.getLongitudeDecimal(), cnt);
+						/** set note for Latitude */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "LatitudeCode_CRS",
+								"Latitude (CRS)", "Latitude (CRS)",
+								LimsCRSFields.getLatitudeDecimal(), cnt);
 
-					/** set note for Height */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"HeightCode_CRS", "Height (CRS)", "Height (CRS)",
-							LimsCRSFields.getHeight(), cnt);
+						/** set note for Longitude */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "LongitudeCode_CRS",
+								"Longitude (CRS)", "Longitude (CRS)",
+								LimsCRSFields.getLongitudeDecimal(), cnt);
 
-					logger.info("Done with adding notes to the document");
-					importCounter = msgList.size();
+						/** set note for Height */
+						limsNotes.setNoteToAB1FileName(
+								annotatedPluginDocuments, "HeightCode_CRS",
+								"Height (CRS)", "Height (CRS)",
+								LimsCRSFields.getHeight(), cnt);
+
+						logger.info("Done with adding notes to the document");
+						importCounter = msgList.size();
+					}
 				}
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
@@ -360,6 +378,26 @@ public class LimsCRSImporter extends DocumentAction {
 
 					} // end IF
 					else if (!verwerkList.contains(record[0]) && !match) {
+						LimsCRSFields.setRegistratienummer("");
+						LimsCRSFields.setPhylum("");
+						LimsCRSFields.setClassification("");
+						LimsCRSFields.setOrder("");
+						LimsCRSFields.setFamily("");
+						LimsCRSFields.setSubFamily("");
+						LimsCRSFields.setGenus("");
+						LimsCRSFields.setTaxon("");
+						LimsCRSFields.setDeterminator("");
+						LimsCRSFields.setSex("");
+						LimsCRSFields.setStadium("");
+						LimsCRSFields.setLegavit("");
+						LimsCRSFields.setCollectingDate("");
+						LimsCRSFields.setCountry("");
+						LimsCRSFields.setBioRegion("");
+						LimsCRSFields.setLocality("");
+						LimsCRSFields.setLatitudeDecimal("");
+						LimsCRSFields.setLongitudeDecimal("");
+						LimsCRSFields.setHeight("");
+
 						msgUitvalList
 								.add("No document(s) match found for Registrationnumber: "
 										+ record[0] + "\n");

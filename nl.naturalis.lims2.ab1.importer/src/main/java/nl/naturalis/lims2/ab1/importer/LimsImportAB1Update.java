@@ -152,7 +152,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/* set note for Extract-ID */
 						try {
-							limsNotes.setImportNotes(docs.iterator().next(),
+							limsNotes.setImportNotes(annotatedPluginDocument,
 									"ExtractIdCode", "Extract ID",
 									"Extract-ID", limsAB1Fields.getExtractID());
 						} catch (Exception ex) {
@@ -161,7 +161,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/* set note for PCR Plaat-ID */
 						try {
-							limsNotes.setImportNotes(docs.iterator().next(),
+							limsNotes.setImportNotes(annotatedPluginDocument,
 									"PcrPlaatIdCode", "PCR plaat ID",
 									"PCR plaat ID",
 									limsAB1Fields.getPcrPlaatID());
@@ -171,7 +171,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/* set note for Marker */
 						try {
-							limsNotes.setImportNotes(docs.iterator().next(),
+							limsNotes.setImportNotes(annotatedPluginDocument,
 									"MarkerCode", "Marker", "Marker",
 									limsAB1Fields.getMarker());
 						} catch (Exception ex) {
@@ -179,7 +179,7 @@ public class LimsImportAB1Update extends DocumentAction {
 						}
 						/* set note for Marker */
 						try {
-							limsNotes.setImportNotes(docs.iterator().next(),
+							limsNotes.setImportNotes(annotatedPluginDocument,
 									"VersieCode", "Version number",
 									"Version number",
 									limsAB1Fields.getVersieNummer());

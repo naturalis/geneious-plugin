@@ -41,40 +41,40 @@ public class LimsDummySeq {
 		sequenceList.add(DocumentUtilities
 				.createAnnotatedPluginDocument(sequence));
 
-		/* set note for Extract-ID */
+		/** set note for Extract-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractIdCode_Samples", "Extract ID (Samples)",
 				"Extract ID (Samples)", extractID);
 
-		/* set note for Project Plaet number */
+		/** set note for Project Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ProjectplatenumberCode_Samples",
-				"Project plate number (Samples)",
-				"Project plate number (Samples)", projectPlaatnummer);
+				"Project plate number  (Samples)",
+				"Project plate number  (Samples)", projectPlaatnummer);
 
-		/* Set note for Extract Plate number */
+		/** Set note for Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractplatenumberCode_Samples",
 				"Extract plate number (Samples)",
 				"Extract plate number (Samples)", extractPlaatnummer);
 
-		/* set note for Taxon name */
+		/** set note for Taxon name */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"TaxonNameCode_Samples", "TTaxon name (Samples)",
 				"Taxon name (Samples)", taxonName);
 
-		/* set note for Registration number */
+		/** set note for Registration number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"RegistrationnumberCode_Samples",
 				"Registrationnumber (Samples)", "Registrationnumber (Samples)",
 				registrationNumber);
 
-		/* set note for Plate position */
+		/** set note for Plate position */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"PlatepositionCode_Samples", "Plate position (Samples)",
 				"Plate position (Samples)", plaatPositie);
 
-		/* set note for Sample method */
+		/** set note for Sample method */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"SampleMethodCode_Samples", "Sample method (Samples)",
 				"Sample method (Samples)", "Sample method");

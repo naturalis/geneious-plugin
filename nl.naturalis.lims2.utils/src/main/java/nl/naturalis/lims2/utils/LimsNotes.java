@@ -54,13 +54,6 @@ public class LimsNotes {
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue, int count) {
 
-		/*
-		 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
-		 * limsImporterUtil.getLogFilename();
-		 * 
-		 * LimsLogger limsLogger = new LimsLogger(logFileName);
-		 */
-
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/** "ExtractPlaatNummerCode" */
@@ -77,10 +70,11 @@ public class LimsNotes {
 				Collections.<Constraint> emptyList(), false));
 
 		/** Check if note type exists */
-		/** Parameter noteTypeCode get value "Extract Plaatnummer" */
+		/** Parameter noteTypeCode get value "" */
 		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCode);
+
 		/** Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
@@ -89,8 +83,10 @@ public class LimsNotes {
 			DocumentNoteUtilities.setNoteType(documentNoteType);
 			logger.info("NoteType " + noteTypeCode + " created succesful");
 		}
+		// GeneiousPlugin geneiousPlugin = null;
 
 		/* Create note for Extract-ID */
+
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
 		documentNote.setFieldValue(this.fieldCode, fieldValue);
 
@@ -103,20 +99,14 @@ public class LimsNotes {
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
-		// limsLogger.flushCloseFileHandler();
-		// limsLogger.removeConsoleHandler();
+		// geneiousPlugin.getDocumentTypes();
+		listNotes.clear();
+
 	}
 
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue) {
-
-		/*
-		 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
-		 * limsImporterUtil.getLogFilename();
-		 * 
-		 * LimsLogger limsLogger = new LimsLogger(logFileName);
-		 */
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 

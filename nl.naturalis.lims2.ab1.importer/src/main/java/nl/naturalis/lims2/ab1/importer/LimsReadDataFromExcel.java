@@ -120,11 +120,13 @@ public class LimsReadDataFromExcel extends DocumentAction {
 							"Extract ID (Samples)",
 							limsExcelFields.getExtractID(), cnt);
 
+					// System.out.println("Projectplaat nummer "
+					// + limsExcelFields.getProjectPlaatNummer());
 					/** set note for Project Plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 							"ProjectplatenumberCode_Samples",
-							"Project plate number (Samples)",
-							"Project plate number (Samples)",
+							"Project plate number  (Samples)",
+							"Project plate number  (Samples)",
 							limsExcelFields.getProjectPlaatNummer(), cnt);
 
 					/** Set note for Extract plate number */
