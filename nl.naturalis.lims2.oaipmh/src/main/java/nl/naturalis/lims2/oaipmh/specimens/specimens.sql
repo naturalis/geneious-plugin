@@ -1,4 +1,4 @@
-SELECT a.id, a.modified, a.unit_id, a.assoc_unit_id, a.uri, a.multimedia_comment
+SELECT SQL_CALC_FOUND_ROWS a.id, a.modified, a.unit_id, a.assoc_unit_id, a.uri, a.multimedia_comment
   FROM
 		(
 			SELECT

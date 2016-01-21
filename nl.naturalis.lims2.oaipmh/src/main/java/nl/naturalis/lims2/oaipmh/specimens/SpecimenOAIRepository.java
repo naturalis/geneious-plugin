@@ -29,14 +29,14 @@ public class SpecimenOAIRepository extends Lims2OAIRepository {
 	@Override
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
-		logger.debug("Instantiating handler for ListRecords request");
+		logger.info("Instantiating handler for ListRecords request");
 		ListRecordsHandler handler = new ListRecordsHandler(request);
 		OAIPMHtype oaipmh = handler.handleRequest();
-		// if (logger.isDebugEnabled()) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-		stream(oaipmh, baos);
-		logger.debug(new String(baos.toByteArray()));
-		// }
+		if (logger.isDebugEnabled()) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
+			stream(oaipmh, baos);
+			logger.debug("Generated OAI-PMH:\n\n" + new String(baos.toByteArray()));
+		}
 		stream(oaipmh, out);
 	}
 }
