@@ -69,35 +69,35 @@ public class LimsReadDataFromExcel extends DocumentAction {
 					 */
 
 					/* set note for Extract-ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"ExtractIdCode", "Extract ID", "Extract-ID",
 							limsExcelFields.getExtractID(), cnt);
 
 					/* set note for Project Plaatnummer */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"ProjectPlaatnummerCode", "Project Plaatnummer",
 							"Project Plaatnummer",
 							limsExcelFields.getProjectPlaatNummer(), cnt);
 
 					/* Set note for Extract Plaatnummer */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"ExtractPlaatNummerCode", "Extract Plaatnummer",
 							"Extract Plaatnummer",
 							limsExcelFields.getExtractPlaatNummer(), cnt);
 
 					/* set note for Taxonnaam */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"TaxonNaamCode", "Taxon naam", "Taxon naam",
 							limsExcelFields.getTaxonNaam(), cnt);
 
 					/* set note for Registrationnumber */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"BasisOfRecordCode", "Registrationnumber",
 							"Registrationnumber",
 							limsExcelFields.getRegistrationNumber(), cnt);
 
 					/* set note for Plaat positie */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"PlaatpositieCode", "Plaat positie",
 							"Plaat positie", limsExcelFields.getPlaatPositie(),
 							cnt);

@@ -72,35 +72,35 @@ public class LimsReadDataFromBold extends DocumentAction {
 					 */
 
 					/* set note for Col.Registratie code */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"ColRegistratieCode", "Col Registratie code",
 							"Col Registratie code",
 							limsBoldFields.getColRegistratiecode(), cnt);
 
 					/* set note for BOLD-ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"BOLDIDCode", "BOLD-ID", "BOLD-ID",
 							limsBoldFields.getBoldID(), cnt);
 
 					/* Set note for Marker */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"MarkerCode", "Marker", "Marker",
 							limsBoldFields.getMarker(), cnt);
 
 					/* set note for TraceFile Presence */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"TraceFilePresenceCode", "TraceFile Presence",
 							"TraceFile Presence",
 							limsBoldFields.getTraceFilePresence(), cnt);
 
 					/* set note for Nucleotide Length */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"NucleotideLengthCode", "Nucleotide Length",
 							"Nucleotide Length",
 							limsBoldFields.getNucleotideLength(), cnt);
 
 					/* set note for GenBankID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					limsNotes.setNoteToAB1FileName(docs.iterator().next(),
 							"GenBankIDCode", "GenBank-ID", "GenBank-ID",
 							limsBoldFields.getGenBankID(), cnt);
 
