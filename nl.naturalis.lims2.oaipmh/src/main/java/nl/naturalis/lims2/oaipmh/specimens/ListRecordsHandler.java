@@ -137,11 +137,13 @@ class ListRecordsHandler {
 		int pageSize = cfg.getInt("specimens.repo.pagesize");
 		int offset = request.getPage() * pageSize;
 		int recordsToGo = resultSetSize - offset - pageSize;
-		int requestsToGo = (((int) Math.ceil(resultSetSize / pageSize)) - 1);
+		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
 		logger.info("Records satisfying request: " + resultSetSize);
 		logger.info("Records served per request: " + pageSize);
 		logger.info("Remaining records: " + recordsToGo);
-		logger.info("Remaining requests (for full harvest): " + requestsToGo);
+		String fmt = "%s more request%s needed to complete harvest";
+		String plural = requestsToGo == 1 ? "" : "s";
+		logger.info(String.format(fmt, requestsToGo, plural));
 	}
 
 	private void addResumptionToken(ListRecordsType listRecords, int numRecords, int offset)
