@@ -5,7 +5,6 @@ package nl.naturalis.lims2.ab1.importer;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
@@ -61,8 +60,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 				new LimsCRSImporter() };
 	}
 
-	public DocumentOperation[] getDocumentOperations() {
-		return new DocumentOperation[] { new LimsDummySequence() };
-	}
+	// public DocumentOperation[] getDocumentOperations() {
+	// return new DocumentOperation[] { new LimsDummySequence() };
+	// }
 
 }

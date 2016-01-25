@@ -75,10 +75,21 @@ public class LimsReadDataFromBold extends DocumentAction {
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-		logger.info("------------------------------S T A R T -----------------------------------");
-		logger.info("Start adding Bold metadata to AB1 File(s)");
 
-		if (annotatedPluginDocuments[0] != null) {
+		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Select all documents");
+					return;
+				}
+			});
+		}
+
+		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			logger.info("------------------------------S T A R T -----------------------------------");
+			logger.info("Start adding Bold metadata to AB1 File(s)");
 
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
@@ -137,42 +148,38 @@ public class LimsReadDataFromBold extends DocumentAction {
 				e.printStackTrace();
 			}
 			logger.info("Total of document(s) updated: " + docs.size());
+			logger.info("------------------------------E N D -----------------------------------");
+			logger.info("Done with reading bold file. ");
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Bold: "
+							+ Integer.toString(docs.size()) + " out of "
+							+ Integer.toString(importTotal)
+							+ " documents are imported." + "\n"
+							+ msgList.toString());
+					logger.info("Bold: Total imported document(s): "
+							+ msgList.toString());
+
+					limsLogger.logToFile(logFileName, msgUitvalList.toString());
+
+					msgList.clear();
+					msgUitvalList.clear();
+					verwerkingListCnt.clear();
+					verwerkList.clear();
+				}
+			});
 		}
-		logger.info("------------------------------E N D -----------------------------------");
-		logger.info("Done with reading bold file. ");
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				/*
-				 * Dialogs.showMessageDialog(
-				 * "Bold: Done with updating the selected document(s): " +
-				 * msgList.toString()); msgList.clear();
-				 * logger.info("Bold: Total imported document(s): " +
-				 * msgList.toString());
-				 */
-
-				Dialogs.showMessageDialog("Bold: "
-						+ Integer.toString(docs.size()) + " out of "
-						+ Integer.toString(importTotal)
-						+ " documents are imported." + "\n"
-						+ msgList.toString());
-				logger.info("Bold: Total imported document(s): "
-						+ msgList.toString());
-
-				limsLogger.logToFile(logFileName, msgUitvalList.toString());
-
-				msgList.clear();
-				msgUitvalList.clear();
-				verwerkingListCnt.clear();
-				verwerkList.clear();
-			}
-		});
 	}
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("4 Bold").setInMainToolbar(true);
+		// return new GeneiousActionOptions("4 Bold").setInMainToolbar(true);
+		return new GeneiousActionOptions("4 Bold").setInPopupMenu(true)
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 3.0)
+				.setInMainToolbar(true).setInPopupMenu(true)
+				.setAvailableToWorkflows(true);
 	}
 
 	@Override
