@@ -36,11 +36,11 @@ import com.opencsv.CSVReader;
  * @author Reinier.Kartowikromo
  *
  */
-public class LimsReadDataFromExcel extends DocumentAction {
+public class LimsReadDataFromSamples extends DocumentAction {
 
 	private List<AnnotatedPluginDocument> docs;
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private LimsExcelFields limsExcelFields = new LimsExcelFields();
+	private LimsSamplesFields limsExcelFields = new LimsSamplesFields();
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
@@ -53,7 +53,7 @@ public class LimsReadDataFromExcel extends DocumentAction {
 	private List<String> verwerkingListCnt = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsReadDataFromExcel.class);
+			.getLogger(LimsReadDataFromSamples.class);
 
 	public int importCounter;
 	private int importTotal;
@@ -130,8 +130,8 @@ public class LimsReadDataFromExcel extends DocumentAction {
 					/** set note for Project Plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 							"ProjectplatenumberCode_Samples",
-							"Project plate number  (Samples)",
-							"Project plate number  (Samples)",
+							"Project plate number (Samples)",
+							"Project plate number (Samples)",
 							limsExcelFields.getProjectPlaatNummer(), cnt);
 
 					/** Set note for Extract plate number */

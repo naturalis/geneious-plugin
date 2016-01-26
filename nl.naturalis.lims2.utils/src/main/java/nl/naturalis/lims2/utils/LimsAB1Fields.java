@@ -48,7 +48,7 @@ public class LimsAB1Fields {
 			String[] underscore = StringUtils.split(ab1FileName, "_");
 			setExtractID(underscore[0]);
 			setPcrPlaatID(underscore[3]);
-			setMarker(underscore[4]);
+			setMarker(underscore[4].substring(0, underscore[4].indexOf("-")));
 		}
 
 	}
