@@ -142,7 +142,7 @@ public class LimsCRSImporter extends DocumentAction {
 						/* set note for Family */
 						limsNotes.setNoteToAB1FileName(
 								annotatedPluginDocuments, "FamilyCode_CRS",
-								"Family(CRS)", "Family (CRS)",
+								"Family (CRS)", "Family (CRS)",
 								LimsCRSFields.getFamily(), cnt);
 
 						/** set note for SubFamily */
