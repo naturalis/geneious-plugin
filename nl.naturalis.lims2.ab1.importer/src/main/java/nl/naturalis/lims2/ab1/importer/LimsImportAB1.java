@@ -144,7 +144,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
 					dummyName, "A new dummy Sequence", "NNNNNNNNNN",
-					new Date(), URN.generateUniqueLocalURN("Dummy"));
+					new Date(), URN.generateUniqueLocalURN());
 
 			sequenceList.add(DocumentUtilities
 					.createAnnotatedPluginDocument(sequence));

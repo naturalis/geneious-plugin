@@ -49,7 +49,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private List<String> verwerkingCnt = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsReadDataFromExcel.class);
+			.getLogger(LimsReadDataFromSamples.class);
 
 	public int importCounter;
 	private int importTotal;
@@ -105,6 +105,7 @@ public class LimsCRSImporter extends DocumentAction {
 						result = readGeneiousFieldsValues
 								.getFileNameFromGeneiousDatabase(seq.getName())
 								.equals(seq.getName());
+						logger.debug("Result CRS :" + result);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

@@ -24,7 +24,7 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 public class LimsDummySeq {
 
 	private LimsNotes limsNotes = new LimsNotes();
-	private LimsExcelFields limsExcelFields = new LimsExcelFields();
+	private LimsSamplesFields limsExcelFields = new LimsSamplesFields();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsDummySeq.class);
 
@@ -49,8 +49,8 @@ public class LimsDummySeq {
 		/** set note for Project Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ProjectplatenumberCode_Samples",
-				"Project plate number  (Samples)",
-				"Project plate number  (Samples)", projectPlaatnummer);
+				"Project plate number (Samples)",
+				"Project plate number (Samples)", projectPlaatnummer);
 
 		/** Set note for Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),

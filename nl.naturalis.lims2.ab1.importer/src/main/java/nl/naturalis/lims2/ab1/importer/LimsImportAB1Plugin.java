@@ -5,6 +5,7 @@ package nl.naturalis.lims2.ab1.importer;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
+import com.biomatters.geneious.publicapi.plugin.DocumentType;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
@@ -56,8 +57,19 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsImportAB1Update(),
-				new LimsReadDataFromExcel(), new LimsReadDataFromBold(),
+				new LimsReadDataFromSamples(), new LimsReadDataFromBold(),
 				new LimsCRSImporter() };
+	}
+
+	@Override
+	public DocumentType[] getDocumentTypes() {
+		return new DocumentType[] { new DocumentType<LimsSamplesFields>(
+				"Samples document", LimsSamplesFields.class, null),
+		// new DocumentType<LimsReadDataFromBold>("Bold document",
+		// LimsReadDataFromBold.class, null),
+		// new DocumentType<LimsCRSImporter>("CRS Document",
+		// LimsCRSImporter.class, null)
+		};
 	}
 
 	// public DocumentOperation[] getDocumentOperations() {

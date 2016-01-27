@@ -105,12 +105,14 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, filename);
 			rs = pst.executeQuery();
 			while (rs.next()) {
 				result = rs.getObject(1).toString();
-				logger.info("Filename: " + result
+				logger.debug("Filename: " + result
 						+ " already exists in the geneious database.");
 				limsLogList.UitvalList.add("Filename: " + result
 						+ " already exists in the geneious database." + "\n");
