@@ -10,9 +10,9 @@ import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.domainobject.util.ConfigObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provides common functionality for LIMS2/Geneious repositories.
@@ -31,7 +31,7 @@ public class Lims2OAIUtil {
 	 */
 	public static final String LIMS2_XMLNS_PREFIX = "lims2";
 
-	private static final Logger logger = LoggerFactory.getLogger(Lims2OAIUtil.class);
+	private static final Logger logger = LogManager.getLogger(Lims2OAIUtil.class);
 
 	private Lims2OAIUtil()
 	{
@@ -47,12 +47,6 @@ public class Lims2OAIUtil {
 	{
 		if (!request.getMetadataPrefix().equals("lims2"))
 			throw new OAIPMHException(new CannotDisseminateFormatError(request));
-	}
-
-	public static ConfigObject getConfig()
-	{
-		String path = "/oai-repo.geneious.properties";
-		return new ConfigObject(Lims2OAIUtil.class.getResourceAsStream(path));
 	}
 
 	/**

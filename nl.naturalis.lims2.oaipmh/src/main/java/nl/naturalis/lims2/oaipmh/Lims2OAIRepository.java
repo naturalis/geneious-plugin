@@ -16,6 +16,7 @@ import nl.naturalis.oaipmh.api.RepositoryException;
 import nl.naturalis.oaipmh.api.XSDNotFoundException;
 import nl.naturalis.oaipmh.api.util.OAIPMHStreamer;
 
+import org.domainobject.util.ConfigObject;
 import org.domainobject.util.IOUtil;
 import org.openarchives.oai._2.OAIPMHtype;
 
@@ -32,11 +33,17 @@ import org.openarchives.oai._2.OAIPMHtype;
  */
 public abstract class Lims2OAIRepository implements IOAIRepository {
 
+	protected ConfigObject config;
 	protected OAIPMHRequest request;
 	protected String repoBaseURL;
 
 	public Lims2OAIRepository()
 	{
+	}
+
+	public void setConfiguration(ConfigObject config)
+	{
+		this.config = config;
 	}
 
 	@Override
