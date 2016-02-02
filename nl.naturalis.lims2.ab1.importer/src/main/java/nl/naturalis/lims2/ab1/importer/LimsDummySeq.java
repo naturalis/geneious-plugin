@@ -43,35 +43,35 @@ public class LimsDummySeq {
 
 		/** set note for Extract-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"ExtractIdCode_Samples", "Extract ID (Samples)",
+				"ExtractIDCode_Samples", "Extract ID (Samples)",
 				"Extract ID (Samples)", extractID);
 
 		/** set note for Project Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"ProjectplatenumberCode_Samples",
+				"ProjectPlateNumberCode_Samples",
 				"Project plate number (Samples)",
 				"Project plate number (Samples)", projectPlaatnummer);
 
 		/** Set note for Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"ExtractplatenumberCode_Samples",
+				"ExtractPlateNumberCode_Samples",
 				"Extract plate number (Samples)",
 				"Extract plate number (Samples)", extractPlaatnummer);
 
 		/** set note for Taxon name */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"TaxonNameCode_Samples", "TTaxon name (Samples)",
+				"TaxonNameCode_Samples", "Taxon name (Samples)",
 				"Taxon name (Samples)", taxonName);
 
 		/** set note for Registration number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"RegistrationnumberCode_Samples",
-				"Registrationnumber (Samples)", "Registrationnumber (Samples)",
-				registrationNumber);
+				"RegistrationNumberCode_Samples",
+				"Registration number (Samples)",
+				"Registration number (Samples)", registrationNumber);
 
 		/** set note for Plate position */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"PlatepositionCode_Samples", "Plate position (Samples)",
+				"PlatePositionCode_Samples", "Plate position (Samples)",
 				"Plate position (Samples)", plaatPositie);
 
 		/** set note for Sample method */
@@ -81,7 +81,7 @@ public class LimsDummySeq {
 
 		try {
 			limsNotes.setImportNotes(sequenceList.iterator().next(),
-					"DocumentversionCode", "Document version",
+					"DocumentVersionCode", "Document version",
 					"Document version", "0");
 			logger.info("New Dummy: " + filename + " file added.");
 		} catch (Exception ex) {

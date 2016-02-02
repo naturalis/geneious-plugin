@@ -111,7 +111,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					logger.info("-------------------------- S T A R T --------------------------");
-					logger.info("Start Reading data from a excel file.");
+					logger.info("Start Reading data from a samples file.");
 
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 					extractIDfileName = getExtractIDFromAB1FileName(seq
@@ -121,45 +121,46 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					readDataFromExcel(fileSelected);
 
-					/** set note for Extract-ID */
+					/** set note for Registration number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractIdCode_Samples", "Extract ID (Samples)",
-							"Extract ID (Samples)",
-							limsExcelFields.getExtractID(), cnt);
+							"RegistrationNumberCode_Samples",
+							"Registration number (Samples)",
+							"Registration number (Samples)",
+							limsExcelFields.getRegistrationNumber(), cnt);
+
+					/** set note for Taxonname */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"TaxonName2Code_Samples",
+							"Scientific name 2 (Samples)",
+							"Scientific name 2 (Samples)",
+							limsExcelFields.getTaxonNaam(), cnt);
 
 					/** set note for Project Plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ProjectplatenumberCode_Samples",
+							"ProjectPlateNumberCode_Samples",
 							"Project plate number (Samples)",
 							"Project plate number (Samples)",
 							limsExcelFields.getProjectPlaatNummer(), cnt);
 
 					/** Set note for Extract plate number */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractplatenumberCode_Samples",
+							"ExtractPlateNumberCode_Samples",
 							"Extract plate number (Samples)",
 							"Extract plate number (Samples)",
 							limsExcelFields.getExtractPlaatNummer(), cnt);
 
-					/** set note for Taxonname */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"TaxonNameCode_Samples", "Taxon name (Samples)",
-							"Taxon name (Samples)",
-							limsExcelFields.getTaxonNaam(), cnt);
-
-					/** set note for Registrationnumber */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"RegistrationnumberCode_Samples",
-							"Registrationnumber (Samples)",
-							"Registrationnumber (Samples)",
-							limsExcelFields.getRegistrationNumber(), cnt);
-
 					/** set note for Plate position */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PlatepositionCode_Samples",
+							"PlatePositionCode_Samples",
 							"Plate position (Samples)",
 							"Plate position (Samples)",
 							limsExcelFields.getPlaatPositie(), cnt);
+
+					/** set note for Extract-ID */
+					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+							"ExtractIDCode_Samples", "Extract ID (Samples)",
+							"Extract ID (Samples)",
+							limsExcelFields.getExtractID(), cnt);
 
 					/** set note for Sample method */
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -169,7 +170,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							limsExcelFields.getSubSample(), cnt);
 
 					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"DocumentversionCode", "Document version",
+							"DocumentVersionCode", "Document version",
 							"Document version",
 							limsExcelFields.getVersieNummer(), cnt);
 

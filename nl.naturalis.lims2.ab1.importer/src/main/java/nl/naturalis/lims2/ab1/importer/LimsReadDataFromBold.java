@@ -312,8 +312,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		/** set note for TraceFile Presence */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"TraceFilePresenceCode_Bold", "TraceFile presence (Bold)",
-				"TraceFile presence (Bold)",
+				"TraceFilePresenceCode_Bold", "Trace file presence (Bold)",
+				"Trace file presence (Bold)",
 				limsBoldFields.getTraceFilePresence(), cnt);
 
 		/** set note for Nucleotide Length */
@@ -333,7 +333,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		/** set note for BOLD-ID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments, "BOLDIDCode",
-				"Bold ID (Bold)", "Bold ID (Bold)", limsBoldFields.getBoldID(),
+				"BOLD ID (Bold)", "BOLD ID (Bold)", limsBoldFields.getBoldID(),
 				cnt);
 
 		/** set note for BOLD-ID */
