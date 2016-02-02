@@ -1,0 +1,71 @@
+<document
+	class="com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence"
+	version="1.3-11" revisionNumber="9" geneiousVersion="8.1.8"
+	geneiousVersionMinimum="7.1" PluginDocument_FormatLastChanged="7.1"
+	PluginDocument_FormatLastExtended="8.1"
+	PluginDocument_OldestVersionSerializableTo="6.0">
+	<hiddenFields>
+		<unread type="boolean">true</unread>
+		<descendant_operation_record_documents
+			type="list">
+			<descendant_operation_record_documents
+				type="int">0</descendant_operation_record_documents>
+		</descendant_operation_record_documents>
+		<cache_plugin_document_urn>urn:local:Dummy:h0-5omsaez
+		</cache_plugin_document_urn>
+		<cache_urn type="urn">urn:local:Wilfred.Gerritsen:h2-5omsaf6</cache_urn>
+		<nucleotideSequenceWithQualityCount type="int">0
+		</nucleotideSequenceWithQualityCount>
+		<weak_referenced_documents type="list">
+			<weak_referenced_documents type="int">0
+			</weak_referenced_documents>
+		</weak_referenced_documents>
+		<description>A new dummy Sequence Samples</description>
+		<cache_name>e4010125090</cache_name>
+		<override_modified_date type="date">1453733713289
+		</override_modified_date>
+		<cache_created type="date">1453733713236</cache_created>
+		<referenced_documents type="list">
+			<referenced_documents>urn:local:Wilfred.Gerritsen:is-5omsn3a@0
+			</referenced_documents>
+		</referenced_documents>
+		<trimmedSequencesCount type="int">0</trimmedSequencesCount>
+	</hiddenFields>
+	<fields>
+		<document_size type="bytes">332</document_size>
+		<molType>DNA</molType>
+		<sequence_length type="int">10</sequence_length>
+		<topology>linear</topology>
+		<sequence_residues>NNNNNNNNNN</sequence_residues>
+		<gcPercent decimalPlacesDisplayed="1" type="percent">0.0</gcPercent>
+		<modified_date type="date">1453733713236</modified_date>
+	</fields>
+	<notes>
+		<note code="DocumentNoteUtilities-Extract ID (Samples)" type="note">
+			<ExtractIdCode_Samples>e4010125090</ExtractIdCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Project plate number (Samples)" type="note">
+			<ProjectplatenumberCode_Samples>BCP0047-40</ProjectplatenumberCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Extract plate number (Samples)" type="note">
+			<ExtractplatenumberCode_Samples>NCBN000678-G04
+			</ExtractplatenumberCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Taxon name (Samples)" type="note">
+			<TaxonNameCode_Samples>Bledius subniger</TaxonNameCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Registrationnumber (Samples)" type="note">
+			<RegistrationnumberCode_Samples>RMNH.INS.556249
+			</RegistrationnumberCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Plate position (Samples)" type="note">
+			<PlatepositionCode_Samples>G-04</PlatepositionCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Sample method (Samples)" type="note">
+			<SampleMethodCode_Samples>Sample method</SampleMethodCode_Samples>
+		</note>
+		<note code="DocumentNoteUtilities-Document version" type="note">
+			<DocumentversionCode>0</DocumentversionCode>
+		</note>
+	</notes>
+</document>

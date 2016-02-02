@@ -25,6 +25,8 @@ import nl.naturalis.oaipmh.api.OAIPMHRequest;
 import nl.naturalis.oaipmh.api.RepositoryException;
 import nl.naturalis.oaipmh.api.util.ResumptionToken;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.domainobject.util.ConfigObject;
 import org.domainobject.util.FileUtil;
 import org.openarchives.oai._2.HeaderType;
@@ -33,22 +35,20 @@ import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 import org.openarchives.oai._2.ResumptionTokenType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ListRecordsHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(ListRecordsHandler.class);
+	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
 
 	private static final String XPATH_UNIT_ID = "//ColRegistratieCode";
 
 	private final ConfigObject cfg;
 	private final OAIPMHRequest request;
 
-	public ListRecordsHandler(OAIPMHRequest request)
+	public ListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		this.request = request;
-		this.cfg = Lims2OAIUtil.getConfig();
+		this.cfg = config;
 	}
 
 	OAIPMHtype handleRequest_old() throws OAIPMHException

@@ -1,0 +1,68 @@
+<document
+	class="com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence"
+	version="1.3-11" revisionNumber="5" geneiousVersion="8.1.8"
+	geneiousVersionMinimum="7.1" PluginDocument_FormatLastChanged="7.1"
+	PluginDocument_FormatLastExtended="7.1"
+	PluginDocument_OldestVersionSerializableTo="6.0">
+	<hiddenFields>
+		<cache_plugin_document_urn></cache_plugin_document_urn>
+		<cache_urn type="urn">urn:local:Wilfred.Gerritsen:az-5oms0v4</cache_urn>
+		<nucleotideSequenceWithQualityCount type="int">1
+		</nucleotideSequenceWithQualityCount>
+		<description></description>
+		<cache_name>e4010125018_Mec_pyr_MJ243_COI-A04_M13F_A07_016.ab1</cache_name>
+		<strong_referenced_documents type="list">
+			<strong_referenced_documents type="int">0
+			</strong_referenced_documents>
+		</strong_referenced_documents>
+		<override_modified_date type="date">1453733641961
+		</override_modified_date>
+		<cache_created type="date">1446552366507</cache_created>
+		<referenced_documents type="list">
+			<referenced_documents>urn:local:Wilfred.Gerritsen:b0-5oms0v4@0
+			</referenced_documents>
+		</referenced_documents>
+		<trimmedSequencesCount type="int">0</trimmedSequencesCount>
+	</hiddenFields>
+	<fields>
+		<document_size type="bytes">98972</document_size>
+		<molType>DNA</molType>
+		<mediumQualityPercent decimalPlacesDisplayed="1" type="percent">10.86350974930362
+		</mediumQualityPercent>
+		<highQualityPercent decimalPlacesDisplayed="1" type="percent">83.56545961002786
+		</highQualityPercent>
+		<BinFailReason>HQ%, Ambiguities</BinFailReason>
+		<lowQualityPercent decimalPlacesDisplayed="1" type="percent">5.571030640668524
+		</lowQualityPercent>
+		<sequence_residues>GSKWYWYSAAWAWTGGGTMACTGKACATTATTTTTTCCATATTAGCTGGAATTATTGGTGGATTATTATCGGTGATTATTCGCACTCAGCTAATGCACATTAATATACTTAACAATAACTATCAATTATATAACGTAATGGTTACAGGGCATGCGTTGATAATGGTGTTTTTTATGATAATGCCAGCCCTCATGGGAGGATTTGGTAACTGGTTTGTACCTCTCATGATTGGCGCACCAGATATGGCGTTTCCTCGTATGAATAATTTGAGTTTCTGGTTATTAGTGTCATCTTTTATTTTGCTCATTCTCTCAGTGTTTATTGGTGAAGGTCCAGGTACAGGTTGGACTTTATATCCACCTTTATCACAGGTAATGTCCCATCCAAGTGCAGGAGTTGACATTGCTATACTTGCACTCCACGTTGCTGGTATGTCGTCAATTGTTGGGGCGATCAACTTTATAGTTACTATATTTAACATGCGCGCAAAAGGCATGTCA
+		</sequence_residues>
+		<sequence_length type="int">718</sequence_length>
+		<topology>linear</topology>
+		<postTrimLength type="int">718</postTrimLength>
+		<abiguities type="int">16</abiguities>
+		<bin>&lt;html&gt;&lt;head&gt;&lt;2&gt;&lt;/head&gt;&lt;b&gt;&lt;font
+			color='#E9A02D'&gt;Medium&lt;/font&gt;&lt;/b&gt;&lt;/html&gt;</bin>
+		<gcPercent decimalPlacesDisplayed="1" type="percent">38.67791842475387
+		</gcPercent>
+		<modified_date type="date">1446552366507</modified_date>
+	</fields>
+	<notes>
+		<note code="importedFrom" type="note">
+			<path>C:\Users\Wilfred.Gerritsen\Tools\Stand Alone Geneious\Data\AB1 files
+			</path>
+			<filename>e4010125018_Mec_pyr_MJ243_COI-A04_M13F_A07_016.ab1</filename>
+		</note>
+		<note code="DocumentNoteUtilities-Extract ID (Seq)" type="note">
+			<ExtractIdCode_Seq>e4010125018</ExtractIdCode_Seq>
+		</note>
+		<note code="DocumentNoteUtilities-PCR plate ID (Seq)" type="note">
+			<PcrPlateIdCode_Seq>MJ243</PcrPlateIdCode_Seq>
+		</note>
+		<note code="DocumentNoteUtilities-Marker (Seq)" type="note">
+			<MarkerCode_Seq>COI</MarkerCode_Seq>
+		</note>
+		<note code="DocumentNoteUtilities-Document version" type="note">
+			<DocumentversionCode>1</DocumentversionCode>
+		</note>
+	</notes>
+</document>

@@ -4,12 +4,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.domainobject.util.CollectionUtil;
 import org.domainobject.util.DOMUtil;
 import org.domainobject.util.convert.Stringifier;
 import org.w3c.dom.Element;
 
 public class AnnotatedDocumentFactory {
+
+	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentFactory.class);
 
 	public AnnotatedDocumentFactory()
 	{
@@ -29,8 +33,9 @@ public class AnnotatedDocumentFactory {
 		return doc;
 	}
 
-	private Document parseDocumentXML(String xml)
+	Document parseDocumentXML(String xml)
 	{
+		logger.debug("Parsing contents of column \"document_xml\"");
 		Element root = DOMUtil.getDocumentElement(xml);
 		assert (root.hasAttribute("class"));
 		String s = root.getAttribute("class");
@@ -40,13 +45,17 @@ public class AnnotatedDocumentFactory {
 		doc.setDocumentClass(documentClass);
 		Element e = DOMUtil.getChild(root, "notes");
 		if (e != null) {
+			logger.debug("Found <notes> element. Searching for usable <note> elements.");
 			DocumentNotes notes = getDocumentNotes(e);
 			doc.setNotes(notes);
+		}
+		else if (logger.isDebugEnabled()) {
+			logger.debug("No <notes> element in column \"document_xml\"");
 		}
 		return doc;
 	}
 
-	private PluginDocumentData parsePluginDocumentXML(String xml)
+	PluginDocumentData parsePluginDocumentXML(String xml)
 	{
 		Element root = DOMUtil.getDocumentElement(xml);
 		if (root.getTagName().equals("XMLSerialisableRootElement"))
@@ -83,6 +92,12 @@ public class AnnotatedDocumentFactory {
 			if (field == DefaultAlignmentDocument.Field.is_contig) {
 				getIsContig(result, root);
 			}
+			else {
+				Element e = DOMUtil.getChild(root, field.name());
+				if (e != null) {
+					result.set(field, e.getTextContent());
+				}
+			}
 		}
 		return result;
 	}
@@ -91,11 +106,16 @@ public class AnnotatedDocumentFactory {
 	private DocumentNotes getDocumentNotes(Element notesElement)
 	{
 		DocumentNotes dn = new DocumentNotes();
+		int i = 0;
 		for (DocumentNotes.Field field : DocumentNotes.Field.values()) {
 			Element e = DOMUtil.getDescendant(notesElement, field.name());
-			if (e != null)
+			if (e != null) {
+				i++;
 				dn.set(field, e.getTextContent());
+				logger.debug("Found document note for {}", field.name());
+			}
 		}
+		logger.debug("Number of usable <note> elements: {}", i);
 		return dn;
 	}
 

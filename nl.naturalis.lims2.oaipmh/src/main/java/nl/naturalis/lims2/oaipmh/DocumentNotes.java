@@ -30,6 +30,11 @@ public class DocumentNotes {
 		 * Maps to &lt;batchID&gt; for DNA extracts.
 		 */
 		ProjectPlateNumberCode_Samples,
+		/*
+		 * Hack om spelfouten in Reinier's XML te omzeilen. TODO: Weghalen als
+		 * Reinier spelling heeft aangepast.
+		 */
+		ProjectplatenumberCode_Samples,
 		/**
 		 * Maps to &lt;versionNumber&gt; for DNA extracts.
 		 */

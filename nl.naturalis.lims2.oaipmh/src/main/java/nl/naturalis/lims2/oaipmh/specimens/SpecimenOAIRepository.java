@@ -7,9 +7,9 @@ import nl.naturalis.lims2.oaipmh.Lims2OAIRepository;
 import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.RepositoryException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openarchives.oai._2.OAIPMHtype;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OAI repository for specimens.
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpecimenOAIRepository extends Lims2OAIRepository {
 
-	private static final Logger logger = LoggerFactory.getLogger(SpecimenOAIRepository.class);
+	private static final Logger logger = LogManager.getLogger(SpecimenOAIRepository.class);
 
 	public SpecimenOAIRepository()
 	{
@@ -30,7 +30,7 @@ public class SpecimenOAIRepository extends Lims2OAIRepository {
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
 		logger.info("Instantiating handler for ListRecords request");
-		ListRecordsHandler handler = new ListRecordsHandler(request);
+		ListRecordsHandler handler = new ListRecordsHandler(config, request);
 		OAIPMHtype oaipmh = handler.handleRequest();
 		if (logger.isDebugEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);

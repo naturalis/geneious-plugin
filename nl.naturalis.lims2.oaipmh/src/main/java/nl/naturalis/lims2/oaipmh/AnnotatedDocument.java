@@ -1,5 +1,11 @@
 package nl.naturalis.lims2.oaipmh;
 
+/**
+ * Models a record in the annotated_document table.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class AnnotatedDocument {
 
 	private int id;
