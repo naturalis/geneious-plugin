@@ -1,5 +1,8 @@
 package nl.naturalis.lims2.oaipmh.specimens;
 
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.BOLDIDCode_BOLD;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.NumberOfImagesCode_BOLD;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.RegistrationNumberCode_Samples;
 import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.checkMetadataPrefix;
 import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.connect;
 import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.disconnect;
@@ -11,10 +14,13 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.List;
 
+import nl.naturalis.lims2.oaipmh.AbstractListRecordsHandler;
+import nl.naturalis.lims2.oaipmh.AnnotatedDocument;
+import nl.naturalis.lims2.oaipmh.DocumentNotes;
 import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
 import nl.naturalis.lims2.oaipmh.jaxb.Specimen;
@@ -36,19 +42,13 @@ import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 import org.openarchives.oai._2.ResumptionTokenType;
 
-class ListRecordsHandler {
+class ListRecordsHandler extends AbstractListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
 
-	private static final String XPATH_UNIT_ID = "//ColRegistratieCode";
-
-	private final ConfigObject cfg;
-	private final OAIPMHRequest request;
-
 	public ListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
-		this.request = request;
-		this.cfg = config;
+		super(config, request);
 	}
 
 	OAIPMHtype handleRequest_old() throws OAIPMHException
@@ -84,9 +84,30 @@ class ListRecordsHandler {
 	OAIPMHtype handleRequest() throws RepositoryException, OAIPMHException
 	{
 		checkMetadataPrefix(request);
+		List<AnnotatedDocument> records = loadRecords();
+		if (records.size() == 0) {
+			throw new OAIPMHException(new NoRecordsMatchError());
+		}
+		OAIPMHtype root = createResponseSkeleton(request);
+		ListRecordsType listRecords = oaiFactory.createListRecordsType();
+		root.setListRecords(listRecords);
+		int pageSize = config.getInt("specimens.repo.pagesize");
+		int offset = request.getPage() * pageSize;
+		for (int i = offset; i < records.size() && i < pageSize; ++i) {
+			addRecord(records.get(i), listRecords);
+		}
+		if (offset + pageSize < records.size()) {
+			addResumptionToken(listRecords, records.size(), offset);
+		}
+		return root;
+	}
+
+	OAIPMHtype handleRequest2() throws RepositoryException, OAIPMHException
+	{
+		checkMetadataPrefix(request);
 		Connection conn = null;
 		try {
-			conn = connect(cfg);
+			conn = connect(config);
 			Statement stmt = conn.createStatement();
 			String sql = getSQL();
 			if (logger.isDebugEnabled())
@@ -103,12 +124,12 @@ class ListRecordsHandler {
 			ListRecordsType listRecords = oaiFactory.createListRecordsType();
 			root.setListRecords(listRecords);
 
-			int pageSize = cfg.getInt("specimens.repo.pagesize");
+			int pageSize = config.getInt("specimens.repo.pagesize");
 			int i = 0;
 			while (rs.next()) {
 				if (i++ == pageSize)
 					break;
-				addRecord(rs, listRecords);
+				// addRecord(rs, listRecords);
 			}
 
 			if (i == 0) {
@@ -134,7 +155,7 @@ class ListRecordsHandler {
 
 	private void logResultSetInfo(int resultSetSize)
 	{
-		int pageSize = cfg.getInt("specimens.repo.pagesize");
+		int pageSize = config.getInt("specimens.repo.pagesize");
 		int offset = request.getPage() * pageSize;
 		int recordsToGo = resultSetSize - offset - pageSize;
 		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
@@ -157,41 +178,46 @@ class ListRecordsHandler {
 		resumptionToken.setValue(token);
 	}
 
-	private static void addRecord(ResultSet rs, ListRecordsType listRecords) throws SQLException
+	private static void addRecord(AnnotatedDocument ad, ListRecordsType listRecords)
 	{
 		RecordType record = oaiFactory.createRecordType();
 		listRecords.getRecord().add(record);
-		record.setHeader(createHeader(rs));
-		record.setMetadata(createMetadata(rs));
+		record.setHeader(createHeader(ad));
+		record.setMetadata(createMetadata(ad));
 	}
 
-	private static HeaderType createHeader(ResultSet rs) throws SQLException
+	private static HeaderType createHeader(AnnotatedDocument ad)
 	{
 		HeaderType header = oaiFactory.createHeaderType();
-		header.setIdentifier(rs.getString("id"));
-		long modified = 1000L * rs.getLong("modified");
+		header.setIdentifier(String.valueOf(ad.getId()));
+		long modified = 1000L * ad.getModified();
 		header.setDatestamp(dateTimeFormatter.format(new Date(modified)));
 		return header;
 	}
 
-	private static MetadataType createMetadata(ResultSet rs) throws SQLException
+	private static MetadataType createMetadata(AnnotatedDocument ad)
 	{
 		MetadataType metadata = oaiFactory.createMetadataType();
 		Geneious geneious = new Geneious();
 		metadata.setAny(geneious);
 		Specimen specimen = new Specimen();
 		geneious.setSpecimen(specimen);
-		specimen.setUnit(createSpecimenUnit(rs));
+		specimen.setUnit(createSpecimenUnit(ad));
 		return metadata;
 	}
 
-	private static SpecimenUnit createSpecimenUnit(ResultSet rs) throws SQLException
+	private static SpecimenUnit createSpecimenUnit(AnnotatedDocument ad)
 	{
 		SpecimenUnit unit = new SpecimenUnit();
-		unit.setUnitID(rs.getString("unit_id"));
-		unit.setAssociatedUnitID(rs.getString("assoc_unit_id"));
-		unit.setUri(rs.getString("uri"));
-		unit.setMultiMediaObjectComment(1);
+		DocumentNotes notes = ad.getDocument().getNotes();
+		unit.setUnitID(notes.get(RegistrationNumberCode_Samples));
+		unit.setAssociatedUnitID(notes.get(RegistrationNumberCode_Samples));
+		unit.setUri(notes.get(BOLDIDCode_BOLD));
+		String s = notes.get(NumberOfImagesCode_BOLD);
+		if (s != null) {
+			Integer i = Integer.valueOf(s);
+			unit.setMultiMediaObjectComment(i);
+		}
 		return unit;
 	}
 
@@ -214,7 +240,7 @@ class ListRecordsHandler {
 		if (request.getUntil() != null) {
 			sb.append(" AND (1000 * modified) <= ").append(request.getUntil().getTime());
 		}
-		int pageSize = cfg.getInt("specimens.repo.pagesize");
+		int pageSize = config.getInt("specimens.repo.pagesize");
 		int offset = request.getPage() * pageSize;
 		sb.append(" LIMIT ").append(offset).append(",").append(pageSize);
 		String sql = sb.toString();

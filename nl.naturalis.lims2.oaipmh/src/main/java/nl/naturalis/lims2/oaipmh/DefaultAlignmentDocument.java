@@ -1,13 +1,21 @@
 package nl.naturalis.lims2.oaipmh;
 
-import java.util.EnumMap;
+import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.DEFAULT_ALIGNMENT_DOCUMENT;
+import nl.naturalis.lims2.oaipmh.DefaultAlignmentDocument.Field;
 
-public class DefaultAlignmentDocument extends PluginDocumentData {
+/**
+ * Models the contents of the plugin_document_xml column in case the root
+ * element is &lt;DefaultAlignmentDocument&gt;.
+ * 
+ * @author Ayco Holleman
+ *
+ */
+public class DefaultAlignmentDocument extends PluginDocumentData<Field> {
 
 	public static final String OPERATION_DE_NOVO_ASSEMBLY = "com.biomatters.plugins.alignment.AssemblyOperation_Denovo";
 
 	public static enum Field {
-		is_contig;
+		is_contig(Boolean.class);
 
 		private final Class<?> type;
 
@@ -27,28 +35,9 @@ public class DefaultAlignmentDocument extends PluginDocumentData {
 		}
 	}
 
-	private EnumMap<Field, Object> data = new EnumMap<>(Field.class);
-
-	/**
-	 * Whether or not the XML in the plugin_document_xml column contained the
-	 * specified element or attribute.
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public boolean isSet(Field field)
+	public DefaultAlignmentDocument()
 	{
-		return data.containsKey(field);
-	}
-
-	public Object get(Field field)
-	{
-		return data.get(field);
-	}
-
-	public void set(Field field, Object value)
-	{
-		data.put(field, value);
+		super(DEFAULT_ALIGNMENT_DOCUMENT, Field.class);
 	}
 
 }

@@ -30,11 +30,6 @@ public class DocumentNotes {
 		 * Maps to &lt;batchID&gt; for DNA extracts.
 		 */
 		ProjectPlateNumberCode_Samples,
-		/*
-		 * Hack om spelfouten in Reinier's XML te omzeilen. TODO: Weghalen als
-		 * Reinier spelling heeft aangepast.
-		 */
-		ProjectplatenumberCode_Samples,
 		/**
 		 * Maps to &lt;versionNumber&gt; for DNA extracts.
 		 */
@@ -54,7 +49,11 @@ public class DocumentNotes {
 		/**
 		 * Maps to &lt;consensusSequenceLength&gt; for DNA extracts.
 		 */
-		GenBankIDCode_Bold
+		GenBankIDCode_Bold,
+		/**
+		 * Maps to &lt;multiMediaObjectComment&gt; for specimens.
+		 */
+		NumberOfImagesCode_BOLD
 	}
 
 	private EnumMap<Field, String> data = new EnumMap<>(Field.class);

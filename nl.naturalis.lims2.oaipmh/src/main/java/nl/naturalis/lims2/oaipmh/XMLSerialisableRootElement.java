@@ -1,8 +1,16 @@
 package nl.naturalis.lims2.oaipmh;
 
-import java.util.EnumMap;
+import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.XML_SERIALISABLE_ROOT_ELEMENT;
+import nl.naturalis.lims2.oaipmh.XMLSerialisableRootElement.Field;
 
-public class XMLSerialisableRootElement extends PluginDocumentData {
+/**
+ * Models the contents of the plugin_document_xml column in case the root
+ * element is &lt;XMLSerialisableRootElement&gt;.
+ * 
+ * @author Ayco Holleman
+ *
+ */
+public class XMLSerialisableRootElement extends PluginDocumentData<Field> {
 
 	public static enum Field {
 		description,
@@ -30,28 +38,9 @@ public class XMLSerialisableRootElement extends PluginDocumentData {
 		}
 	}
 
-	private EnumMap<Field, Object> data = new EnumMap<>(Field.class);
-
-	/**
-	 * Whether or not the XML in the plugin_document_xml column contained the
-	 * specified element or attribute.
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public boolean isSet(Field field)
+	public XMLSerialisableRootElement()
 	{
-		return data.containsKey(field);
-	}
-
-	public Object get(Field field)
-	{
-		return data.get(field);
-	}
-
-	public void set(Field field, Object value)
-	{
-		data.put(field, value);
+		super(XML_SERIALISABLE_ROOT_ELEMENT, Field.class);
 	}
 
 }

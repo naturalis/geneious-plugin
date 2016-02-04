@@ -22,8 +22,8 @@ public abstract class AbstractListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(AbstractListRecordsHandler.class);
 
-	private final ConfigObject config;
-	private final OAIPMHRequest request;
+	protected final ConfigObject config;
+	protected final OAIPMHRequest request;
 
 	public AbstractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
@@ -34,7 +34,8 @@ public abstract class AbstractListRecordsHandler {
 	protected List<AnnotatedDocument> loadRecords() throws RepositoryException
 	{
 		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
-		AnnotatedDocumentFilter filter = new AnnotatedDocumentFilter();
+		AnnotatedDocumentPreFilter preFilter = new AnnotatedDocumentPreFilter();
+		AnnotatedDocumentPostFilter postFilter = new AnnotatedDocumentPostFilter();
 		List<AnnotatedDocument> records = new ArrayList<>();
 		String sql = getSQL();
 		Connection conn = null;
@@ -44,9 +45,13 @@ public abstract class AbstractListRecordsHandler {
 			logger.debug("Executing query:\n" + sql);
 			ResultSet rs = stmt.executeQuery(sql.toString());
 			while (rs.next()) {
-				AnnotatedDocument record = factory.create(rs);
-				if (filter.accept(record)) {
-					records.add(record);
+				if (logger.isDebugEnabled())
+					logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
+				if (preFilter.accept(rs)) {
+					AnnotatedDocument record = factory.create(rs);
+					if (postFilter.accept(record)) {
+						records.add(record);
+					}
 				}
 			}
 		}
@@ -62,9 +67,10 @@ public abstract class AbstractListRecordsHandler {
 	private String getSQL()
 	{
 		StringBuilder sb = new StringBuilder(1000);
-		sb.append("SELECT id,folder_id,UNIX_TIMESTAMP(modified) AS modified,"
-				+ "urn,document_xml,plugin_document_xml,reference_count "
-				+ "FROM annotated_document WHERE reference_count=0");
+		sb.append("SELECT id,folder_id,UNIX_TIMESTAMP(modified) AS modified, \n");
+		sb.append("       urn,document_xml,plugin_document_xml,reference_count \n");
+		sb.append("  FROM annotated_document \n");
+		sb.append(" WHERE reference_count=0 \n");
 		if (request.getFrom() != null) {
 			/*
 			 * Column "modified" contains the number of seconds since 01-01-1970

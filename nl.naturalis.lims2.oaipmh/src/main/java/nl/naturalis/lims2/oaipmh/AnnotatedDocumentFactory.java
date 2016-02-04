@@ -1,5 +1,7 @@
 package nl.naturalis.lims2.oaipmh;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -9,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 import org.domainobject.util.CollectionUtil;
 import org.domainobject.util.DOMUtil;
 import org.domainobject.util.convert.Stringifier;
+import org.domainobject.util.debug.BeanPrinter;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXParseException;
 
 public class AnnotatedDocumentFactory {
 
@@ -30,17 +34,29 @@ public class AnnotatedDocumentFactory {
 		doc.setDocument(parseDocumentXML(xml));
 		xml = rs.getString("plugin_document_xml");
 		doc.setPluginDocumentData(parsePluginDocumentXML(xml));
+		if (logger.isDebugEnabled()) {
+			StringWriter sw = new StringWriter(2048);
+			BeanPrinter bp = new BeanPrinter(new PrintWriter(sw));
+			bp.setShowClassNames(false);
+			bp.dump(doc);
+			logger.debug("\n" + sw.toString());
+		}
 		return doc;
 	}
 
 	Document parseDocumentXML(String xml)
 	{
 		logger.debug("Parsing contents of column \"document_xml\"");
-		Element root = DOMUtil.getDocumentElement(xml);
-		assert (root.hasAttribute("class"));
+		Element root;
+		try {
+			root = DOMUtil.getDocumentElement(xml);
+		}
+		catch (SAXParseException e) {
+			logger.error("Error while parsing plugin_document_xml; {}\n\n{}", e.getMessage(), xml);
+			return null;
+		}
 		String s = root.getAttribute("class");
 		DocumentClass documentClass = DocumentClass.parse(s);
-		assert (documentClass != null);
 		Document doc = new Document();
 		doc.setDocumentClass(documentClass);
 		Element e = DOMUtil.getChild(root, "notes");
@@ -55,17 +71,28 @@ public class AnnotatedDocumentFactory {
 		return doc;
 	}
 
-	PluginDocumentData parsePluginDocumentXML(String xml)
+	PluginDocumentData<?> parsePluginDocumentXML(String xml)
 	{
-		Element root = DOMUtil.getDocumentElement(xml);
+		logger.debug("Parsing contents of column \"plugin_document_xml\"");
+		Element root;
+		try {
+			root = DOMUtil.getDocumentElement(xml);
+		}
+		catch (SAXParseException e) {
+			logger.error("Error while parsing plugin_document_xml; {}\n\n{}", e.getMessage(), xml);
+			return null;
+		}
 		if (root.getTagName().equals("XMLSerialisableRootElement"))
 			return handleXMLSerialisableRootElement(root);
 		if (root.getTagName().equals("DefaultAlignmentDocument"))
 			return handleDefaultAlignmentDocument(root);
+		if (root.getTagName().equals("ABIDocument"))
+			return handleABIDocument(root);
 		return null;
 	}
 
-	private PluginDocumentData handleXMLSerialisableRootElement(Element root)
+	private PluginDocumentData<XMLSerialisableRootElement.Field> handleXMLSerialisableRootElement(
+			Element root)
 	{
 		XMLSerialisableRootElement result = new XMLSerialisableRootElement();
 		for (XMLSerialisableRootElement.Field field : XMLSerialisableRootElement.Field.values()) {
@@ -85,7 +112,8 @@ public class AnnotatedDocumentFactory {
 		return result;
 	}
 
-	private PluginDocumentData handleDefaultAlignmentDocument(Element root)
+	private PluginDocumentData<DefaultAlignmentDocument.Field> handleDefaultAlignmentDocument(
+			Element root)
 	{
 		DefaultAlignmentDocument result = new DefaultAlignmentDocument();
 		for (DefaultAlignmentDocument.Field field : DefaultAlignmentDocument.Field.values()) {
@@ -100,6 +128,12 @@ public class AnnotatedDocumentFactory {
 			}
 		}
 		return result;
+	}
+
+	@SuppressWarnings("static-method")
+	private PluginDocumentData<ABIDocument.Field> handleABIDocument(Element root)
+	{
+		return new ABIDocument();
 	}
 
 	@SuppressWarnings("static-method")
