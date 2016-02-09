@@ -93,10 +93,12 @@ class ListRecordsHandler extends AbstractListRecordsHandler {
 		root.setListRecords(listRecords);
 		int pageSize = config.getInt("specimens.repo.pagesize");
 		int offset = request.getPage() * pageSize;
-		for (int i = offset; i < records.size() && i < pageSize; ++i) {
+		int last = Math.min(records.size(), offset + pageSize);
+		logResultSetInfo(records.size());
+		for (int i = offset; i < last; ++i) {
 			addRecord(records.get(i), listRecords);
 		}
-		if (offset + pageSize < records.size()) {
+		if (last < records.size()) {
 			addResumptionToken(listRecords, records.size(), offset);
 		}
 		return root;

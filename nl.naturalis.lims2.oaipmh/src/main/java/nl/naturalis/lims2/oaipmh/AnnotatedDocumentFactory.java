@@ -39,17 +39,18 @@ public class AnnotatedDocumentFactory {
 			BeanPrinter bp = new BeanPrinter(new PrintWriter(sw));
 			bp.setShowClassNames(false);
 			bp.dump(doc);
-			logger.debug("\n" + sw.toString());
+			logger.debug("AnnotatedDocument instance created:\n{}", sw);
 		}
 		return doc;
 	}
 
 	Document parseDocumentXML(String xml)
 	{
-		logger.debug("Parsing contents of column \"document_xml\"");
+		if (logger.isDebugEnabled())
+			logger.debug("Parsing contents of column \"document_xml\"");
 		Element root;
 		try {
-			root = DOMUtil.getDocumentElement(xml);
+			root = DOMUtil.getDocumentElement(xml.trim());
 		}
 		catch (SAXParseException e) {
 			logger.error("Error while parsing plugin_document_xml; {}\n\n{}", e.getMessage(), xml);
@@ -61,7 +62,8 @@ public class AnnotatedDocumentFactory {
 		doc.setDocumentClass(documentClass);
 		Element e = DOMUtil.getChild(root, "notes");
 		if (e != null) {
-			logger.debug("Found <notes> element. Searching for usable <note> elements.");
+			if (logger.isDebugEnabled())
+				logger.debug("Found <notes> element. Searching for usable <note> elements.");
 			DocumentNotes notes = getDocumentNotes(e);
 			doc.setNotes(notes);
 		}
@@ -73,13 +75,15 @@ public class AnnotatedDocumentFactory {
 
 	PluginDocumentData<?> parsePluginDocumentXML(String xml)
 	{
-		logger.debug("Parsing contents of column \"plugin_document_xml\"");
+		if (logger.isDebugEnabled())
+			logger.debug("Parsing contents of column \"plugin_document_xml\"");
 		Element root;
 		try {
-			root = DOMUtil.getDocumentElement(xml);
+			root = DOMUtil.getDocumentElement(xml.trim());
 		}
 		catch (SAXParseException e) {
-			logger.error("Error while parsing plugin_document_xml; {}\n\n{}", e.getMessage(), xml);
+			String fmt = "Error while parsing contents of plugin_document_xml; {}\n\n{}";
+			logger.error(fmt, e.getMessage(), xml);
 			return null;
 		}
 		if (root.getTagName().equals("XMLSerialisableRootElement"))
@@ -149,7 +153,8 @@ public class AnnotatedDocumentFactory {
 				logger.debug("Found document note for {}", field.name());
 			}
 		}
-		logger.debug("Number of usable <note> elements: {}", i);
+		if (logger.isDebugEnabled())
+			logger.debug("Number of usable <note> elements: {}", i);
 		return dn;
 	}
 

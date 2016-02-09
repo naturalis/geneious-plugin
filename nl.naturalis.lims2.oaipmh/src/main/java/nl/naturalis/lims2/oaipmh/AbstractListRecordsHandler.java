@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -61,30 +63,34 @@ public abstract class AbstractListRecordsHandler {
 		finally {
 			disconnect(conn);
 		}
+		Collections.sort(records, new Comparator<AnnotatedDocument>() {
+			@Override
+			public int compare(AnnotatedDocument o1, AnnotatedDocument o2)
+			{
+				return (int) (o1.getModified() - o2.getModified());
+			}
+		});
 		return records;
 	}
 
 	private String getSQL()
 	{
 		StringBuilder sb = new StringBuilder(1000);
-		sb.append("SELECT id,folder_id,UNIX_TIMESTAMP(modified) AS modified, \n");
-		sb.append("       urn,document_xml,plugin_document_xml,reference_count \n");
-		sb.append("  FROM annotated_document \n");
-		sb.append(" WHERE reference_count=0 \n");
+		sb.append("SELECT id,folder_id,UNIX_TIMESTAMP(modified) AS modified,\n");
+		sb.append("       urn,document_xml,plugin_document_xml,reference_count\n");
+		sb.append("  FROM annotated_document\n");
+		sb.append(" WHERE reference_count=0");
 		if (request.getFrom() != null) {
 			/*
 			 * Column "modified" contains the number of seconds since 01-01-1970
 			 * while Date.getTime() returns the number of milliseconds since
 			 * 01-01-1970.
 			 */
-			sb.append(" AND modified >= ").append(getSeconds(request.getFrom()));
+			sb.append("\n AND modified >= ").append(getSeconds(request.getFrom()));
 		}
 		if (request.getUntil() != null) {
-			sb.append(" AND modified <= ").append(getSeconds(request.getUntil()));
+			sb.append("\n AND modified <= ").append(getSeconds(request.getUntil()));
 		}
-		int pageSize = config.getInt("specimens.repo.pagesize");
-		int offset = request.getPage() * pageSize;
-		sb.append(" LIMIT ").append(offset).append(",").append(pageSize);
 		return sb.toString();
 	}
 

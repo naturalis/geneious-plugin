@@ -26,17 +26,23 @@ public class AnnotatedDocumentPostFilter {
 	@SuppressWarnings("static-method")
 	public boolean accept(AnnotatedDocument ad)
 	{
+		if (ad.getDocument() == null || ad.getPluginDocumentData() == null) {
+			/*
+			 * Caused by invalid XML, but this is already logged the
+			 * AnnotatedDocumentFactory.
+			 */
+			return false;
+		}
 		if (ad.getDocument().getNotes() == null) {
-			if (logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled())
 				logger.debug("Record discarded: no usable <note> elements");
-			}
 			return false;
 		}
 		if (ad.getPluginDocumentData().getRootElement() == DEFAULT_ALIGNMENT_DOCUMENT) {
-			if (ad.getPluginDocumentData().get(is_contig) == Boolean.FALSE) {
-				if (logger.isDebugEnabled()) {
+			DefaultAlignmentDocument dad = (DefaultAlignmentDocument) ad.getPluginDocumentData();
+			if (dad.get(is_contig) == Boolean.FALSE) {
+				if (logger.isDebugEnabled())
 					logger.debug("Record discarded: <DefaultAlignmentDocument> only considered when is_contig=\"true\"");
-				}
 				return false;
 			}
 		}

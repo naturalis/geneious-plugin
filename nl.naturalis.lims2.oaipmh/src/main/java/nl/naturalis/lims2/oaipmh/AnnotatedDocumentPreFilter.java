@@ -21,8 +21,8 @@ public class AnnotatedDocumentPreFilter {
 
 	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentPreFilter.class);
 
-	private static List<String> startStrings = Arrays.asList("<XMLSerialisableRootElement",
-			"<ABIDocument", "<DefaultAlignmentDocument");
+	private static List<String> acceptableRoots = Arrays.asList("XMLSerialisableRootElement",
+			"ABIDocument", "DefaultAlignmentDocument");
 
 	public AnnotatedDocumentPreFilter()
 	{
@@ -31,16 +31,39 @@ public class AnnotatedDocumentPreFilter {
 	@SuppressWarnings("static-method")
 	public boolean accept(ResultSet rs) throws SQLException
 	{
-		String xml = rs.getString("plugin_document_xml");
+		String xml = rs.getString("document_xml");
+		if (rs.wasNull() || xml.trim().isEmpty()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Record discarded: document_xml column null or empty");
+			}
+			return false;
+		}
+		xml = rs.getString("plugin_document_xml");
+		if (rs.wasNull() || xml.trim().isEmpty()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Record discarded: plugin_document_xml column null or empty");
+			}
+			return false;
+		}
+		String root = getRoot(xml);
 		boolean ok = false;
-		for (String s : startStrings) {
-			if (ok = ok || xml.startsWith(s)) {
+		for (String acceptable : acceptableRoots) {
+			ok = ok || root.equals(acceptable);
+			if (ok) {
 				break;
 			}
 		}
 		if (!ok && logger.isDebugEnabled()) {
-
+			logger.debug("Record discarded: Ignorable XML root in plugin_document_xml: {}", root);
 		}
 		return ok;
+	}
+
+	private static String getRoot(String xml)
+	{
+		int x = xml.indexOf(' ');
+		int y = xml.indexOf('>');
+		x = Math.min(x, y);
+		return xml.substring(1, x);
 	}
 }
