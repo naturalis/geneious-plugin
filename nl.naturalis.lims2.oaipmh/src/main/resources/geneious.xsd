@@ -1,6 +1,6 @@
-<xs:schema targetNamespace="http://data.naturalis.nl/lims2"
+<xs:schema targetNamespace="http://data.naturalis.nl/geneious"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:self="http://data.naturalis.nl/lims2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:self="http://data.naturalis.nl/geneious"
 	xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.1" xmlns="http://www.tdwg.org/schemas/abcd/2.1"
 	version="0.1">
 

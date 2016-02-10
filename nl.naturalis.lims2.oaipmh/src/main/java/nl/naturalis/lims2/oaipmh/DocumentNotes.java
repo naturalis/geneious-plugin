@@ -15,6 +15,10 @@ public class DocumentNotes {
 		 */
 		BOLDIDCode_BOLD,
 		/**
+		 * Maps to &lt;uri&gt; for specimens.
+		 */
+		BOLDURICode_FixedValue,
+		/**
 		 * Maps to &lt;institutePlateID&gt;
 		 */
 		ExtractPlateNumberCode_Samples,

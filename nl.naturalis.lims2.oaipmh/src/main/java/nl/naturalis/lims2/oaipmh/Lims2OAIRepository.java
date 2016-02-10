@@ -55,10 +55,11 @@ public abstract class Lims2OAIRepository implements IOAIRepository {
 	@Override
 	public void getXSDForMetadataPrefix(OutputStream out, String prefix) throws RepositoryException
 	{
-		if (prefix.equals("lims2")) {
+		if (prefix.equals("geneious")) {
 			InputStream in = getClass().getResourceAsStream("/geneious.xsd");
-			if (in == null)
+			if (in == null) {
 				throw new XSDNotFoundException(prefix);
+			}
 			IOUtil.pipe(in, out, 2048);
 			try {
 				in.close();
@@ -131,7 +132,7 @@ public abstract class Lims2OAIRepository implements IOAIRepository {
 		OAIPMHStreamer streamer = new OAIPMHStreamer();
 		streamer.setRootElement(oaipmh);
 		streamer.addJaxbPackage("nl.naturalis.lims2.oaipmh.jaxb");
-		String schemaLocation = repoBaseURL + "xsd/lims2.xsd";
+		String schemaLocation = repoBaseURL + "xsd/geneious.xsd";
 		streamer.addSchemaLocation(LIMS2_XMLNS, schemaLocation);
 		try {
 			streamer.stream(out);

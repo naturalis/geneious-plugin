@@ -27,17 +27,32 @@ public abstract class AbstractListRecordsHandler {
 	protected final ConfigObject config;
 	protected final OAIPMHRequest request;
 
+	protected List<IAnnotatedDocumentPreFilter> preFilters;
+	protected List<IAnnotatedDocumentPostFilter> postFilters;
+
 	public AbstractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		this.request = request;
 		this.config = config;
+		preFilters = new ArrayList<>(4);
+		preFilters.add(new CommonAnnotatedDocumentPreFilter());
+		postFilters = new ArrayList<>(4);
+		postFilters.add(new CommonAnnotatedDocumentPostFilter());
 	}
 
-	protected List<AnnotatedDocument> loadRecords() throws RepositoryException
+	protected void addAnnotatedDocumentPreFilter(IAnnotatedDocumentPreFilter filter)
+	{
+		preFilters.add(filter);
+	}
+
+	protected void addAnnotatedDocumentPostFilter(IAnnotatedDocumentPostFilter filter)
+	{
+		postFilters.add(filter);
+	}
+
+	protected List<AnnotatedDocument> getAnnotatedDocuments() throws RepositoryException
 	{
 		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
-		AnnotatedDocumentPreFilter preFilter = new AnnotatedDocumentPreFilter();
-		AnnotatedDocumentPostFilter postFilter = new AnnotatedDocumentPostFilter();
 		List<AnnotatedDocument> records = new ArrayList<>();
 		String sql = getSQL();
 		Connection conn = null;
@@ -46,15 +61,21 @@ public abstract class AbstractListRecordsHandler {
 			Statement stmt = conn.createStatement();
 			logger.debug("Executing query:\n" + sql);
 			ResultSet rs = stmt.executeQuery(sql.toString());
-			while (rs.next()) {
+			LOOP: while (rs.next()) {
 				if (logger.isDebugEnabled())
 					logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
-				if (preFilter.accept(rs)) {
-					AnnotatedDocument record = factory.create(rs);
-					if (postFilter.accept(record)) {
-						records.add(record);
+				for (IAnnotatedDocumentPreFilter preFilter : preFilters) {
+					if (!preFilter.accept(rs)) {
+						continue LOOP;
 					}
 				}
+				AnnotatedDocument record = factory.create(rs);
+				for (IAnnotatedDocumentPostFilter postFilter : postFilters) {
+					if (!postFilter.accept(record)) {
+						continue LOOP;
+					}
+				}
+				records.add(record);
 			}
 		}
 		catch (SQLException e) {

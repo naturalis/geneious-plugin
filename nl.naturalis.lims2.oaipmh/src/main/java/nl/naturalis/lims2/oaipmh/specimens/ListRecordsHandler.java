@@ -1,20 +1,15 @@
 package nl.naturalis.lims2.oaipmh.specimens;
 
 import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.BOLDIDCode_BOLD;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.BOLDURICode_FixedValue;
 import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.NumberOfImagesCode_BOLD;
 import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.RegistrationNumberCode_Samples;
 import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.checkMetadataPrefix;
-import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.connect;
-import static nl.naturalis.lims2.oaipmh.Lims2OAIUtil.disconnect;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.createResponseSkeleton;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
 
-import java.io.InputStream;
 import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +29,6 @@ import nl.naturalis.oaipmh.api.util.ResumptionToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.domainobject.util.ConfigObject;
-import org.domainobject.util.FileUtil;
 import org.openarchives.oai._2.HeaderType;
 import org.openarchives.oai._2.ListRecordsType;
 import org.openarchives.oai._2.MetadataType;
@@ -84,7 +78,8 @@ class ListRecordsHandler extends AbstractListRecordsHandler {
 	OAIPMHtype handleRequest() throws RepositoryException, OAIPMHException
 	{
 		checkMetadataPrefix(request);
-		List<AnnotatedDocument> records = loadRecords();
+		addAnnotatedDocumentPreFilter(new SpecimenFilter());
+		List<AnnotatedDocument> records = getAnnotatedDocuments();
 		if (records.size() == 0) {
 			throw new OAIPMHException(new NoRecordsMatchError());
 		}
@@ -102,57 +97,6 @@ class ListRecordsHandler extends AbstractListRecordsHandler {
 			addResumptionToken(listRecords, records.size(), offset);
 		}
 		return root;
-	}
-
-	OAIPMHtype handleRequest2() throws RepositoryException, OAIPMHException
-	{
-		checkMetadataPrefix(request);
-		Connection conn = null;
-		try {
-			conn = connect(config);
-			Statement stmt = conn.createStatement();
-			String sql = getSQL();
-			if (logger.isDebugEnabled())
-				logger.debug("Executing query:\n" + sql);
-			ResultSet rs = stmt.executeQuery(sql);
-
-			Statement stmt2 = conn.createStatement();
-			ResultSet rs2 = stmt2.executeQuery("SELECT FOUND_ROWS()");
-			rs2.next();
-			int resultSetSize = rs2.getInt(1);
-			logResultSetInfo(resultSetSize);
-
-			OAIPMHtype root = createResponseSkeleton(request);
-			ListRecordsType listRecords = oaiFactory.createListRecordsType();
-			root.setListRecords(listRecords);
-
-			int pageSize = config.getInt("specimens.repo.pagesize");
-			int i = 0;
-			while (rs.next()) {
-				if (i++ == pageSize)
-					break;
-				// addRecord(rs, listRecords);
-			}
-
-			if (i == 0) {
-				throw new OAIPMHException(new NoRecordsMatchError());
-			}
-
-			int offset = request.getPage() * pageSize;
-			if (offset + i < resultSetSize) {
-				addResumptionToken(listRecords, resultSetSize, offset);
-			}
-			return root;
-		}
-		catch (RepositoryException | OAIPMHException e) {
-			throw e;
-		}
-		catch (Throwable t) {
-			throw new RepositoryException("Unexpected error while processing request", t);
-		}
-		finally {
-			disconnect(conn);
-		}
 	}
 
 	private void logResultSetInfo(int resultSetSize)
@@ -213,8 +157,8 @@ class ListRecordsHandler extends AbstractListRecordsHandler {
 		SpecimenUnit unit = new SpecimenUnit();
 		DocumentNotes notes = ad.getDocument().getNotes();
 		unit.setUnitID(notes.get(RegistrationNumberCode_Samples));
-		unit.setAssociatedUnitID(notes.get(RegistrationNumberCode_Samples));
-		unit.setUri(notes.get(BOLDIDCode_BOLD));
+		unit.setAssociatedUnitID(notes.get(BOLDIDCode_BOLD));
+		unit.setUri(notes.get(BOLDURICode_FixedValue));
 		String s = notes.get(NumberOfImagesCode_BOLD);
 		if (s != null) {
 			Integer i = Integer.valueOf(s);
@@ -223,29 +167,4 @@ class ListRecordsHandler extends AbstractListRecordsHandler {
 		return unit;
 	}
 
-	private String getSQL()
-	{
-		InputStream is = getClass().getResourceAsStream("specimens.sql");
-		String basic = FileUtil.getContents(is);
-		if (request.getFrom() == null && request.getUntil() == null)
-			return basic;
-		StringBuilder sb = new StringBuilder(basic.length() + 100);
-		sb.append(basic);
-		if (request.getFrom() != null) {
-			/*
-			 * The modified column contains the number of seconds since
-			 * 01-01-1970 while Date.getTime() returns the number of
-			 * milliseconds since 01-01-1970.
-			 */
-			sb.append(" AND (1000 * modified) >= ").append(request.getFrom().getTime());
-		}
-		if (request.getUntil() != null) {
-			sb.append(" AND (1000 * modified) <= ").append(request.getUntil().getTime());
-		}
-		int pageSize = config.getInt("specimens.repo.pagesize");
-		int offset = request.getPage() * pageSize;
-		sb.append(" LIMIT ").append(offset).append(",").append(pageSize);
-		String sql = sb.toString();
-		return sql;
-	}
 }

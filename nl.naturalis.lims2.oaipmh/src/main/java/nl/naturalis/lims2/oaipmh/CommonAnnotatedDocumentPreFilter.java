@@ -17,18 +17,19 @@ import org.apache.logging.log4j.Logger;
  * @author Ayco Holleman
  *
  */
-public class AnnotatedDocumentPreFilter {
+public class CommonAnnotatedDocumentPreFilter implements IAnnotatedDocumentPreFilter {
 
-	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentPreFilter.class);
+	private static final Logger logger = LogManager
+			.getLogger(CommonAnnotatedDocumentPreFilter.class);
 
 	private static List<String> acceptableRoots = Arrays.asList("XMLSerialisableRootElement",
 			"ABIDocument", "DefaultAlignmentDocument");
 
-	public AnnotatedDocumentPreFilter()
+	public CommonAnnotatedDocumentPreFilter()
 	{
 	}
 
-	@SuppressWarnings("static-method")
+	@Override
 	public boolean accept(ResultSet rs) throws SQLException
 	{
 		String xml = rs.getString("document_xml");

@@ -9,8 +9,8 @@
 /**
  * JAXB classes generated from the LIMS2 XML schema.
  */
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://data.naturalis.nl/lims2",
-		xmlns = @XmlNs(namespaceURI = "http://data.naturalis.nl/lims2", prefix = "lims2"),
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://data.naturalis.nl/geneious",
+		xmlns = @XmlNs(namespaceURI = "http://data.naturalis.nl/geneious", prefix = "geneious"),
 		elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package nl.naturalis.lims2.oaipmh.jaxb;
 

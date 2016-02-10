@@ -15,15 +15,15 @@ import org.apache.logging.log4j.Logger;
  * @author Ayco Holleman
  *
  */
-public class AnnotatedDocumentPostFilter {
+public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPostFilter {
 
-	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentPostFilter.class);
+	private static final Logger logger = LogManager.getLogger(CommonAnnotatedDocumentPostFilter.class);
 
-	public AnnotatedDocumentPostFilter()
+	public CommonAnnotatedDocumentPostFilter()
 	{
 	}
 
-	@SuppressWarnings("static-method")
+	@Override
 	public boolean accept(AnnotatedDocument ad)
 	{
 		if (ad.getDocument() == null || ad.getPluginDocumentData() == null) {

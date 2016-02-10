@@ -23,13 +23,13 @@ import org.domainobject.util.ConfigObject;
 public class Lims2OAIUtil {
 
 	/**
-	 * XML namespace for lims2 elements (http://data.naturalis.nl/lims2).
+	 * XML namespace for lims2 elements (http://data.naturalis.nl/geneious).
 	 */
-	public static final String LIMS2_XMLNS = "http://data.naturalis.nl/lims2";
+	public static final String LIMS2_XMLNS = "http://data.naturalis.nl/geneious";
 	/**
-	 * XML namespace prefix for lims2 elements (lims2).
+	 * XML namespace prefix for lims2 elements ("geneious").
 	 */
-	public static final String LIMS2_XMLNS_PREFIX = "lims2";
+	public static final String LIMS2_XMLNS_PREFIX = "geneious";
 
 	private static final Logger logger = LogManager.getLogger(Lims2OAIUtil.class);
 
@@ -45,7 +45,7 @@ public class Lims2OAIUtil {
 	 */
 	public static void checkMetadataPrefix(OAIPMHRequest request) throws OAIPMHException
 	{
-		if (!request.getMetadataPrefix().equals("lims2"))
+		if (!request.getMetadataPrefix().equals(LIMS2_XMLNS_PREFIX))
 			throw new OAIPMHException(new CannotDisseminateFormatError(request));
 	}
 

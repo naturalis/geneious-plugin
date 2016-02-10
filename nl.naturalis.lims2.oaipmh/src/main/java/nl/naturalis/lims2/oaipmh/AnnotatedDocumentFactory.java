@@ -15,15 +15,15 @@ import org.domainobject.util.debug.BeanPrinter;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXParseException;
 
-public class AnnotatedDocumentFactory {
+class AnnotatedDocumentFactory {
 
 	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentFactory.class);
 
-	public AnnotatedDocumentFactory()
+	AnnotatedDocumentFactory()
 	{
 	}
 
-	public AnnotatedDocument create(ResultSet rs) throws SQLException
+	AnnotatedDocument create(ResultSet rs) throws SQLException
 	{
 		AnnotatedDocument doc = new AnnotatedDocument();
 		doc.setId(rs.getInt("id"));
