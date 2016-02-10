@@ -24,6 +24,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
+import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -40,7 +41,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsBoldFields limsBoldFields = new LimsBoldFields();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	private SequenceDocument seq;
+	private SequenceDocument sequenceDocument;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
 
@@ -62,11 +63,14 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> verwerkingListCnt = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
+	private AnnotatedPluginDocument[] documents = null;
+	private static final String contigFile = "DefaultAlignmentDocument";
+	private boolean isContig = false;
+	private DefaultAlignmentDocument alignmentDocument = null;
 
 	public int importCounter;
 	private int importTotal;
 	private String[] record = null;
-	private String ID = "";
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "Bold-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -81,67 +85,54 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Select all documents");
+					Dialogs.showMessageDialog("Select all documents for BOLD");
 					return;
 				}
 			});
 		}
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			msgList.clear();
+			String boldFileSelected = fcd.loadSelectedFile();
+			if (boldFileSelected == null) {
+				return;
+			}
+
+			documents = annotatedPluginDocuments;
 			logger.info("------------------------------S T A R T -----------------------------------");
 			logger.info("Start adding Bold metadata to AB1 File(s)");
 
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
-				String boldFileSelected = fcd.loadSelectedFile();
-				if (boldFileSelected == null) {
-					return;
-				}
-
 				msgUitvalList.add("Filename: " + boldFileSelected + "\n");
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
-					seq = (SequenceDocument) docs.get(cnt).getDocument();
-					logger.info("Selected document: " + seq.getName());
-					setExtractIDfileName(seq.getName());
-					extractIDfileName = getExtractIDFromAB1FileName(seq
-							.getName());
+					if (docs.toString().contains(contigFile)) {
+						alignmentDocument = (DefaultAlignmentDocument) docs
+								.get(cnt).getDocument();
+						isContig = true;
+						logger.info("Selected document: "
+								+ alignmentDocument.getName());
+						setExtractIDfileName(alignmentDocument.getName());
+						extractIDfileName = getExtractIDFromAB1FileName(alignmentDocument
+								.getName());
 
-					msgList.add(seq.getName());
+						msgList.add(alignmentDocument.getName());
+					} else {
+						isContig = false;
+						sequenceDocument = (SequenceDocument) docs.get(cnt)
+								.getDocument();
+						logger.info("Selected document: "
+								+ sequenceDocument.getName());
+						setExtractIDfileName(sequenceDocument.getName());
+						extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
+								.getName());
+
+						msgList.add(sequenceDocument.getName());
+					}
 
 					readDataFromBold(annotatedPluginDocuments[cnt],
-							boldFileSelected);
-
-					/*
-					 * setNoteToAB1FileName(AnnotatedPluginDocument[]
-					 * annotatedPluginDocuments, String fieldCode, String
-					 * textNoteField, String noteTypeCode, String fieldValue)
-					 */
-
-					/** set note for BOLD-ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"BOLDIDCode", "Bold ID", "Bold ID",
-							limsBoldFields.getBoldID(), cnt);
-
-					/** set note for TraceFile Presence */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"TraceFilePresenceCode_Bold",
-							"TraceFile presence (Bold)",
-							"TraceFile presence (Bold)",
-							limsBoldFields.getTraceFilePresence(), cnt);
-
-					/** set note for Nucleotide Length */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"NucleotideLengthCode_Bold",
-							"Nucleotide length (Bold)",
-							"Nucleotide length (Bold)",
-							limsBoldFields.getNucleotideLength(), cnt);
-
-					/** set note for GenBankID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"GenBankIDCode_Bold", "GenBank ID (Bold)",
-							"GenBank ID (Bold)", limsBoldFields.getGenBankID(),
-							cnt);
+							boldFileSelected, cnt);
 
 				}
 			} catch (DocumentOperationException e) {
@@ -175,7 +166,6 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		// return new GeneiousActionOptions("4 Bold").setInMainToolbar(true);
 		return new GeneiousActionOptions("4 Bold").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 3.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
@@ -194,14 +184,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 	}
 
 	private void readDataFromBold(
-			AnnotatedPluginDocument annotatedPluginDocument, String fileName) {
-		/*
-		 * try { // limsImporterUtil.getFileFromPropertieFile("bold")
-		 * setBoldFile(fileName);
-		 * setBoldFilePath(limsImporterUtil.getPropValues() + getBoldFile());
-		 * 
-		 * } catch (IOException e) { e.printStackTrace(); }
-		 */
+			AnnotatedPluginDocument annotatedPluginDocument, String fileName,
+			int cnt) {
+
+		String[] headerCOI = null;
 		logger.info("CSV Bold file: " + fileName);
 		logger.info("Start with adding notes to the document");
 
@@ -212,63 +198,53 @@ public class LimsReadDataFromBold extends DocumentAction {
 			int counter = 0;
 			int cntVerwerkt = 0;
 
-			csvReader.readNext();
+			headerCOI = csvReader.readNext();
 
 			try {
 				msgUitvalList
 						.add("-----------------------------------------------"
 								+ "\n");
-				msgUitvalList.add("Bold filename: " + seq.getName() + "\n");
+				if (!isContig) {
+					msgUitvalList.add("Bold filename: "
+							+ sequenceDocument.getName() + "\n");
+				} else {
+					msgUitvalList.add("Bold filename: "
+							+ alignmentDocument.getName() + "\n");
+				}
 
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
 						continue;
 					}
 
-					ID = record[2];
-					// System.out.println("Record: " + record[2]);
-
-					/** DocumentNoteUtilities-Registrationnumber */
+					/** DocumentNoteUtilities-Registration number */
 					/** Get value from "RegistrationnumberCode_Samples" */
 					Object fieldValue = readGeneiousFieldsValues
 							.readValueFromAnnotatedPluginDocument(
 									annotatedPluginDocument, noteCode,
 									fieldName);
 
-					// if (ID.equals(getExtractIDfileName()))
-					if (record[5].equals(fieldValue)) {
+					/** Match only on registration number */
+					if (record[2].equals(fieldValue)) {
 
-						logger.info("Registrationnumber "
-								+ record[5]
-								+ " from the Bold file is equal to the fieldvalue: "
-								+ fieldValue + " from the AB1 file.");
+						setNotesThatMatchRegistrationNumber(record[1],
+								record[9]);
+						setNotesToBoldDocumentsRegistration(documents, cnt);
 
-						limsBoldFields.setMarker(record[1]);
-						limsBoldFields.setBoldID(record[4]);
-						limsBoldFields.setColRegistratiecode(record[5]);
-						limsBoldFields.setNucleotideLength(record[6]);
-						limsBoldFields.setTraceFilePresence(record[7]);
-						limsBoldFields.setGenBankID(record[15]);
+					}
 
-						logger.info("Bold-ID: " + limsBoldFields.getBoldID());
-						logger.info("Col.Registratiecode: "
-								+ limsBoldFields.getColRegistratiecode());
-						logger.info("GenBankID: "
-								+ limsBoldFields.getGenBankID());
-						logger.info("Marker: " + limsBoldFields.getMarker());
-						logger.info("Nucleotide: "
-								+ limsBoldFields.getNucleotideLength());
-						logger.info("TraceFile Presence: "
-								+ limsBoldFields.getTraceFilePresence());
+					/** Match only on registration number and Marker */
+					if (record[2].equals(fieldValue)
+							&& headerCOI[6].equals("COI-5P Seq. Length")) {
+						setNotesThatMatchRegistrationNumberAndMarker(record[6],
+								record[7], record[8]);
+						setNotesToBoldDocumentsRegistrationMarker(documents,
+								cnt);
+					}
 
-						logger.info("Done with adding notes to the document");
-
-						// counter--;
-						cntVerwerkt++;
-						verwerkingListCnt.add(Integer.toString(cntVerwerkt));
-						verwerkList.add(record[5]);
-
-					} // end IF
+					cntVerwerkt++;
+					verwerkingListCnt.add(Integer.toString(cntVerwerkt));
+					verwerkList.add(record[2]);
 
 					if (!verwerkList.contains(record[5])) {
 						msgUitvalList.add("Catalognumber: " + record[5] + "\n");
@@ -330,6 +306,74 @@ public class LimsReadDataFromBold extends DocumentAction {
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
 		String[] underscore = StringUtils.split(fileName, "_");
 		return underscore[0];
+	}
+
+	private void setNotesToBoldDocumentsRegistrationMarker(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		/** set note for TraceFile Presence */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"TraceFilePresenceCode_Bold", "Trace file presence (Bold)",
+				"Trace file presence (Bold)",
+				limsBoldFields.getTraceFilePresence(), cnt);
+
+		/** set note for Nucleotide Length */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"NucleotideLengthCode_Bold", "Nucleotide length (Bold)",
+				"Nucleotide length (Bold)",
+				limsBoldFields.getNucleotideLength(), cnt);
+
+		/** set note for GenBankID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"GenBankIDCode_Bold", "GenBank ID (Bold)", "GenBank ID (Bold)",
+				limsBoldFields.getGenBankID(), cnt);
+		logger.info("Done with adding notes to the document");
+	}
+
+	private void setNotesToBoldDocumentsRegistration(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		/** set note for BOLD-ID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments, "BOLDIDCode",
+				"BOLD ID (Bold)", "BOLD ID (Bold)", limsBoldFields.getBoldID(),
+				cnt);
+
+		/** set note for BOLD-ID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"NumberOfImagesCode_Bold", "Number of images (Bold)",
+				"Number of images (Bold)",
+				limsBoldFields.getNumberOfImagesBold(), cnt);
+		logger.info("Done with adding notes to the document");
+	}
+
+	private void setNotesThatMatchRegistrationNumber(String boldID,
+			String numberOfImagesBold) {
+
+		logger.info("Match Bold record only on registrationnumber.");
+
+		limsBoldFields.setBoldID(boldID);
+		limsBoldFields.setNumberOfImagesBold(numberOfImagesBold);
+
+		logger.info("Bold-ID: " + limsBoldFields.getBoldID());
+		logger.info("Number of Images Bold: "
+				+ limsBoldFields.getNumberOfImagesBold());
+
+	}
+
+	private void setNotesThatMatchRegistrationNumberAndMarker(
+			String nucleotideLength, String tracebestandPresence,
+			String genBankID) {
+
+		logger.info("Match Bold record on registrationnumber and marker.");
+
+		limsBoldFields.setNucleotideLength(nucleotideLength);
+		limsBoldFields.setTraceFilePresence(tracebestandPresence);
+		limsBoldFields.setGenBankID(genBankID);
+
+		logger.info("Nucleotide length: "
+				+ limsBoldFields.getNucleotideLength());
+		logger.info("TraceFile Presence: "
+				+ limsBoldFields.getTraceFilePresence());
+		logger.info("GenBankID: " + limsBoldFields.getGenBankID());
+
 	}
 
 }

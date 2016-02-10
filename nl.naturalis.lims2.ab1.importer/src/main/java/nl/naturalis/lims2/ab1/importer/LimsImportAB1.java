@@ -95,7 +95,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* set note for Extract-ID */
 				try {
-					limsNotes.setImportNotes(document, "ExtractIdCode_Seq",
+					limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
 							"Extract ID (Seq)", "Extract ID (Seq)",
 							limsAB1Fields.getExtractID());
 				} catch (Exception ex) {
@@ -104,7 +104,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* set note for PCR Plaat-ID */
 				try {
-					limsNotes.setImportNotes(document, "PcrPlateIdCode_Seq",
+					limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
 							"PCR plate ID (Seq)", "PCR plate ID (Seq)",
 							limsAB1Fields.getPcrPlaatID());
 				} catch (Exception ex) {

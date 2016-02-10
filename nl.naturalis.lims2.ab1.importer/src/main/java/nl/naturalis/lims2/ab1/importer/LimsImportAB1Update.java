@@ -103,13 +103,13 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/** set note for Extract-ID */
 						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "ExtractIdCode_Seq",
+								annotatedPluginDocuments, "ExtractIDCode_Seq",
 								"Extract ID (Seq)", "Extract ID (Seq)",
 								limsAB1Fields.getExtractID(), cnt);
 
 						/** set note for PCR Plate ID */
 						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "PcrPlateIdCode_Seq",
+								annotatedPluginDocuments, "PCRplateIDCode_Seq",
 								"PCR plate ID (Seq)", "PCR plate ID (Seq)",
 								limsAB1Fields.getPcrPlaatID(), cnt);
 

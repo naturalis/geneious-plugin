@@ -142,13 +142,13 @@ public class LimsCRSImporter extends DocumentAction {
 						/* set note for Family */
 						limsNotes.setNoteToAB1FileName(
 								annotatedPluginDocuments, "FamilyCode_CRS",
-								"Family(CRS)", "Family (CRS)",
+								"Family (CRS)", "Family (CRS)",
 								LimsCRSFields.getFamily(), cnt);
 
 						/** set note for SubFamily */
 						limsNotes.setNoteToAB1FileName(
 								annotatedPluginDocuments, "SubFamilyCode_CRS",
-								"Subfamily (CRS)", "Subfamily (CRS)",
+								"Sub family (CRS)", "Sub family (CRS)",
 								LimsCRSFields.getSubFamily(), cnt);
 
 						/** set note for Genus */
@@ -159,8 +159,9 @@ public class LimsCRSImporter extends DocumentAction {
 
 						/** set note for TaxonName */
 						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "TaxonNameCode_CRS",
-								"Taxonname (CRS)", "Taxonname (CRS)",
+								annotatedPluginDocuments, "TaxonName1Code_CRS",
+								"Scientific name 1 (CRS)",
+								"Scientific name 1 (CRS)",
 								LimsCRSFields.getTaxon(), cnt);
 
 						/** set note for Identifier */
@@ -216,14 +217,16 @@ public class LimsCRSImporter extends DocumentAction {
 
 						/** set note for Latitude */
 						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "LatitudeCode_CRS",
-								"Latitude (CRS)", "Latitude (CRS)",
+								annotatedPluginDocuments,
+								"LatitudeDecimalCode_CRS", "Latitude (CRS)",
+								"Latitude (CRS)",
 								LimsCRSFields.getLatitudeDecimal(), cnt);
 
 						/** set note for Longitude */
 						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "LongitudeCode_CRS",
-								"Longitude (CRS)", "Longitude (CRS)",
+								annotatedPluginDocuments,
+								"LongitudeDecimalCode_CRS", "Longitude (CRS)",
+								"Longitude (CRS)",
 								LimsCRSFields.getLongitudeDecimal(), cnt);
 
 						/** set note for Height */
