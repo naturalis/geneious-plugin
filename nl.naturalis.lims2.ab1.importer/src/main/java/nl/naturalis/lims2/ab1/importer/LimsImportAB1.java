@@ -127,6 +127,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
+
+				/* set note for AmplicificationStaffCode_FixedValue */
+				try {
+					limsNotes.setImportNotes(document,
+							"AmplicificationStaffCode_FixedValue_Seq",
+							"Ampl-staff (Seq)", "Ampl-staff (Seq)",
+							limsImporterUtil
+									.getPropValues("seqamplicification"));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
