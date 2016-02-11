@@ -15,6 +15,7 @@ import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
+import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -42,7 +45,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 
-	private SequenceDocument seq;
+	private SequenceDocument seq = null;
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> msgMatchList = new ArrayList<String>();
@@ -54,10 +57,14 @@ public class LimsCRSImporter extends DocumentAction {
 	public int importCounter;
 	private int importTotal;
 	private String[] record = null;
-	private final String noteCode = "DocumentNoteUtilities-Registrationnumber (Samples)";
-	private final String fieldName = "RegistrationnumberCode_Samples";
+	private final String noteCode = "DocumentNoteUtilities-Registration number (Samples)";
+	private final String fieldName = "RegistrationNumberCode_Samples";
 	private boolean match = false;
 	private String registrationNumber;
+	private DefaultNucleotideSequence defaultNucleotideSequence = null;
+	private DefaultAlignmentDocument alignmentDocument = null;
+	private Object documentFileName = "";
+	private String fileSelected = "";
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "CRS-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -80,175 +87,99 @@ public class LimsCRSImporter extends DocumentAction {
 		}
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+
+			fileSelected = fcd.loadSelectedFile();
+			if (fileSelected == null) {
+				return;
+			}
+
+			boolean result = false;
+
 			logger.info("Start updating selected document(s) with CRS data.");
+			logger.info("-------------------------- S T A R T --------------------------");
+			logger.info("Start Reading data from a CRS file.");
 			try {
 				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
-				String fileSelected = fcd.loadSelectedFile();
-				if (fileSelected == null) {
-					return;
-				}
 
 				msgUitvalList.add("Filename: " + fileSelected + "\n");
 				msgUitvalList.add("Username: "
 						+ System.getProperty("user.name") + "\n");
 				msgUitvalList.add("Type action: Import CRS data " + "\n");
 
-				logger.info("-------------------------- S T A R T --------------------------");
-				logger.info("Start Reading data from a CRS file.");
-
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
-					seq = (SequenceDocument) docs.get(cnt).getDocument();
+					documentFileName = annotatedPluginDocuments[cnt]
+							.getFieldValue("cache_name");
+					result = false;
 
-					boolean result = false;
-					try {
-						result = readGeneiousFieldsValues
-								.getFileNameFromGeneiousDatabase(seq.getName())
-								.equals(seq.getName());
+					/* Add sequence name for the dialog screen */
+					if (DocumentUtilities.getSelectedDocuments().listIterator()
+							.hasNext()) {
+						msgList.add(documentFileName + "\n");
+					}
+
+					/* Reads Assembly Contig 1 consensus sequence */
+					if (readGeneiousFieldsValues
+							.getCacheNameFromGeneiousDatabase(documentFileName,
+									"//document/hiddenFields/cache_name")
+							.equals(documentFileName)) {
+
+						defaultNucleotideSequence = (DefaultNucleotideSequence) docs
+								.get(cnt).getDocument();
+
+						logger.info("Selected document: "
+								+ defaultNucleotideSequence.getName());
+
+						result = true;
 						logger.debug("Result CRS :" + result);
-					} catch (IOException e) {
-						e.printStackTrace();
+					}
+
+					/* Reads Assembly Contig 1 file */
+					if (readGeneiousFieldsValues
+							.getCacheNameFromGeneiousDatabase(documentFileName,
+									"//document/hiddenFields/override_cache_name")
+							.equals(documentFileName)) {
+						alignmentDocument = (DefaultAlignmentDocument) docs
+								.get(cnt).getDocument();
+
+						logger.info("Selected document: "
+								+ alignmentDocument.getName());
+
+						result = true;
+						logger.debug("Result CRS :" + result);
+					}
+
+					/* AB1 file */
+					if (readGeneiousFieldsValues
+							.getFileNameFromGeneiousDatabase(
+									(String) documentFileName).equals(
+									documentFileName)) {
+						seq = (SequenceDocument) docs.get(cnt).getDocument();
+
+						result = true;
+						logger.debug("Result CRS :" + result);
 					}
 
 					if (result) {
-
-						readDataFromCRSFile(annotatedPluginDocuments[cnt],
-								fileSelected, cnt);
-
-						System.out.println("Registration number matched: "
-								+ registrationNumber);
-
-						/* Add sequence name for the dialog screen */
-						msgList.add(seq.getName() + "\n");
-
-						/** set note for Phylum: FieldValue, Label, NoteType, */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "PhylumCode_CRS",
-								"Phylum (CRS)", "Phylum (CRS)",
-								LimsCRSFields.getPhylum(), cnt);
-
-						/** Set note for Class */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "ClassCode_CRS",
-								"Class (CRS)", "Class (CRS)",
-								LimsCRSFields.getClassification(), cnt);
-
-						/** set note for Order */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "OrderCode_CRS",
-								"Order (CRS)", "Order (CRS)",
-								LimsCRSFields.getOrder(), cnt);
-
-						/* set note for Family */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "FamilyCode_CRS",
-								"Family (CRS)", "Family (CRS)",
-								LimsCRSFields.getFamily(), cnt);
-
-						/** set note for SubFamily */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "SubFamilyCode_CRS",
-								"Sub family (CRS)", "Sub family (CRS)",
-								LimsCRSFields.getSubFamily(), cnt);
-
-						/** set note for Genus */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "GenusCode_CRS",
-								"Genus (CRS)", "Genus (CRS)",
-								LimsCRSFields.getGenus(), cnt);
-
-						/** set note for TaxonName */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "TaxonName1Code_CRS",
-								"Scientific name 1 (CRS)",
-								"Scientific name 1 (CRS)",
-								LimsCRSFields.getTaxon(), cnt);
-
-						/** set note for Identifier */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "IdentifierCode_CRS",
-								"Identifier (CRS)", "Identifier (CRS)",
-								LimsCRSFields.getDeterminator(), cnt);
-
-						/** set note for Sex */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "SexCode_CRS",
-								"Sex (CRS)", "Sex (CRS)",
-								LimsCRSFields.getSex(), cnt);
-
-						/** set note for Phase Or Stage */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"PhaseOrStageCode_CRS", "Phase or stage (CRS)",
-								"Phase or stage (CRS)",
-								LimsCRSFields.getStadium(), cnt);
-
-						/** set note for Collector */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "CollectorCode_CRS",
-								"Collector (CRS)", "Collector (CRS)",
-								LimsCRSFields.getLegavit(), cnt);
-
-						/** set note for Collecting date */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"CollectingDateCode_CRS",
-								"Collecting date (CRS)",
-								"Collecting date (CRS)",
-								LimsCRSFields.getCollectingDate(), cnt);
-
-						/** set note for Country */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "CountryCode_CRS",
-								"Country (CRS)", "Country (CRS)",
-								LimsCRSFields.getCountry(), cnt);
-
-						/** set note for BioRegion */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "BioRegionCode_CRS",
-								"Bioregion (CRS)", "Bioregion (CRS)",
-								LimsCRSFields.getBioRegion(), cnt);
-
-						/** set note for Locality */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "LocalityCode_CRS",
-								"Locality (CRS)", "Locality (CRS)",
-								LimsCRSFields.getLocality(), cnt);
-
-						/** set note for Latitude */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"LatitudeDecimalCode_CRS", "Latitude (CRS)",
-								"Latitude (CRS)",
-								LimsCRSFields.getLatitudeDecimal(), cnt);
-
-						/** set note for Longitude */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"LongitudeDecimalCode_CRS", "Longitude (CRS)",
-								"Longitude (CRS)",
-								LimsCRSFields.getLongitudeDecimal(), cnt);
-
-						/** set note for Height */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments, "HeightCode_CRS",
-								"Height (CRS)", "Height (CRS)",
-								LimsCRSFields.getHeight(), cnt);
-
-						logger.info("Done with adding notes to the document");
-						importCounter = msgList.size();
+						/* Add notes */
+						setCRSNotes(annotatedPluginDocuments, cnt);
+						logger.info("Done with adding notes to the document: "
+								+ documentFileName);
+						importCounter = DocumentUtilities
+								.getSelectedDocuments().size();
 					}
 				}
-			} catch (DocumentOperationException e) {
+			} catch (DocumentOperationException | IOException e) {
 				e.printStackTrace();
 			}
 			logger.info("--------------------------------------------------------");
 			logger.info("Total of document(s) updated: " + importCounter);
 			logger.info("-------------------------- E N D --------------------------");
 			logger.info("Done with updating the selected document(s). ");
-			if (seq.getName() != null) {
+
+			if (documentFileName != null) {
 				msgMatchList.add("No document(s) match found for : "
-						+ seq.getName());
+						+ documentFileName);
 				int rest = importTotal - verwerkList.size();
 				msgUitvalList.add("Total records not matched: "
 						+ Integer.toString(rest) + "\n");
@@ -258,8 +189,9 @@ public class LimsCRSImporter extends DocumentAction {
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("CRS: "
-							+ Integer.toString(msgList.size()) + " out of "
-							+ Integer.toString(importTotal)
+							+ Integer.toString(DocumentUtilities
+									.getSelectedDocuments().size())
+							+ " out of " + Integer.toString(importTotal)
 							+ " documents are imported." + "\n"
 							+ msgList.toString());
 					logger.info("CRS: Total imported document(s): "
@@ -276,6 +208,95 @@ public class LimsCRSImporter extends DocumentAction {
 			});
 
 		}
+	}
+
+	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
+		readDataFromCRSFile(documents[cnt], fileSelected, cnt);
+
+		/** set note for Phylum: FieldValue, Label, NoteType, */
+		limsNotes.setNoteToAB1FileName(documents, "PhylumCode_CRS",
+				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum(), cnt);
+
+		/** Set note for Class */
+		limsNotes.setNoteToAB1FileName(documents, "ClassCode_CRS",
+				"Class (CRS)", "Class (CRS)",
+				LimsCRSFields.getClassification(), cnt);
+
+		/** set note for Order */
+		limsNotes.setNoteToAB1FileName(documents, "OrderCode_CRS",
+				"Order (CRS)", "Order (CRS)", LimsCRSFields.getOrder(), cnt);
+
+		/* set note for Family */
+		limsNotes.setNoteToAB1FileName(documents, "FamilyCode_CRS",
+				"Family (CRS)", "Family (CRS)", LimsCRSFields.getFamily(), cnt);
+
+		/** set note for SubFamily */
+		limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
+				"Sub family (CRS)", "Sub family (CRS)",
+				LimsCRSFields.getSubFamily(), cnt);
+
+		/** set note for Genus */
+		limsNotes.setNoteToAB1FileName(documents, "GenusCode_CRS",
+				"Genus (CRS)", "Genus (CRS)", LimsCRSFields.getGenus(), cnt);
+
+		/** set note for TaxonName */
+		limsNotes.setNoteToAB1FileName(documents, "TaxonName1Code_CRS",
+				"Scientific name 1 (CRS)", "Scientific name 1 (CRS)",
+				LimsCRSFields.getTaxon(), cnt);
+
+		/** set note for Identifier */
+		limsNotes.setNoteToAB1FileName(documents, "IdentifierCode_CRS",
+				"Identifier (CRS)", "Identifier (CRS)",
+				LimsCRSFields.getDeterminator(), cnt);
+
+		/** set note for Sex */
+		limsNotes.setNoteToAB1FileName(documents, "SexCode_CRS", "Sex (CRS)",
+				"Sex (CRS)", LimsCRSFields.getSex(), cnt);
+
+		/** set note for Phase Or Stage */
+		limsNotes.setNoteToAB1FileName(documents, "PhaseOrStageCode_CRS",
+				"Phase or stage (CRS)", "Phase or stage (CRS)",
+				LimsCRSFields.getStadium(), cnt);
+
+		/** set note for Collector */
+		limsNotes.setNoteToAB1FileName(documents, "CollectorCode_CRS",
+				"Collector (CRS)", "Collector (CRS)",
+				LimsCRSFields.getLegavit(), cnt);
+
+		/** set note for Collecting date */
+		limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
+				"Collecting date (CRS)", "Collecting date (CRS)",
+				LimsCRSFields.getCollectingDate(), cnt);
+
+		/** set note for Country */
+		limsNotes.setNoteToAB1FileName(documents, "CountryCode_CRS",
+				"Country (CRS)", "Country (CRS)", LimsCRSFields.getCountry(),
+				cnt);
+
+		/** set note for BioRegion */
+		limsNotes.setNoteToAB1FileName(documents, "BioRegionCode_CRS",
+				"Bioregion (CRS)", "Bioregion (CRS)",
+				LimsCRSFields.getBioRegion(), cnt);
+
+		/** set note for Locality */
+		limsNotes.setNoteToAB1FileName(documents, "LocalityCode_CRS",
+				"Locality (CRS)", "Locality (CRS)",
+				LimsCRSFields.getLocality(), cnt);
+
+		/** set note for Latitude */
+		limsNotes.setNoteToAB1FileName(documents, "LatitudeDecimalCode_CRS",
+				"Latitude (CRS)", "Latitude (CRS)",
+				LimsCRSFields.getLatitudeDecimal(), cnt);
+
+		/** set note for Longitude */
+		limsNotes.setNoteToAB1FileName(documents, "LongitudeDecimalCode_CRS",
+				"Longitude (CRS)", "Longitude (CRS)",
+				LimsCRSFields.getLongitudeDecimal(), cnt);
+
+		/** set note for Height */
+		limsNotes.setNoteToAB1FileName(documents, "HeightCode_CRS",
+				"Height (CRS)", "Height (CRS)", LimsCRSFields.getHeight(), cnt);
+
 	}
 
 	@Override
@@ -326,6 +347,9 @@ public class LimsCRSImporter extends DocumentAction {
 
 					if (matchRegistrationNumber(annotatedPluginDocument,
 							record[0])) {
+
+						System.out.println("Registration number matched: "
+								+ registrationNumber);
 
 						match = true;
 
@@ -441,5 +465,11 @@ public class LimsCRSImporter extends DocumentAction {
 			return true;
 		}
 		return false;
+	}
+
+	private String getExtractIDFromAB1FileName(String fileName) {
+		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
+		String[] underscore = StringUtils.split(fileName, "_");
+		return underscore[0];
 	}
 }

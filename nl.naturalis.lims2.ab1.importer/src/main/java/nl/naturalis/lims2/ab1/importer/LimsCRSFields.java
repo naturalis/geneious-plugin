@@ -30,6 +30,15 @@ public class LimsCRSFields {
 	private String latitudeDecimal;
 	private String longitudeDecimal;
 	private String Height;
+	private String extractIDfileName;
+
+	public String getExtractIDfileName() {
+		return extractIDfileName;
+	}
+
+	public void setExtractIDfileName(String extractIDfileName) {
+		this.extractIDfileName = extractIDfileName;
+	}
 
 	public String getRegistratienummer() {
 		return registratienummer;

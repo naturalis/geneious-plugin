@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.Constraint;
+import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
@@ -97,6 +98,7 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
+
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
 		// geneiousPlugin.getDocumentTypes();
@@ -152,5 +154,10 @@ public class LimsNotes {
 				+ " added succesful");
 		// limsLogger.flushCloseFileHandler();
 		// limsLogger.removeConsoleHandler();
+	}
+
+	public void createDocumentField() {
+		DocumentField documentField = null;
+
 	}
 }

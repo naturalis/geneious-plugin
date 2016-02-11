@@ -55,8 +55,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private String boldFilePath;
 	private String boldFile;
 	private String extractIDfileName;
-	private final String noteCode = "DocumentNoteUtilities-Registrationnumber (Samples)";
-	private final String fieldName = "RegistrationnumberCode_Samples";
+	private final String noteCode = "DocumentNoteUtilities-Registration number (Samples)";
+	private final String fieldName = "RegistrationNumberCode_Samples";
 	private List<AnnotatedPluginDocument> docs;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private List<String> msgList = new ArrayList<String>();

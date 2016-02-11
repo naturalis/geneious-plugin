@@ -3,6 +3,7 @@
  */
 package nl.naturalis.lims2.utils;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
@@ -119,6 +121,15 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
 
 		} finally {
 			try {
@@ -235,6 +246,143 @@ public class LimsReadGeneiousFieldsValues {
 		}
 
 		return truefalse;
+	}
+
+	/** Contig file opvragen */
+	// public String getContigFilenameFromGeneiousDatabase(String filename)
+	// throws IOException {
+	//
+	// Connection con = null;
+	// PreparedStatement pst = null;
+	// ResultSet rs = null;
+	//
+	// url = limsImporterUtil.getPropValues("url");
+	// user = limsImporterUtil.getPropValues("user");
+	// password = limsImporterUtil.getPropValues("password");
+	//
+	// String result = "";
+	//
+	// try {
+	//
+	// final String SQL = " SELECT a.name"
+	// + " FROM "
+	// + " ( "
+	// +
+	// " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/override_cache_name')) AS name "
+	// + " FROM annotated_document" + " ) AS a "
+	// + " WHERE a.name =?";
+	//
+	// con = DriverManager.getConnection(url, user, password);
+	// logger.debug("User:" + user);
+	// logger.debug("Password:" + password);
+	// pst = con.prepareStatement(SQL);
+	// pst.setString(1, filename);
+	// rs = pst.executeQuery();
+	// while (rs.next()) {
+	// result = rs.getObject(1).toString();
+	// logger.debug("Filename: " + result
+	// + " already exists in the geneious database.");
+	// limsLogList.UitvalList.add("Filename: " + result
+	// + " already exists in the geneious database." + "\n");
+	// }
+	// } catch (SQLException ex) {
+	// logger.info(ex.getMessage(), ex);
+	//
+	// EventQueue.invokeLater(new Runnable() {
+	//
+	// @Override
+	// public void run() {
+	// Dialogs.showMessageDialog("Username or Password is not correct: "
+	// + "User: " + user + " Password: " + password);
+	// }
+	// });
+	//
+	// } finally {
+	// try {
+	// if (rs != null) {
+	// rs.close();
+	// }
+	// if (pst != null) {
+	// pst.close();
+	// }
+	// if (con != null) {
+	// con.close();
+	// }
+	//
+	// } catch (SQLException ex) {
+	// logger.warn(ex.getMessage(), ex);
+	// }
+	// }
+	// return result;
+	// }
+
+	/**
+	 * Cachename opvragen uit xml veld document_xml tabel annotated_document
+	 * //document/hiddenFields/override_cache_name
+	 * */
+	public String getCacheNameFromGeneiousDatabase(Object filename,
+			String xmlNotesName) throws IOException {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		url = limsImporterUtil.getPropValues("url");
+		user = limsImporterUtil.getPropValues("user");
+		password = limsImporterUtil.getPropValues("password");
+
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.name" + " FROM " + " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?";
+
+			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+				logger.debug("Filename: " + result
+						+ " already exists in the geneious database.");
+				limsLogList.UitvalList.add("Filename: " + result
+						+ " already exists in the geneious database." + "\n");
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return result;
 	}
 
 }
