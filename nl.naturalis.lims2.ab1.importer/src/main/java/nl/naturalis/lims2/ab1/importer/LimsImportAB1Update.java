@@ -124,13 +124,19 @@ public class LimsImportAB1Update extends DocumentAction {
 								"Document version",
 								limsAB1Fields.getVersieNummer(), cnt);
 						/* set note for AmplicificationStaffCode_FixedValue */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"AmplicificationStaffCode_FixedValue_Seq",
-								"Ampl-staff (Seq)", "Ampl-staff (Seq)",
-								limsImporterUtil
-										.getPropValues("seqamplicification"),
-								cnt);
+						try {
+							limsNotes
+									.setNoteToAB1FileName(
+											annotatedPluginDocuments,
+											"AmplicificationStaffCode_FixedValue_Seq",
+											"Ampl-staff (Seq)",
+											"Ampl-staff (Seq)",
+											limsImporterUtil
+													.getPropValues("seqamplicification"),
+											cnt);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 
 					logger.info("Done with adding notes to the document");
@@ -225,7 +231,7 @@ public class LimsImportAB1Update extends DocumentAction {
 					// }
 
 				}
-			} catch (DocumentOperationException | IOException e) {
+			} catch (DocumentOperationException e) {
 				try {
 					throw new Exception();
 				} catch (Exception e1) {

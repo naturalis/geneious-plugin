@@ -121,55 +121,71 @@ public class LimsReadDataFromBold extends DocumentAction {
 					result = false;
 
 					/* Reads Assembly Contig 1 file */
-					if (readGeneiousFieldsValues
-							.getCacheNameFromGeneiousDatabase(documentFileName,
-									"//document/hiddenFields/override_cache_name")
-							.equals(documentFileName)) {
-						defaultAlignmentDocument = (DefaultAlignmentDocument) docs
-								.get(cnt).getDocument();
+					try {
+						if (readGeneiousFieldsValues
+								.getCacheNameFromGeneiousDatabase(
+										documentFileName,
+										"//document/hiddenFields/override_cache_name")
+								.equals(documentFileName)) {
+							defaultAlignmentDocument = (DefaultAlignmentDocument) docs
+									.get(cnt).getDocument();
 
-						logger.info("Selected document: "
-								+ defaultAlignmentDocument.getName());
-						setExtractIDfileName(defaultAlignmentDocument.getName());
-						extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
-								.getName());
-						result = true;
+							logger.info("Selected Contig document: "
+									+ defaultAlignmentDocument.getName());
+							setExtractIDfileName(defaultAlignmentDocument
+									.getName());
+							extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
+									.getName());
+							result = true;
+						}
+					} catch (IOException e2) {
+						e2.printStackTrace();
 					}
 
 					/* Reads Assembly Contig 1 consensus sequence */
-					if (readGeneiousFieldsValues
-							.getCacheNameFromGeneiousDatabase(documentFileName,
-									"//document/hiddenFields/cache_name")
-							.equals(documentFileName)) {
+					try {
+						if (readGeneiousFieldsValues
+								.getCacheNameFromGeneiousDatabase(
+										documentFileName,
+										"//document/hiddenFields/cache_name")
+								.equals(documentFileName)
+								&& !documentFileName.toString().contains("ab1")) {
 
-						defaultNucleotideSequence = (DefaultNucleotideSequence) docs
-								.get(cnt).getDocument();
+							defaultNucleotideSequence = (DefaultNucleotideSequence) docs
+									.get(cnt).getDocument();
 
-						logger.info("Selected document: "
-								+ defaultNucleotideSequence.getName());
+							logger.info("Selected Contig consensus sequence document: "
+									+ defaultNucleotideSequence.getName());
 
-						setExtractIDfileName(defaultNucleotideSequence
-								.getName());
-						extractIDfileName = getExtractIDFromAB1FileName(defaultNucleotideSequence
-								.getName());
-						result = true;
+							setExtractIDfileName(defaultNucleotideSequence
+									.getName());
+							extractIDfileName = getExtractIDFromAB1FileName(defaultNucleotideSequence
+									.getName());
+							result = true;
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
 
 					/* AB1 file */
-					if (readGeneiousFieldsValues
-							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName).equals(
-									documentFileName)) {
+					try {
+						if (readGeneiousFieldsValues
+								.getFileNameFromGeneiousDatabase(
+										(String) documentFileName).equals(
+										documentFileName)) {
 
-						sequenceDocument = (SequenceDocument) docs.get(cnt)
-								.getDocument();
-						logger.info("Selected document: "
-								+ sequenceDocument.getName());
-						setExtractIDfileName(sequenceDocument.getName());
-						extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
-								.getName());
-						result = true;
+							sequenceDocument = (SequenceDocument) docs.get(cnt)
+									.getDocument();
+							logger.info("Selected AB1 document: "
+									+ sequenceDocument.getName());
+							setExtractIDfileName(sequenceDocument.getName());
+							extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
+									.getName());
+							result = true;
 
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 
 					if (result) {
@@ -178,7 +194,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					}
 
 				}
-			} catch (DocumentOperationException | IOException e) {
+			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
 			logger.info("Total of document(s) updated: " + docs.size());
