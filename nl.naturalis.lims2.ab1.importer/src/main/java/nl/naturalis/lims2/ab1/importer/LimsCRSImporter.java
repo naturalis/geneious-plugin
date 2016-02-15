@@ -65,9 +65,8 @@ public class LimsCRSImporter extends DocumentAction {
 	private DefaultAlignmentDocument alignmentDocument = null;
 	private Object documentFileName = "";
 	private String fileSelected = "";
-	private Object regnr = "";
 	private boolean result = false;
-	AnnotatedPluginDocument[] documents = null;
+	private AnnotatedPluginDocument[] documents = null;
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "CRS-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -242,8 +241,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** Set note for Class */
 		limsNotes.setNoteToAB1FileName(documents, "ClassCode_CRS",
-				"Class (CRS)", "Class (CRS)",
-				LimsCRSFields.getClassification(), cnt);
+				"Class (CRS)", "Class (CRS)", LimsCRSFields.getKlasse(), cnt);
 
 		/** set note for Order */
 		limsNotes.setNoteToAB1FileName(documents, "OrderCode_CRS",
@@ -354,12 +352,6 @@ public class LimsCRSImporter extends DocumentAction {
 			csvReader.readNext();
 
 			try {
-				/*
-				 * msgUitvalList
-				 * .add("-----------------------------------------------" +
-				 * "\n");
-				 */
-
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
 						continue;
@@ -367,7 +359,6 @@ public class LimsCRSImporter extends DocumentAction {
 
 					registrationNumber = record[0];
 
-					// if (regnr.equals(record[0]))
 					if (matchRegistrationNumber(annotatedPluginDocument,
 							record[0])) {
 
@@ -377,24 +368,25 @@ public class LimsCRSImporter extends DocumentAction {
 						match = true;
 
 						LimsCRSFields.setRegistratienummer(record[0]);
-						LimsCRSFields.setPhylum(record[1]);
-						LimsCRSFields.setClassification(record[2]);
-						LimsCRSFields.setOrder(record[3]);
-						LimsCRSFields.setFamily(record[4]);
-						LimsCRSFields.setSubFamily(record[5]);
-						LimsCRSFields.setGenus(record[6]);
-						LimsCRSFields.setTaxon(record[7]);
-						LimsCRSFields.setDeterminator(record[8]);
-						LimsCRSFields.setSex(record[9]);
-						LimsCRSFields.setStadium(record[10]);
-						LimsCRSFields.setLegavit(record[11]);
-						LimsCRSFields.setCollectingDate(record[12]);
-						LimsCRSFields.setCountry(record[13]);
-						LimsCRSFields.setBioRegion(record[14]);
-						LimsCRSFields.setLocality(record[15]);
-						LimsCRSFields.setLatitudeDecimal(record[16]);
-						LimsCRSFields.setLongitudeDecimal(record[17]);
-						LimsCRSFields.setHeight(record[18]);
+						extractRankOrClassification(record[1], record[2]);
+						// LimsCRSFields.setPhylum(record[1]);
+						// LimsCRSFields.setKlasse(record[2]);
+						// LimsCRSFields.setOrder(record[3]);
+						// LimsCRSFields.setFamily(record[4]);
+						// LimsCRSFields.setSubFamily(record[5]);
+						LimsCRSFields.setGenus(record[3]);
+						LimsCRSFields.setTaxon(record[4]);
+						LimsCRSFields.setDeterminator(record[5]);
+						LimsCRSFields.setSex(record[6]);
+						LimsCRSFields.setStadium(record[7]);
+						LimsCRSFields.setLegavit(record[8]);
+						LimsCRSFields.setCollectingDate(record[9]);
+						LimsCRSFields.setCountry(record[10]);
+						LimsCRSFields.setBioRegion(record[11]);
+						LimsCRSFields.setLocality(record[12]);
+						LimsCRSFields.setLatitudeDecimal(record[13]);
+						LimsCRSFields.setLongitudeDecimal(record[14]);
+						LimsCRSFields.setHeight(record[15]);
 
 						/* Add notes */
 						setCRSNotes(documents, i);
@@ -406,7 +398,7 @@ public class LimsCRSImporter extends DocumentAction {
 								+ LimsCRSFields.getRegistratienummer());
 						logger.info("Phylum: " + LimsCRSFields.getPhylum());
 						logger.info("Classification: "
-								+ LimsCRSFields.getClassification());
+								+ LimsCRSFields.getKlasse());
 						logger.info("Orde: " + LimsCRSFields.getOrder());
 						logger.info("Family: " + LimsCRSFields.getFamily());
 						logger.info("SubFamily: "
@@ -438,7 +430,7 @@ public class LimsCRSImporter extends DocumentAction {
 					else if (!verwerkList.contains(record[0]) && !match) {
 						LimsCRSFields.setRegistratienummer("");
 						LimsCRSFields.setPhylum("");
-						LimsCRSFields.setClassification("");
+						LimsCRSFields.setKlasse("");
 						LimsCRSFields.setOrder("");
 						LimsCRSFields.setFamily("");
 						LimsCRSFields.setSubFamily("");
@@ -495,9 +487,55 @@ public class LimsCRSImporter extends DocumentAction {
 		return false;
 	}
 
-	private String getExtractIDFromAB1FileName(String fileName) {
-		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
-		String[] underscore = StringUtils.split(fileName, "_");
-		return underscore[0];
+	private void extractRankOrClassification(String rankOrClassificationValue,
+			String nameValue) {
+
+		String[] forwardSlash = StringUtils.split(rankOrClassificationValue,
+				"/");
+
+		for (int i = 0; i < forwardSlash.length; i++) {
+
+			String[] name = StringUtils.split(nameValue, "/");
+
+			switch (forwardSlash[i].trim()) {
+			case "phylum":
+				LimsCRSFields.setPhylum(name[i]);
+				break;
+			case "subclass":
+				LimsCRSFields.setSubclass(name[i]);
+				break;
+			case "class":
+				LimsCRSFields.setKlasse(name[i]);
+				break;
+			case "suborder":
+				LimsCRSFields.setSuborder(name[i]);
+				break;
+			case "order":
+				LimsCRSFields.setOrder(name[i]);
+				break;
+			case "family":
+				LimsCRSFields.setFamily(name[i]);
+				break;
+			case "superfamily":
+				LimsCRSFields.setSuperFamily(name[i]);
+				break;
+			case "subfamily":
+				LimsCRSFields.setSubFamily(name[i]);
+				break;
+			case "tribe":
+				LimsCRSFields.setTribe(name[i]);
+				break;
+			}
+		}
 	}
+
+	private String extractName(String nameValue) {
+		String result = "";
+		String[] name = StringUtils.split(nameValue, "/");
+		for (int i = 0; i < nameValue.length(); i++) {
+			result = name[i];
+		}
+		return result;
+	}
+
 }

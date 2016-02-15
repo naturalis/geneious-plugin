@@ -3,7 +3,10 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 
 import javax.swing.JFileChooser;
@@ -26,6 +29,8 @@ public class LimsFileSelector {
 			.getLogger(LimsImportAB1Update.class);
 
 	private String csvPath = "";
+	private String fastaPath = "";
+	private String fileSelected = "";
 
 	/*
 	 * public String loadFile(Frame f, String title, String defDir, String
@@ -35,7 +40,6 @@ public class LimsFileSelector {
 	 */
 
 	public String loadSelectedFile() {
-		String fileSelected = "";
 		File fileMap = null;
 		try {
 			csvPath = limsImporterUtil
@@ -71,6 +75,48 @@ public class LimsFileSelector {
 		}
 		}
 		return fileSelected;
+
+	}
+
+	public String loadFastaFile(String fileName) throws FileNotFoundException {
+
+		File fileMap = null;
+		try {
+			fastaPath = limsImporterUtil.getPropValues("fastadirectory");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		JFileChooser chooser = new JFileChooser(fastaPath);
+		chooser.setSelectedFile(new File(chooser.getCurrentDirectory(),
+				fileName + ".fas"));
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				"Fasta Files", "fas");
+		chooser.setFileFilter(filter);
+
+		logger.info("You chose to open this CSV file: "
+				+ chooser.getSelectedFile().getAbsolutePath());
+		fileMap = chooser.getCurrentDirectory();
+		fileSelected = fileMap.getAbsolutePath() + fileMap.separator
+				+ chooser.getSelectedFile().getName();
+
+		BufferedReader in = new BufferedReader(new FileReader(fileSelected));
+		String line;
+		String currentName = "";
+		try {
+			line = in.readLine();
+
+			if (line.startsWith(">")) {
+				currentName = line.substring(1);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return currentName;
 
 	}
 }
