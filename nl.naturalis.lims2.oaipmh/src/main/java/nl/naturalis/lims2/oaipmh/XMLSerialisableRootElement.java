@@ -13,6 +13,7 @@ import nl.naturalis.lims2.oaipmh.XMLSerialisableRootElement.Field;
 public class XMLSerialisableRootElement extends PluginDocumentData<Field> {
 
 	public static enum Field {
+		name,
 		description,
 		charSequence,
 		finishedAddingOutputDocuments(Boolean.class),

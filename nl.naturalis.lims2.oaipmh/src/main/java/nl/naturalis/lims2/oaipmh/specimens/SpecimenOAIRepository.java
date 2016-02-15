@@ -30,7 +30,7 @@ public class SpecimenOAIRepository extends Lims2OAIRepository {
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
 		logger.info("Instantiating handler for ListRecords request");
-		ListRecordsHandler handler = new ListRecordsHandler(config, request);
+		SpecimenListRecordsHandler handler = new SpecimenListRecordsHandler(config, request);
 		OAIPMHtype oaipmh = handler.handleRequest();
 		if (logger.isDebugEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
