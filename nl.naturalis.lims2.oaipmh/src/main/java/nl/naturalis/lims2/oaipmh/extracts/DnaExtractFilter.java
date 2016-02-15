@@ -7,9 +7,9 @@ import nl.naturalis.lims2.oaipmh.AnnotatedDocument;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPostFilter;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPreFilter;
 
-public class DNAExtractFilter implements IAnnotatedDocumentPostFilter, IAnnotatedDocumentPreFilter {
+public class DnaExtractFilter implements IAnnotatedDocumentPostFilter, IAnnotatedDocumentPreFilter {
 
-	public DNAExtractFilter()
+	public DnaExtractFilter()
 	{
 	}
 

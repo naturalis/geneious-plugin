@@ -17,11 +17,11 @@ import org.openarchives.oai._2.OAIPMHtype;
  * @author Ayco Holleman
  *
  */
-public class DNAExtractOAIRepository extends Lims2OAIRepository {
+public class DnaExtractOAIRepository extends Lims2OAIRepository {
 
-	private static final Logger logger = LogManager.getLogger(DNAExtractOAIRepository.class);
+	private static final Logger logger = LogManager.getLogger(DnaExtractOAIRepository.class);
 
-	public DNAExtractOAIRepository()
+	public DnaExtractOAIRepository()
 	{
 		super();
 	}
@@ -30,7 +30,7 @@ public class DNAExtractOAIRepository extends Lims2OAIRepository {
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
 		logger.info("Instantiating handler for ListRecords request");
-		DNAExtractListRecordsHandler handler = new DNAExtractListRecordsHandler(config, request);
+		DnaExtractListRecordsHandler handler = new DnaExtractListRecordsHandler(config, request);
 		OAIPMHtype oaipmh = handler.handleRequest();
 		if (logger.isDebugEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);

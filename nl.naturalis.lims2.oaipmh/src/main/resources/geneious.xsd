@@ -11,8 +11,8 @@
 		<xs:complexType>
 			<xs:choice>
 				<xs:element name="specimen" type="self:Specimen"></xs:element>
-				<xs:element name="dnaSlide" type="self:DNASlide"></xs:element>
-				<xs:element name="dnaExtract" type="self:DNAExtract"></xs:element>
+				<xs:element name="dnaExtractPlate" type="self:DnaExtractPlate"></xs:element>
+				<xs:element name="dnaExtract" type="self:DnaExtract"></xs:element>
 			</xs:choice>
 		</xs:complexType>
 	</xs:element>
@@ -23,16 +23,16 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="DNASlide">
+	<xs:complexType name="DnaExtractPlate">
 		<xs:sequence>
-			<xs:element type="self:SlideUnit" name="unit" />
+			<xs:element type="self:ExtractPlateUnit" name="unit" />
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="DNAExtract">
+	<xs:complexType name="DnaExtract">
 		<xs:sequence>
 			<xs:element type="self:ExtractUnit" name="unit" />
-			<xs:element type="self:DNALabProject" name="dnaLabProject" />
+			<xs:element type="self:DnaLabProject" name="dnaLabProject" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -56,16 +56,16 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="SlideUnit">
+	<xs:complexType name="ExtractPlateUnit">
 		<xs:sequence>
 			<xs:element type="xs:string" name="instituePlateID" />
 			<xs:element type="xs:string" name="batchID" />
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="DNALabProject">
+	<xs:complexType name="DnaLabProject">
 		<xs:sequence>
-			<xs:element type="xs:string" name="projectID" />
+			<xs:element type="xs:string" name="batchID" />
 			<xs:element type="xs:string" name="versionNumber" />
 			<xs:element type="self:Amplification" name="amplification" />
 			<xs:element type="self:Sequencing" name="sequencing" />
@@ -74,9 +74,9 @@
 
 	<xs:complexType name="Sequencing">
 		<xs:sequence>
-			<xs:element type="xs:string" name="cloningStaff" />
+			<xs:element type="xs:string" name="sequencingStaff" />
 			<xs:element type="xs:string" name="consensusSequenceID" />
-			<xs:element type="xs:int" name="consensusSequenceLength" />
+			<xs:element type="xs:string" name="consensusSequenceLength" />
 			<xs:element type="xs:string" name="consensusSequenceQuality" />
 			<xs:element type="xs:string" name="amplificationStaff" />
 			<xs:element name="geneticAccession" type="self:GeneticAccession"></xs:element>
@@ -87,6 +87,7 @@
 		<xs:sequence>
 			<xs:element type="xs:string" name="marker" />
 			<xs:element type="xs:string" name="amplificationStaff" />
+			<xs:element type="xs:string" name="pcrPlateID" />
 		</xs:sequence>
 	</xs:complexType>
 

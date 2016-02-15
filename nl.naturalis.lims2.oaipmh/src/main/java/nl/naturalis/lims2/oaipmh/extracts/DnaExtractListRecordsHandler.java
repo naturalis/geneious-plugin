@@ -1,5 +1,6 @@
 package nl.naturalis.lims2.oaipmh.extracts;
 
+import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.XML_SERIALISABLE_ROOT_ELEMENT;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.createResponseSkeleton;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
@@ -11,16 +12,14 @@ import java.util.List;
 import nl.naturalis.lims2.oaipmh.AnnotatedDocument;
 import nl.naturalis.lims2.oaipmh.DocumentNotes;
 import nl.naturalis.lims2.oaipmh.DocumentNotes.Field;
-import nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPostFilter;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPreFilter;
 import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
 import nl.naturalis.lims2.oaipmh.ListRecordsHandler;
-import nl.naturalis.lims2.oaipmh.PluginDocumentData;
 import nl.naturalis.lims2.oaipmh.XMLSerialisableRootElement;
 import nl.naturalis.lims2.oaipmh.jaxb.Amplification;
-import nl.naturalis.lims2.oaipmh.jaxb.DNAExtract;
-import nl.naturalis.lims2.oaipmh.jaxb.DNALabProject;
+import nl.naturalis.lims2.oaipmh.jaxb.DnaExtract;
+import nl.naturalis.lims2.oaipmh.jaxb.DnaLabProject;
 import nl.naturalis.lims2.oaipmh.jaxb.ExtractUnit;
 import nl.naturalis.lims2.oaipmh.jaxb.Geneious;
 import nl.naturalis.lims2.oaipmh.jaxb.GeneticAccession;
@@ -35,9 +34,7 @@ import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 
-import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.XML_SERIALISABLE_ROOT_ELEMENT;
-
-class DNAExtractListRecordsHandler extends ListRecordsHandler {
+class DnaExtractListRecordsHandler extends ListRecordsHandler {
 
 	@SuppressWarnings("static-method")
 	OAIPMHtype handleRequest_old(OAIPMHRequest request) throws OAIPMHException
@@ -57,7 +54,7 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 		Geneious geneious = new Geneious();
 		metadata.setAny(geneious);
 
-		DNAExtract extract = new DNAExtract();
+		DnaExtract extract = new DnaExtract();
 		geneious.setDnaExtract(extract);
 		ExtractUnit unit = new ExtractUnit();
 		extract.setUnit(unit);
@@ -65,15 +62,15 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 		unit.setAssociatedUnitID("RMNH.INS.23917");
 		unit.setInstitutePlateID("NBCN123456");
 		unit.setPlatePosition("A10");
-		DNALabProject project = new DNALabProject();
+		DnaLabProject project = new DnaLabProject();
 		extract.setDnaLabProject(project);
-		project.setProjectID("BCP1234");
+		project.setBatchID("BCP1234");
 		Sequencing seq = new Sequencing();
 		project.setSequencing(seq);
-		seq.setCloningStaff("");
+		seq.setSequencingStaff("");
 		seq.setAmplificationStaff("");
 		seq.setConsensusSequenceID("e4010125106_Rhy_ger_MJ243_COI-H08_M13R_P15_025");
-		seq.setConsensusSequenceLength(650);
+		seq.setConsensusSequenceLength("650");
 		seq.setConsensusSequenceQuality("fault");
 		GeneticAccession ga = new GeneticAccession();
 		seq.setGeneticAccession(ga);
@@ -88,7 +85,7 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 		return root;
 	}
 
-	public DNAExtractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
+	public DnaExtractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		super(config, request);
 	}
@@ -97,7 +94,7 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 	protected List<IAnnotatedDocumentPreFilter> getAnnotatedDocumentPreFilters()
 	{
 		List<IAnnotatedDocumentPreFilter> filters = new ArrayList<>(1);
-		filters.add(new DNAExtractFilter());
+		filters.add(new DnaExtractFilter());
 		return filters;
 	}
 
@@ -119,19 +116,19 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 		return config.getInt("dna-extracts.repo.pagesize");
 	}
 
-	private static DNAExtract createDnaExtract(AnnotatedDocument ad)
+	private static DnaExtract createDnaExtract(AnnotatedDocument ad)
 	{
-		DNAExtract extract = new DNAExtract();
+		DnaExtract extract = new DnaExtract();
 		extract.setUnit(createExtractUnit(ad));
 		extract.setDnaLabProject(createDnaLabProject(ad));
 		return extract;
 	}
 
-	private static DNALabProject createDnaLabProject(AnnotatedDocument ad)
+	private static DnaLabProject createDnaLabProject(AnnotatedDocument ad)
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
-		DNALabProject project = new DNALabProject();
-		project.setProjectID("???? (mapping not in spec)");
+		DnaLabProject project = new DnaLabProject();
+		project.setBatchID(notes.get(Field.ProjectPlateNumberCode_Samples));
 		project.setVersionNumber(notes.get(Field.DocumentVersionCode));
 		project.setSequencing(createSequencing(ad));
 		project.setAmplification(createAmplification(ad));
@@ -153,16 +150,15 @@ class DNAExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		Sequencing seq = new Sequencing();
-		seq.setCloningStaff(notes.get(Field.SequencingStaffCode_FixedValue));
+		seq.setSequencingStaff(notes.get(Field.SequencingStaffCode_FixedValue));
 		seq.setAmplificationStaff(notes.get(Field.AmplicificationStaffCode_FixedValue));
 		if (ad.getPluginDocumentData().getRootElement() == XML_SERIALISABLE_ROOT_ELEMENT) {
 			XMLSerialisableRootElement e = (XMLSerialisableRootElement) ad.getPluginDocumentData();
 			String name = (String) e.get(XMLSerialisableRootElement.Field.name);
 			seq.setConsensusSequenceID(name);
 		}
-		int i = Integer.parseInt(notes.get(Field.NucleotideLengthCode_Bold));
-		seq.setConsensusSequenceLength(i);
-		seq.setConsensusSequenceQuality("???? (mapping not in spec)");
+		seq.setConsensusSequenceLength(notes.get(Field.NucleotideLengthCode_Bold));
+		seq.setConsensusSequenceQuality("???? (to be determined)");
 		seq.setGeneticAccession(createGeneticAccession(ad));
 		return seq;
 	}

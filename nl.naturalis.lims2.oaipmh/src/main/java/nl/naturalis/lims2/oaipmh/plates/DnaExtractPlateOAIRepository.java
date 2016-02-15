@@ -1,4 +1,4 @@
-package nl.naturalis.lims2.oaipmh.slides;
+package nl.naturalis.lims2.oaipmh.plates;
 
 import java.io.OutputStream;
 
@@ -8,9 +8,9 @@ import nl.naturalis.oaipmh.api.RepositoryException;
 
 import org.openarchives.oai._2.OAIPMHtype;
 
-public class DNASlideOAIRepository extends Lims2OAIRepository {
+public class DnaExtractPlateOAIRepository extends Lims2OAIRepository {
 
-	public DNASlideOAIRepository()
+	public DnaExtractPlateOAIRepository()
 	{
 		super();
 	}
@@ -18,7 +18,7 @@ public class DNASlideOAIRepository extends Lims2OAIRepository {
 	@Override
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
-		ListRecordsHandler handler = new ListRecordsHandler();
+		DnaExtractPlateListRecordsHandler handler = new DnaExtractPlateListRecordsHandler();
 		OAIPMHtype oaipmh = handler.handleRequest(request);
 		stream(oaipmh, out);
 	}
