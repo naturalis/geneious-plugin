@@ -58,8 +58,7 @@
 
 	<xs:complexType name="ExtractPlateUnit">
 		<xs:sequence>
-			<xs:element type="xs:string" name="instituePlateID" />
-			<xs:element type="xs:string" name="batchID" />
+			<xs:element type="xs:string" name="institutePlateID" />
 		</xs:sequence>
 	</xs:complexType>
 

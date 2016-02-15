@@ -35,7 +35,8 @@ public class DnaExtractOAIRepository extends Lims2OAIRepository {
 		if (logger.isDebugEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 			stream(oaipmh, baos);
-			logger.debug("Generated OAI-PMH:\n\n" + new String(baos.toByteArray()));
+			String output = new String(baos.toByteArray());
+			logger.debug("Generated OAI-PMH:\n{}", output);
 		}
 		stream(oaipmh, out);
 	}

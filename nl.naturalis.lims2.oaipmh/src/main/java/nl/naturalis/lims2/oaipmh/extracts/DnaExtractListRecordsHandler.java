@@ -36,55 +36,6 @@ import org.openarchives.oai._2.RecordType;
 
 class DnaExtractListRecordsHandler extends ListRecordsHandler {
 
-	@SuppressWarnings("static-method")
-	OAIPMHtype handleRequest_old(OAIPMHRequest request) throws OAIPMHException
-	{
-		Lims2OAIUtil.checkMetadataPrefix(request);
-		OAIPMHtype root = createResponseSkeleton(request);
-		ListRecordsType listRecords = oaiFactory.createListRecordsType();
-		root.setListRecords(listRecords);
-		RecordType record = oaiFactory.createRecordType();
-		listRecords.getRecord().add(record);
-		HeaderType header = oaiFactory.createHeaderType();
-		record.setHeader(header);
-		header.setIdentifier("123423046");
-		header.setDatestamp(dateTimeFormatter.format(new Date()));
-		MetadataType metadata = oaiFactory.createMetadataType();
-		record.setMetadata(metadata);
-		Geneious geneious = new Geneious();
-		metadata.setAny(geneious);
-
-		DnaExtract extract = new DnaExtract();
-		geneious.setDnaExtract(extract);
-		ExtractUnit unit = new ExtractUnit();
-		extract.setUnit(unit);
-		unit.setUnitID("e123214324");
-		unit.setAssociatedUnitID("RMNH.INS.23917");
-		unit.setInstitutePlateID("NBCN123456");
-		unit.setPlatePosition("A10");
-		DnaLabProject project = new DnaLabProject();
-		extract.setDnaLabProject(project);
-		project.setBatchID("BCP1234");
-		Sequencing seq = new Sequencing();
-		project.setSequencing(seq);
-		seq.setSequencingStaff("");
-		seq.setAmplificationStaff("");
-		seq.setConsensusSequenceID("e4010125106_Rhy_ger_MJ243_COI-H08_M13R_P15_025");
-		seq.setConsensusSequenceLength("650");
-		seq.setConsensusSequenceQuality("fault");
-		GeneticAccession ga = new GeneticAccession();
-		seq.setGeneticAccession(ga);
-		ga.setBOLDProcessID("ANTVI001-11");
-		ga.setGeneticAccessionNumber("JQ412562");
-		ga.setGeneticAccessionNumberURI("http://www.ncbi.nlm.nih.gov/nuccore/JQ412562");
-		Amplification amp = new Amplification();
-		project.setAmplification(amp);
-		amp.setAmplificationStaff("");
-		amp.setMarker("CO1");
-
-		return root;
-	}
-
 	public DnaExtractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		super(config, request);
@@ -181,4 +132,54 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 		amp.setMarker(notes.get(Field.MarkerCode_Seq));
 		return amp;
 	}
+
+	@SuppressWarnings("static-method")
+	OAIPMHtype handleRequest_old(OAIPMHRequest request) throws OAIPMHException
+	{
+		Lims2OAIUtil.checkMetadataPrefix(request);
+		OAIPMHtype root = createResponseSkeleton(request);
+		ListRecordsType listRecords = oaiFactory.createListRecordsType();
+		root.setListRecords(listRecords);
+		RecordType record = oaiFactory.createRecordType();
+		listRecords.getRecord().add(record);
+		HeaderType header = oaiFactory.createHeaderType();
+		record.setHeader(header);
+		header.setIdentifier("123423046");
+		header.setDatestamp(dateTimeFormatter.format(new Date()));
+		MetadataType metadata = oaiFactory.createMetadataType();
+		record.setMetadata(metadata);
+		Geneious geneious = new Geneious();
+		metadata.setAny(geneious);
+
+		DnaExtract extract = new DnaExtract();
+		geneious.setDnaExtract(extract);
+		ExtractUnit unit = new ExtractUnit();
+		extract.setUnit(unit);
+		unit.setUnitID("e123214324");
+		unit.setAssociatedUnitID("RMNH.INS.23917");
+		unit.setInstitutePlateID("NBCN123456");
+		unit.setPlatePosition("A10");
+		DnaLabProject project = new DnaLabProject();
+		extract.setDnaLabProject(project);
+		project.setBatchID("BCP1234");
+		Sequencing seq = new Sequencing();
+		project.setSequencing(seq);
+		seq.setSequencingStaff("");
+		seq.setAmplificationStaff("");
+		seq.setConsensusSequenceID("e4010125106_Rhy_ger_MJ243_COI-H08_M13R_P15_025");
+		seq.setConsensusSequenceLength("650");
+		seq.setConsensusSequenceQuality("fault");
+		GeneticAccession ga = new GeneticAccession();
+		seq.setGeneticAccession(ga);
+		ga.setBOLDProcessID("ANTVI001-11");
+		ga.setGeneticAccessionNumber("JQ412562");
+		ga.setGeneticAccessionNumberURI("http://www.ncbi.nlm.nih.gov/nuccore/JQ412562");
+		Amplification amp = new Amplification();
+		project.setAmplification(amp);
+		amp.setAmplificationStaff("");
+		amp.setMarker("CO1");
+
+		return root;
+	}
+
 }

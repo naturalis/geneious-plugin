@@ -1,14 +1,19 @@
 package nl.naturalis.lims2.oaipmh.plates;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 import nl.naturalis.lims2.oaipmh.Lims2OAIRepository;
 import nl.naturalis.oaipmh.api.OAIPMHException;
 import nl.naturalis.oaipmh.api.RepositoryException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openarchives.oai._2.OAIPMHtype;
 
 public class DnaExtractPlateOAIRepository extends Lims2OAIRepository {
+
+	private static final Logger logger = LogManager.getLogger(DnaExtractPlateOAIRepository.class);
 
 	public DnaExtractPlateOAIRepository()
 	{
@@ -18,8 +23,16 @@ public class DnaExtractPlateOAIRepository extends Lims2OAIRepository {
 	@Override
 	public void listRecords(OutputStream out) throws OAIPMHException, RepositoryException
 	{
-		DnaExtractPlateListRecordsHandler handler = new DnaExtractPlateListRecordsHandler();
-		OAIPMHtype oaipmh = handler.handleRequest(request);
+		logger.info("Instantiating handler for ListRecords request");
+		DnaExtractPlateListRecordsHandler handler;
+		handler = new DnaExtractPlateListRecordsHandler(config, request);
+		OAIPMHtype oaipmh = handler.handleRequest();
+		if (logger.isDebugEnabled()) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
+			stream(oaipmh, baos);
+			String output = new String(baos.toByteArray());
+			logger.debug("Generated OAI-PMH:\n{}", output);
+		}
 		stream(oaipmh, out);
 	}
 
