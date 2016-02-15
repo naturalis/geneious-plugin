@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for Specimen complex type.
+ * <p>Java class for ExtractPlateUnit complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="Specimen">
+ * &lt;complexType name="ExtractPlateUnit">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="unit" type="{http://data.naturalis.nl/geneious}SpecimenUnit"/>
+ *         &lt;element name="institutePlateID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Specimen", propOrder = {
-    "unit"
+@XmlType(name = "ExtractPlateUnit", propOrder = {
+    "institutePlateID"
 })
-public class Specimen {
+public class ExtractPlateUnit {
 
     @XmlElement(required = true)
-    protected SpecimenUnit unit;
+    protected String institutePlateID;
 
     /**
-     * Gets the value of the unit property.
+     * Gets the value of the institutePlateID property.
      * 
      * @return
      *     possible object is
-     *     {@link SpecimenUnit }
+     *     {@link String }
      *     
      */
-    public SpecimenUnit getUnit() {
-        return unit;
+    public String getInstitutePlateID() {
+        return institutePlateID;
     }
 
     /**
-     * Sets the value of the unit property.
+     * Sets the value of the institutePlateID property.
      * 
      * @param value
      *     allowed object is
-     *     {@link SpecimenUnit }
+     *     {@link String }
      *     
      */
-    public void setUnit(SpecimenUnit value) {
-        this.unit = value;
+    public void setInstitutePlateID(String value) {
+        this.institutePlateID = value;
     }
 
 }

@@ -15,4 +15,3 @@
 package nl.naturalis.lims2.oaipmh.jaxb;
 
 import javax.xml.bind.annotation.XmlNs;
-

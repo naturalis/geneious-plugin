@@ -36,9 +36,9 @@ import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 import org.openarchives.oai._2.ResumptionTokenType;
 
-public abstract class AbstractListRecordsHandler {
+public abstract class ListRecordsHandler {
 
-	private static final Logger logger = LogManager.getLogger(AbstractListRecordsHandler.class);
+	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
 
 	protected final ConfigObject config;
 	protected final OAIPMHRequest request;
@@ -46,7 +46,7 @@ public abstract class AbstractListRecordsHandler {
 	protected List<IAnnotatedDocumentPreFilter> preFilters;
 	protected List<IAnnotatedDocumentPostFilter> postFilters;
 
-	public AbstractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
+	public ListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		this.request = request;
 		this.config = config;

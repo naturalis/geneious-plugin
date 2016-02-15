@@ -5,4 +5,4 @@
  * @author Ayco Holleman
  *
  */
-package nl.naturalis.lims2.oaipmh.slides;
+package nl.naturalis.lims2.oaipmh.plates;

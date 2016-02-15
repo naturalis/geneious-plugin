@@ -6,58 +6,70 @@ public class DocumentNotes {
 
 	public static enum Field {
 		/**
-		 * Maps to &lt;unitID&gt; for specimens. Maps to
-		 * &lt;associatedUnitID&gt; for DNA extracts.
+		 * Maps to unitID for specimens; maps to associatedUnitID for DNA
+		 * extracts.
 		 */
 		RegistrationNumberCode_Samples,
 		/**
-		 * Maps to &lt;associatedUnitID&gt; for specimens.
+		 * Maps to associatedUnitID for specimens.
 		 */
 		BOLDIDCode_BOLD,
 		/**
-		 * Maps to &lt;uri&gt; for specimens.
+		 * Maps to uri for specimens.
 		 */
 		BOLDURICode_FixedValue,
 		/**
-		 * Maps to &lt;institutePlateID&gt;
+		 * Maps to institutePlateID
 		 */
 		ExtractPlateNumberCode_Samples,
 		/**
-		 * Maps to &lt;unitID&gt; for DNA extracts.
+		 * Maps to unitID for DNA extracts.
 		 */
 		ExtractIDCode_Samples,
 		/**
-		 * Maps to &lt;platePosition&gt; for DNA extracts.
+		 * Maps to platePosition for DNA extracts.
 		 */
 		PlatePositionCode_Samples,
 		/**
-		 * Maps to &lt;batchID&gt; for DNA extracts.
+		 * Maps to batchID for DNA extracts.
 		 */
 		ProjectPlateNumberCode_Samples,
 		/**
-		 * Maps to &lt;versionNumber&gt; for DNA extracts.
+		 * Maps to versionNumber for DNA extracts.
 		 */
 		DocumentVersionCode,
 		/**
-		 * Maps to &lt;marker&gt; for DNA extracts.
+		 * Maps to marker for DNA extracts.
 		 */
 		MarkerCode_Seq,
 		/**
-		 * Maps to &lt;pcrPlateID&gt; for DNA extracts.
+		 * Maps to pcrPlateID for DNA extracts.
 		 */
 		PCRplateIDCode_Seq,
 		/**
-		 * Maps to &lt;consensusSequenceLength&gt; for DNA extracts.
+		 * Maps to consensusSequenceLength for DNA extracts.
 		 */
 		NucleotideLengthCode_Bold,
 		/**
-		 * Maps to &lt;consensusSequenceLength&gt; for DNA extracts.
+		 * Maps to consensusSequenceLength for DNA extracts.
 		 */
 		GenBankIDCode_Bold,
 		/**
-		 * Maps to &lt;multiMediaObjectComment&gt; for specimens.
+		 * Maps to geneticAccessionNumberURI for DNA extracts.
 		 */
-		NumberOfImagesCode_BOLD
+		GenBankURICode_FixedValue,
+		/**
+		 * Maps to multiMediaObjectComment for specimens.
+		 */
+		NumberOfImagesCode_BOLD,
+		/**
+		 * Maps to sequencingStaff for DNA extracts.
+		 */
+		SequencingStaffCode_FixedValue,
+		/**
+		 * Maps to amplificationStaff for DNA extracts.
+		 */
+		AmplicificationStaffCode_FixedValue
 	}
 
 	private EnumMap<Field, String> data = new EnumMap<>(Field.class);
