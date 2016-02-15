@@ -57,7 +57,7 @@ public class LimsCRSImporter extends DocumentAction {
 	public int importCounter;
 	private int importTotal;
 	private String[] record = null;
-	private final String noteCode = "DocumentNoteUtilities-Registration number (Samples)";
+	private final String noteCode = "DocumentNoteUtilities-Registr-nmbr (Samples)";
 	private final String fieldName = "RegistrationNumberCode_Samples";
 	private boolean match = false;
 	private String registrationNumber;
@@ -65,6 +65,9 @@ public class LimsCRSImporter extends DocumentAction {
 	private DefaultAlignmentDocument alignmentDocument = null;
 	private Object documentFileName = "";
 	private String fileSelected = "";
+	private Object regnr = "";
+	private boolean result = false;
+	AnnotatedPluginDocument[] documents = null;
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "CRS-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -93,8 +96,6 @@ public class LimsCRSImporter extends DocumentAction {
 				return;
 			}
 
-			boolean result = false;
-
 			logger.info("Start updating selected document(s) with CRS data.");
 			logger.info("-------------------------- S T A R T --------------------------");
 			logger.info("Start Reading data from a CRS file.");
@@ -110,6 +111,7 @@ public class LimsCRSImporter extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					documentFileName = annotatedPluginDocuments[cnt]
 							.getFieldValue("cache_name");
+
 					result = false;
 
 					/* Add sequence name for the dialog screen */
@@ -119,57 +121,78 @@ public class LimsCRSImporter extends DocumentAction {
 					}
 
 					/* Reads Assembly Contig 1 consensus sequence */
-					if (readGeneiousFieldsValues
-							.getCacheNameFromGeneiousDatabase(documentFileName,
-									"//document/hiddenFields/cache_name")
-							.equals(documentFileName)) {
+					try {
+						if (readGeneiousFieldsValues
+								.getCacheNameFromGeneiousDatabase(
+										documentFileName,
+										"//document/hiddenFields/cache_name")
+								.equals(documentFileName)
+								&& !documentFileName.toString().contains("ab1")) {
 
-						defaultNucleotideSequence = (DefaultNucleotideSequence) docs
-								.get(cnt).getDocument();
+							defaultNucleotideSequence = (DefaultNucleotideSequence) docs
+									.get(cnt).getDocument();
 
-						logger.info("Selected document: "
-								+ defaultNucleotideSequence.getName());
+							logger.info("Selected Contig consensus sequence document: "
+									+ defaultNucleotideSequence.getName());
 
-						result = true;
-						logger.debug("Result CRS :" + result);
+							result = true;
+							logger.debug("Result CRS :" + result);
+						}
+					} catch (IOException e2) {
+						e2.printStackTrace();
 					}
 
 					/* Reads Assembly Contig 1 file */
-					if (readGeneiousFieldsValues
-							.getCacheNameFromGeneiousDatabase(documentFileName,
-									"//document/hiddenFields/override_cache_name")
-							.equals(documentFileName)) {
-						alignmentDocument = (DefaultAlignmentDocument) docs
-								.get(cnt).getDocument();
+					try {
+						if (readGeneiousFieldsValues
+								.getCacheNameFromGeneiousDatabase(
+										documentFileName,
+										"//document/hiddenFields/override_cache_name")
+								.equals(documentFileName)) {
+							alignmentDocument = (DefaultAlignmentDocument) docs
+									.get(cnt).getDocument();
 
-						logger.info("Selected document: "
-								+ alignmentDocument.getName());
+							logger.info("Selected Contig document: "
+									+ alignmentDocument.getName());
 
-						result = true;
-						logger.debug("Result CRS :" + result);
+							result = true;
+							logger.debug("Result CRS :" + result);
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
 
 					/* AB1 file */
-					if (readGeneiousFieldsValues
-							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName).equals(
-									documentFileName)) {
-						seq = (SequenceDocument) docs.get(cnt).getDocument();
+					try {
+						if (readGeneiousFieldsValues
+								.getFileNameFromGeneiousDatabase(
+										(String) documentFileName).equals(
+										documentFileName)) {
+							seq = (SequenceDocument) docs.get(cnt)
+									.getDocument();
 
-						result = true;
-						logger.debug("Result CRS :" + result);
+							logger.info("Selected AB1 document: "
+									+ seq.getName());
+
+							result = true;
+							logger.debug("Result CRS :" + result);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 
 					if (result) {
+						documents = annotatedPluginDocuments;
+						readDataFromCRSFile(documents[cnt], fileSelected, cnt);
 						/* Add notes */
-						setCRSNotes(annotatedPluginDocuments, cnt);
-						logger.info("Done with adding notes to the document: "
-								+ documentFileName);
+						// setCRSNotes(annotatedPluginDocuments, cnt);
+						// logger.info("Done with adding notes to the document: "
+						// + documentFileName);
 						importCounter = DocumentUtilities
 								.getSelectedDocuments().size();
 					}
 				}
-			} catch (DocumentOperationException | IOException e) {
+			} catch (DocumentOperationException e) {
 				e.printStackTrace();
 			}
 			logger.info("--------------------------------------------------------");
@@ -211,8 +234,8 @@ public class LimsCRSImporter extends DocumentAction {
 	}
 
 	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
-		readDataFromCRSFile(documents[cnt], fileSelected, cnt);
 
+		// if (regnr.equals(registrationNumber)) {
 		/** set note for Phylum: FieldValue, Label, NoteType, */
 		limsNotes.setNoteToAB1FileName(documents, "PhylumCode_CRS",
 				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum(), cnt);
@@ -232,7 +255,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** set note for SubFamily */
 		limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
-				"Sub family (CRS)", "Sub family (CRS)",
+				"Subfamily (CRS)", "Subfamily (CRS)",
 				LimsCRSFields.getSubFamily(), cnt);
 
 		/** set note for Genus */
@@ -241,7 +264,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** set note for TaxonName */
 		limsNotes.setNoteToAB1FileName(documents, "TaxonName1Code_CRS",
-				"Scientific name 1 (CRS)", "Scientific name 1 (CRS)",
+				"Scientific name (CRS)", "Scientific name (CRS)",
 				LimsCRSFields.getTaxon(), cnt);
 
 		/** set note for Identifier */
@@ -255,18 +278,16 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** set note for Phase Or Stage */
 		limsNotes.setNoteToAB1FileName(documents, "PhaseOrStageCode_CRS",
-				"Phase or stage (CRS)", "Phase or stage (CRS)",
-				LimsCRSFields.getStadium(), cnt);
+				"Stage (CRS)", "Stage (CRS)", LimsCRSFields.getStadium(), cnt);
 
 		/** set note for Collector */
 		limsNotes.setNoteToAB1FileName(documents, "CollectorCode_CRS",
-				"Collector (CRS)", "Collector (CRS)",
-				LimsCRSFields.getLegavit(), cnt);
+				"Leg (CRS)", "Leg (CRS)", LimsCRSFields.getLegavit(), cnt);
 
 		/** set note for Collecting date */
 		limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
-				"Collecting date (CRS)", "Collecting date (CRS)",
-				LimsCRSFields.getCollectingDate(), cnt);
+				"Date (CRS)", "Date (CRS)", LimsCRSFields.getCollectingDate(),
+				cnt);
 
 		/** set note for Country */
 		limsNotes.setNoteToAB1FileName(documents, "CountryCode_CRS",
@@ -274,9 +295,9 @@ public class LimsCRSImporter extends DocumentAction {
 				cnt);
 
 		/** set note for BioRegion */
-		limsNotes.setNoteToAB1FileName(documents, "BioRegionCode_CRS",
-				"Bioregion (CRS)", "Bioregion (CRS)",
-				LimsCRSFields.getBioRegion(), cnt);
+		limsNotes.setNoteToAB1FileName(documents,
+				"StateOrProvinceBioRegionCode_CRS", "Region (CRS)",
+				"Region (CRS)", LimsCRSFields.getBioRegion(), cnt);
 
 		/** set note for Locality */
 		limsNotes.setNoteToAB1FileName(documents, "LocalityCode_CRS",
@@ -285,18 +306,19 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** set note for Latitude */
 		limsNotes.setNoteToAB1FileName(documents, "LatitudeDecimalCode_CRS",
-				"Latitude (CRS)", "Latitude (CRS)",
-				LimsCRSFields.getLatitudeDecimal(), cnt);
+				"Lat (CRS)", "Lat (CRS)", LimsCRSFields.getLatitudeDecimal(),
+				cnt);
 
 		/** set note for Longitude */
 		limsNotes.setNoteToAB1FileName(documents, "LongitudeDecimalCode_CRS",
-				"Longitude (CRS)", "Longitude (CRS)",
+				"Long (CRS)", "Long (CRS)",
 				LimsCRSFields.getLongitudeDecimal(), cnt);
 
 		/** set note for Height */
 		limsNotes.setNoteToAB1FileName(documents, "HeightCode_CRS",
-				"Height (CRS)", "Height (CRS)", LimsCRSFields.getHeight(), cnt);
-
+				"Altitude (CRS)", "Altitude (CRS)", LimsCRSFields.getHeight(),
+				cnt);
+		// }
 	}
 
 	@Override
@@ -345,6 +367,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 					registrationNumber = record[0];
 
+					// if (regnr.equals(record[0]))
 					if (matchRegistrationNumber(annotatedPluginDocument,
 							record[0])) {
 
@@ -373,6 +396,11 @@ public class LimsCRSImporter extends DocumentAction {
 						LimsCRSFields.setLongitudeDecimal(record[17]);
 						LimsCRSFields.setHeight(record[18]);
 
+						/* Add notes */
+						setCRSNotes(documents, i);
+						logger.info("Done with adding notes to the document: "
+								+ documentFileName);
+
 						logger.info("Start with adding notes to the document");
 						logger.info("CollectionRegistrationNumber: "
 								+ LimsCRSFields.getRegistratienummer());
@@ -393,8 +421,7 @@ public class LimsCRSImporter extends DocumentAction {
 						logger.info("CollectionDate: "
 								+ LimsCRSFields.getCollectingDate());
 						logger.info("Country: " + LimsCRSFields.getCountry());
-						logger.info("State or Province: "
-								+ LimsCRSFields.getBioRegion());
+						logger.info("Region: " + LimsCRSFields.getBioRegion());
 						logger.info("Location: " + LimsCRSFields.getLocality());
 						logger.info("LatitudeDecimal: "
 								+ LimsCRSFields.getLatitudeDecimal());
@@ -433,6 +460,7 @@ public class LimsCRSImporter extends DocumentAction {
 								.add("No document(s) match found for Registrationnumber: "
 										+ record[0] + "\n");
 						match = false;
+
 					}
 					counter++;
 				} // end While

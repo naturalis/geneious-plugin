@@ -3,9 +3,11 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
 
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 public class LimsDummySeq {
 
 	private LimsNotes limsNotes = new LimsNotes();
-	private LimsSamplesFields limsExcelFields = new LimsSamplesFields();
+	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsDummySeq.class);
 
@@ -48,45 +50,59 @@ public class LimsDummySeq {
 
 		/** set note for Project Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"ProjectPlateNumberCode_Samples",
-				"Project plate number (Samples)",
-				"Project plate number (Samples)", projectPlaatnummer);
+				"ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
+				"Sample plate ID (Samples)", projectPlaatnummer);
 
 		/** Set note for Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"ExtractPlateNumberCode_Samples",
-				"Extract plate number (Samples)",
-				"Extract plate number (Samples)", extractPlaatnummer);
+				"ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
+				"Extract plate ID (Samples)", extractPlaatnummer);
 
 		/** set note for Taxon name */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"TaxonNameCode_Samples", "Taxon name (Samples)",
-				"Taxon name (Samples)", taxonName);
+				"TaxonName2Code_Samples", "[Scientific name] (Samples)",
+				"[Scientific name] (Samples)", taxonName);
 
 		/** set note for Registration number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"RegistrationNumberCode_Samples",
-				"Registration number (Samples)",
-				"Registration number (Samples)", registrationNumber);
+				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
+				"Registr-nmbr (Samples)", registrationNumber);
 
 		/** set note for Plate position */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"PlatePositionCode_Samples", "Plate position (Samples)",
-				"Plate position (Samples)", plaatPositie);
+				"PlatePositionCode_Samples", "Position (Samples)",
+				"Position (Samples)", plaatPositie);
 
 		/** set note for Sample method */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"SampleMethodCode_Samples", "Sample method (Samples)",
-				"Sample method (Samples)", "Sample method");
+				"SampleMethodCode_Samples", "Extraction method (Samples)",
+				"Extraction method (Samples)", "Sample method");
 
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"DocumentVersionCode", "Document version", "Document version",
+				"0");
+
+		/* set note for PCR Plaat-ID */
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"PCRplateIDCode_Samples", "PCR plate ID (Samples)",
+				"PCR plate ID (Samples)", "AA000");
+
+		/* set note for Marker */
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"MarkerCode_Samples", "Marker (Samples)", "Marker (Samples)",
+				"Dum");
+
+		/** SequencingStaffCode_FixedValue */
 		try {
 			limsNotes.setImportNotes(sequenceList.iterator().next(),
-					"DocumentVersionCode", "Document version",
-					"Document version", "0");
-			logger.info("New Dummy: " + filename + " file added.");
-		} catch (Exception ex) {
-			ex.printStackTrace();
+					"SequencingStaffCode_FixedValue_Samples",
+					"Seq-staff (Samples)", "Seq-staff (Samples)",
+					limsImporterUtil.getPropValues("samplessequencestaff"));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		logger.info("New Dummy: " + filename + " file added.");
 		DocumentUtilities.addGeneratedDocuments(sequenceList, false);
 	}
 

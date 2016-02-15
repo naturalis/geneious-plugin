@@ -16,6 +16,42 @@ public class LimsBoldFields {
 	private String nucleotideLength;
 	private String genBankID;
 	private String numberOfImagesBold;
+	private String boldProjectID;
+	private String fieldID;
+	private String boldBIN;
+	private String boldURI;
+
+	public String getBoldURI() {
+		return boldURI;
+	}
+
+	public void setBoldURI(String boldURI) {
+		this.boldURI = boldURI;
+	}
+
+	public String getBoldProjectID() {
+		return boldProjectID;
+	}
+
+	public void setBoldProjectID(String boldProjectID) {
+		this.boldProjectID = boldProjectID;
+	}
+
+	public String getFieldID() {
+		return fieldID;
+	}
+
+	public void setFieldID(String fieldID) {
+		this.fieldID = fieldID;
+	}
+
+	public String getBoldBIN() {
+		return boldBIN;
+	}
+
+	public void setBoldBIN(String boldBIN) {
+		boldBIN = boldBIN;
+	}
 
 	public String getColRegistratiecode() {
 		return colRegistratiecode;
