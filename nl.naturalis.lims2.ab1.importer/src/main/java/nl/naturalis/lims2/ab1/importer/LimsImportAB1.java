@@ -148,6 +148,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
+
+				limsNotes.setImportConsensusSeqPassNotes(document,
+						limsNotes.ConsensusSeqPass,
+						"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
+						"Pass (Seq)", null);
+
+				limsNotes.setImportTrueFalseNotes(document, "CRSCode_Seq",
+						"CRS (Seq)", "CRS (Seq)", true);
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");

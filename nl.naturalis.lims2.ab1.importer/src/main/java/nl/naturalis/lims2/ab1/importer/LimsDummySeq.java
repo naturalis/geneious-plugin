@@ -37,8 +37,8 @@ public class LimsDummySeq {
 		ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
 
 		NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
-				filename, "A new dummy Sequence Samples", "NNNNNNNNNN",
-				new Date(), URN.generateUniqueLocalURN("Dummy"));
+				filename + ".dum", "A new dummy Sequence Samples",
+				"NNNNNNNNNN", new Date(), URN.generateUniqueLocalURN("Dummy"));
 
 		sequenceList.add(DocumentUtilities
 				.createAnnotatedPluginDocument(sequence));

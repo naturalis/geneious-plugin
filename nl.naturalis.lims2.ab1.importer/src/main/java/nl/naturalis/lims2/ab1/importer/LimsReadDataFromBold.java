@@ -282,7 +282,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 					if (record[2].equals(fieldValue)) {
 
 						setNotesThatMatchRegistrationNumber(record[1],
-								record[9]);
+								record[9], record[8], record[0], record[3],
+								limsImporterUtil.getPropValues("bolduri"));
 						setNotesToBoldDocumentsRegistration(documents, cnt);
 
 					}
@@ -291,9 +292,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					if (record[2].equals(fieldValue)
 							&& headerCOI[6].equals("COI-5P Seq. Length")) {
 						setNotesThatMatchRegistrationNumberAndMarker(record[6],
-								record[7], record[8], record[0], record[3],
-								record[4],
-								limsImporterUtil.getPropValues("bolduri"));
+								record[7], record[4]);
 						setNotesToBoldDocumentsRegistrationMarker(documents,
 								cnt);
 					}
@@ -383,26 +382,6 @@ public class LimsReadDataFromBold extends DocumentAction {
 				"GenBankIDCode_Bold", "GenBank ID (Bold)", "GenBank ID (Bold)",
 				limsBoldFields.getGenBankID(), cnt);
 
-		/** set note for BoldProjectID */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)",
-				"BOLD proj-ID (Bold)", limsBoldFields.getBoldProjectID(), cnt);
-
-		/** set note for FieldID */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
-				limsBoldFields.getFieldID(), cnt);
-
-		/** set note for BOLD BIN Code */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
-				limsBoldFields.getBoldBIN(), cnt);
-
-		/** set note for BOLD URI */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)",
-				"BOLD URI (Bold)", limsBoldFields.getBoldURI(), cnt);
-
 		/** set note for GenBank URI */
 		try {
 			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -429,49 +408,77 @@ public class LimsReadDataFromBold extends DocumentAction {
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"NumberOfImagesCode_Bold", "N images (Bold)",
 				"N images (Bold)", limsBoldFields.getNumberOfImagesBold(), cnt);
+
+		/** set note for BoldProjectID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)",
+				"BOLD proj-ID (Bold)", limsBoldFields.getBoldProjectID(), cnt);
+
+		/** set note for FieldID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
+				limsBoldFields.getFieldID(), cnt);
+
+		/** set note for BOLD BIN Code */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
+				limsBoldFields.getBoldBIN(), cnt);
+
+		/** set note for BOLD URI */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)",
+				"BOLD URI (Bold)", limsBoldFields.getBoldURI(), cnt);
+
 		logger.info("Done with adding notes to the document");
 	}
 
 	/* Set value to variable */
 	private void setNotesThatMatchRegistrationNumber(String boldID,
-			String numberOfImagesBold) {
+			String numberOfImagesBold, String boldProjectID, String fieldID,
+			String boldBIN, String boldURI) {
 
 		logger.info("Match Bold record only on registrationnumber.");
 
 		limsBoldFields.setBoldID(boldID);
 		limsBoldFields.setNumberOfImagesBold(numberOfImagesBold);
+		limsBoldFields.setBoldProjectID(boldProjectID);
+		limsBoldFields.setFieldID(fieldID);
+		limsBoldFields.setBoldBIN(boldBIN);
+		limsBoldFields.setBoldURI(boldURI);
 
 		logger.info("Bold-ID: " + limsBoldFields.getBoldID());
 		logger.info("Number of Images Bold: "
 				+ limsBoldFields.getNumberOfImagesBold());
+		logger.info("BoldProjectID: " + limsBoldFields.getBoldProjectID());
+		logger.info("FieldID: " + limsBoldFields.getFieldID());
+		logger.info("BoldBIN: " + limsBoldFields.getBoldBIN());
+		logger.info("BoldURI: " + limsBoldFields.getBoldURI());
 
 	}
 
 	/* Set value to variable */
 	private void setNotesThatMatchRegistrationNumberAndMarker(
 			String nucleotideLength, String tracebestandPresence,
-			String genBankID, String boldProjectID, String fieldID,
-			String boldBIN, String boldURI) {
+			String genBankID) {
 
 		logger.info("Match Bold record on registrationnumber and marker.");
 
 		limsBoldFields.setNucleotideLength(nucleotideLength);
 		limsBoldFields.setTraceFilePresence(tracebestandPresence);
 		limsBoldFields.setGenBankID(genBankID);
-		limsBoldFields.setBoldProjectID(boldProjectID);
-		limsBoldFields.setFieldID(fieldID);
-		limsBoldFields.setBoldBIN(boldBIN);
-		limsBoldFields.setBoldURI(boldURI);
 
 		logger.info("Nucleotide length: "
 				+ limsBoldFields.getNucleotideLength());
 		logger.info("TraceFile Presence: "
 				+ limsBoldFields.getTraceFilePresence());
 		logger.info("GenBankID: " + limsBoldFields.getGenBankID());
-		logger.info("BoldProjectID: " + limsBoldFields.getBoldProjectID());
-		logger.info("FieldID: " + limsBoldFields.getFieldID());
-		logger.info("BoldBIN: " + limsBoldFields.getBoldBIN());
-		logger.info("BoldURI: " + limsBoldFields.getBoldURI());
+		try {
+			logger.info("GenBankUri: "
+					+ limsImporterUtil.getPropValues("boldurigenbank")
+					+ limsBoldFields.getGenBankID());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
