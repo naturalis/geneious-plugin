@@ -41,6 +41,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsFileSelector fileselector = new LimsFileSelector();
 	private AnnotatedPluginDocument document;
 	private int count = 0;
 	private static final Logger logger = LoggerFactory
@@ -63,7 +64,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	@Override
 	public String[] getPermissibleExtensions() {
-		return new String[] { "ab1", "abi" };
+		return new String[] { "ab1", "abi", "fas" };
 	}
 
 	@Override
@@ -71,6 +72,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
+		String extractAb1FastaFileName = "";
 		ArrayList<Integer> listcnt = new ArrayList<Integer>();
 
 		listcnt.add(cnt++);
@@ -78,6 +80,13 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		if (!ReadGeneiousFieldsValues.getFileNameFromGeneiousDatabase(
 				file.getName()).equals(file.getName())) {
+
+			extractAb1FastaFileName = file.getName();
+
+			if (file.getName().contains("fas")) {
+				extractAb1FastaFileName = fileselector.readFastaContent(file,
+						extractAb1FastaFileName);
+			}
 			progressListener.setMessage("Importing sequence data");
 			List<AnnotatedPluginDocument> docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
@@ -87,7 +96,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			document = importCallback.addDocument(docs.iterator().next());
 
 			if (file.getName() != null) {
-				limsAB1Fields.setFieldValuesFromAB1FileName(file.getName());
+				limsAB1Fields
+						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
 
 				logger.info("----------------------------S T A R T ---------------------------------");
 				logger.info("Start extracting value from file: "

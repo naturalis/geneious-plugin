@@ -31,6 +31,7 @@ public class LimsFileSelector {
 	private String csvPath = "";
 	private String fastaPath = "";
 	private String fileSelected = "";
+	public File fileSelect = null;
 
 	/*
 	 * public String loadFile(Frame f, String title, String defDir, String
@@ -60,6 +61,7 @@ public class LimsFileSelector {
 			logger.info("You chose to open this CSV file: "
 					+ chooser.getSelectedFile().getAbsolutePath());
 			fileMap = chooser.getCurrentDirectory();
+			fileSelect = fileMap.getAbsoluteFile();
 			fileSelected = fileMap.getAbsolutePath() + fileMap.separator
 					+ chooser.getSelectedFile().getName();
 			break;
@@ -76,6 +78,11 @@ public class LimsFileSelector {
 		}
 		return fileSelected;
 
+	}
+
+	private File getSelectedFile() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public String loadFastaFile(String fileName) throws FileNotFoundException {
@@ -117,6 +124,25 @@ public class LimsFileSelector {
 			e.printStackTrace();
 		}
 		return currentName;
+	}
 
+	public String readFastaContent(File file, String fastafileName)
+			throws FileNotFoundException {
+		BufferedReader in = new BufferedReader(new FileReader(file));
+		String line;
+		try {
+			line = in.readLine();
+			if (line.startsWith(">")) {
+				fastafileName = line.substring(1);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fastafileName;
 	}
 }
