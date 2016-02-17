@@ -1,7 +1,6 @@
 package nl.naturalis.lims2.oaipmh;
 
-import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.XML_SERIALISABLE_ROOT_ELEMENT;
-import nl.naturalis.lims2.oaipmh.XMLSerialisableRootElement.Field;
+import java.util.List;
 
 /**
  * Models the contents of the plugin_document_xml column in case the root
@@ -10,38 +9,88 @@ import nl.naturalis.lims2.oaipmh.XMLSerialisableRootElement.Field;
  * @author Ayco Holleman
  *
  */
-public class XMLSerialisableRootElement extends PluginDocumentData<Field> {
+public class XMLSerialisableRootElement extends PluginDocument {
 
-	public static enum Field {
-		name,
-		description,
-		charSequence,
-		finishedAddingOutputDocuments(Boolean.class),
-		inputDocument(String[].class),
-		outputDocument,
-		operationId;
-
-		private final Class<?> type;
-
-		private Field()
-		{
-			this.type = String.class;
-		}
-
-		private Field(Class<?> type)
-		{
-			this.type = type;
-		}
-
-		public Class<?> getType()
-		{
-			return type;
-		}
-	}
+	private String name;
+	private String description;
+	private String charSequence;
+	private Boolean finishedAddingOutputDocuments;
+	private List<String> inputDocuments;
+	private String outputDocument;
+	private String operationId;
 
 	public XMLSerialisableRootElement()
 	{
-		super(XML_SERIALISABLE_ROOT_ELEMENT, Field.class);
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public String getCharSequence()
+	{
+		return charSequence;
+	}
+
+	public void setCharSequence(String charSequence)
+	{
+		this.charSequence = charSequence;
+	}
+
+	public Boolean getFinishedAddingOutputDocuments()
+	{
+		return finishedAddingOutputDocuments;
+	}
+
+	public void setFinishedAddingOutputDocuments(Boolean finishedAddingOutputDocuments)
+	{
+		this.finishedAddingOutputDocuments = finishedAddingOutputDocuments;
+	}
+
+	public List<String> getInputDocuments()
+	{
+		return inputDocuments;
+	}
+
+	public void setInputDocuments(List<String> inputDocuments)
+	{
+		this.inputDocuments = inputDocuments;
+	}
+
+	public String getOutputDocument()
+	{
+		return outputDocument;
+	}
+
+	public void setOutputDocument(String outputDocument)
+	{
+		this.outputDocument = outputDocument;
+	}
+
+	public String getOperationId()
+	{
+		return operationId;
+	}
+
+	public void setOperationId(String operationId)
+	{
+		this.operationId = operationId;
 	}
 
 }

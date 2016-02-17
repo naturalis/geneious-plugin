@@ -36,6 +36,12 @@ import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 import org.openarchives.oai._2.ResumptionTokenType;
 
+/**
+ * Abstract base class for handlers for the ListRecords protocol request.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public abstract class ListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
@@ -149,13 +155,6 @@ public abstract class ListRecordsHandler {
 		finally {
 			disconnect(conn);
 		}
-		Collections.sort(records, new Comparator<AnnotatedDocument>() {
-			@Override
-			public int compare(AnnotatedDocument o1, AnnotatedDocument o2)
-			{
-				return (int) (o1.getModified() - o2.getModified());
-			}
-		});
 		return records;
 	}
 

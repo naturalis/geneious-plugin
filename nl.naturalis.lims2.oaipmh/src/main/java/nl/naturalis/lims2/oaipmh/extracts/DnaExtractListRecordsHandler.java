@@ -1,6 +1,5 @@
 package nl.naturalis.lims2.oaipmh.extracts;
 
-import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.XML_SERIALISABLE_ROOT_ELEMENT;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.createResponseSkeleton;
 import static nl.naturalis.oaipmh.api.util.OAIPMHUtil.dateTimeFormatter;
 import static nl.naturalis.oaipmh.api.util.ObjectFactories.oaiFactory;
@@ -103,10 +102,9 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 		Sequencing seq = new Sequencing();
 		seq.setSequencingStaff(notes.get(Field.SequencingStaffCode_FixedValue));
 		seq.setAmplificationStaff(notes.get(Field.AmplicificationStaffCode_FixedValue));
-		if (ad.getPluginDocumentData().getRootElement() == XML_SERIALISABLE_ROOT_ELEMENT) {
-			XMLSerialisableRootElement e = (XMLSerialisableRootElement) ad.getPluginDocumentData();
-			String name = (String) e.get(XMLSerialisableRootElement.Field.name);
-			seq.setConsensusSequenceID(name);
+		if (ad.getPluginDocument() instanceof XMLSerialisableRootElement) {
+			XMLSerialisableRootElement e = (XMLSerialisableRootElement) ad.getPluginDocument();
+			seq.setConsensusSequenceID(e.getName());
 		}
 		seq.setConsensusSequenceLength(notes.get(Field.NucleotideLengthCode_Bold));
 		seq.setConsensusSequenceQuality("???? (to be determined)");

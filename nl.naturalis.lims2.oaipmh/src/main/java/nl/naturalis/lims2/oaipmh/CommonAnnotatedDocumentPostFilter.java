@@ -1,8 +1,5 @@
 package nl.naturalis.lims2.oaipmh;
 
-import static nl.naturalis.lims2.oaipmh.DefaultAlignmentDocument.Field.is_contig;
-import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.DEFAULT_ALIGNMENT_DOCUMENT;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,7 +14,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPostFilter {
 
-	private static final Logger logger = LogManager.getLogger(CommonAnnotatedDocumentPostFilter.class);
+	private static final Logger logger = LogManager
+			.getLogger(CommonAnnotatedDocumentPostFilter.class);
 
 	public CommonAnnotatedDocumentPostFilter()
 	{
@@ -26,7 +24,7 @@ public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPost
 	@Override
 	public boolean accept(AnnotatedDocument ad)
 	{
-		if (ad.getDocument() == null || ad.getPluginDocumentData() == null) {
+		if (ad.getDocument() == null || ad.getPluginDocument() == null) {
 			/*
 			 * Caused by invalid XML, but this is already logged the
 			 * AnnotatedDocumentFactory.
@@ -38,9 +36,9 @@ public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPost
 				logger.debug("Record discarded: no usable <note> elements");
 			return false;
 		}
-		if (ad.getPluginDocumentData().getRootElement() == DEFAULT_ALIGNMENT_DOCUMENT) {
-			DefaultAlignmentDocument dad = (DefaultAlignmentDocument) ad.getPluginDocumentData();
-			if (dad.get(is_contig) == Boolean.FALSE) {
+		if (ad.getPluginDocument() instanceof DefaultAlignmentDocument) {
+			DefaultAlignmentDocument dad = (DefaultAlignmentDocument) ad.getPluginDocument();
+			if (dad.isContig() == null || dad.isContig() == Boolean.FALSE) {
 				if (logger.isDebugEnabled())
 					logger.debug("Record discarded: <DefaultAlignmentDocument> only considered when is_contig=\"true\"");
 				return false;

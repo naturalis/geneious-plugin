@@ -74,6 +74,11 @@ public class DocumentNotes {
 
 	private EnumMap<Field, String> data = new EnumMap<>(Field.class);
 
+	public int count()
+	{
+		return data.size();
+	}
+
 	/**
 	 * Whether or not the XML in the document_xml column or plugin_document_xml
 	 * column contained the specified element or attribute.

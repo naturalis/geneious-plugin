@@ -14,7 +14,7 @@ public class AnnotatedDocument {
 	private String urn;
 	private int referenceCount;
 	private Document document;
-	private PluginDocumentData<?> pluginDocumentData;
+	private PluginDocument pluginDocument;
 
 	public int getId()
 	{
@@ -76,14 +76,14 @@ public class AnnotatedDocument {
 		this.document = document;
 	}
 
-	public PluginDocumentData<?> getPluginDocumentData()
+	public PluginDocument getPluginDocument()
 	{
-		return pluginDocumentData;
+		return pluginDocument;
 	}
 
-	public void setPluginDocumentData(PluginDocumentData<?> pluginDocumentData)
+	public void setPluginDocument(PluginDocument pluginDocument)
 	{
-		this.pluginDocumentData = pluginDocumentData;
+		this.pluginDocument = pluginDocument;
 	}
 
 }
