@@ -11,10 +11,13 @@ public class LimsCRSFields {
 
 	private String registratienummer;
 	private String phylum;
-	private String classification;
+	private String subclass;
+	private String klasse;
+	private String suborder;
 	private String order;
 	private String family;
 	private String subFamily;
+	private String superFamily;
 	private String genus;
 	private String taxon;
 	private String determinator;
@@ -31,6 +34,39 @@ public class LimsCRSFields {
 	private String longitudeDecimal;
 	private String Height;
 	private String extractIDfileName;
+	private String tribe;
+
+	public String getSubFamily() {
+		return subFamily;
+	}
+
+	public void setSubFamily(String subFamily) {
+		this.subFamily = subFamily;
+	}
+
+	public String getTribe() {
+		return tribe;
+	}
+
+	public void setTribe(String tribe) {
+		this.tribe = tribe;
+	}
+
+	public String getSuborder() {
+		return suborder;
+	}
+
+	public void setSuborder(String suborder) {
+		this.suborder = suborder;
+	}
+
+	public String getSubclass() {
+		return subclass;
+	}
+
+	public void setSubclass(String subclass) {
+		this.subclass = subclass;
+	}
 
 	public String getExtractIDfileName() {
 		return extractIDfileName;
@@ -56,12 +92,12 @@ public class LimsCRSFields {
 		this.phylum = phylum;
 	}
 
-	public String getClassification() {
-		return classification;
+	public String getKlasse() {
+		return klasse;
 	}
 
-	public void setClassification(String classification) {
-		this.classification = classification;
+	public void setKlasse(String klasse) {
+		this.klasse = klasse;
 	}
 
 	public String getOrder() {
@@ -80,12 +116,12 @@ public class LimsCRSFields {
 		this.family = family;
 	}
 
-	public String getSubFamily() {
-		return subFamily;
+	public String getSuperFamily() {
+		return superFamily;
 	}
 
-	public void setSubFamily(String subFamily) {
-		this.subFamily = subFamily;
+	public void setSuperFamily(String superFamily) {
+		this.superFamily = superFamily;
 	}
 
 	public String getGenus() {

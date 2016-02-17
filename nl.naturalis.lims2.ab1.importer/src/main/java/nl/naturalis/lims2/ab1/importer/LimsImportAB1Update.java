@@ -4,6 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,8 +89,17 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ seq.getName());
 						msgList.add(seq.getName());
 
-						limsAB1Fields.setFieldValuesFromAB1FileName(seq
-								.getName());
+						if (seq.getName().contains("ab1")) {
+							limsAB1Fields.setFieldValuesFromAB1FileName(seq
+									.getName());
+						} else {
+							try {
+								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
+										.loadFastaFile(seq.getName()));
+							} catch (FileNotFoundException e) {
+								e.printStackTrace();
+							}
+						}
 
 						logger.info("Extract ID: "
 								+ limsAB1Fields.getExtractID());
@@ -246,12 +256,20 @@ public class LimsImportAB1Update extends DocumentAction {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("AB1-Update: "
+					String filename = "";
+					if (seq.getName().contains("ab1")) {
+						filename = "AB1";
+					} else {
+						filename = "FAS";
+					}
+					Dialogs.showMessageDialog(filename + "-Update: "
 							+ Integer.toString(msgList.size())
 							+ " documents are update." + "\n"
 							+ msgList.toString());
-					logger.info("AB1-Update: Total imported document(s): "
+					logger.info(filename
+							+ "-Update: Total imported document(s): "
 							+ msgList.toString());
+
 					msgList.clear();
 				}
 			});

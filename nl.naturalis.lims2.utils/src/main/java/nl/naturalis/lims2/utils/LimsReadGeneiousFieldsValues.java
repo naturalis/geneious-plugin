@@ -248,6 +248,67 @@ public class LimsReadGeneiousFieldsValues {
 		return truefalse;
 	}
 
+	public String getFastaIDForSamples_GeneiousDB(String extractid)
+			throws IOException {
+
+		boolean truefalse = false;
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		url = limsImporterUtil.getPropValues("url");
+		user = limsImporterUtil.getPropValues("user");
+		password = limsImporterUtil.getPropValues("password");
+
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.name"
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name like ?";
+
+			con = DriverManager.getConnection(url, user, password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, "%" + extractid + "%");
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+				logger.info("Extract ID: " + result
+						+ " already exsist in the geneious database.");
+
+				if (rs.wasNull())
+					truefalse = false;
+				else
+					truefalse = true;
+			}
+
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+
+		return result;
+	}
+
 	/** Contig file opvragen */
 	// public String getContigFilenameFromGeneiousDatabase(String filename)
 	// throws IOException {

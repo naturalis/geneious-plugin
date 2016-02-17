@@ -29,7 +29,6 @@ import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.GeneiousService;
-import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import com.opencsv.CSVReader;
 
 /**
@@ -54,12 +53,16 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadDataFromSamples.class);
+	private Object documentFileName = "";
+	private Object result = "";
 
 	public int importCounter;
 	private int importTotal;
 	private String[] record = null;
 	private String ID = "";
 	private String fileSelected = "";
+	private final String noteCode = "DocumentNoteUtilities-Extract ID (Seq)";
+	private final String fieldName = "ExtractIDCode_Seq";
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -70,10 +73,127 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
+		// List<GeneiousService> list = new ArrayList<GeneiousService>();
+		//
+		// if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+		// EventQueue.invokeLater(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// Dialogs.showMessageDialog("Select all documents");
+		// return;
+		// }
+		// });
+		// }
+		//
+		// if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+		//
+		// logger.info("Start updating selected document(s).");
+		// fileSelected = fcd.loadSelectedFile();
+		// try {
+		// int numberImportedSoFar = 0;
+		//
+		// ProgressListener progressListener = null;
+		//
+		// /** Add selected documents to a list. */
+		// docs = DocumentUtilities.getSelectedDocuments();
+		//
+		// if (fileSelected == null) {
+		// return;
+		// }
+		//
+		// msgUitvalList.add("Filename: " + fileSelected + "\n");
+		//
+		// long totalLength = fileSelected.length();
+		// double lengthPerPercent = 100.0 / totalLength;
+		// long readLength = 0;
+		//
+		// for (int cnt = 0; cnt < docs.size(); cnt++) {
+		//
+		// logger.info("-------------------------- S T A R T --------------------------");
+		// logger.info("Start Reading data from a samples file.");
+		//
+		// seq = (SequenceDocument) docs.get(cnt).getDocument();
+		//
+		// readLength += seq.getSequenceLength();
+		// progressListener.setMessage("Importing sequence data");
+		//
+		// documentFileName = annotatedPluginDocuments[cnt]
+		// .getFieldValue("cache_name");
+		//
+		// /* Get file name from the document(s) */
+		// result = ReadGeneiousFieldsValues
+		// .readValueFromAnnotatedPluginDocument(docs
+		// .iterator().next(), "importedFrom",
+		// "filename");
+		//
+		// /* Check of the filename contain "FAS" extension */
+		// if (result.toString().contains("fas")) {
+		// extractIDfileName = getExtractIDFromAB1FileName((String)
+		// documentFileName);
+		// } else {
+		// /* get AB1 filename */
+		// extractIDfileName = getExtractIDFromAB1FileName(seq
+		// .getName());
+		// }
+		// msgList.add(extractIDfileName);
+		//
+		// readLength += cnt;
+		// progressListener.setProgress(((double) readLength)
+		// / totalLength);
+		// // documents = annotatedPluginDocuments;
+		// setSamplesNotes(annotatedPluginDocuments, cnt);
+		//
+		// if (readLength % 1000 == 0) {
+		// progressListener.setMessage(String.format(
+		// "Imported %,d", numberImportedSoFar));
+		// }
+		//
+		// logger.info("Done with adding notes to the document");
+		// importCounter = msgList.size();
+		// }
+		// } catch (DocumentOperationException e) {
+		// e.printStackTrace();
+		// }
+		// logger.info("--------------------------------------------------------");
+		// logger.info("Total of document(s) updated: " + docs.size());
+		//
+		// /* Set for creating dummy files */
+		// setExtractIDFromSamplesSheet(fileSelected);
+		//
+		// // }
+		//
+		// logger.info("-------------------------- E N D --------------------------");
+		// logger.info("Done with updating the selected document(s). ");
+		//
+		// EventQueue.invokeLater(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// Dialogs.showMessageDialog("Sample-method: "
+		// + Integer.toString(docs.size()) + " out of "
+		// + Integer.toString(importTotal)
+		// + " documents are imported." + "\n"
+		// + msgList.toString());
+		// logger.info("Sample-method: Total imported document(s): "
+		// + msgList.toString());
+		//
+		// limsLogger.logToFile(logFileName, msgUitvalList.toString());
+		//
+		// msgList.clear();
+		// msgUitvalList.clear();
+		// verwerkingListCnt.clear();
+		// verwerkList.clear();
+		// }
+		// });
+		//
+		// }
+
+		performOperation(annotatedPluginDocuments);
+	}
+
+	public void performOperation(AnnotatedPluginDocument[] documents) {
 		List<GeneiousService> list = new ArrayList<GeneiousService>();
-		list = PluginUtilities.getGeneiousServices();
-		System.out.println(list.toString());
-		logger.info(list.toString());
 
 		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
@@ -91,27 +211,56 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			logger.info("Start updating selected document(s).");
 			fileSelected = fcd.loadSelectedFile();
 			try {
-				/** Add selected documents to a list. */
+				// int numberImportedSoFar = 0;
 
+				/** Add selected documents to a list. */
 				docs = DocumentUtilities.getSelectedDocuments();
+
 				if (fileSelected == null) {
 					return;
 				}
 
 				msgUitvalList.add("Filename: " + fileSelected + "\n");
 
+				// int totalLength = documents.length;
+
+				// progress.setTitle(extractIDfileName);
+				// progress.setMessage("Importing sequence data");
+
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					logger.info("-------------------------- S T A R T --------------------------");
 					logger.info("Start Reading data from a samples file.");
 
+					// progress.setProgress(((double) cnt) / totalLength);
+
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
-					extractIDfileName = getExtractIDFromAB1FileName(seq
-							.getName());
 
-					msgList.add(seq.getName());
+					documentFileName = documents[cnt]
+							.getFieldValue("cache_name");
 
-					setSamplesNotes(annotatedPluginDocuments, cnt);
+					/* Get file name from the document(s) */
+					result = ReadGeneiousFieldsValues
+							.readValueFromAnnotatedPluginDocument(docs
+									.iterator().next(), "importedFrom",
+									"filename");
+
+					/* Check of the filename contain "FAS" extension */
+					if (result.toString().contains("fas")) {
+						extractIDfileName = getExtractIDFromAB1FileName((String) documentFileName);
+					} else {
+						/* get AB1 filename */
+						extractIDfileName = getExtractIDFromAB1FileName(seq
+								.getName());
+					}
+					msgList.add(extractIDfileName);
+
+					setSamplesNotes(documents, cnt);
+					// numberImportedSoFar++;
+					// if (numberImportedSoFar % 1000 == 0) {
+					// progress.setMessage(String.format("Imported %,d",
+					// numberImportedSoFar));
+					// }
 
 					logger.info("Done with adding notes to the document");
 					importCounter = msgList.size();
@@ -152,12 +301,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			});
 
 		}
+
 	}
 
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
 		readDataFromExcel(fileSelected);
-
 		/** set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
 				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
@@ -251,9 +400,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 
 					ID = "e" + record[3];
-					if (!ReadGeneiousFieldsValues
-							.getExtractIDFromSamples_GeneiousDB(ID)) {
 
+					String dummyFile = ReadGeneiousFieldsValues
+							.getFastaIDForSamples_GeneiousDB(ID);
+					if (dummyFile.trim() != "") {
+						dummyFile = getExtractIDFromAB1FileName(dummyFile);
+					}
+					if (!dummyFile.equals(ID)) {
 						limsDummySeq.createDummySampleSequence(ID, ID,
 								record[0], record[2], record[5], record[4],
 								record[1]);
@@ -308,7 +461,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 						limsExcelFields.setRegistrationNumber(record[4]);
 						limsExcelFields.setTaxonNaam(record[5]);
-						// limsExcelFields.setSubSample(record[0]);
 
 						logger.info("Extract-ID: "
 								+ limsExcelFields.getExtractID());
@@ -364,8 +516,25 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	 */
 	private String getExtractIDFromAB1FileName(String fileName) {
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
+		String[] underscore = null;
 		logger.info("Document Filename: " + fileName);
-		String[] underscore = StringUtils.split(fileName, "_");
+		if (fileName.contains("_") && fileName.contains("ab1")) {
+			underscore = StringUtils.split(fileName, "_");
+		} else {
+			underscore = StringUtils.split(fileName, "_");
+		}
 		return underscore[0];
+	}
+
+	private boolean matchExtractId(
+			AnnotatedPluginDocument annotatedPluginDocument, String extractID) {
+
+		Object fieldValue = ReadGeneiousFieldsValues
+				.readValueFromAnnotatedPluginDocument(annotatedPluginDocument,
+						noteCode, fieldName);
+		if (extractID.equals(fieldValue)) {
+			return true;
+		}
+		return false;
 	}
 }
