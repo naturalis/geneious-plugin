@@ -1,8 +1,5 @@
 package nl.naturalis.lims2.oaipmh;
 
-import static nl.naturalis.lims2.oaipmh.PluginDocumentData.RootElement.DEFAULT_ALIGNMENT_DOCUMENT;
-import nl.naturalis.lims2.oaipmh.DefaultAlignmentDocument.Field;
-
 /**
  * Models the contents of the plugin_document_xml column in case the root
  * element is &lt;DefaultAlignmentDocument&gt;.
@@ -10,34 +7,22 @@ import nl.naturalis.lims2.oaipmh.DefaultAlignmentDocument.Field;
  * @author Ayco Holleman
  *
  */
-public class DefaultAlignmentDocument extends PluginDocumentData<Field> {
+public class DefaultAlignmentDocument extends PluginDocument {
 
-	public static final String OPERATION_DE_NOVO_ASSEMBLY = "com.biomatters.plugins.alignment.AssemblyOperation_Denovo";
-
-	public static enum Field {
-		is_contig(Boolean.class);
-
-		private final Class<?> type;
-
-		private Field()
-		{
-			this.type = String.class;
-		}
-
-		private Field(Class<?> type)
-		{
-			this.type = type;
-		}
-
-		public Class<?> getType()
-		{
-			return type;
-		}
-	}
+	private Boolean contig;
 
 	public DefaultAlignmentDocument()
 	{
-		super(DEFAULT_ALIGNMENT_DOCUMENT, Field.class);
+	}
+
+	public Boolean isContig()
+	{
+		return contig;
+	}
+
+	public void setContig(Boolean contig)
+	{
+		this.contig = contig;
 	}
 
 }
