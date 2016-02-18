@@ -222,17 +222,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 				msgUitvalList.add("Filename: " + fileSelected + "\n");
 
-				// int totalLength = documents.length;
-
-				// progress.setTitle(extractIDfileName);
-				// progress.setMessage("Importing sequence data");
-
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
 					logger.info("-------------------------- S T A R T --------------------------");
 					logger.info("Start Reading data from a samples file.");
-
-					// progress.setProgress(((double) cnt) / totalLength);
 
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
@@ -256,11 +249,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					msgList.add(extractIDfileName);
 
 					setSamplesNotes(documents, cnt);
-					// numberImportedSoFar++;
-					// if (numberImportedSoFar % 1000 == 0) {
-					// progress.setMessage(String.format("Imported %,d",
-					// numberImportedSoFar));
-					// }
 
 					logger.info("Done with adding notes to the document");
 					importCounter = msgList.size();

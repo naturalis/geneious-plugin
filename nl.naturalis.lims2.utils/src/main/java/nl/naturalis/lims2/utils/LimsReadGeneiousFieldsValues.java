@@ -382,4 +382,116 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	public String getIDFromTableAnnotatedtDocument(Object filename,
+			String xmlNotesName) throws IOException {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		url = limsImporterUtil.getPropValues("url");
+		user = limsImporterUtil.getPropValues("user");
+		password = limsImporterUtil.getPropValues("password");
+
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.id, a.name" + " FROM " + " ( "
+					+ " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?";
+
+			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+				logger.debug("Annotated document id : " + result);
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return result;
+	}
+
+	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
+			throws IOException {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+
+		url = limsImporterUtil.getPropValues("url");
+		user = limsImporterUtil.getPropValues("user");
+		password = limsImporterUtil.getPropValues("password");
+
+		try {
+
+			final String SQL = " DELETE FROM annotated_document"
+					+ " WHERE id =?";
+
+			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) ID);
+			pst.executeUpdate();
+			logger.debug("Delete Dummy Annotated document id : " + ID
+					+ "From tabel annotated_document ");
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+	}
+
 }
