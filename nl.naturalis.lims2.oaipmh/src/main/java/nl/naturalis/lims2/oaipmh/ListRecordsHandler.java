@@ -13,8 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +49,7 @@ public abstract class ListRecordsHandler {
 
 	protected List<IAnnotatedDocumentPreFilter> preFilters;
 	protected List<IAnnotatedDocumentPostFilter> postFilters;
+	protected List<IAnnotatedDocumentSetFilter> setFilters;
 
 	public ListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
@@ -60,6 +59,8 @@ public abstract class ListRecordsHandler {
 		preFilters.add(new CommonAnnotatedDocumentPreFilter());
 		postFilters = new ArrayList<>(4);
 		postFilters.add(new CommonAnnotatedDocumentPostFilter());
+		setFilters = new ArrayList<>(4);
+		setFilters.add(new CommonAnnotatedDocumentSetFilter());
 	}
 
 	public OAIPMHtype handleRequest() throws RepositoryException, OAIPMHException
@@ -123,8 +124,7 @@ public abstract class ListRecordsHandler {
 
 	private List<AnnotatedDocument> getAnnotatedDocuments() throws RepositoryException
 	{
-		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
-		List<AnnotatedDocument> records = new ArrayList<>();
+		List<AnnotatedDocument> records = null;
 		String sql = getSQLQuery();
 		Connection conn = null;
 		try {
@@ -132,28 +132,40 @@ public abstract class ListRecordsHandler {
 			Statement stmt = conn.createStatement();
 			logger.debug("Executing query:\n" + sql);
 			ResultSet rs = stmt.executeQuery(sql.toString());
-			LOOP: while (rs.next()) {
-				if (logger.isDebugEnabled())
-					logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
-				for (IAnnotatedDocumentPreFilter preFilter : preFilters) {
-					if (!preFilter.accept(rs)) {
-						continue LOOP;
-					}
-				}
-				AnnotatedDocument record = factory.create(rs);
-				for (IAnnotatedDocumentPostFilter postFilter : postFilters) {
-					if (!postFilter.accept(record)) {
-						continue LOOP;
-					}
-				}
-				records.add(record);
-			}
+			records = createAnnotatedDocuments(rs);
 		}
 		catch (SQLException e) {
 			throw new RepositoryException("Error while executing query", e);
 		}
 		finally {
 			disconnect(conn);
+		}
+		for (IAnnotatedDocumentSetFilter setFilter : setFilters) {
+			records = setFilter.filter(records);
+		}
+		return records;
+	}
+
+	private List<AnnotatedDocument> createAnnotatedDocuments(ResultSet rs) throws SQLException
+	{
+		List<AnnotatedDocument> records = new ArrayList<>(255);
+		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
+		LOOP: while (rs.next()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
+			}
+			for (IAnnotatedDocumentPreFilter preFilter : preFilters) {
+				if (!preFilter.accept(rs)) {
+					continue LOOP;
+				}
+			}
+			AnnotatedDocument record = factory.build(rs);
+			for (IAnnotatedDocumentPostFilter postFilter : postFilters) {
+				if (!postFilter.accept(record)) {
+					continue LOOP;
+				}
+			}
+			records.add(record);
 		}
 		return records;
 	}
@@ -167,20 +179,6 @@ public abstract class ListRecordsHandler {
 		ResumptionToken tokenGenerator = new ResumptionToken();
 		String token = tokenGenerator.compose(request);
 		resumptionToken.setValue(token);
-	}
-
-	private void logResultSetInfo(int resultSetSize)
-	{
-		int pageSize = getPageSize();
-		int offset = request.getPage() * pageSize;
-		int recordsToGo = resultSetSize - offset - pageSize;
-		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
-		logger.info("Records satisfying request: " + resultSetSize);
-		logger.debug("Records served per request: " + pageSize);
-		logger.debug("Remaining records: " + recordsToGo);
-		String fmt = "%s more request%s needed for full harvest";
-		String plural = requestsToGo == 1 ? "" : "s";
-		logger.info(String.format(fmt, requestsToGo, plural));
 	}
 
 	private void addRecord(AnnotatedDocument ad, ListRecordsType listRecords)
@@ -207,6 +205,20 @@ public abstract class ListRecordsHandler {
 		metadata.setAny(geneious);
 		setMetadata(geneious, ad);
 		return metadata;
+	}
+
+	private void logResultSetInfo(int resultSetSize)
+	{
+		int pageSize = getPageSize();
+		int offset = request.getPage() * pageSize;
+		int recordsToGo = resultSetSize - offset - pageSize;
+		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
+		logger.info("Records satisfying request: " + resultSetSize);
+		logger.debug("Records served per request: " + pageSize);
+		logger.debug("Remaining records: " + recordsToGo);
+		String fmt = "%s more request%s needed for full harvest";
+		String plural = requestsToGo == 1 ? "" : "s";
+		logger.info(String.format(fmt, requestsToGo, plural));
 	}
 
 	private static long getSeconds(Date date)
