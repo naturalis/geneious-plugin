@@ -9,12 +9,25 @@ import org.domainobject.util.DOMUtil;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXParseException;
 
+/**
+ * A factory for {@link Document} instances.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class DocumentFactory {
 
 	private static final Logger logger = LogManager.getLogger(DocumentFactory.class);
 
 	private static final String ERR_BAD_XML = "Error parsing {}; {}\n\n{}";
 
+	/**
+	 * Creates a new {@link Document} instance from the XML in the document_xml
+	 * column of the annotated_document table.
+	 * 
+	 * @param xml
+	 * @return
+	 */
 	public static Document createDocument(String xml)
 	{
 		if (logger.isDebugEnabled()) {

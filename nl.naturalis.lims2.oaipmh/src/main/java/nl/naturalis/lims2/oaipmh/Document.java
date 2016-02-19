@@ -2,6 +2,13 @@ package nl.naturalis.lims2.oaipmh;
 
 import java.util.List;
 
+/**
+ * Class reflecting the contents of the document_xml column within the
+ * annotated_document table.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class Document {
 
 	private DocumentClass documentClass;

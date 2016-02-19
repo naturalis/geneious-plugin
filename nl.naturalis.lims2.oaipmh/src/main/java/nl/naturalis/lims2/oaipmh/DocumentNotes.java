@@ -6,6 +6,10 @@ public class DocumentNotes {
 
 	public static enum Field {
 		/**
+		 * Flag set to "true" to indicate that CRS file has been imported.
+		 */
+		CRSCode_CRS,
+		/**
 		 * Maps to unitID for specimens; maps to associatedUnitID for DNA
 		 * extracts.
 		 */
@@ -46,6 +50,10 @@ public class DocumentNotes {
 		 * Maps to pcrPlateID for DNA extracts.
 		 */
 		PCRplateIDCode_Seq,
+		/**
+		 * Maps to consensusSequenceQuality for DNA extracts.
+		 */
+		ConsensusSeqPass_Code_Seq,
 		/**
 		 * Maps to consensusSequenceLength for DNA extracts.
 		 */
