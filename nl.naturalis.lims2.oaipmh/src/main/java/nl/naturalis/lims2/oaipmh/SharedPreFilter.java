@@ -17,15 +17,15 @@ import org.apache.logging.log4j.Logger;
  * @author Ayco Holleman
  *
  */
-public class CommonAnnotatedDocumentPreFilter implements IAnnotatedDocumentPreFilter {
+public class SharedPreFilter implements IAnnotatedDocumentPreFilter {
 
 	private static final Logger logger = LogManager
-			.getLogger(CommonAnnotatedDocumentPreFilter.class);
+			.getLogger(SharedPreFilter.class);
 
 	private static List<String> acceptableRoots = Arrays.asList("XMLSerialisableRootElement",
 			"ABIDocument", "DefaultAlignmentDocument");
 
-	public CommonAnnotatedDocumentPreFilter()
+	public SharedPreFilter()
 	{
 	}
 

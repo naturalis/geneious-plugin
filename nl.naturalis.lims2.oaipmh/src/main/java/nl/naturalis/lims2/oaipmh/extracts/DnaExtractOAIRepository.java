@@ -32,11 +32,11 @@ public class DnaExtractOAIRepository extends Lims2OAIRepository {
 		logger.info("Instantiating handler for ListRecords request");
 		DnaExtractListRecordsHandler handler = new DnaExtractListRecordsHandler(config, request);
 		OAIPMHtype oaipmh = handler.handleRequest();
-		if (logger.isDebugEnabled()) {
+		if (logger.isTraceEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 			stream(oaipmh, baos);
 			String output = new String(baos.toByteArray());
-			logger.debug("Generated OAI-PMH:\n{}", output);
+			logger.trace("Generated OAI-PMH:\n{}", output);
 		}
 		stream(oaipmh, out);
 	}

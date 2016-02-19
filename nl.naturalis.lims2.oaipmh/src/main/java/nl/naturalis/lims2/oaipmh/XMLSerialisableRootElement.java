@@ -13,7 +13,7 @@ public class XMLSerialisableRootElement extends PluginDocument {
 
 	private String name;
 	private String description;
-	private String charSequence;
+	private Boolean dummyCharSequence;
 	private Boolean finishedAddingOutputDocuments;
 	private List<String> inputDocuments;
 	private String outputDocument;
@@ -43,17 +43,17 @@ public class XMLSerialisableRootElement extends PluginDocument {
 		this.description = description;
 	}
 
-	public String getCharSequence()
+	public Boolean isDummyCharSequence()
 	{
-		return charSequence;
+		return dummyCharSequence;
 	}
 
-	public void setCharSequence(String charSequence)
+	public void setDummyCharSequence(Boolean dummyCharSequence)
 	{
-		this.charSequence = charSequence;
+		this.dummyCharSequence = dummyCharSequence;
 	}
 
-	public Boolean getFinishedAddingOutputDocuments()
+	public Boolean isFinishedAddingOutputDocuments()
 	{
 		return finishedAddingOutputDocuments;
 	}

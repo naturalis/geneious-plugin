@@ -41,6 +41,7 @@ public class AnnotatedDocumentFactory {
 	{
 		AnnotatedDocument ad = new AnnotatedDocument();
 		ad.setId(rs.getInt("id"));
+		ad.setUrn(rs.getString("urn"));
 		ad.setFolderId(rs.getInt("folder_id"));
 		ad.setModified(rs.getLong("modified"));
 		ad.setReferenceCount(rs.getInt("reference_count"));

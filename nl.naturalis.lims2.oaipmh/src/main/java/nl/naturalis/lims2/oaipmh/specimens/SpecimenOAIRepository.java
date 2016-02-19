@@ -32,10 +32,10 @@ public class SpecimenOAIRepository extends Lims2OAIRepository {
 		logger.info("Instantiating handler for ListRecords request");
 		SpecimenListRecordsHandler handler = new SpecimenListRecordsHandler(config, request);
 		OAIPMHtype oaipmh = handler.handleRequest();
-		if (logger.isDebugEnabled()) {
+		if (logger.isTraceEnabled()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
 			stream(oaipmh, baos);
-			logger.debug("Generated OAI-PMH:\n\n" + new String(baos.toByteArray()));
+			logger.trace("Generated OAI-PMH:\n\n" + new String(baos.toByteArray()));
 		}
 		stream(oaipmh, out);
 	}

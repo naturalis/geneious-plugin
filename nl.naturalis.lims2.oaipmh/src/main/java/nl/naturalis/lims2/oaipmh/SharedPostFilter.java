@@ -12,12 +12,11 @@ import org.apache.logging.log4j.Logger;
  * @author Ayco Holleman
  *
  */
-public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPostFilter {
+public class SharedPostFilter implements IAnnotatedDocumentPostFilter {
 
-	private static final Logger logger = LogManager
-			.getLogger(CommonAnnotatedDocumentPostFilter.class);
+	private static final Logger logger = LogManager.getLogger(SharedPostFilter.class);
 
-	public CommonAnnotatedDocumentPostFilter()
+	public SharedPostFilter()
 	{
 	}
 
@@ -32,15 +31,17 @@ public class CommonAnnotatedDocumentPostFilter implements IAnnotatedDocumentPost
 			return false;
 		}
 		if (ad.getDocument().getNotes() == null) {
-			if (logger.isDebugEnabled())
-				logger.debug("Record discarded: no usable <note> elements");
+			if (logger.isDebugEnabled()) {
+				logger.debug("Record discarded: document_xml column contains no usable <note> elements");
+			}
 			return false;
 		}
 		if (ad.getPluginDocument() instanceof DefaultAlignmentDocument) {
 			DefaultAlignmentDocument dad = (DefaultAlignmentDocument) ad.getPluginDocument();
 			if (dad.isContig() == null || dad.isContig() == Boolean.FALSE) {
-				if (logger.isDebugEnabled())
+				if (logger.isDebugEnabled()) {
 					logger.debug("Record discarded: <DefaultAlignmentDocument> only considered when is_contig=\"true\"");
+				}
 				return false;
 			}
 		}
