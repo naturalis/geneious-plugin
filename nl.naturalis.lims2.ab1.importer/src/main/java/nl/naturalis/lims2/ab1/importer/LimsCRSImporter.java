@@ -369,11 +369,6 @@ public class LimsCRSImporter extends DocumentAction {
 
 						LimsCRSFields.setRegistratienummer(record[0]);
 						extractRankOrClassification(record[1], record[2]);
-						// LimsCRSFields.setPhylum(record[1]);
-						// LimsCRSFields.setKlasse(record[2]);
-						// LimsCRSFields.setOrder(record[3]);
-						// LimsCRSFields.setFamily(record[4]);
-						// LimsCRSFields.setSubFamily(record[5]);
 						LimsCRSFields.setGenus(record[3]);
 						LimsCRSFields.setTaxon(record[4]);
 						LimsCRSFields.setDeterminator(record[5]);
@@ -497,35 +492,55 @@ public class LimsCRSImporter extends DocumentAction {
 
 			String[] name = StringUtils.split(nameValue, "/");
 
-			switch (forwardSlash[i].trim()) {
-			case "phylum":
+			if (forwardSlash[i].trim().equals("phylum")) {
 				LimsCRSFields.setPhylum(name[i]);
-				break;
-			case "subclass":
+			} else if (forwardSlash[i].trim().equals("subclass")) {
 				LimsCRSFields.setSubclass(name[i]);
-				break;
-			case "class":
+			} else if (forwardSlash[i].trim().equals("class")) {
 				LimsCRSFields.setKlasse(name[i]);
-				break;
-			case "suborder":
+			} else if (forwardSlash[i].trim().equals("suborder")) {
 				LimsCRSFields.setSuborder(name[i]);
-				break;
-			case "order":
+			} else if (forwardSlash[i].trim().equals("order")) {
 				LimsCRSFields.setOrder(name[i]);
-				break;
-			case "family":
+			} else if (forwardSlash[i].trim().equals("family")) {
 				LimsCRSFields.setFamily(name[i]);
-				break;
-			case "superfamily":
+			} else if (forwardSlash[i].trim().equals("superfamily")) {
 				LimsCRSFields.setSuperFamily(name[i]);
-				break;
-			case "subfamily":
+			} else if (forwardSlash[i].trim().equals("subfamily")) {
 				LimsCRSFields.setSubFamily(name[i]);
-				break;
-			case "tribe":
+			} else if (forwardSlash[i].trim().equals("tribe")) {
 				LimsCRSFields.setTribe(name[i]);
-				break;
 			}
+
+			// switch (forwardSlash[i].trim()) {
+			// case "phylum":
+			// LimsCRSFields.setPhylum(name[i]);
+			// break;
+			// case "subclass":
+			// LimsCRSFields.setSubclass(name[i]);
+			// break;
+			// case "class":
+			// LimsCRSFields.setKlasse(name[i]);
+			// break;
+			// case "suborder":
+			// LimsCRSFields.setSuborder(name[i]);
+			// break;
+			// case "order":
+			// LimsCRSFields.setOrder(name[i]);
+			// break;
+			// case "family":
+			// LimsCRSFields.setFamily(name[i]);
+			// break;
+			// case "superfamily":
+			// LimsCRSFields.setSuperFamily(name[i]);
+			// break;
+			// case "subfamily":
+			// LimsCRSFields.setSubFamily(name[i]);
+			// break;
+			// case "tribe":
+			// LimsCRSFields.setTribe(name[i]);
+			// break;
+			// }
 		}
 	}
 

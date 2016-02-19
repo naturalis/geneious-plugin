@@ -32,8 +32,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
  */
 public class LimsImportAB1Update extends DocumentAction {
 
-	// private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-
 	SequenceDocument seq;
 	LimsNotes limsNotes = new LimsNotes();
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
@@ -82,7 +80,6 @@ public class LimsImportAB1Update extends DocumentAction {
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
-					System.out.println("Sequence name: " + seq.getName());
 
 					if (seq.getName() != null && seq.getName().contains("_")) {
 						logger.info("Start extracting value from file: "
@@ -147,6 +144,16 @@ public class LimsImportAB1Update extends DocumentAction {
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+
+						limsNotes.setNoteDropdownFieldToFileName(
+								annotatedPluginDocuments,
+								limsNotes.ConsensusSeqPass,
+								"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
+								"Pass (Seq)", null, cnt);
+
+						limsNotes.setNoteTrueFalseFieldToFileName(
+								annotatedPluginDocuments, "CRSCode_Seq",
+								"CRS (Seq)", "CRS (Seq)", true, cnt);
 					}
 
 					logger.info("Done with adding notes to the document");

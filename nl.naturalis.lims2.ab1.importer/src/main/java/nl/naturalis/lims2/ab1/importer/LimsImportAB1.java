@@ -6,27 +6,22 @@ package nl.naturalis.lims2.ab1.importer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogList;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.databaseservice.QueryField;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.documents.URN;
-import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
@@ -50,7 +45,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public static List<DocumentField> displayFields;
 	public static QueryField[] searchFields;
 	private String logFileName = "";
-	private LimsLogList limsLogList = new LimsLogList();
+	// private LimsLogList limsLogList = new LimsLogList();
 	int cnt = 0;
 
 	public LimsImportAB1() {
@@ -72,6 +67,29 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
+		/* Get the filename and extract the ID */
+		String[] ab1FileName = StringUtils.split(file.getName(), "_");
+
+		/* Check if Dummy file exists in the database */
+		String dummyFilename = ReadGeneiousFieldsValues
+				.getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
+						"//document/hiddenFields/cache_name");
+
+		/* if exists then get the ID from the dummy file */
+		String annotatedDocumentID = ReadGeneiousFieldsValues
+				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
+						"//document/hiddenFields/cache_name");
+		/*
+		 * if filename is equal to the dummy file name then delete the dummy
+		 * record.
+		 */
+		if (dummyFilename.equals(ab1FileName[0] + ".dum")) {
+			ReadGeneiousFieldsValues
+					.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
+			logger.info("Filename: " + ab1FileName[0]
+					+ ".dum has been deleted from table annotated_document");
+		}
+
 		String extractAb1FastaFileName = "";
 		ArrayList<Integer> listcnt = new ArrayList<Integer>();
 
@@ -88,12 +106,19 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						extractAb1FastaFileName);
 			}
 			progressListener.setMessage("Importing sequence data");
+
+			// List<DocumentFileImporter> ab1Docs =
+			// PluginUtilities.importDocumentsToDatabase(file, arg1, arg2)
 			List<AnnotatedPluginDocument> docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
 
+			progressListener.setProgress(0, 10);
+			System.out.println("Database Services: "
+					+ PluginUtilities.getWritableDatabaseServiceRoots());
+
 			count += docs.size();
 
-			document = importCallback.addDocument(docs.iterator().next());
+			document = importCallback.addDocument(docs.listIterator().next());
 
 			if (file.getName() != null) {
 				limsAB1Fields
@@ -148,40 +173,58 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
+
+				limsNotes.setImportConsensusSeqPassNotes(document,
+						limsNotes.ConsensusSeqPass,
+						"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
+						"Pass (Seq)", null);
+
+				limsNotes.setImportTrueFalseNotes(document, "CRSCode_Seq",
+						"CRS (Seq)", "CRS (Seq)", true);
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
-			logger.info("Done with extracting Ab1 file name. ");
-		} else {
-
-			String dummyName = "New_Sequence_" + file.getName();
-
-			limsLogList.msgUitvalList.add("Username: "
-					+ System.getProperty("user.name") + "\n");
-			limsLogList.msgUitvalList.add("Type action: Import AB1 file(s) "
-					+ "\n");
-
-			ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
-
-			NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
-					dummyName, "A new dummy Sequence", "NNNNNNNNNN",
-					new Date(), URN.generateUniqueLocalURN());
-
-			sequenceList.add(DocumentUtilities
-					.createAnnotatedPluginDocument(sequence));
-			try {
-				limsNotes.setImportNotes(sequenceList.iterator().next(),
-						"VersieCode", "Version number", "Version number", "0");
-				limsLogList.UitvalList.add("Filename: " + file.getName()
-						+ " already exists in the geneious database." + "\n");
-				logger.info("New Dummy: " + dummyName + " file added.");
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			DocumentUtilities.addGeneratedDocuments(sequenceList, false);
-
+			logger.info("Done with extracting/imported Ab1 files. ");
 		}
-		createLogFile("Import AB1 uitvallijst", limsLogList.UitvalList);
+
+		/*
+		 * EventQueue.invokeLater(new Runnable() {
+		 * 
+		 * @Override public void run() {
+		 * Dialogs.showMessageDialog(file.getName() + "\n "); } });
+		 */
+
+		// } else {
+		//
+		// String dummyName = "New_Sequence_" + file.getName();
+		//
+		// limsLogList.msgUitvalList.add("Username: "
+		// + System.getProperty("user.name") + "\n");
+		// limsLogList.msgUitvalList.add("Type action: Import AB1 file(s) "
+		// + "\n");
+		//
+		// ArrayList<AnnotatedPluginDocument> sequenceList = new
+		// ArrayList<AnnotatedPluginDocument>();
+		//
+		// NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
+		// dummyName, "A new dummy Sequence", "NNNNNNNNNN",
+		// new Date(), URN.generateUniqueLocalURN());
+		//
+		// sequenceList.add(DocumentUtilities
+		// .createAnnotatedPluginDocument(sequence));
+		// try {
+		// limsNotes.setImportNotes(sequenceList.iterator().next(),
+		// "VersieCode", "Version number", "Version number", "0");
+		// limsLogList.UitvalList.add("Filename: " + file.getName()
+		// + " already exists in the geneious database." + "\n");
+		// logger.info("New Dummy: " + dummyName + " file added.");
+		// } catch (Exception ex) {
+		// ex.printStackTrace();
+		// }
+		// DocumentUtilities.addGeneratedDocuments(sequenceList, false);
+		//
+		// }
+		// createLogFile("Import AB1 uitvallijst", limsLogList.UitvalList);
 	}
 
 	@Override
