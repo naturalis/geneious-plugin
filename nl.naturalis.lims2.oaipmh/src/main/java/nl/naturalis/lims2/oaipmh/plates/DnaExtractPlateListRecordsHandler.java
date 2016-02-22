@@ -10,7 +10,7 @@ import java.util.List;
 
 import nl.naturalis.lims2.oaipmh.AnnotatedDocument;
 import nl.naturalis.lims2.oaipmh.DocumentNotes;
-import nl.naturalis.lims2.oaipmh.DocumentNotes.Field;
+import nl.naturalis.lims2.oaipmh.DocumentNotes.Note;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPostFilter;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPreFilter;
 import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
@@ -60,7 +60,7 @@ class DnaExtractPlateListRecordsHandler extends ListRecordsHandler {
 		DnaExtractPlate plate = new DnaExtractPlate();
 		ExtractPlateUnit unit = new ExtractPlateUnit();
 		DocumentNotes notes = ad.getDocument().getNotes();
-		unit.setInstitutePlateID(notes.get(Field.ExtractPlateNumberCode_Samples));
+		unit.setInstitutePlateID(notes.get(Note.ExtractPlateNumberCode_Samples));
 		plate.setUnit(unit);
 		return plate;
 	}

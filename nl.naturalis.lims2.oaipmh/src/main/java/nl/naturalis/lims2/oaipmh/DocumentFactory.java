@@ -65,7 +65,7 @@ public class DocumentFactory {
 			return null;
 		}
 		DocumentNotes notes = null;
-		for (DocumentNotes.Field field : DocumentNotes.Field.values()) {
+		for (DocumentNotes.Note field : DocumentNotes.Note.values()) {
 			Element e = DOMUtil.getDescendant(notesElement, field.name());
 			if (e != null) {
 				if (logger.isDebugEnabled()) {

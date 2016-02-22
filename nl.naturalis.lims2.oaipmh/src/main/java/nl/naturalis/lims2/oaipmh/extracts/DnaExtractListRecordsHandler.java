@@ -10,7 +10,7 @@ import java.util.List;
 
 import nl.naturalis.lims2.oaipmh.AnnotatedDocument;
 import nl.naturalis.lims2.oaipmh.DocumentNotes;
-import nl.naturalis.lims2.oaipmh.DocumentNotes.Field;
+import nl.naturalis.lims2.oaipmh.DocumentNotes.Note;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPostFilter;
 import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPreFilter;
 import nl.naturalis.lims2.oaipmh.Lims2OAIUtil;
@@ -78,8 +78,8 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		DnaLabProject project = new DnaLabProject();
-		project.setBatchID(notes.get(Field.ProjectPlateNumberCode_Samples));
-		project.setVersionNumber(notes.get(Field.DocumentVersionCode));
+		project.setBatchID(notes.get(Note.ProjectPlateNumberCode_Samples));
+		project.setVersionNumber(notes.get(Note.DocumentVersionCode));
 		project.setSequencing(createSequencing(ad));
 		project.setAmplification(createAmplification(ad));
 		return project;
@@ -89,10 +89,10 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		ExtractUnit unit = new ExtractUnit();
-		unit.setUnitID(notes.get(Field.ExtractIDCode_Samples));
-		unit.setAssociatedUnitID(notes.get(Field.BOLDIDCode_BOLD));
-		unit.setInstitutePlateID(notes.get(Field.ExtractPlateNumberCode_Samples));
-		unit.setPlatePosition(notes.get(Field.PlatePositionCode_Samples));
+		unit.setUnitID(notes.get(Note.ExtractIDCode_Samples));
+		unit.setAssociatedUnitID(notes.get(Note.BOLDIDCode_BOLD));
+		unit.setInstitutePlateID(notes.get(Note.ExtractPlateNumberCode_Samples));
+		unit.setPlatePosition(notes.get(Note.PlatePositionCode_Samples));
 		return unit;
 	}
 
@@ -100,13 +100,13 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		Sequencing seq = new Sequencing();
-		seq.setSequencingStaff(notes.get(Field.SequencingStaffCode_FixedValue));
-		seq.setAmplificationStaff(notes.get(Field.AmplicificationStaffCode_FixedValue));
+		seq.setSequencingStaff(notes.get(Note.SequencingStaffCode_FixedValue));
+		seq.setAmplificationStaff(notes.get(Note.AmplicificationStaffCode_FixedValue));
 		if (ad.getPluginDocument() instanceof XMLSerialisableRootElement) {
 			XMLSerialisableRootElement e = (XMLSerialisableRootElement) ad.getPluginDocument();
 			seq.setConsensusSequenceID(e.getName());
 		}
-		seq.setConsensusSequenceLength(notes.get(Field.NucleotideLengthCode_Bold));
+		seq.setConsensusSequenceLength(notes.get(Note.NucleotideLengthCode_Bold));
 		seq.setConsensusSequenceQuality("???? (to be determined)");
 		seq.setGeneticAccession(createGeneticAccession(ad));
 		return seq;
@@ -116,9 +116,9 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		GeneticAccession ga = new GeneticAccession();
-		ga.setBOLDProcessID(notes.get(Field.BOLDIDCode_BOLD));
-		ga.setGeneticAccessionNumber(notes.get(Field.GenBankIDCode_Bold));
-		ga.setGeneticAccessionNumberURI(notes.get(Field.GenBankURICode_FixedValue));
+		ga.setBOLDProcessID(notes.get(Note.BOLDIDCode_BOLD));
+		ga.setGeneticAccessionNumber(notes.get(Note.GenBankIDCode_Bold));
+		ga.setGeneticAccessionNumberURI(notes.get(Note.GenBankURICode_FixedValue));
 		return ga;
 	}
 
@@ -126,8 +126,8 @@ class DnaExtractListRecordsHandler extends ListRecordsHandler {
 	{
 		DocumentNotes notes = ad.getDocument().getNotes();
 		Amplification amp = new Amplification();
-		amp.setAmplificationStaff(notes.get(Field.AmplicificationStaffCode_FixedValue));
-		amp.setMarker(notes.get(Field.MarkerCode_Seq));
+		amp.setAmplificationStaff(notes.get(Note.AmplicificationStaffCode_FixedValue));
+		amp.setMarker(notes.get(Note.MarkerCode_Seq));
 		return amp;
 	}
 

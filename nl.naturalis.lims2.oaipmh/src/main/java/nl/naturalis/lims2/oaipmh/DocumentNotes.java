@@ -2,11 +2,26 @@ package nl.naturalis.lims2.oaipmh;
 
 import java.util.EnumMap;
 
+/**
+ * {@code DocumentNotes} instances maintain the values of all notes present in
+ * the document_xml column.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class DocumentNotes {
 
-	public static enum Field {
+	/**
+	 * Enumerates all XML elements that contain a note that might be used for
+	 * OAI-PMH generation. These elements are nested within a &lt;note&gt;
+	 * element.
+	 * 
+	 * @author Ayco Holleman
+	 *
+	 */
+	public static enum Note {
 		/**
-		 * Flag set to "true" to indicate that CRS file has been imported.
+		 * Flag set to "true" to indicate that CRS data has been imported.
 		 */
 		CRSCode_CRS,
 		/**
@@ -80,7 +95,7 @@ public class DocumentNotes {
 		AmplicificationStaffCode_FixedValue
 	}
 
-	private EnumMap<Field, String> data = new EnumMap<>(Field.class);
+	private EnumMap<Note, String> data = new EnumMap<>(Note.class);
 
 	public int count()
 	{
@@ -88,25 +103,37 @@ public class DocumentNotes {
 	}
 
 	/**
-	 * Whether or not the XML in the document_xml column or plugin_document_xml
-	 * column contained the specified element or attribute.
+	 * Whether or not the document_xml column contains the specified
+	 * &lt;note&gt; element.
 	 * 
-	 * @param field
+	 * @param note
 	 * @return
 	 */
-	public boolean isSet(Field field)
+	public boolean isSet(Note note)
 	{
-		return data.containsKey(field);
+		return data.containsKey(note);
 	}
 
-	public void set(Field field, String value)
+	/**
+	 * Set the value of the specified note.
+	 * 
+	 * @param note
+	 * @param value
+	 */
+	public void set(Note note, String value)
 	{
-		data.put(field, value);
+		data.put(note, value);
 	}
 
-	public String get(Field field)
+	/**
+	 * Get the value of the specified note.
+	 * 
+	 * @param note
+	 * @return
+	 */
+	public String get(Note note)
 	{
-		return data.get(field);
+		return data.get(note);
 	}
 
 }
