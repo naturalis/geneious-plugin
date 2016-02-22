@@ -62,8 +62,8 @@ public class AnnotatedDocumentFactory {
 
 	private static PluginDocument parsePluginDocumentXML(String xml)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("Parsing contents of column \"plugin_document_xml\"");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Parsing contents of column \"plugin_document_xml\"");
 		}
 		Element root;
 		try {

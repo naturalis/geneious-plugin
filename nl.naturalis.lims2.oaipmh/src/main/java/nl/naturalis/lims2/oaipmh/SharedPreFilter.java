@@ -19,8 +19,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class SharedPreFilter implements IAnnotatedDocumentPreFilter {
 
-	private static final Logger logger = LogManager
-			.getLogger(SharedPreFilter.class);
+	private static final Logger logger = LogManager.getLogger(SharedPreFilter.class);
 
 	private static List<String> acceptableRoots = Arrays.asList("XMLSerialisableRootElement",
 			"ABIDocument", "DefaultAlignmentDocument");
@@ -55,7 +54,9 @@ public class SharedPreFilter implements IAnnotatedDocumentPreFilter {
 			}
 		}
 		if (!ok && logger.isDebugEnabled()) {
-			logger.debug("Record discarded: Ignorable XML root in plugin_document_xml: {}", root);
+			logger.debug(
+					"Record discarded: <{}> not relevant for OAI-PMH service (see plugin_document_xml column)",
+					root);
 		}
 		return ok;
 	}

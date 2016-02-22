@@ -30,8 +30,8 @@ public class DocumentFactory {
 	 */
 	public static Document createDocument(String xml)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("Parsing contents of column \"document_xml\"");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Parsing contents of column \"document_xml\"");
 		}
 		Element root;
 		try {
@@ -68,8 +68,8 @@ public class DocumentFactory {
 		for (DocumentNotes.Note field : DocumentNotes.Note.values()) {
 			Element e = DOMUtil.getDescendant(notesElement, field.name());
 			if (e != null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Found document note for {}", field.name());
+				if (logger.isTraceEnabled()) {
+					logger.trace("Found document note for {}", field.name());
 				}
 				if (notes == null) {
 					notes = new DocumentNotes();

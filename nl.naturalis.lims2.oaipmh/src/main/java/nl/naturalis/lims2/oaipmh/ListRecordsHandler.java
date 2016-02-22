@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,9 @@ import org.openarchives.oai._2.ResumptionTokenType;
 public abstract class ListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
+	private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:ss:ss";
+	private static final SimpleDateFormat mysqlDateFormatter = new SimpleDateFormat(
+			MYSQL_DATE_FORMAT);
 
 	protected final ConfigObject config;
 	protected final OAIPMHRequest request;
@@ -124,10 +128,12 @@ public abstract class ListRecordsHandler {
 			 * while Date.getTime() returns the number of milliseconds since
 			 * 01-01-1970.
 			 */
-			sb.append("\n AND modified >= ").append(getSeconds(request.getFrom()));
+			String s = mysqlDateFormatter.format(request.getFrom());
+			sb.append("\n AND modified >= '").append(s).append('\'');
 		}
 		if (request.getUntil() != null) {
-			sb.append("\n AND modified <= ").append(getSeconds(request.getUntil()));
+			String s = mysqlDateFormatter.format(request.getUntil());
+			sb.append("\n AND modified <= '").append(s).append('\'');
 		}
 		return sb.toString();
 	}
@@ -140,7 +146,9 @@ public abstract class ListRecordsHandler {
 		try {
 			conn = connect(config);
 			Statement stmt = conn.createStatement();
-			logger.debug("Executing query:\n" + sql);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Executing query:\n{}", sql);
+			}
 			ResultSet rs = stmt.executeQuery(sql.toString());
 			records = createAnnotatedDocuments(rs);
 		}
@@ -243,10 +251,4 @@ public abstract class ListRecordsHandler {
 		String plural = requestsToGo == 1 ? "" : "s";
 		logger.info(String.format(fmt, requestsToGo, plural));
 	}
-
-	private static long getSeconds(Date date)
-	{
-		return (long) Math.floor(date.getTime() / 1000);
-	}
-
 }
