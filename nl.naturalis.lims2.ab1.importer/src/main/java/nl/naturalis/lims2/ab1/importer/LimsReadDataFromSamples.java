@@ -388,6 +388,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 
 					ID = "e" + record[3];
+					String plateNumber = record[2].substring(0,
+							record[2].indexOf("-"));
 
 					String dummyFile = ReadGeneiousFieldsValues
 							.getFastaIDForSamples_GeneiousDB(ID);
@@ -396,7 +398,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 					if (!dummyFile.equals(ID)) {
 						limsDummySeq.createDummySampleSequence(ID, ID,
-								record[0], record[2], record[5], record[4],
+								record[0], plateNumber, record[5], record[4],
 								record[1]);
 					}
 
@@ -439,11 +441,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 
 					ID = "e" + record[3];
+					String plateNumber = record[2].substring(0,
+							record[2].indexOf("-"));
 
 					if (ID.equals(extractIDfileName)) {
 						limsExcelFields.setProjectPlaatNummer(record[0]);
 						limsExcelFields.setPlaatPositie(record[1]);
-						limsExcelFields.setExtractPlaatNummer(record[2]);
+						limsExcelFields.setExtractPlaatNummer(plateNumber);
 						if (record[3] != null) {
 							limsExcelFields.setExtractID(ID);
 						}

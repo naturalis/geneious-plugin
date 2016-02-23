@@ -152,8 +152,8 @@ public class LimsImportAB1Update extends DocumentAction {
 								"Pass (Seq)", null, cnt);
 
 						limsNotes.setNoteTrueFalseFieldToFileName(
-								annotatedPluginDocuments, "CRSCode_Seq",
-								"CRS (Seq)", "CRS (Seq)", true, cnt);
+								annotatedPluginDocuments, "CRSCode_CRS",
+								"CRS (CRS)", "CRS (CRS)", true, cnt);
 					}
 
 					logger.info("Done with adding notes to the document");

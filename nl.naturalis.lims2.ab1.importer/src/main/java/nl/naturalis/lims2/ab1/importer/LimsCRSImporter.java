@@ -476,6 +476,18 @@ public class LimsCRSImporter extends DocumentAction {
 		Object fieldValue = readGeneiousFieldsValues
 				.readValueFromAnnotatedPluginDocument(annotatedPluginDocument,
 						noteCode, fieldName);
+		if (fieldValue == null) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Geen value gevonden. Eerst sample uitvoeren");
+					logger.info("Sample-method has not been imported. Run Sample import first ");
+
+				}
+			});
+		}
+
 		if (registrationNumber.equals(fieldValue)) {
 			return true;
 		}

@@ -107,8 +107,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			}
 			progressListener.setMessage("Importing sequence data");
 
-			// List<DocumentFileImporter> ab1Docs =
-			// PluginUtilities.importDocumentsToDatabase(file, arg1, arg2)
 			List<AnnotatedPluginDocument> docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
 
@@ -179,8 +177,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
 						"Pass (Seq)", null);
 
-				limsNotes.setImportTrueFalseNotes(document, "CRSCode_Seq",
-						"CRS (Seq)", "CRS (Seq)", true);
+				limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
+						"CRS (CRS)", "CRS (CRS)", true);
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
