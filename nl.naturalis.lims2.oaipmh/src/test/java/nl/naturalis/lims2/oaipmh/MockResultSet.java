@@ -311,7 +311,12 @@ public class MockResultSet implements ResultSet {
 	@Override
 	public int getInt(String columnLabel) throws SQLException
 	{
-		return 0;
+		return (int) data.get(columnLabel);
+	}
+
+	public void setInt(String columnLabel, int value)
+	{
+		data.put(columnLabel, value);
 	}
 
 	@Override
@@ -323,7 +328,12 @@ public class MockResultSet implements ResultSet {
 	@Override
 	public long getLong(String columnLabel) throws SQLException
 	{
-		return 0;
+		return (long) data.get(columnLabel);
+	}
+
+	public void setLong(String columnLabel, long value)
+	{
+		data.put(columnLabel, value);
 	}
 
 	@Override
@@ -473,7 +483,12 @@ public class MockResultSet implements ResultSet {
 	@Override
 	public String getString(String columnLabel) throws SQLException
 	{
-		return null;
+		return (String) data.get(columnLabel);
+	}
+
+	public void setString(String columnLabel, String value)
+	{
+		data.put(columnLabel, value);
 	}
 
 	@Override
