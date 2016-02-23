@@ -10,6 +10,15 @@ import nl.naturalis.lims2.oaipmh.IAnnotatedDocumentPreFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Implements both pre and post filtering for DNA extracts. Only the method
+ * specified by {@link IAnnotatedDocumentPreFilter} actually contains filter
+ * logic. The method specified by {@link IAnnotatedDocumentPostFilter} currently
+ * just returns {@code true}.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class DnaExtractFilter implements IAnnotatedDocumentPostFilter, IAnnotatedDocumentPreFilter {
 
 	private static final Logger logger = LogManager.getLogger(DnaExtractFilter.class);

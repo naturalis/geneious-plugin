@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class SharedSetFilter implements IAnnotatedDocumentSetFilter {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentComparator.class);
 
 	@Override

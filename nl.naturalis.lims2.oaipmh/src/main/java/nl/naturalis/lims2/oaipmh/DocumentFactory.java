@@ -65,16 +65,16 @@ public class DocumentFactory {
 			return null;
 		}
 		DocumentNotes notes = null;
-		for (DocumentNotes.Note field : DocumentNotes.Note.values()) {
-			Element e = DOMUtil.getDescendant(notesElement, field.name());
+		for (DocumentNotes.Note note : DocumentNotes.Note.values()) {
+			Element e = DOMUtil.getDescendant(notesElement, note.name());
 			if (e != null) {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Found document note for {}", field.name());
+					logger.trace("Found document note for {}", note.name());
 				}
 				if (notes == null) {
 					notes = new DocumentNotes();
 				}
-				notes.set(field, e.getTextContent());
+				notes.set(note, e.getTextContent());
 			}
 		}
 		if (logger.isDebugEnabled()) {

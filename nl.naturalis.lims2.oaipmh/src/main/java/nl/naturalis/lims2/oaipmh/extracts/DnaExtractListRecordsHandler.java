@@ -33,7 +33,13 @@ import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
 
-class DnaExtractListRecordsHandler extends ListRecordsHandler {
+/**
+ * Handles ListRecords requests for DNA extracts.
+ * 
+ * @author Ayco Holleman
+ *
+ */
+public class DnaExtractListRecordsHandler extends ListRecordsHandler {
 
 	public DnaExtractListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{

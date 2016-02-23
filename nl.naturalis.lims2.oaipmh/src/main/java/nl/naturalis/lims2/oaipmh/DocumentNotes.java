@@ -3,8 +3,14 @@ package nl.naturalis.lims2.oaipmh;
 import java.util.EnumMap;
 
 /**
- * {@code DocumentNotes} instances maintain the values of all notes present in
- * the document_xml column.
+ * A {@code DocumentNotes} instance maintains the values of all relevant notes
+ * within the document_xml column. The document_xml column may contain a
+ * &lt;notes&gt; element. The &lt;notes&gt; element contains one or more
+ * &lt;note&gt; elements. Each &lt;note&gt; element contains one child element
+ * whose name identifies the note, for example &lt;BOLDIDCode_BOLD&gt;. Not all
+ * of these child elements are relevant to the OAI-PMH generation process. Only
+ * those whose name corresponds to a {@link Note} constant are extracted from
+ * the XML.
  * 
  * @author Ayco Holleman
  *
@@ -97,6 +103,12 @@ public class DocumentNotes {
 
 	private EnumMap<Note, String> data = new EnumMap<>(Note.class);
 
+	/**
+	 * Returns the number of notes extracted from the XML in the document_xml
+	 * column.
+	 * 
+	 * @return
+	 */
 	public int count()
 	{
 		return data.size();
