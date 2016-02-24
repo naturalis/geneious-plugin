@@ -25,7 +25,7 @@ public class SharedPostFilter implements IAnnotatedDocumentPostFilter {
 	{
 		if (ad.getDocument() == null || ad.getPluginDocument() == null) {
 			/*
-			 * Caused by invalid XML, but this is already logged the
+			 * Caused by invalid XML, but this is already logged by the
 			 * AnnotatedDocumentFactory.
 			 */
 			return false;

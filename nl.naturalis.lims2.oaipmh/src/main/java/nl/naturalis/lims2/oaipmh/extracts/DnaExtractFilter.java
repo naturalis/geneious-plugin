@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 public class DnaExtractFilter implements IAnnotatedDocumentPostFilter, IAnnotatedDocumentPreFilter {
 
 	private static final Logger logger = LogManager.getLogger(DnaExtractFilter.class);
+	private static final String[] SEARCH_STRINGS = new String[] { "<ExtractIDCode_Samples>" };
 
 	public DnaExtractFilter()
 	{
@@ -32,12 +33,14 @@ public class DnaExtractFilter implements IAnnotatedDocumentPostFilter, IAnnotate
 	{
 		// Some bare-knuckle XML parsing here for fail-fast processing
 		String xml = rs.getString("document_xml");
-
-		if (xml.indexOf("<ExtractIDCode_Samples>") == -1) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Record discarded: document_xml column does not contain string \"<ExtractIDCode_Samples>\"");
+		for (String s : SEARCH_STRINGS) {
+			if (xml.indexOf(s) == -1) {
+				if (logger.isDebugEnabled()) {
+					String fmt = "Record discarded: missing \"{}\" in document_xml";
+					logger.debug(fmt, s);
+				}
+				return false;
 			}
-			return false;
 		}
 		return true;
 	}
