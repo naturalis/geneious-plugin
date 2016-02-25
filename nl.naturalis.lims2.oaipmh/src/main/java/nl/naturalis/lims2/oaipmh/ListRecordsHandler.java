@@ -44,7 +44,7 @@ import org.openarchives.oai._2.ResumptionTokenType;
 public abstract class ListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
-	private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:ss:ss";
+	private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private static final SimpleDateFormat mysqlDateFormatter = new SimpleDateFormat(
 			MYSQL_DATE_FORMAT);
 
