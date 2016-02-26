@@ -285,8 +285,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("5 Update AB1 files")
-				.setInPopupMenu(true)
+		return new GeneiousActionOptions("5 Split name").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 4.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);

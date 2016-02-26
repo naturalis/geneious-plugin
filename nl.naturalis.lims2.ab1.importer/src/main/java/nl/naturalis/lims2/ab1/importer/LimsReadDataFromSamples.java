@@ -4,11 +4,14 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -28,7 +31,6 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
-import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.opencsv.CSVReader;
 
 /**
@@ -193,103 +195,121 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	}
 
 	public void performOperation(AnnotatedPluginDocument[] documents) {
-		List<GeneiousService> list = new ArrayList<GeneiousService>();
 
-		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
+		Frame frame = new Frame();
 
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Select all documents");
-					return;
-				}
-			});
-		}
+		Object[] possibilities = { "Create Dummy", "Update Samples" };
+		String s = (String) JOptionPane.showInputDialog(frame,
+				"Choose a action:\n", "Customized Dialog",
+				JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
 
-		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-
-			logger.info("Start updating selected document(s).");
-			fileSelected = fcd.loadSelectedFile();
-			try {
-				// int numberImportedSoFar = 0;
-
-				/** Add selected documents to a list. */
-				docs = DocumentUtilities.getSelectedDocuments();
-
-				if (fileSelected == null) {
-					return;
-				}
-
-				msgUitvalList.add("Filename: " + fileSelected + "\n");
-
-				for (int cnt = 0; cnt < docs.size(); cnt++) {
-
-					logger.info("-------------------------- S T A R T --------------------------");
-					logger.info("Start Reading data from a samples file.");
-
-					seq = (SequenceDocument) docs.get(cnt).getDocument();
-
-					documentFileName = documents[cnt]
-							.getFieldValue("cache_name");
-
-					/* Get file name from the document(s) */
-					result = ReadGeneiousFieldsValues
-							.readValueFromAnnotatedPluginDocument(docs
-									.iterator().next(), "importedFrom",
-									"filename");
-
-					/* Check of the filename contain "FAS" extension */
-					if (result.toString().contains("fas")) {
-						extractIDfileName = getExtractIDFromAB1FileName((String) documentFileName);
-					} else {
-						/* get AB1 filename */
-						extractIDfileName = getExtractIDFromAB1FileName(seq
-								.getName());
-					}
-					msgList.add(extractIDfileName);
-
-					setSamplesNotes(documents, cnt);
-
-					logger.info("Done with adding notes to the document");
-					importCounter = msgList.size();
-				}
-			} catch (DocumentOperationException e) {
-				e.printStackTrace();
-			}
-			logger.info("--------------------------------------------------------");
-			logger.info("Total of document(s) updated: " + docs.size());
-
+		if ((s.equals("Create Dummy")) && (s.length() > 0)) {
 			/* Set for creating dummy files */
+			fileSelected = fcd.loadSelectedFile();
 			setExtractIDFromSamplesSheet(fileSelected);
+			return;
+		} else if (s.equals("Update Samples")) {
+			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				EventQueue.invokeLater(new Runnable() {
 
-			// }
+					@Override
+					public void run() {
 
-			logger.info("-------------------------- E N D --------------------------");
-			logger.info("Done with updating the selected document(s). ");
+						Dialogs.showMessageDialog("Select all documents");
+						return;
+					}
+				});
+			}
+			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-			EventQueue.invokeLater(new Runnable() {
+				logger.info("Start updating selected document(s).");
+				fileSelected = fcd.loadSelectedFile();
+				try {
+					// int numberImportedSoFar = 0;
 
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Sample-method: "
-							+ Integer.toString(docs.size()) + " out of "
-							+ Integer.toString(importTotal)
-							+ " documents are imported." + "\n"
-							+ msgList.toString());
-					logger.info("Sample-method: Total imported document(s): "
-							+ msgList.toString());
+					/** Add selected documents to a list. */
+					docs = DocumentUtilities.getSelectedDocuments();
 
-					limsLogger.logToFile(logFileName, msgUitvalList.toString());
+					if (fileSelected == null) {
+						return;
+					}
 
-					msgList.clear();
-					msgUitvalList.clear();
-					verwerkingListCnt.clear();
-					verwerkList.clear();
+					msgUitvalList.add("Filename: " + fileSelected + "\n");
+
+					for (int cnt = 0; cnt < docs.size(); cnt++) {
+
+						logger.info("-------------------------- S T A R T --------------------------");
+						logger.info("Start Reading data from a samples file.");
+
+						seq = (SequenceDocument) docs.get(cnt).getDocument();
+
+						documentFileName = documents[cnt]
+								.getFieldValue("cache_name");
+
+						/* Get file name from the document(s) */
+						if ((documentFileName.toString().contains("dum"))
+								|| (documentFileName.toString().contains("ab1"))) {
+
+						} else {
+							result = ReadGeneiousFieldsValues
+									.readValueFromAnnotatedPluginDocument(docs
+											.iterator().next(), "importedFrom",
+											"filename");
+						}
+
+						/* Check of the filename contain "FAS" extension */
+						if (result.toString().contains("fas")) {
+							extractIDfileName = getExtractIDFromAB1FileName((String) documentFileName);
+						} else {
+							/* get AB1 filename */
+							extractIDfileName = getExtractIDFromAB1FileName(seq
+									.getName());
+						}
+						msgList.add(extractIDfileName);
+
+						setSamplesNotes(documents, cnt);
+
+						logger.info("Done with adding notes to the document");
+						importCounter = msgList.size();
+					}
+				} catch (DocumentOperationException e) {
+					e.printStackTrace();
 				}
-			});
+				logger.info("--------------------------------------------------------");
+				logger.info("Total of document(s) updated: " + docs.size());
 
+				/* Set for creating dummy files */
+				setExtractIDFromSamplesSheet(fileSelected);
+
+				// }
+
+				logger.info("-------------------------- E N D --------------------------");
+				logger.info("Done with updating the selected document(s). ");
+
+				EventQueue.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("Sample-method: "
+								+ Integer.toString(docs.size()) + " out of "
+								+ Integer.toString(importTotal)
+								+ " documents are imported." + "\n"
+								+ msgList.toString());
+						logger.info("Sample-method: Total imported document(s): "
+								+ msgList.toString());
+
+						limsLogger.logToFile(logFileName,
+								msgUitvalList.toString());
+
+						msgList.clear();
+						msgUitvalList.clear();
+						verwerkingListCnt.clear();
+						verwerkList.clear();
+					}
+				});
+
+			}
 		}
-
 	}
 
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
@@ -512,8 +532,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		logger.info("Document Filename: " + fileName);
 		if (fileName.contains("_") && fileName.contains("ab1")) {
 			underscore = StringUtils.split(fileName, "_");
-		} else {
+		} else if (fileName.contains("_") && !fileName.contains(".")) {
 			underscore = StringUtils.split(fileName, "_");
+		} else if (fileName.contains(".") && fileName.contains("dum")) {
+			underscore = StringUtils.split(fileName, ".");
 		}
 		return underscore[0];
 	}
