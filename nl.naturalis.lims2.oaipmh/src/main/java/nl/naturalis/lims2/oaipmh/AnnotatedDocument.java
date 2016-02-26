@@ -15,6 +15,12 @@ public class AnnotatedDocument {
 	private int referenceCount;
 	private Document document;
 	private PluginDocument pluginDocument;
+	/**
+	 * This is, in fact, metadata information about the annotated_document
+	 * record, namely whether it can be dispensed (omitted) when generating an
+	 * OAI-PMH response.
+	 */
+	boolean dispensable;
 
 	public int getId()
 	{

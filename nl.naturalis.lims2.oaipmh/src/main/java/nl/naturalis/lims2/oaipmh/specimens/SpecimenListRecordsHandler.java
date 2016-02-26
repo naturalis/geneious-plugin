@@ -1,9 +1,9 @@
 package nl.naturalis.lims2.oaipmh.specimens;
 
-import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.BOLDIDCode_BOLD;
-import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.BOLDURICode_FixedValue;
-import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.NumberOfImagesCode_BOLD;
-import static nl.naturalis.lims2.oaipmh.DocumentNotes.Field.RegistrationNumberCode_Samples;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Note.BOLDIDCode_BOLD;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Note.BOLDURICode_FixedValue;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Note.NumberOfImagesCode_BOLD;
+import static nl.naturalis.lims2.oaipmh.DocumentNotes.Note.RegistrationNumberCode_Samples;
 
 import java.util.ArrayList;
 import java.util.List;

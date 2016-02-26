@@ -12,6 +12,12 @@ import org.domainobject.util.debug.BeanPrinter;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXParseException;
 
+/**
+ * A factory for {@link AnnotatedDocument} instances.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class AnnotatedDocumentFactory {
 
 	private static final Logger logger = LogManager.getLogger(AnnotatedDocumentFactory.class);
@@ -22,10 +28,20 @@ public class AnnotatedDocumentFactory {
 	{
 	}
 
-	public static AnnotatedDocument create(ResultSet rs) throws SQLException
+	/**
+	 * Creates a new {@link AnnotatedDocument} instance from record currently
+	 * pointed at by the specified {@link ResultSet}.
+	 * 
+	 * @param rs
+	 * @return
+	 * @throws SQLException
+	 */
+	@SuppressWarnings("static-method")
+	public AnnotatedDocument build(ResultSet rs) throws SQLException
 	{
 		AnnotatedDocument ad = new AnnotatedDocument();
 		ad.setId(rs.getInt("id"));
+		ad.setUrn(rs.getString("urn"));
 		ad.setFolderId(rs.getInt("folder_id"));
 		ad.setModified(rs.getLong("modified"));
 		ad.setReferenceCount(rs.getInt("reference_count"));
@@ -44,10 +60,10 @@ public class AnnotatedDocumentFactory {
 		return ad;
 	}
 
-	static PluginDocument parsePluginDocumentXML(String xml)
+	private static PluginDocument parsePluginDocumentXML(String xml)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("Parsing contents of column \"plugin_document_xml\"");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Parsing contents of column \"plugin_document_xml\"");
 		}
 		Element root;
 		try {

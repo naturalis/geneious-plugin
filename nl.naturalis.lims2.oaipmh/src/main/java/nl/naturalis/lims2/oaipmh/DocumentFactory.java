@@ -9,16 +9,29 @@ import org.domainobject.util.DOMUtil;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXParseException;
 
+/**
+ * A factory for {@link Document} instances.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class DocumentFactory {
 
 	private static final Logger logger = LogManager.getLogger(DocumentFactory.class);
 
 	private static final String ERR_BAD_XML = "Error parsing {}; {}\n\n{}";
 
+	/**
+	 * Creates a new {@link Document} instance from the XML in the document_xml
+	 * column of the annotated_document table.
+	 * 
+	 * @param xml
+	 * @return
+	 */
 	public static Document createDocument(String xml)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("Parsing contents of column \"document_xml\"");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Parsing contents of column \"document_xml\"");
 		}
 		Element root;
 		try {
@@ -52,16 +65,16 @@ public class DocumentFactory {
 			return null;
 		}
 		DocumentNotes notes = null;
-		for (DocumentNotes.Field field : DocumentNotes.Field.values()) {
-			Element e = DOMUtil.getDescendant(notesElement, field.name());
+		for (DocumentNotes.Note note : DocumentNotes.Note.values()) {
+			Element e = DOMUtil.getDescendant(notesElement, note.name());
 			if (e != null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Found document note for {}", field.name());
+				if (logger.isTraceEnabled()) {
+					logger.trace("Found document note for {}", note.name());
 				}
 				if (notes == null) {
 					notes = new DocumentNotes();
 				}
-				notes.set(field, e.getTextContent());
+				notes.set(note, e.getTextContent());
 			}
 		}
 		if (logger.isDebugEnabled()) {

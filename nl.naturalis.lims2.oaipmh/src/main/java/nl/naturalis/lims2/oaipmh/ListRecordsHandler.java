@@ -12,9 +12,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -45,21 +44,37 @@ import org.openarchives.oai._2.ResumptionTokenType;
 public abstract class ListRecordsHandler {
 
 	private static final Logger logger = LogManager.getLogger(ListRecordsHandler.class);
+	private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	private static final SimpleDateFormat mysqlDateFormatter = new SimpleDateFormat(
+			MYSQL_DATE_FORMAT);
 
 	protected final ConfigObject config;
 	protected final OAIPMHRequest request;
 
 	protected List<IAnnotatedDocumentPreFilter> preFilters;
 	protected List<IAnnotatedDocumentPostFilter> postFilters;
+	protected List<IAnnotatedDocumentSetFilter> setFilters;
 
 	public ListRecordsHandler(ConfigObject config, OAIPMHRequest request)
 	{
 		this.request = request;
 		this.config = config;
 		preFilters = new ArrayList<>(4);
-		preFilters.add(new CommonAnnotatedDocumentPreFilter());
+		preFilters.add(new SharedPreFilter());
 		postFilters = new ArrayList<>(4);
-		postFilters.add(new CommonAnnotatedDocumentPostFilter());
+		postFilters.add(new SharedPostFilter());
+		setFilters = new ArrayList<>(4);
+		/*
+		 * Currently, applying the SharedSetFilter has no effect, since it
+		 * filters out only and exactly those records whose reference_count
+		 * column equals 0 (so it's quite a bit easier and cheaper to use that
+		 * WHERE clause). However we still apply this filter when in DEBUG mode,
+		 * just to make sure we got the logic right and see no surprising stuff
+		 * when debugging.
+		 */
+		if (logger.isDebugEnabled()) {
+			setFilters.add(new SharedSetFilter());
+		}
 	}
 
 	public OAIPMHtype handleRequest() throws RepositoryException, OAIPMHException
@@ -113,41 +128,29 @@ public abstract class ListRecordsHandler {
 			 * while Date.getTime() returns the number of milliseconds since
 			 * 01-01-1970.
 			 */
-			sb.append("\n AND modified >= ").append(getSeconds(request.getFrom()));
+			String s = mysqlDateFormatter.format(request.getFrom());
+			sb.append("\n AND modified >= '").append(s).append('\'');
 		}
 		if (request.getUntil() != null) {
-			sb.append("\n AND modified <= ").append(getSeconds(request.getUntil()));
+			String s = mysqlDateFormatter.format(request.getUntil());
+			sb.append("\n AND modified <= '").append(s).append('\'');
 		}
 		return sb.toString();
 	}
 
 	private List<AnnotatedDocument> getAnnotatedDocuments() throws RepositoryException
 	{
-		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
-		List<AnnotatedDocument> records = new ArrayList<>();
+		List<AnnotatedDocument> records = null;
 		String sql = getSQLQuery();
 		Connection conn = null;
 		try {
 			conn = connect(config);
 			Statement stmt = conn.createStatement();
-			logger.debug("Executing query:\n" + sql);
-			ResultSet rs = stmt.executeQuery(sql.toString());
-			LOOP: while (rs.next()) {
-				if (logger.isDebugEnabled())
-					logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
-				for (IAnnotatedDocumentPreFilter preFilter : preFilters) {
-					if (!preFilter.accept(rs)) {
-						continue LOOP;
-					}
-				}
-				AnnotatedDocument record = factory.create(rs);
-				for (IAnnotatedDocumentPostFilter postFilter : postFilters) {
-					if (!postFilter.accept(record)) {
-						continue LOOP;
-					}
-				}
-				records.add(record);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Executing query:\n{}", sql);
 			}
+			ResultSet rs = stmt.executeQuery(sql.toString());
+			records = createAnnotatedDocuments(rs);
 		}
 		catch (SQLException e) {
 			throw new RepositoryException("Error while executing query", e);
@@ -155,6 +158,46 @@ public abstract class ListRecordsHandler {
 		finally {
 			disconnect(conn);
 		}
+		logger.debug("Applying set filters");
+		int before = records.size();
+		for (IAnnotatedDocumentSetFilter setFilter : setFilters) {
+			records = setFilter.filter(records);
+		}
+		int filtered = before - records.size();
+		logger.debug("Records discarded by set filters: {}", filtered);
+		return records;
+	}
+
+	private List<AnnotatedDocument> createAnnotatedDocuments(ResultSet rs) throws SQLException
+	{
+		List<AnnotatedDocument> records = new ArrayList<>(255);
+		AnnotatedDocumentFactory factory = new AnnotatedDocumentFactory();
+		int numRows = 0;
+		int preFiltered = 0;
+		int postFiltered = 0;
+		LOOP: while (rs.next()) {
+			numRows++;
+			if (logger.isDebugEnabled()) {
+				logger.debug("Processing annotated_document record (id={})", rs.getInt("id"));
+			}
+			for (IAnnotatedDocumentPreFilter preFilter : preFilters) {
+				if (!preFilter.accept(rs)) {
+					preFiltered++;
+					continue LOOP;
+				}
+			}
+			AnnotatedDocument record = factory.build(rs);
+			for (IAnnotatedDocumentPostFilter postFilter : postFilters) {
+				if (!postFilter.accept(record)) {
+					postFiltered++;
+					continue LOOP;
+				}
+			}
+			records.add(record);
+		}
+		logger.debug("Records retrieved from database: {}", numRows);
+		logger.debug("Records discarded by pre filters: {}", preFiltered);
+		logger.debug("Records discarded by post filters: {}", postFiltered);
 		return records;
 	}
 
@@ -167,20 +210,6 @@ public abstract class ListRecordsHandler {
 		ResumptionToken tokenGenerator = new ResumptionToken();
 		String token = tokenGenerator.compose(request);
 		resumptionToken.setValue(token);
-	}
-
-	private void logResultSetInfo(int resultSetSize)
-	{
-		int pageSize = getPageSize();
-		int offset = request.getPage() * pageSize;
-		int recordsToGo = resultSetSize - offset - pageSize;
-		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
-		logger.info("Records satisfying request: " + resultSetSize);
-		logger.debug("Records served per request: " + pageSize);
-		logger.debug("Remaining records: " + recordsToGo);
-		String fmt = "%s more request%s needed for full harvest";
-		String plural = requestsToGo == 1 ? "" : "s";
-		logger.info(String.format(fmt, requestsToGo, plural));
 	}
 
 	private void addRecord(AnnotatedDocument ad, ListRecordsType listRecords)
@@ -209,9 +238,17 @@ public abstract class ListRecordsHandler {
 		return metadata;
 	}
 
-	private static long getSeconds(Date date)
+	private void logResultSetInfo(int resultSetSize)
 	{
-		return (long) Math.floor(date.getTime() / 1000);
+		int pageSize = getPageSize();
+		int offset = request.getPage() * pageSize;
+		int recordsToGo = Math.max(0, resultSetSize - offset - pageSize);
+		int requestsToGo = (int) Math.ceil(recordsToGo / pageSize);
+		logger.info("Records satisfying request: " + resultSetSize);
+		logger.debug("Records served per request: " + pageSize);
+		logger.debug("Remaining records: " + recordsToGo);
+		String fmt = "%s more request%s needed for full harvest";
+		String plural = requestsToGo == 1 ? "" : "s";
+		logger.info(String.format(fmt, requestsToGo, plural));
 	}
-
 }

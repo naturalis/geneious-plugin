@@ -1,5 +1,12 @@
 package nl.naturalis.lims2.oaipmh;
 
+/**
+ * An enumeration of a possible values for the "class" attribute of the
+ * &lt;document&gt; element in the document_xml column.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public enum DocumentClass {
 
 	GenBankNucleotideSequence("com.biomatters.plugins.ncbi.documents.GenBankNucleotideSequence"),

@@ -9,6 +9,8 @@ import org.w3c.dom.Element;
 
 public class XMLSerialisableRootElementFactory {
 
+	private static final String DUMMY_CHAR_SEQUENCE = "NNNNNNNNNN";
+
 	public XMLSerialisableRootElementFactory()
 	{
 	}
@@ -19,7 +21,10 @@ public class XMLSerialisableRootElementFactory {
 		XMLSerialisableRootElement result = new XMLSerialisableRootElement();
 		result.setName(DOMUtil.getValue(root, "name"));
 		result.setDescription(DOMUtil.getValue(root, "description"));
-		result.setCharSequence(DOMUtil.getValue(root, "charSequence"));
+		String charSequence = DOMUtil.getValue(root, "charSequence");
+		if (charSequence != null) {
+			result.setDummyCharSequence(charSequence.equals(DUMMY_CHAR_SEQUENCE));
+		}
 		result.setOutputDocument(DOMUtil.getValue(root, "outputDocument"));
 		if (root.hasAttribute("finishedAddingOutputDocuments")) {
 			String s = root.getAttribute("finishedAddingOutputDocuments");
