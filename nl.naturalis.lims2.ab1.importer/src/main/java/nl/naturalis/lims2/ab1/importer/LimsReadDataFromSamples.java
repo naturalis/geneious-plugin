@@ -198,18 +198,28 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 		Frame frame = new Frame();
 
-		Object[] possibilities = { "Create Dummy", "Update Samples" };
-		String s = (String) JOptionPane.showInputDialog(frame,
-				"Choose a action:\n", "Customized Dialog",
-				JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
-
-		if ((s.equals("Create Dummy")) && (s.length() > 0)) {
-			/* Set for creating dummy files */
+		Object[] options = { "Create Dummy", "Update Samples", "Cancel" };
+		int n = JOptionPane.showOptionDialog(frame,
+				"Choose one option to start Samples import", "Samples",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, options, options[2]);
+		if (n == 0) {
 			fileSelected = fcd.loadSelectedFile();
 			setExtractIDFromSamplesSheet(fileSelected);
-			return;
-		} else if (s.equals("Update Samples")) {
-			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+		} else if (n == 1) {
+			System.out.println("Optie 1");
+
+			/*
+			 * Object[] possibilities = { "Create Dummy", "Update Samples" };
+			 * String s = (String) JOptionPane.showInputDialog(frame,
+			 * "Choose a action:\n", "Customized Dialog",
+			 * JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
+			 * 
+			 * if ((s.equals("Create Dummy")) && (s.length() > 0)) { Set for
+			 * creating dummy files fileSelected = fcd.loadSelectedFile();
+			 * setExtractIDFromSamplesSheet(fileSelected); return; } else if
+			 * (s.equals("Update Samples")) {
+			 */if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 
 					@Override
@@ -309,6 +319,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				});
 
 			}
+		} else if (n == 2) {
+			System.out.println("Optie 2");
+			return;
 		}
 	}
 

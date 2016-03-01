@@ -86,7 +86,27 @@ public class LimsNotes {
 			DocumentNoteUtilities.setNoteType(documentNoteType);
 			logger.info("NoteType " + noteTypeCode + " created succesful");
 		}
-		// GeneiousPlugin geneiousPlugin = null;
+
+		if (documentNoteType.getName().equals("Extraction method (Samples)")
+				|| documentNoteType.getName().equals(
+						"Extract plate ID (Samples)")
+				|| documentNoteType.getName().equals("Region (CRS)")
+				|| documentNoteType.getName().equals("Lat (CRS)")
+				|| documentNoteType.getName().equals("Long (CRS)")
+				|| documentNoteType.getName().equals("Altitude (CRS)")
+				|| documentNoteType.getName().equals("Phylum (CRS)")
+				|| documentNoteType.getName().equals("Class (CRS)")
+				|| documentNoteType.getName().equals("Family (CRS)")
+				|| documentNoteType.getName().equals("Subfamily (CRS)")
+				|| documentNoteType.getName().equals("Genus (CRS)")
+				|| documentNoteType.getName().equals("BOLD proj-ID (Bold)")
+				|| documentNoteType.getName().equals("Field ID (Bold)")
+				|| documentNoteType.getName().equals("BOLD BIN (Bold)")
+				|| documentNoteType.getName()
+						.equals("Nucleotide length (Bold)")
+				|| documentNoteType.getName().equals("GenBank ID (Bold)")) {
+			documentNoteType.setDefaultVisibleInTable(false);
+		}
 
 		/* Create note for Extract-ID */
 
@@ -139,6 +159,15 @@ public class LimsNotes {
 					listNotes, false);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
 			logger.info("NoteType " + noteTypeCode + " created succesful");
+		}
+
+		if (documentNoteType.getName().equals("Ampl-staff (Seq)")) {
+			System.out.println("Note name:" + documentNoteType.getName());
+
+			documentNoteType.setDefaultVisibleInTable(false);
+			documentNoteType.setVisible(false);
+
+			DocumentNoteUtilities.setNoteType(documentNoteType);
 		}
 
 		/* Create note for Extract-ID */
