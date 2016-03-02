@@ -341,9 +341,9 @@ public class LimsNotes {
 		listNotes.clear();
 	}
 
-	public void setImportTrueFalseNotes(AnnotatedPluginDocument document,
+	public void setImportTrueFalseNotes(AnnotatedPluginDocument[] document,
 			String fieldCode, String textNoteField, String noteTypeCode,
-			boolean fieldValue) {
+			boolean fieldValue, int count) {
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
@@ -377,7 +377,7 @@ public class LimsNotes {
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
 		documentNote.setFieldValue(this.fieldCode, fieldValue);
 
-		AnnotatedPluginDocument.DocumentNotes documentNotes = document
+		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) document[count]
 				.getDocumentNotes(true);
 
 		/* Set note */

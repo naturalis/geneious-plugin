@@ -88,16 +88,20 @@ public class LimsReadGeneiousFieldsValues {
 		return fieldValue;
 	}
 
-	public String getFileNameFromGeneiousDatabase(String filename)
-			throws IOException {
+	public String getFileNameFromGeneiousDatabase(String filename) {
 
+		boolean truefalse = false;
 		Connection con = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		try {
+			url = limsImporterUtil.getPropValues("url");
+			user = limsImporterUtil.getPropValues("user");
+			password = limsImporterUtil.getPropValues("password");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		String result = "";
 
@@ -118,6 +122,11 @@ public class LimsReadGeneiousFieldsValues {
 			rs = pst.executeQuery();
 			while (rs.next()) {
 				result = rs.getObject(1).toString();
+				if (rs.wasNull())
+					truefalse = false;
+				else
+					truefalse = true;
+
 				logger.debug("Filename: " + result
 						+ " already exists in the geneious database.");
 				limsLogList.UitvalList.add("Filename: " + result
@@ -152,6 +161,81 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		}
 		return result;
+	}
+
+	public boolean fileNameExistsInGeneiousDatabase(String filename) {
+
+		boolean truefalse = false;
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			url = limsImporterUtil.getPropValues("url");
+			user = limsImporterUtil.getPropValues("user");
+			password = limsImporterUtil.getPropValues("password");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.name"
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?";
+
+			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, filename);
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+				if (rs.wasNull())
+					truefalse = false;
+				else
+					truefalse = true;
+
+				logger.debug("Filename: " + result
+						+ " already exists in the geneious database.");
+				limsLogList.UitvalList.add("Filename: " + result
+						+ " already exists in the geneious database." + "\n");
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return truefalse;
 	}
 
 	// this utility method returns a SequenceDocument based on the given name

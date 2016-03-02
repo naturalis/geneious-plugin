@@ -162,22 +162,16 @@ public class LimsCRSImporter extends DocumentAction {
 					}
 
 					/* AB1 file */
-					try {
-						if (readGeneiousFieldsValues
-								.getFileNameFromGeneiousDatabase(
-										(String) documentFileName).equals(
-										documentFileName)) {
-							seq = (SequenceDocument) docs.get(cnt)
-									.getDocument();
+					if (readGeneiousFieldsValues
+							.getFileNameFromGeneiousDatabase(
+									(String) documentFileName).equals(
+									documentFileName)) {
+						seq = (SequenceDocument) docs.get(cnt).getDocument();
 
-							logger.info("Selected AB1 document: "
-									+ seq.getName());
+						logger.info("Selected AB1 document: " + seq.getName());
 
-							result = true;
-							logger.debug("Result CRS :" + result);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
+						result = true;
+						logger.debug("Result CRS :" + result);
 					}
 
 					if (result) {
@@ -316,7 +310,9 @@ public class LimsCRSImporter extends DocumentAction {
 		limsNotes.setNoteToAB1FileName(documents, "HeightCode_CRS",
 				"Altitude (CRS)", "Altitude (CRS)", LimsCRSFields.getHeight(),
 				cnt);
-		// }
+
+		limsNotes.setImportTrueFalseNotes(documents, "CRSCode_CRS",
+				"CRS (CRS)", "CRS (CRS)", true, cnt);
 	}
 
 	@Override

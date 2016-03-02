@@ -45,7 +45,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public static List<DocumentField> displayFields;
 	public static QueryField[] searchFields;
 	private String logFileName = "";
-	// private LimsLogList limsLogList = new LimsLogList();
+
 	int cnt = 0;
 
 	public LimsImportAB1() {
@@ -54,12 +54,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	@Override
 	public String getFileTypeDescription() {
-		return "Naturalis Extract AB1 Filename Importer";
+		// return "Naturalis Extract AB1 Filename Importer";
+		return "All Naturalis Files";
 	}
 
 	@Override
 	public String[] getPermissibleExtensions() {
-		return new String[] { "ab1", "abi", "fas" };
+		return new String[] { "" };
+		// return new String[] { "ab1", "scf", "fasta", "fa" };
 	}
 
 	@Override
@@ -96,8 +98,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		listcnt.add(cnt++);
 		System.out.println("Count: " + Integer.toString(cnt));
 
-		if (!ReadGeneiousFieldsValues.getFileNameFromGeneiousDatabase(
-				file.getName()).equals(file.getName())) {
+		boolean fileExists = ReadGeneiousFieldsValues
+				.fileNameExistsInGeneiousDatabase(file.getName());
+
+		if (!fileExists) {
 
 			extractAb1FastaFileName = file.getName();
 
@@ -177,58 +181,36 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
 						"Pass (Seq)", null);
 
-				limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
-						"CRS (CRS)", "CRS (CRS)", true);
+				// limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
+				// "CRS (CRS)", "CRS (CRS)", true);
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
 			logger.info("Done with extracting/imported Ab1 files. ");
 		}
 
-		/*
-		 * EventQueue.invokeLater(new Runnable() {
-		 * 
-		 * @Override public void run() {
-		 * Dialogs.showMessageDialog(file.getName() + "\n "); } });
-		 */
-
-		// } else {
+		// else {
+		// EventQueue.invokeLater(new Runnable() {
 		//
-		// String dummyName = "New_Sequence_" + file.getName();
-		//
-		// limsLogList.msgUitvalList.add("Username: "
-		// + System.getProperty("user.name") + "\n");
-		// limsLogList.msgUitvalList.add("Type action: Import AB1 file(s) "
-		// + "\n");
-		//
-		// ArrayList<AnnotatedPluginDocument> sequenceList = new
-		// ArrayList<AnnotatedPluginDocument>();
-		//
-		// NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
-		// dummyName, "A new dummy Sequence", "NNNNNNNNNN",
-		// new Date(), URN.generateUniqueLocalURN());
-		//
-		// sequenceList.add(DocumentUtilities
-		// .createAnnotatedPluginDocument(sequence));
-		// try {
-		// limsNotes.setImportNotes(sequenceList.iterator().next(),
-		// "VersieCode", "Version number", "Version number", "0");
-		// limsLogList.UitvalList.add("Filename: " + file.getName()
-		// + " already exists in the geneious database." + "\n");
-		// logger.info("New Dummy: " + dummyName + " file added.");
-		// } catch (Exception ex) {
-		// ex.printStackTrace();
+		// @Override
+		// public void run() {
+		// Dialogs.showMessageDialog("File: " + file.getName()
+		// + " already exists in the database");
+		// return;
 		// }
-		// DocumentUtilities.addGeneratedDocuments(sequenceList, false);
-		//
+		// });
 		// }
-		// createLogFile("Import AB1 uitvallijst", limsLogList.UitvalList);
 	}
 
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
 			String fileContentsStart) {
-		return AutoDetectStatus.ACCEPT_FILE;
+		if (fileContentsStart.startsWith(">")) {
+			return AutoDetectStatus.MAYBE;
+		} else {
+			return AutoDetectStatus.ACCEPT_FILE;
+		}
+
 	}
 
 	private void createLogFile(String fileName, List<String> list) {

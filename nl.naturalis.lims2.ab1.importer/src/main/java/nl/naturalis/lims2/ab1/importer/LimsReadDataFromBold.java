@@ -168,25 +168,25 @@ public class LimsReadDataFromBold extends DocumentAction {
 					}
 
 					/* AB1 file */
-					try {
-						if (readGeneiousFieldsValues
-								.getFileNameFromGeneiousDatabase(
-										(String) documentFileName).equals(
-										documentFileName)) {
+					// try {
+					if (readGeneiousFieldsValues
+							.getFileNameFromGeneiousDatabase(
+									(String) documentFileName).equals(
+									documentFileName)) {
 
-							sequenceDocument = (SequenceDocument) docs.get(cnt)
-									.getDocument();
-							logger.info("Selected AB1 document: "
-									+ sequenceDocument.getName());
-							setExtractIDfileName(sequenceDocument.getName());
-							extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
-									.getName());
-							result = true;
+						sequenceDocument = (SequenceDocument) docs.get(cnt)
+								.getDocument();
+						logger.info("Selected AB1 document: "
+								+ sequenceDocument.getName());
+						setExtractIDfileName(sequenceDocument.getName());
+						extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
+								.getName());
+						result = true;
 
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
+					// } catch (IOException e) {
+					// e.printStackTrace();
+					// }
 
 					if (result) {
 						readDataFromBold(annotatedPluginDocuments[cnt],

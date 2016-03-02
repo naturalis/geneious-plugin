@@ -198,7 +198,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 		Frame frame = new Frame();
 
-		Object[] options = { "Create Dummy", "Update Samples", "Cancel" };
+		Object[] options = { "Create Dummy", "Read Samples", "Cancel" };
 		int n = JOptionPane.showOptionDialog(frame,
 				"Choose one option to start Samples import", "Samples",
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
