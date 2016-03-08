@@ -3,7 +3,6 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileReader;
@@ -12,15 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
 
+import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
-import nl.naturalis.lims2.utils.LimsProgressBar;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,13 +72,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
 
 	LimsLogger limsLogger = new LimsLogger(logFileName);
+	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
-	JProgressBar progressBar = new JProgressBar();
-
-	static final int MY_MINIMUM = 0;
-	static final int MY_MAXIMUM = 100;
-	final LimsProgressBar it = new LimsProgressBar();
-	JLabel jl = new JLabel();
+	// JProgressBar progressBar = new JProgressBar();
+	//
+	// static final int MY_MINIMUM = 0;
+	// static final int MY_MAXIMUM = 100;
+	// final LimsProgressBar it = new LimsProgressBar();
+	// JLabel jl = new JLabel();
 
 	public LimsReadDataFromSamples() {
 
@@ -95,18 +92,18 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		performOperation(annotatedPluginDocuments);
 	}
 
-	public void createProgressBar() {
-		JFrame frame = new JFrame("Reading records from files");
-		frame.setSize(280, 100);
-		frame.isAlwaysOnTop();
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame.setContentPane(it);
-		jl.setText("0%");
-		frame.add(BorderLayout.CENTER, jl);
-		// frame.pack();
-
-		frame.setVisible(true);
-	}
+	// public void createProgressBar() {
+	// JFrame frame = new JFrame("Reading records from files");
+	// frame.setSize(280, 100);
+	// frame.isAlwaysOnTop();
+	// frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	// frame.setContentPane(it);
+	// jl.setText("0%");
+	// frame.add(BorderLayout.CENTER, jl);
+	// // frame.pack();
+	//
+	// frame.setVisible(true);
+	// }
 
 	public void performOperation(AnnotatedPluginDocument[] documents) {
 
@@ -116,10 +113,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, options, options[2]);
 		if (n == 0) {
-			createProgressBar();
+			limsFrameProgress.createProgressBar();
+			// createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
 			setExtractIDFromSamplesSheet(fileSelected);
-			frame.setVisible(false);
+			limsFrameProgress.hideFrame();
+			// frame.setVisible(false);
 
 		} else if (n == 1) {
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
@@ -134,7 +133,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				});
 			}
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-				createProgressBar();
 				logger.info("Start updating selected document(s).");
 				fileSelected = fcd.loadSelectedFile();
 				try {
@@ -178,8 +176,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 						msgList.add(extractIDfileName);
 
+						limsFrameProgress.createProgressBar();
 						setSamplesNotes(documents, cnt);
-						frame.setVisible(false);
+						limsFrameProgress.hideFrame();
 
 						logger.info("Done with adding notes to the document");
 						importCounter = msgList.size();
@@ -191,7 +190,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				logger.info("Total of document(s) updated: " + docs.size());
 
 				/* Set for creating dummy files */
+				limsFrameProgress.createProgressBar();
 				setExtractIDFromSamplesSheet(fileSelected);
+				limsFrameProgress.hideFrame();
 
 				// }
 
@@ -230,20 +231,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
-		for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
-			final int percent = i;
-			try {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						it.updateBar(percent);
-						jl.setText(percent + "%");
-					}
-				});
-				java.lang.Thread.sleep(3);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		// for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
+		// final int percent = i;
+		// try {
+		// SwingUtilities.invokeLater(new Runnable() {
+		// public void run() {
+		// it.updateBar(percent);
+		// jl.setText(percent + "%");
+		// }
+		// });
+		// java.lang.Thread.sleep(3);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
 		readDataFromExcel(fileSelected);
 		/** set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
@@ -338,6 +339,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						if (record.length == 0) {
 							continue;
 						}
+						limsFrameProgress.showProgress();
 
 						ID = "e" + record[3];
 						String plateNumber = record[2].substring(0,
@@ -354,20 +356,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 									record[4], record[1]);
 						}
 
-						for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
-							final int percent = i;
-							try {
-								SwingUtilities.invokeLater(new Runnable() {
-									public void run() {
-										it.updateBar(percent);
-										jl.setText(percent + "%");
-									}
-								});
-								java.lang.Thread.sleep(3);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
+						// for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
+						// final int percent = i;
+						// try {
+						// SwingUtilities.invokeLater(new Runnable() {
+						// public void run() {
+						// it.updateBar(percent);
+						// jl.setText(percent + "%");
+						// }
+						// });
+						// java.lang.Thread.sleep(3);
+						// } catch (InterruptedException e) {
+						// e.printStackTrace();
+						// }
+						// }
 						cnt++;
 					} // end While
 					Dialogs.showMessageDialog("Done creating:" + cnt
@@ -411,6 +413,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						continue;
 					}
 
+					limsFrameProgress.showProgress();
 					ID = "e" + record[3];
 					String plateNumber = record[2].substring(0,
 							record[2].indexOf("-"));
