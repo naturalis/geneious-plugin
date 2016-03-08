@@ -93,11 +93,11 @@ public class LimsCRSImporter extends DocumentAction {
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-			limsFrameProgress.createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
 			if (fileSelected == null) {
 				return;
 			}
+			limsFrameProgress.createProgressBar();
 
 			logger.info("Start updating selected document(s) with CRS data.");
 			logger.info("-------------------------- S T A R T --------------------------");

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
 
@@ -37,24 +38,12 @@ public class LimsImportAB1Update extends DocumentAction {
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private List<AnnotatedPluginDocument> docs;
-	// private List<AnnotatedPluginDocument> document;
-	// private ImportCallback importCallback;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
-	// private LimsReadGeneiousFieldsValues readVersionNumberValue = new
-	// LimsReadGeneiousFieldsValues();
-	// private Object versionNumber = "";
-
-	// private final String noteCode = "DocumentNoteUtilities-Document version";
-	// private final String fieldName = "DocumentversionCode";
-	// private final String noteBOS =
-	// "DocumentNoteUtilities-Registr-nmbr (Samples)";
-	// private final String fieldBOS = "RegistrationnumberCode_Samples";
 
 	private List<String> msgList = new ArrayList<String>();
 	LimsFileSelector fcd = new LimsFileSelector();
-
-	// private AnnotatedPluginDocument annotatedPluginDocument;
+	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
 	@Override
 	public void actionPerformed(
@@ -72,6 +61,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
+			limsFrameProgress.createProgressBar();
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
@@ -151,101 +141,10 @@ public class LimsImportAB1Update extends DocumentAction {
 								"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
 								"Pass (Seq)", null, cnt);
 
-						// limsNotes.setNoteTrueFalseFieldToFileName(
-						// annotatedPluginDocuments, "CRSCode_CRS",
-						// "CRS (CRS)", "CRS (CRS)", true, cnt);
+						limsFrameProgress.showProgress();
 					}
 
 					logger.info("Done with adding notes to the document");
-
-					// versionNumber = readVersionNumberValue
-					// .readValueFromAnnotatedPluginDocument(
-					// annotatedPluginDocument, noteCode,
-					// fieldName);
-					//
-					// if (seq.getName().contains("New Sequence")
-					// && versionNumber.equals("0")) {
-					//
-					// String fileSelected = fcd.loadSelectedFile();
-					// if (fileSelected == null) {
-					// return;
-					// }
-					//
-					// File file = new File(fileSelected);
-					//
-					// try {
-					// document = PluginUtilities.importDocuments(file,
-					// ProgressListener.EMPTY);
-					// annotatedPluginDocument = document.iterator()
-					// .next();
-					// DocumentUtilities.addGeneratedDocument(
-					// annotatedPluginDocument, true);
-					// } catch (IOException e) {
-					// e.printStackTrace();
-					// } catch (DocumentImportException e) {
-					// e.printStackTrace();
-					// }
-					//
-					// String fileName = fileSelected.substring(fileSelected
-					// .indexOf("\\e") + 1);
-					//
-					// for (int counter = 0; counter < document.size();
-					// counter++) {
-					//
-					// logger.info("-------------------------- S T A R T --------------------------");
-					// logger.info("Start Reading data from a excel file.");
-					//
-					// seq = (SequenceDocument) docs.get(cnt)
-					// .getDocument();
-					// limsAB1Fields
-					// .setFieldValuesFromAB1FileName(fileName);
-					//
-					// msgList.add(fileSelected);
-					//
-					// /* set note for Extract-ID */
-					// try {
-					// limsNotes.setImportNotes(
-					// annotatedPluginDocument,
-					// "ExtractIdCode", "Extract ID",
-					// "Extract-ID",
-					// limsAB1Fields.getExtractID());
-					// } catch (Exception ex) {
-					// ex.printStackTrace();
-					// }
-					//
-					// /* set note for PCR Plaat-ID */
-					// try {
-					// limsNotes.setImportNotes(
-					// annotatedPluginDocument,
-					// "PcrPlaatIdCode", "PCR plaat ID",
-					// "PCR plaat ID",
-					// limsAB1Fields.getPcrPlaatID());
-					// } catch (Exception ex) {
-					// ex.printStackTrace();
-					// }
-					//
-					// /* set note for Marker */
-					// try {
-					// limsNotes.setImportNotes(
-					// annotatedPluginDocument, "MarkerCode",
-					// "Marker", "Marker",
-					// limsAB1Fields.getMarker());
-					// } catch (Exception ex) {
-					// ex.printStackTrace();
-					// }
-					// /* set note for Marker */
-					// try {
-					// limsNotes.setImportNotes(
-					// annotatedPluginDocument, "VersieCode",
-					// "Version number", "Version number",
-					// limsAB1Fields.getVersieNummer());
-					// } catch (Exception ex) {
-					// ex.printStackTrace();
-					// }
-					// logger.info("Done with adding notes to the document");
-					// }
-					//
-					// }
 
 				}
 			} catch (DocumentOperationException e) {
@@ -278,6 +177,7 @@ public class LimsImportAB1Update extends DocumentAction {
 							+ msgList.toString());
 
 					msgList.clear();
+					limsFrameProgress.hideFrame();
 				}
 			});
 		}

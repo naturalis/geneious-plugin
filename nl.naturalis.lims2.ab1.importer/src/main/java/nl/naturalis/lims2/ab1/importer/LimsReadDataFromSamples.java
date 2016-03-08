@@ -245,6 +245,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		// e.printStackTrace();
 		// }
 		// }
+		limsFrameProgress.showProgress();
 		readDataFromExcel(fileSelected);
 		/** set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
@@ -413,7 +414,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						continue;
 					}
 
-					limsFrameProgress.showProgress();
 					ID = "e" + record[3];
 					String plateNumber = record[2].substring(0,
 							record[2].indexOf("-"));
