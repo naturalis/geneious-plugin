@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
@@ -73,6 +74,8 @@ public class LimsCRSImporter extends DocumentAction {
 
 	LimsLogger limsLogger = new LimsLogger(logFileName);
 
+	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
+
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
@@ -90,6 +93,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
+			limsFrameProgress.createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
 			if (fileSelected == null) {
 				return;
@@ -184,6 +188,8 @@ public class LimsCRSImporter extends DocumentAction {
 						importCounter = DocumentUtilities
 								.getSelectedDocuments().size();
 					}
+
+					limsFrameProgress.showProgress();
 				}
 			} catch (DocumentOperationException e) {
 				e.printStackTrace();
@@ -219,7 +225,7 @@ public class LimsCRSImporter extends DocumentAction {
 					verwerkingCnt.clear();
 					verwerkList.clear();
 					match = false;
-
+					limsFrameProgress.hideFrame();
 				}
 			});
 
@@ -231,50 +237,57 @@ public class LimsCRSImporter extends DocumentAction {
 		// if (regnr.equals(registrationNumber)) {
 		/** set note for Phylum: FieldValue, Label, NoteType, */
 		limsNotes.setNoteToAB1FileName(documents, "PhylumCode_CRS",
-				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum(), cnt);
+				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum()
+						.trim(), cnt);
 
 		/** Set note for Class */
 		limsNotes.setNoteToAB1FileName(documents, "ClassCode_CRS",
-				"Class (CRS)", "Class (CRS)", LimsCRSFields.getKlasse(), cnt);
+				"Class (CRS)", "Class (CRS)", LimsCRSFields.getKlasse().trim(),
+				cnt);
 
 		/** set note for Order */
 		limsNotes.setNoteToAB1FileName(documents, "OrderCode_CRS",
-				"Order (CRS)", "Order (CRS)", LimsCRSFields.getOrder(), cnt);
+				"Order (CRS)", "Order (CRS)", LimsCRSFields.getOrder().trim(),
+				cnt);
 
 		/* set note for Family */
 		limsNotes.setNoteToAB1FileName(documents, "FamilyCode_CRS",
-				"Family (CRS)", "Family (CRS)", LimsCRSFields.getFamily(), cnt);
+				"Family (CRS)", "Family (CRS)", LimsCRSFields.getFamily()
+						.trim(), cnt);
 
 		/** set note for SubFamily */
 		limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
-				"Subfamily (CRS)", "Subfamily (CRS)",
-				LimsCRSFields.getSubFamily(), cnt);
+				"Subfamily (CRS)", "Subfamily (CRS)", LimsCRSFields
+						.getSubFamily().trim(), cnt);
 
 		/** set note for Genus */
 		limsNotes.setNoteToAB1FileName(documents, "GenusCode_CRS",
-				"Genus (CRS)", "Genus (CRS)", LimsCRSFields.getGenus(), cnt);
+				"Genus (CRS)", "Genus (CRS)", LimsCRSFields.getGenus().trim(),
+				cnt);
 
 		/** set note for TaxonName */
 		limsNotes.setNoteToAB1FileName(documents, "TaxonName1Code_CRS",
-				"Scientific name (CRS)", "Scientific name (CRS)",
-				LimsCRSFields.getTaxon(), cnt);
+				"Scientific name (CRS)", "Scientific name (CRS)", LimsCRSFields
+						.getTaxon().trim(), cnt);
 
 		/** set note for Identifier */
 		limsNotes.setNoteToAB1FileName(documents, "IdentifierCode_CRS",
-				"Identifier (CRS)", "Identifier (CRS)",
-				LimsCRSFields.getDeterminator(), cnt);
+				"Identifier (CRS)", "Identifier (CRS)", LimsCRSFields
+						.getDeterminator().trim(), cnt);
 
 		/** set note for Sex */
 		limsNotes.setNoteToAB1FileName(documents, "SexCode_CRS", "Sex (CRS)",
-				"Sex (CRS)", LimsCRSFields.getSex(), cnt);
+				"Sex (CRS)", LimsCRSFields.getSex().trim(), cnt);
 
 		/** set note for Phase Or Stage */
 		limsNotes.setNoteToAB1FileName(documents, "PhaseOrStageCode_CRS",
-				"Stage (CRS)", "Stage (CRS)", LimsCRSFields.getStadium(), cnt);
+				"Stage (CRS)", "Stage (CRS)",
+				LimsCRSFields.getStadium().trim(), cnt);
 
 		/** set note for Collector */
 		limsNotes.setNoteToAB1FileName(documents, "CollectorCode_CRS",
-				"Leg (CRS)", "Leg (CRS)", LimsCRSFields.getLegavit(), cnt);
+				"Leg (CRS)", "Leg (CRS)", LimsCRSFields.getLegavit().trim(),
+				cnt);
 
 		/** set note for Collecting date */
 		limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
@@ -283,18 +296,18 @@ public class LimsCRSImporter extends DocumentAction {
 
 		/** set note for Country */
 		limsNotes.setNoteToAB1FileName(documents, "CountryCode_CRS",
-				"Country (CRS)", "Country (CRS)", LimsCRSFields.getCountry(),
-				cnt);
+				"Country (CRS)", "Country (CRS)", LimsCRSFields.getCountry()
+						.trim(), cnt);
 
 		/** set note for BioRegion */
 		limsNotes.setNoteToAB1FileName(documents,
 				"StateOrProvinceBioRegionCode_CRS", "Region (CRS)",
-				"Region (CRS)", LimsCRSFields.getBioRegion(), cnt);
+				"Region (CRS)", LimsCRSFields.getBioRegion().trim(), cnt);
 
 		/** set note for Locality */
 		limsNotes.setNoteToAB1FileName(documents, "LocalityCode_CRS",
-				"Locality (CRS)", "Locality (CRS)",
-				LimsCRSFields.getLocality(), cnt);
+				"Locality (CRS)", "Locality (CRS)", LimsCRSFields.getLocality()
+						.trim(), cnt);
 
 		/** set note for Latitude */
 		limsNotes.setNoteToAB1FileName(documents, "LatitudeDecimalCode_CRS",

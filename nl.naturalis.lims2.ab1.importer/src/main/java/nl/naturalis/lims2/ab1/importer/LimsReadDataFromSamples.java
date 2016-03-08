@@ -3,19 +3,24 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
+import nl.naturalis.lims2.utils.LimsProgressBar;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,138 +70,45 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private String fileSelected = "";
 	private final String noteCode = "DocumentNoteUtilities-Extract ID (Seq)";
 	private final String fieldName = "ExtractIDCode_Seq";
+	private JFrame frame = new JFrame();
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
 
 	LimsLogger limsLogger = new LimsLogger(logFileName);
 
+	JProgressBar progressBar = new JProgressBar();
+
+	static final int MY_MINIMUM = 0;
+	static final int MY_MAXIMUM = 100;
+	final LimsProgressBar it = new LimsProgressBar();
+	JLabel jl = new JLabel();
+
+	public LimsReadDataFromSamples() {
+
+	}
+
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		// List<GeneiousService> list = new ArrayList<GeneiousService>();
-		//
-		// if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-		// EventQueue.invokeLater(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// Dialogs.showMessageDialog("Select all documents");
-		// return;
-		// }
-		// });
-		// }
-		//
-		// if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-		//
-		// logger.info("Start updating selected document(s).");
-		// fileSelected = fcd.loadSelectedFile();
-		// try {
-		// int numberImportedSoFar = 0;
-		//
-		// ProgressListener progressListener = null;
-		//
-		// /** Add selected documents to a list. */
-		// docs = DocumentUtilities.getSelectedDocuments();
-		//
-		// if (fileSelected == null) {
-		// return;
-		// }
-		//
-		// msgUitvalList.add("Filename: " + fileSelected + "\n");
-		//
-		// long totalLength = fileSelected.length();
-		// double lengthPerPercent = 100.0 / totalLength;
-		// long readLength = 0;
-		//
-		// for (int cnt = 0; cnt < docs.size(); cnt++) {
-		//
-		// logger.info("-------------------------- S T A R T --------------------------");
-		// logger.info("Start Reading data from a samples file.");
-		//
-		// seq = (SequenceDocument) docs.get(cnt).getDocument();
-		//
-		// readLength += seq.getSequenceLength();
-		// progressListener.setMessage("Importing sequence data");
-		//
-		// documentFileName = annotatedPluginDocuments[cnt]
-		// .getFieldValue("cache_name");
-		//
-		// /* Get file name from the document(s) */
-		// result = ReadGeneiousFieldsValues
-		// .readValueFromAnnotatedPluginDocument(docs
-		// .iterator().next(), "importedFrom",
-		// "filename");
-		//
-		// /* Check of the filename contain "FAS" extension */
-		// if (result.toString().contains("fas")) {
-		// extractIDfileName = getExtractIDFromAB1FileName((String)
-		// documentFileName);
-		// } else {
-		// /* get AB1 filename */
-		// extractIDfileName = getExtractIDFromAB1FileName(seq
-		// .getName());
-		// }
-		// msgList.add(extractIDfileName);
-		//
-		// readLength += cnt;
-		// progressListener.setProgress(((double) readLength)
-		// / totalLength);
-		// // documents = annotatedPluginDocuments;
-		// setSamplesNotes(annotatedPluginDocuments, cnt);
-		//
-		// if (readLength % 1000 == 0) {
-		// progressListener.setMessage(String.format(
-		// "Imported %,d", numberImportedSoFar));
-		// }
-		//
-		// logger.info("Done with adding notes to the document");
-		// importCounter = msgList.size();
-		// }
-		// } catch (DocumentOperationException e) {
-		// e.printStackTrace();
-		// }
-		// logger.info("--------------------------------------------------------");
-		// logger.info("Total of document(s) updated: " + docs.size());
-		//
-		// /* Set for creating dummy files */
-		// setExtractIDFromSamplesSheet(fileSelected);
-		//
-		// // }
-		//
-		// logger.info("-------------------------- E N D --------------------------");
-		// logger.info("Done with updating the selected document(s). ");
-		//
-		// EventQueue.invokeLater(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// Dialogs.showMessageDialog("Sample-method: "
-		// + Integer.toString(docs.size()) + " out of "
-		// + Integer.toString(importTotal)
-		// + " documents are imported." + "\n"
-		// + msgList.toString());
-		// logger.info("Sample-method: Total imported document(s): "
-		// + msgList.toString());
-		//
-		// limsLogger.logToFile(logFileName, msgUitvalList.toString());
-		//
-		// msgList.clear();
-		// msgUitvalList.clear();
-		// verwerkingListCnt.clear();
-		// verwerkList.clear();
-		// }
-		// });
-		//
-		// }
-
 		performOperation(annotatedPluginDocuments);
 	}
 
-	public void performOperation(AnnotatedPluginDocument[] documents) {
+	public void createProgressBar() {
+		JFrame frame = new JFrame("Reading records from files");
+		frame.setSize(280, 100);
+		frame.isAlwaysOnTop();
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setContentPane(it);
+		jl.setText("0%");
+		frame.add(BorderLayout.CENTER, jl);
+		// frame.pack();
 
-		Frame frame = new Frame();
+		frame.setVisible(true);
+	}
+
+	public void performOperation(AnnotatedPluginDocument[] documents) {
 
 		Object[] options = { "Create Dummy", "Read Samples", "Cancel" };
 		int n = JOptionPane.showOptionDialog(frame,
@@ -204,22 +116,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, options, options[2]);
 		if (n == 0) {
+			createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
 			setExtractIDFromSamplesSheet(fileSelected);
-		} else if (n == 1) {
-			System.out.println("Optie 1");
+			frame.setVisible(false);
 
-			/*
-			 * Object[] possibilities = { "Create Dummy", "Update Samples" };
-			 * String s = (String) JOptionPane.showInputDialog(frame,
-			 * "Choose a action:\n", "Customized Dialog",
-			 * JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
-			 * 
-			 * if ((s.equals("Create Dummy")) && (s.length() > 0)) { Set for
-			 * creating dummy files fileSelected = fcd.loadSelectedFile();
-			 * setExtractIDFromSamplesSheet(fileSelected); return; } else if
-			 * (s.equals("Update Samples")) {
-			 */if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+		} else if (n == 1) {
+			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 
 					@Override
@@ -231,12 +134,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				});
 			}
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-
+				createProgressBar();
 				logger.info("Start updating selected document(s).");
 				fileSelected = fcd.loadSelectedFile();
 				try {
-					// int numberImportedSoFar = 0;
-
 					/** Add selected documents to a list. */
 					docs = DocumentUtilities.getSelectedDocuments();
 
@@ -278,6 +179,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						msgList.add(extractIDfileName);
 
 						setSamplesNotes(documents, cnt);
+						frame.setVisible(false);
 
 						logger.info("Done with adding notes to the document");
 						importCounter = msgList.size();
@@ -315,6 +217,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						msgUitvalList.clear();
 						verwerkingListCnt.clear();
 						verwerkList.clear();
+						frame.setVisible(false);
 					}
 				});
 
@@ -327,6 +230,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
+		for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
+			final int percent = i;
+			try {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						it.updateBar(percent);
+						jl.setText(percent + "%");
+					}
+				});
+				java.lang.Thread.sleep(3);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		readDataFromExcel(fileSelected);
 		/** set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
@@ -366,7 +283,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				"Extraction method (Samples)", "Extraction method (Samples)",
 				limsExcelFields.getSubSample(), cnt);
 
-		limsNotes.setNoteToAB1FileName(documents, "DocumentVersionCode",
+		limsNotes.setNoteToAB1FileName(documents, "DocumentVersionCode_Seq",
 				"Document version", "Document version",
 				limsExcelFields.getVersieNummer(), cnt);
 
@@ -409,44 +326,65 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	 */
 	private void setExtractIDFromSamplesSheet(String fileName) {
 		try {
-			logger.info("Read samples file: " + fileName);
-			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
-					'\'', 0);
-			csvReader.readNext();
+			if (fileName != null) {
+				logger.info("Read samples file: " + fileName);
+				CSVReader csvReader = new CSVReader(new FileReader(fileName),
+						'\t', '\'', 0);
+				csvReader.readNext();
 
-			try {
-				while ((record = csvReader.readNext()) != null) {
-					if (record.length == 0) {
-						continue;
-					}
+				int cnt = 0;
+				try {
+					while ((record = csvReader.readNext()) != null) {
+						if (record.length == 0) {
+							continue;
+						}
 
-					ID = "e" + record[3];
-					String plateNumber = record[2].substring(0,
-							record[2].indexOf("-"));
+						ID = "e" + record[3];
+						String plateNumber = record[2].substring(0,
+								record[2].indexOf("-"));
 
-					String dummyFile = ReadGeneiousFieldsValues
-							.getFastaIDForSamples_GeneiousDB(ID);
-					if (dummyFile.trim() != "") {
-						dummyFile = getExtractIDFromAB1FileName(dummyFile);
-					}
-					if (!dummyFile.equals(ID)) {
-						limsDummySeq.createDummySampleSequence(ID, ID,
-								record[0], plateNumber, record[5], record[4],
-								record[1]);
-					}
+						String dummyFile = ReadGeneiousFieldsValues
+								.getFastaIDForSamples_GeneiousDB(ID);
+						if (dummyFile.trim() != "") {
+							dummyFile = getExtractIDFromAB1FileName(dummyFile);
+						}
+						if (!dummyFile.equals(ID)) {
+							limsDummySeq.createDummySampleSequence(ID, ID,
+									record[0], plateNumber, record[5],
+									record[4], record[1]);
+						}
 
-				} // end While
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				csvReader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+						for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
+							final int percent = i;
+							try {
+								SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										it.updateBar(percent);
+										jl.setText(percent + "%");
+									}
+								});
+								java.lang.Thread.sleep(3);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						cnt++;
+					} // end While
+					Dialogs.showMessageDialog("Done creating:" + cnt
+							+ " Dummy Samples");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				try {
+					csvReader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	private void readDataFromExcel(String fileName) {

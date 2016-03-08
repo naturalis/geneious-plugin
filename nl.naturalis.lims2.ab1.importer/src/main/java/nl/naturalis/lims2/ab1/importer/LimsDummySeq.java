@@ -79,8 +79,8 @@ public class LimsDummySeq {
 				"Extraction method (Samples)", "Sample method");
 
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"DocumentVersionCode", "Document version", "Document version",
-				"0");
+				"DocumentVersionCode_Seq", "Document version",
+				"Document version", "0");
 
 		/* set note for PCR Plaat-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),

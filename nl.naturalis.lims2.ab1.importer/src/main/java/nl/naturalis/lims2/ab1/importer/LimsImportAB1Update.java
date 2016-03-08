@@ -127,7 +127,7 @@ public class LimsImportAB1Update extends DocumentAction {
 						/** set note for Document version */
 						limsNotes.setNoteToAB1FileName(
 								annotatedPluginDocuments,
-								"DocumentVersionCode", "Document version",
+								"DocumentVersionCode_Seq", "Document version",
 								"Document version",
 								limsAB1Fields.getVersieNummer(), cnt);
 						/* set note for AmplicificationStaffCode_FixedValue */

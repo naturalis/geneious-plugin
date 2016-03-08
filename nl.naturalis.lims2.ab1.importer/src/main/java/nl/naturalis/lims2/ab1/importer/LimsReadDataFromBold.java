@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
@@ -78,6 +79,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "Bold-Uitvallijst-" + limsImporterUtil.getLogFilename();
 	LimsLogger limsLogger = new LimsLogger(logFileName);
+	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
 	@Override
 	public void actionPerformed(
@@ -189,8 +191,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 					// }
 
 					if (result) {
+						limsFrameProgress.createProgressBar();
 						readDataFromBold(annotatedPluginDocuments[cnt],
 								boldFileSelected, cnt);
+						limsFrameProgress.showProgress();
 					}
 
 				}
@@ -218,6 +222,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					msgUitvalList.clear();
 					verwerkingListCnt.clear();
 					verwerkList.clear();
+					limsFrameProgress.hideFrame();
 				}
 			});
 		}
@@ -281,9 +286,21 @@ public class LimsReadDataFromBold extends DocumentAction {
 					/** Match only on registration number */
 					if (record[2].equals(fieldValue)) {
 
+						String processID = record[1];
+						String boldURI = "";
+						if (processID != null) {
+							boldURI = limsImporterUtil.getPropValues("bolduri")
+									+ record[1];
+						}
+
+						/*
+						 * BoldID = 1, NumberofImagesBold = 9, BoldProjectID =
+						 * 0, FieldID = 3, BoldBIN = 4, BoldURI = uit
+						 * LimsProperties File
+						 */
 						setNotesThatMatchRegistrationNumber(record[1],
-								record[9], record[8], record[0], record[3],
-								limsImporterUtil.getPropValues("bolduri"));
+								record[9], record[0], record[3], record[4],
+								boldURI);
 						setNotesToBoldDocumentsRegistration(documents, cnt);
 
 					}
@@ -292,7 +309,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 					if (record[2].equals(fieldValue)
 							&& headerCOI[6].equals("COI-5P Seq. Length")) {
 						setNotesThatMatchRegistrationNumberAndMarker(record[6],
-								record[7], record[4]);
+								record[7], record[8]);
 						setNotesToBoldDocumentsRegistrationMarker(documents,
 								cnt);
 					}
@@ -372,10 +389,11 @@ public class LimsReadDataFromBold extends DocumentAction {
 				"N traces (Bold)", limsBoldFields.getTraceFilePresence(), cnt);
 
 		/** set note for Nucleotide Length */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"NucleotideLengthCode_Bold", "Nucleotide length (Bold)",
-				"Nucleotide length (Bold)",
-				limsBoldFields.getNucleotideLength(), cnt);
+		limsNotes
+				.setNoteToAB1FileName(annotatedPluginDocuments,
+						"NucleotideLengthCode_Bold", "Nucl-length (Bold)",
+						"Nucl-length (Bold)",
+						limsBoldFields.getNucleotideLength(), cnt);
 
 		/** set note for GenBankID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -385,10 +403,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 		/** set note for GenBank URI */
 		try {
 			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-					"GenBankURICode_FixedValue", "GenBank URI (Bold)",
+					"GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)",
 					"GenBank URI (Bold)",
 					limsImporterUtil.getPropValues("boldurigenbank")
-							+ limsBoldFields.getGenBankID(), cnt);
+							+ limsBoldFields.getCoi5PAccession(), cnt);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -400,9 +418,9 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private void setNotesToBoldDocumentsRegistration(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		/** set note for BOLD-ID */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments, "BOLDIDCode",
-				"BOLD ID (Bold)", "BOLD ID (Bold)", limsBoldFields.getBoldID(),
-				cnt);
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDIDCode_Bold", "BOLD ID (Bold)", "BOLD ID (Bold)",
+				limsBoldFields.getBoldID(), cnt);
 
 		/** set note for Number of Images */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -459,23 +477,24 @@ public class LimsReadDataFromBold extends DocumentAction {
 	/* Set value to variable */
 	private void setNotesThatMatchRegistrationNumberAndMarker(
 			String nucleotideLength, String tracebestandPresence,
-			String genBankID) {
+			String coi5pAccession) {
 
 		logger.info("Match Bold record on registrationnumber and marker.");
 
 		limsBoldFields.setNucleotideLength(nucleotideLength);
 		limsBoldFields.setTraceFilePresence(tracebestandPresence);
-		limsBoldFields.setGenBankID(genBankID);
+		limsBoldFields.setGenBankID(coi5pAccession);
+		limsBoldFields.setCoi5PAccession(coi5pAccession);
 
 		logger.info("Nucleotide length: "
 				+ limsBoldFields.getNucleotideLength());
 		logger.info("TraceFile Presence: "
 				+ limsBoldFields.getTraceFilePresence());
-		logger.info("GenBankID: " + limsBoldFields.getGenBankID());
+		logger.info("GenBankID: " + limsBoldFields.getCoi5PAccession());
 		try {
 			logger.info("GenBankUri: "
 					+ limsImporterUtil.getPropValues("boldurigenbank")
-					+ limsBoldFields.getGenBankID());
+					+ limsBoldFields.getCoi5PAccession());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

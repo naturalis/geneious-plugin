@@ -20,6 +20,7 @@ public class LimsBoldFields {
 	private String fieldID;
 	private String boldBIN;
 	private String boldURI;
+	private String coi5PAccession;
 
 	public String getBoldURI() {
 		return boldURI;
@@ -107,6 +108,14 @@ public class LimsBoldFields {
 
 	public void setNumberOfImagesBold(String numberOfImagesBold) {
 		this.numberOfImagesBold = numberOfImagesBold;
+	}
+
+	public String getCoi5PAccession() {
+		return coi5PAccession;
+	}
+
+	public void setCoi5PAccession(String coi5pAccession) {
+		coi5PAccession = coi5pAccession;
 	}
 
 }

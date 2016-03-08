@@ -158,9 +158,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				}
 				/* set note for Marker */
 				try {
-					limsNotes.setImportNotes(document, "DocumentVersionCode",
-							"Document version", "Document version",
-							limsAB1Fields.getVersieNummer());
+					limsNotes
+							.setImportNotes(document,
+									"DocumentVersionCode_Seq",
+									"Document version", "Document version",
+									limsAB1Fields.getVersieNummer());
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
