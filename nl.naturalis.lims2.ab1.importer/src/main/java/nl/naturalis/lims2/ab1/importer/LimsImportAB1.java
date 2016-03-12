@@ -45,8 +45,18 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public static List<DocumentField> displayFields;
 	public static QueryField[] searchFields;
 	private String logFileName = "";
+	private boolean fastaFileExists = false;
+	private int versienummer = 0;
+	private String dummyPcrPlateIdSeqValue = "";
+	private String dummyMarkerSeqValue = "";
+	private String dummyRegistrNmbrSamplesValue = "";
+	private String dummyScientificNameSamplesValue = "";
+	private String dummySamplePlateIdSamplesValue = "";
+	private String dummyPositionSamplesValue = "";
+	private String dummyExtractIDSamplesValue = "";
+	private String dummySeqStaffSamplesValue = "";
 
-	int cnt = 0;
+	private int cnt = 0;
 
 	public LimsImportAB1() {
 
@@ -81,6 +91,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		String annotatedDocumentID = ReadGeneiousFieldsValues
 				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
+
+		setDummyPcrPlateIdSeqValue(ReadGeneiousFieldsValues
+				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
+						"//document/notes/note/PCRplateIDCode_Seq"));
+		System.out.println(getDummyPcrPlateIdSeqValue());
+
 		/*
 		 * if filename is equal to the dummy file name then delete the dummy
 		 * record.
@@ -98,111 +114,120 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		listcnt.add(cnt++);
 		System.out.println("Count: " + Integer.toString(cnt));
 
-		boolean fileExists = ReadGeneiousFieldsValues
+		boolean ab1fileExists = ReadGeneiousFieldsValues
 				.fileNameExistsInGeneiousDatabase(file.getName());
 
-		if (!fileExists) {
+		extractAb1FastaFileName = file.getName();
 
-			extractAb1FastaFileName = file.getName();
-
-			if (file.getName().contains("fas")) {
-				extractAb1FastaFileName = fileselector.readFastaContent(file,
-						extractAb1FastaFileName);
-			}
-			progressListener.setMessage("Importing sequence data");
-
-			List<AnnotatedPluginDocument> docs = PluginUtilities
-					.importDocuments(file, ProgressListener.EMPTY);
-
-			progressListener.setProgress(0, 10);
-			System.out.println("Database Services: "
-					+ PluginUtilities.getWritableDatabaseServiceRoots());
-
-			count += docs.size();
-
-			document = importCallback.addDocument(docs.listIterator().next());
-
-			if (file.getName() != null) {
-				limsAB1Fields
-						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
-
-				logger.info("----------------------------S T A R T ---------------------------------");
-				logger.info("Start extracting value from file: "
-						+ file.getName());
-
-				/* set note for Extract-ID */
-				try {
-					limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
-							"Extract ID (Seq)", "Extract ID (Seq)",
-							limsAB1Fields.getExtractID());
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				/* set note for PCR Plaat-ID */
-				try {
-					limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
-							"PCR plate ID (Seq)", "PCR plate ID (Seq)",
-							limsAB1Fields.getPcrPlaatID());
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				/* set note for Marker */
-				try {
-					limsNotes.setImportNotes(document, "MarkerCode_Seq",
-							"Marker (Seq)", "Marker (Seq)",
-							limsAB1Fields.getMarker());
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				/* set note for Marker */
-				try {
-					limsNotes
-							.setImportNotes(document,
-									"DocumentVersionCode_Seq",
-									"Document version", "Document version",
-									limsAB1Fields.getVersieNummer());
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				/* set note for AmplicificationStaffCode_FixedValue */
-				try {
-					limsNotes.setImportNotes(document,
-							"AmplicificationStaffCode_FixedValue_Seq",
-							"Ampl-staff (Seq)", "Ampl-staff (Seq)",
-							limsImporterUtil
-									.getPropValues("seqamplicification"));
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				limsNotes.setImportConsensusSeqPassNotes(document,
-						limsNotes.ConsensusSeqPass,
-						"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
-						"Pass (Seq)", null);
-
-				// limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
-				// "CRS (CRS)", "CRS (CRS)", true);
-			}
-			logger.info("Total of document(s) filename extracted: " + count);
-			logger.info("----------------------------E N D ---------------------------------");
-			logger.info("Done with extracting/imported Ab1 files. ");
+		if (file.getName().contains("fas")) {
+			extractAb1FastaFileName = fileselector.readFastaContent(file,
+					extractAb1FastaFileName);
+			fastaFileExists = ReadGeneiousFieldsValues.checkOfFastaOrAB1Exists(
+					extractAb1FastaFileName, "plugin_document_xml",
+					"//XMLSerialisableRootElement/name");
+			versienummer = ReadGeneiousFieldsValues
+					.getLastVersionFromDocument(extractAb1FastaFileName);
+		} else {
+			versienummer = ReadGeneiousFieldsValues
+					.getLastVersionFromDocument(file.getName());
 		}
+		progressListener.setMessage("Importing sequence data");
 
-		// else {
-		// EventQueue.invokeLater(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// Dialogs.showMessageDialog("File: " + file.getName()
-		// + " already exists in the database");
-		// return;
-		// }
-		// });
-		// }
+		List<AnnotatedPluginDocument> docs = PluginUtilities.importDocuments(
+				file, ProgressListener.EMPTY);
+
+		progressListener.setProgress(0, 10);
+		// System.out.println("Database Services: "
+		// + PluginUtilities.getWritableDatabaseServiceRoots());
+
+		count += docs.size();
+
+		document = importCallback.addDocument(docs.listIterator().next());
+
+		if (file.getName() != null) {
+			limsAB1Fields
+					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+
+			logger.info("----------------------------S T A R T ---------------------------------");
+			logger.info("Start extracting value from file: " + file.getName());
+
+			/* set note for Extract-ID */
+			try {
+				limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
+						"Extract ID (Seq)", "Extract ID (Seq)",
+						limsAB1Fields.getExtractID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/* set note for PCR Plaat-ID */
+			try {
+				limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
+						"PCR plate ID (Seq)", "PCR plate ID (Seq)",
+						limsAB1Fields.getPcrPlaatID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/* set note for Marker */
+			try {
+				limsNotes.setImportNotes(document, "MarkerCode_Seq",
+						"Marker (Seq)", "Marker (Seq)",
+						limsAB1Fields.getMarker());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			if (ab1fileExists) {
+				versienummer++;
+			} else if (fastaFileExists) {
+				versienummer++;
+			} else {
+				versienummer = 1;
+			}
+
+			/* set note for Marker */
+			try {
+				limsNotes.setImportNotes(document, "DocumentVersionCode_Seq",
+						"Document version", "Document version",
+						Integer.toString(versienummer));// limsAB1Fields.getVersieNummer());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/* set note for AmplicificationStaffCode_FixedValue */
+			try {
+				limsNotes.setImportNotes(document,
+						"AmplicificationStaffCode_FixedValue_Seq",
+						"Ampl-staff (Seq)", "Ampl-staff (Seq)",
+						limsImporterUtil.getPropValues("seqamplicification"));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			limsNotes.setImportConsensusSeqPassNotes(document,
+					limsNotes.ConsensusSeqPass, "ConsensusSeqPass_Code_Seq",
+					"Pass (Seq)", "Pass (Seq)", null);
+
+			// limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
+			// "CRS (CRS)", "CRS (CRS)", true);
+		}
+		logger.info("Total of document(s) filename extracted: " + count);
+		logger.info("----------------------------E N D ---------------------------------");
+		logger.info("Done with extracting/imported Ab1 files. ");
 	}
+
+	// else {
+	// EventQueue.invokeLater(new Runnable() {
+	//
+	// @Override
+	// public void run() {
+	// Dialogs.showMessageDialog("File: " + file.getName()
+	// + " already exists in the database");
+	// return;
+	// }
+	// });
+	// }
 
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
@@ -220,5 +245,72 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				+ limsImporterUtil.getLogFilename();
 		LimsLogger limsLogger = new LimsLogger(logFileName);
 		limsLogger.logToFile(logFileName, list.toString());
+	}
+
+	public String getDummyPcrPlateIdSeqValue() {
+		return dummyPcrPlateIdSeqValue;
+	}
+
+	public void setDummyPcrPlateIdSeqValue(String dummyPcrPlateIdSeqValue) {
+		this.dummyPcrPlateIdSeqValue = dummyPcrPlateIdSeqValue;
+	}
+
+	public String getDummyMarkerSeqValue() {
+		return dummyMarkerSeqValue;
+	}
+
+	public void setDummyMarkerSeqValue(String dummyMarkerSeqValue) {
+		this.dummyMarkerSeqValue = dummyMarkerSeqValue;
+	}
+
+	public String getDummyRegistrNmbrSamplesValue() {
+		return dummyRegistrNmbrSamplesValue;
+	}
+
+	public void setDummyRegistrNmbrSamplesValue(
+			String dummyRegistrNmbrSamplesValue) {
+		this.dummyRegistrNmbrSamplesValue = dummyRegistrNmbrSamplesValue;
+	}
+
+	public String getDummyScientificNameSamplesValue() {
+		return dummyScientificNameSamplesValue;
+	}
+
+	public void setDummyScientificNameSamplesValue(
+			String dummyScientificNameSamplesValue) {
+		this.dummyScientificNameSamplesValue = dummyScientificNameSamplesValue;
+	}
+
+	public String getDummySamplePlateIdSamplesValue() {
+		return dummySamplePlateIdSamplesValue;
+	}
+
+	public void setDummySamplePlateIdSamplesValue(
+			String dummySamplePlateIdSamplesValue) {
+		this.dummySamplePlateIdSamplesValue = dummySamplePlateIdSamplesValue;
+	}
+
+	public String getDummyPositionSamplesValue() {
+		return dummyPositionSamplesValue;
+	}
+
+	public void setDummyPositionSamplesValue(String dummyPositionSamplesValue) {
+		this.dummyPositionSamplesValue = dummyPositionSamplesValue;
+	}
+
+	public String getDummyExtractIDSamplesValue() {
+		return dummyExtractIDSamplesValue;
+	}
+
+	public void setDummyExtractIDSamplesValue(String dummyExtractIDSamplesValue) {
+		this.dummyExtractIDSamplesValue = dummyExtractIDSamplesValue;
+	}
+
+	public String getDummySeqStaffSamplesValue() {
+		return dummySeqStaffSamplesValue;
+	}
+
+	public void setDummySeqStaffSamplesValue(String dummySeqStaffSamplesValue) {
+		this.dummySeqStaffSamplesValue = dummySeqStaffSamplesValue;
 	}
 }

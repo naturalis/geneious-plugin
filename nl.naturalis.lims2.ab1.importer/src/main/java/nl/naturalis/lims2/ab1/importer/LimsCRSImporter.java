@@ -68,6 +68,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private String fileSelected = "";
 	private boolean result = false;
 	private AnnotatedPluginDocument[] documents = null;
+	private boolean isRMNHNumber = false;
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "CRS-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -85,7 +86,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Select all documents");
+					Dialogs.showMessageDialog("Select at least one document");
 					return;
 				}
 			});
@@ -97,6 +98,16 @@ public class LimsCRSImporter extends DocumentAction {
 			if (fileSelected == null) {
 				return;
 			}
+
+			isRMNHNumber = DocumentUtilities.getSelectedDocuments().iterator()
+					.next().toString()
+					.contains("RegistrationNumberCode_Samples");
+
+			if (!isRMNHNumber) {
+				Dialogs.showMessageDialog("Document(s) doesn't- contained Registr-nmbr (Samples). Run the Sample import first and then CRS import.");
+				return;
+			}
+
 			limsFrameProgress.createProgressBar();
 
 			logger.info("Start updating selected document(s) with CRS data.");

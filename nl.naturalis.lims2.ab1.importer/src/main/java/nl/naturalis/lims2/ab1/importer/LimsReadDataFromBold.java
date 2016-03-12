@@ -90,7 +90,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Select all documents for BOLD");
+					Dialogs.showMessageDialog("Select at least one document.");
 					return;
 				}
 			});

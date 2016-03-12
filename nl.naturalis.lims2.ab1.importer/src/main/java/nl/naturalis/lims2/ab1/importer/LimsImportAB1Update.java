@@ -13,6 +13,7 @@ import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
+import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class LimsImportAB1Update extends DocumentAction {
 			.getLogger(LimsImportAB1Update.class);
 
 	private List<String> msgList = new ArrayList<String>();
+	private int versienummer = 0;
+	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -79,10 +82,17 @@ public class LimsImportAB1Update extends DocumentAction {
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
+							versienummer = (int) annotatedPluginDocuments[cnt]
+									.getFieldValue("DocumentVersionCode_Seq");
+							// ReadGeneiousFieldsValues
+							// .getLastVersionFromDocument(seq.getName());
 						} else {
 							try {
 								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
 										.loadFastaFile(seq.getName()));
+								versienummer = ReadGeneiousFieldsValues
+										.getLastVersionFromDocument(seq
+												.getName());
 							} catch (FileNotFoundException e) {
 								e.printStackTrace();
 							}
@@ -119,7 +129,7 @@ public class LimsImportAB1Update extends DocumentAction {
 								annotatedPluginDocuments,
 								"DocumentVersionCode_Seq", "Document version",
 								"Document version",
-								limsAB1Fields.getVersieNummer(), cnt);
+								Integer.toString(versienummer), cnt);
 						/* set note for AmplicificationStaffCode_FixedValue */
 						try {
 							limsNotes

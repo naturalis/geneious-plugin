@@ -84,13 +84,12 @@ public class LimsDummySeq {
 
 		/* set note for PCR Plaat-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"PCRplateIDCode_Samples", "PCR plate ID (Samples)",
-				"PCR plate ID (Samples)", "AA000");
+				"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
+				"PCR plate ID (Seq)", "AA000");
 
 		/* set note for Marker */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"MarkerCode_Samples", "Marker (Samples)", "Marker (Samples)",
-				"Dum");
+				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)", "Dum");
 
 		/** SequencingStaffCode_FixedValue */
 		try {
