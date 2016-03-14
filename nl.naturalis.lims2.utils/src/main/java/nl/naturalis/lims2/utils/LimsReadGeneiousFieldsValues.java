@@ -730,6 +730,75 @@ public class LimsReadGeneiousFieldsValues {
 
 	}
 
+	public int getDocumentVersion(String fileName) {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			url = limsImporterUtil.getPropValues("url");
+			user = limsImporterUtil.getPropValues("user");
+			password = limsImporterUtil.getPropValues("password");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT a.version, a.name "
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
+					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+			con = DriverManager.getConnection(url, user, password);
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) fileName);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+					logger.debug("Versionnumber : " + result);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+
+		return result;
+
+	}
+
 	public String getDummyPcrPlateIdSeqValue() {
 		return dummyPcrPlateIdSeqValue;
 	}

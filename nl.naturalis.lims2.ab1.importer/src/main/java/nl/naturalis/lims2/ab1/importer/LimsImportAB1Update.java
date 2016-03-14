@@ -82,17 +82,15 @@ public class LimsImportAB1Update extends DocumentAction {
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
-							versienummer = (int) annotatedPluginDocuments[cnt]
-									.getFieldValue("DocumentVersionCode_Seq");
-							// ReadGeneiousFieldsValues
-							// .getLastVersionFromDocument(seq.getName());
+							versienummer = ReadGeneiousFieldsValues
+									.getDocumentVersion(seq.getName());
+
 						} else {
 							try {
 								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
 										.loadFastaFile(seq.getName()));
 								versienummer = ReadGeneiousFieldsValues
-										.getLastVersionFromDocument(seq
-												.getName());
+										.getDocumentVersion(seq.getName());
 							} catch (FileNotFoundException e) {
 								e.printStackTrace();
 							}
