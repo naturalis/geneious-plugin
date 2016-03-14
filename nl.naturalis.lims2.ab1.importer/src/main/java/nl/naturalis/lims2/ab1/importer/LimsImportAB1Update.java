@@ -45,6 +45,7 @@ public class LimsImportAB1Update extends DocumentAction {
 	private List<String> msgList = new ArrayList<String>();
 	private int versienummer = 0;
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private boolean isVersionnumberOne = false;
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -79,18 +80,27 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ seq.getName());
 						msgList.add(seq.getName());
 
+						isVersionnumberOne = DocumentUtilities
+								.getSelectedDocuments().iterator().next()
+								.toString().contains("DocumentVersionCode_Seq");
+
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
-							versienummer = ReadGeneiousFieldsValues
-									.getDocumentVersion(seq.getName());
+
+							if (!isVersionnumberOne) {
+								versienummer = 1;
+							}
+							// versienummer = ReadGeneiousFieldsValues
+							// .getDocumentVersion(seq.getName());
 
 						} else {
 							try {
 								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
 										.loadFastaFile(seq.getName()));
-								versienummer = ReadGeneiousFieldsValues
-										.getDocumentVersion(seq.getName());
+								if (!isVersionnumberOne) {
+									versienummer = 1;
+								}
 							} catch (FileNotFoundException e) {
 								e.printStackTrace();
 							}
@@ -123,11 +133,13 @@ public class LimsImportAB1Update extends DocumentAction {
 								limsAB1Fields.getMarker(), cnt);
 
 						/** set note for Document version */
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"DocumentVersionCode_Seq", "Document version",
-								"Document version",
-								Integer.toString(versienummer), cnt);
+						if (!isVersionnumberOne) {
+							limsNotes.setNoteToAB1FileName(
+									annotatedPluginDocuments,
+									"DocumentVersionCode_Seq",
+									"Document version", "Document version",
+									Integer.toString(versienummer), cnt);
+						}
 						/* set note for AmplicificationStaffCode_FixedValue */
 						try {
 							limsNotes
