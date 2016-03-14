@@ -47,14 +47,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private String logFileName = "";
 	private boolean fastaFileExists = false;
 	private int versienummer = 0;
-	private String dummyPcrPlateIdSeqValue = "";
-	private String dummyMarkerSeqValue = "";
-	private String dummyRegistrNmbrSamplesValue = "";
-	private String dummyScientificNameSamplesValue = "";
-	private String dummySamplePlateIdSamplesValue = "";
-	private String dummyPositionSamplesValue = "";
-	private String dummyExtractIDSamplesValue = "";
-	private String dummySeqStaffSamplesValue = "";
+	private boolean isDeleted = false;
+	private List<String> list = new ArrayList<String>();
 
 	private int cnt = 0;
 
@@ -92,10 +86,27 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
 
-		setDummyPcrPlateIdSeqValue(ReadGeneiousFieldsValues
-				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
-						"//document/notes/note/PCRplateIDCode_Seq"));
-		System.out.println(getDummyPcrPlateIdSeqValue());
+		list.addAll(ReadGeneiousFieldsValues
+				.getDummySamplesValues(dummyFilename));
+
+		// System.out.println(list.toString());
+		//
+		// for (int i = 1; i < list.size(); i++) {
+		//
+		// ReadGeneiousFieldsValues.setDummyPcrPlateIdSeqValue(list.get(i));
+		// System.out.println("PCR Plate: "
+		// + ReadGeneiousFieldsValues.getDummyPcrPlateIdSeqValue());
+		// ReadGeneiousFieldsValues.setDummyMarkerSeqValue(list.get(i));
+		// ReadGeneiousFieldsValues.setDummyRegistrNmbrSamplesValue(list
+		// .get(i));
+		// ReadGeneiousFieldsValues.setDummyScientificNameSamplesValue(list
+		// .get(i));
+		// ReadGeneiousFieldsValues.setDummySamplePlateIdSamplesValue(list
+		// .get(i));
+		// ReadGeneiousFieldsValues.setDummyPositionSamplesValue(list.get(i));
+		// ReadGeneiousFieldsValues.setDummyExtractIDSamplesValue(list.get(i));
+		// ReadGeneiousFieldsValues.setDummySeqStaffSamplesValue(list.get(i));
+		// }
 
 		/*
 		 * if filename is equal to the dummy file name then delete the dummy
@@ -104,8 +115,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		if (dummyFilename.equals(ab1FileName[0] + ".dum")) {
 			ReadGeneiousFieldsValues
 					.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
+			isDeleted = true;
 			logger.info("Filename: " + ab1FileName[0]
 					+ ".dum has been deleted from table annotated_document");
+		} else {
+			isDeleted = false;
 		}
 
 		String extractAb1FastaFileName = "";
@@ -209,8 +223,56 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					limsNotes.ConsensusSeqPass, "ConsensusSeqPass_Code_Seq",
 					"Pass (Seq)", "Pass (Seq)", null);
 
-			// limsNotes.setImportTrueFalseNotes(document, "CRSCode_CRS",
-			// "CRS (CRS)", "CRS (CRS)", true);
+			if (isDeleted) {
+
+				/* set note for PCR Plaat-ID */
+				limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
+						"PCR plate ID (Seq)", "PCR plate ID (Seq)", "AA000");
+
+				/* set note for Marker */
+				limsNotes.setImportNotes(document, "MarkerCode_Seq",
+						"Marker (Seq)", "Marker (Seq)", "Dum");
+
+				/** set note for Extract-ID */
+				limsNotes.setImportNotes(document, "ExtractIDCode_Samples",
+						"Extract ID (Samples)", "Extract ID (Samples)",
+						list.get(7));
+
+				/** set note for Project Plate number */
+				limsNotes.setImportNotes(document,
+						"ProjectPlateNumberCode_Samples",
+						"Sample plate ID (Samples)",
+						"Sample plate ID (Samples)", list.get(5));
+
+				/** set note for Taxon name */
+				limsNotes.setImportNotes(document, "TaxonName2Code_Samples",
+						"[Scientific name] (Samples)",
+						"[Scientific name] (Samples)", list.get(4));
+
+				/** set note for Registration number */
+				limsNotes.setImportNotes(document,
+						"RegistrationNumberCode_Samples",
+						"Registr-nmbr (Samples)", "Registr-nmbr (Samples)",
+						list.get(3));
+
+				/** set note for Plate position */
+				limsNotes
+						.setImportNotes(document, "PlatePositionCode_Samples",
+								"Position (Samples)", "Position (Samples)",
+								list.get(6));
+
+				/** SequencingStaffCode_FixedValue */
+				try {
+					limsNotes.setImportNotes(document,
+							"SequencingStaffCode_FixedValue_Samples",
+							"Seq-staff (Samples)", "Seq-staff (Samples)",
+							limsImporterUtil
+									.getPropValues("samplessequencestaff"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
 		}
 		logger.info("Total of document(s) filename extracted: " + count);
 		logger.info("----------------------------E N D ---------------------------------");
@@ -247,70 +309,4 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		limsLogger.logToFile(logFileName, list.toString());
 	}
 
-	public String getDummyPcrPlateIdSeqValue() {
-		return dummyPcrPlateIdSeqValue;
-	}
-
-	public void setDummyPcrPlateIdSeqValue(String dummyPcrPlateIdSeqValue) {
-		this.dummyPcrPlateIdSeqValue = dummyPcrPlateIdSeqValue;
-	}
-
-	public String getDummyMarkerSeqValue() {
-		return dummyMarkerSeqValue;
-	}
-
-	public void setDummyMarkerSeqValue(String dummyMarkerSeqValue) {
-		this.dummyMarkerSeqValue = dummyMarkerSeqValue;
-	}
-
-	public String getDummyRegistrNmbrSamplesValue() {
-		return dummyRegistrNmbrSamplesValue;
-	}
-
-	public void setDummyRegistrNmbrSamplesValue(
-			String dummyRegistrNmbrSamplesValue) {
-		this.dummyRegistrNmbrSamplesValue = dummyRegistrNmbrSamplesValue;
-	}
-
-	public String getDummyScientificNameSamplesValue() {
-		return dummyScientificNameSamplesValue;
-	}
-
-	public void setDummyScientificNameSamplesValue(
-			String dummyScientificNameSamplesValue) {
-		this.dummyScientificNameSamplesValue = dummyScientificNameSamplesValue;
-	}
-
-	public String getDummySamplePlateIdSamplesValue() {
-		return dummySamplePlateIdSamplesValue;
-	}
-
-	public void setDummySamplePlateIdSamplesValue(
-			String dummySamplePlateIdSamplesValue) {
-		this.dummySamplePlateIdSamplesValue = dummySamplePlateIdSamplesValue;
-	}
-
-	public String getDummyPositionSamplesValue() {
-		return dummyPositionSamplesValue;
-	}
-
-	public void setDummyPositionSamplesValue(String dummyPositionSamplesValue) {
-		this.dummyPositionSamplesValue = dummyPositionSamplesValue;
-	}
-
-	public String getDummyExtractIDSamplesValue() {
-		return dummyExtractIDSamplesValue;
-	}
-
-	public void setDummyExtractIDSamplesValue(String dummyExtractIDSamplesValue) {
-		this.dummyExtractIDSamplesValue = dummyExtractIDSamplesValue;
-	}
-
-	public String getDummySeqStaffSamplesValue() {
-		return dummySeqStaffSamplesValue;
-	}
-
-	public void setDummySeqStaffSamplesValue(String dummySeqStaffSamplesValue) {
-		this.dummySeqStaffSamplesValue = dummySeqStaffSamplesValue;
-	}
 }
