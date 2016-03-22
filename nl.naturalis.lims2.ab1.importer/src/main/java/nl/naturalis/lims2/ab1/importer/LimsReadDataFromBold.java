@@ -170,7 +170,6 @@ public class LimsReadDataFromBold extends DocumentAction {
 					}
 
 					/* AB1 file */
-					// try {
 					if (readGeneiousFieldsValues
 							.getFileNameFromGeneiousDatabase(
 									(String) documentFileName).equals(
@@ -186,14 +185,12 @@ public class LimsReadDataFromBold extends DocumentAction {
 						result = true;
 
 					}
-					// } catch (IOException e) {
-					// e.printStackTrace();
-					// }
 
 					if (result) {
 						limsFrameProgress.createProgressBar();
 						readDataFromBold(annotatedPluginDocuments[cnt],
-								boldFileSelected, cnt);
+								boldFileSelected, cnt,
+								(String) documentFileName);
 						limsFrameProgress.showProgress();
 					}
 
@@ -209,8 +206,8 @@ public class LimsReadDataFromBold extends DocumentAction {
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Bold: "
-							+ Integer.toString(docs.size()) + " out of "
-							+ Integer.toString(importTotal)
+							+ Integer.toString(importTotal) + " out of "
+							+ Integer.toString(docs.size())
 							+ " documents are imported." + "\n"
 							+ msgList.toString());
 					logger.info("Bold: Total imported document(s): "
@@ -249,7 +246,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	private void readDataFromBold(
 			AnnotatedPluginDocument annotatedPluginDocument, String fileName,
-			int cnt) {
+			int cnt, String documentName) {
 
 		String[] headerCOI = null;
 		logger.info("CSV Bold file: " + fileName);
@@ -278,10 +275,16 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					/** DocumentNoteUtilities-Registration number */
 					/** Get value from "RegistrationnumberCode_Samples" */
+					// Object fieldValue = readGeneiousFieldsValues
+					// .readValueFromAnnotatedPluginDocument(
+					// annotatedPluginDocument, noteCode,
+					// fieldName);
+
 					Object fieldValue = readGeneiousFieldsValues
-							.readValueFromAnnotatedPluginDocument(
-									annotatedPluginDocument, noteCode,
-									fieldName);
+							.getRegistrationNumberFromTableAnnotatedDocument(
+									documentName,
+									"//document/notes/note/RegistrationNumberCode_Samples",
+									"//document/hiddenFields/cache_name");
 
 					/** Match only on registration number */
 					if (record[2].equals(fieldValue)) {

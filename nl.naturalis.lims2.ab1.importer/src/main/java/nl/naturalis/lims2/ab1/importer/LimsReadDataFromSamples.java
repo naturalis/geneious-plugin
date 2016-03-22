@@ -28,6 +28,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
+import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -67,6 +69,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private final String noteCode = "DocumentNoteUtilities-Extract ID (Seq)";
 	private final String fieldName = "ExtractIDCode_Seq";
 	private JFrame frame = new JFrame();
+	private DefaultNucleotideSequence defaultNucleotideSequence = null;
+	private DefaultAlignmentDocument alignmentDocument = null;
 
 	String logFileName = limsImporterUtil.getLogPath() + File.separator
 			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
@@ -96,7 +100,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				null, options, options[2]);
 		if (n == 0) {
 			limsFrameProgress.createProgressBar();
-			// createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
 			setExtractIDFromSamplesSheet(fileSelected);
 			limsFrameProgress.hideFrame();
@@ -130,25 +133,95 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						logger.info("-------------------------- S T A R T --------------------------");
 						logger.info("Start Reading data from a samples file.");
 
-						seq = (SequenceDocument) docs.get(cnt).getDocument();
+						/* Reads Assembly Contig 1 consensus sequence */
+						try {
+							if (ReadGeneiousFieldsValues
+									.getCacheNameFromGeneiousDatabase(
+											documentFileName,
+											"//document/hiddenFields/cache_name")
+									.equals(documentFileName)
+									&& !docs.toString().contains("ab1")
+									&& documentFileName.toString().contains(
+											"dum")) {
+
+								defaultNucleotideSequence = (DefaultNucleotideSequence) docs
+										.get(cnt).getDocument();
+
+								logger.info("Selected Contig consensus sequence document: "
+										+ defaultNucleotideSequence.getName());
+
+								// result = true;
+								// logger.debug("Result Samples :" + result);
+							}
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+
+						/* Reads Assembly Contig 1 file */
+						try {
+							if (ReadGeneiousFieldsValues
+									.getCacheNameFromGeneiousDatabase(
+											documentFileName,
+											"//document/hiddenFields/override_cache_name")
+									.equals(documentFileName)
+									&& !docs.toString().contains(
+											"DefaultNucleotideSequence")) {
+								alignmentDocument = (DefaultAlignmentDocument) docs
+										.get(cnt).getDocument();
+
+								logger.info("Selected Contig document: "
+										+ alignmentDocument.getName());
+
+								// result = true;
+								// logger.debug("Result CRS :" + result);
+							}
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+
+						/* AB1 file */
+						if (ReadGeneiousFieldsValues
+								.getFileNameFromGeneiousDatabase(
+										(String) documentFileName).equals(
+										documentFileName)) {
+							seq = (SequenceDocument) docs.get(cnt)
+									.getDocument();
+
+							logger.info("Selected AB1 document: "
+									+ seq.getName());
+
+							// result = true;
+							// logger.debug("Result CRS :" + result);
+						}
 
 						documentFileName = documents[cnt]
 								.getFieldValue("cache_name");
 
+						result = "";
+
 						/* Get file name from the document(s) */
-						if ((documentFileName.toString().contains("dum"))
-								|| (documentFileName.toString().contains("ab1"))) {
+						if (documentFileName.toString().contains("ab1")) {
+							result = ReadGeneiousFieldsValues
+									.readValueFromAnnotatedPluginDocument(
+											documents[cnt], "importedFrom",
+											"filename");
 
 						} else {
-							result = ReadGeneiousFieldsValues
-									.readValueFromAnnotatedPluginDocument(docs
-											.iterator().next(), "importedFrom",
-											"filename");
+							if (!docs.toString().contains("dum"))
+								result = ReadGeneiousFieldsValues
+										.readValueFromAnnotatedPluginDocument(
+												documents[cnt], "importedFrom",
+												"filename");
 						}
 
 						/* Check of the filename contain "FAS" extension */
 						if (result.toString().contains("fas")) {
-							extractIDfileName = getExtractIDFromAB1FileName((String) documentFileName);
+							extractIDfileName = (String) ReadGeneiousFieldsValues
+									.readValueFromAnnotatedPluginDocument(
+											documents[cnt],
+											"DocumentNoteUtilities-Extract ID (Seq)",
+											"ExtractIDCode_Seq");
+
 						} else {
 							/* get AB1 filename */
 							extractIDfileName = getExtractIDFromAB1FileName(seq
@@ -162,7 +235,15 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 						if (isSampleDoc) {
 							limsFrameProgress.createProgressBar();
-							setSamplesNotes(documents, cnt);
+							if (result.toString().contains("fas")) {
+								limsFrameProgress.showProgress();
+								readDataFromExcel(fileSelected,
+										extractIDfileName, documents, cnt);
+							} else {
+								limsFrameProgress.showProgress();
+								readDataFromExcel(fileSelected,
+										extractIDfileName, documents, cnt);
+							}
 							limsFrameProgress.hideFrame();
 						} else {
 							Dialogs.showMessageDialog("Document(s) doesn't- contained ExtractID (Seq). Import document with the Naturalis plugin ");
@@ -222,8 +303,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
-		limsFrameProgress.showProgress();
-		readDataFromExcel(fileSelected);
+		// readDataFromExcel(fileSelected, extractIDfileName);
+
 		/** set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
 				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
@@ -362,7 +443,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	}
 
-	private void readDataFromExcel(String fileName) {
+	private void readDataFromExcel(String fileName, String extractID,
+			AnnotatedPluginDocument[] documents, int cnt) {
 
 		int counter = 0;
 		int cntVerwerkt = 0;
@@ -393,7 +475,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								record[2].indexOf("-"));
 					}
 
-					if (ID.equals(extractIDfileName)) {
+					if (ID.equals(extractID)) {
 						limsExcelFields.setProjectPlaatNummer(record[0]);
 						limsExcelFields.setPlaatPositie(record[1]);
 						limsExcelFields.setExtractPlaatNummer(plateNumber);
@@ -417,6 +499,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								+ limsExcelFields.getPlaatPositie());
 						logger.info("Sample method: "
 								+ limsExcelFields.getSubSample());
+
+						setSamplesNotes(documents, cnt);
+
 						counter--;
 						cntVerwerkt++;
 						verwerkingListCnt.add(Integer.toString(cntVerwerkt));
@@ -425,6 +510,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					} // end IF
 
 					if (!verwerkList.contains(ID)) {
+						limsExcelFields.setProjectPlaatNummer("");
+						limsExcelFields.setPlaatPositie("");
+						limsExcelFields.setExtractPlaatNummer("");
+						if (record[3] != null) {
+							limsExcelFields.setExtractID("");
+						}
+						limsExcelFields.setRegistrationNumber("");
+						limsExcelFields.setTaxonNaam("");
 						msgUitvalList.add("Record ExtractID: " + record[3]
 								+ "\n");
 					}

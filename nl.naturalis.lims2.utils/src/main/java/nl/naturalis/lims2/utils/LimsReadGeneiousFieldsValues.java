@@ -55,21 +55,21 @@ public class LimsReadGeneiousFieldsValues {
 	}
 
 	public Object readValueFromAnnotatedPluginDocument(
-			AnnotatedPluginDocument annotatedPluginDocument, String noteCode,
-			String fieldName) {
+			AnnotatedPluginDocument annotatedPluginDocuments, String noteCode,
+			Object fieldName) {
 
 		/** noteCode = "DocumentNoteUtilities-Registration number"; */
 		DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteCode);
 		Object fieldValue = null;
 
 		if (noteType != null) {
-			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocument
+			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocuments
 					.getDocumentNotes(true);
 
 			DocumentNote bos = documentNotes.getNote(noteCode);
 			/** example: FieldName = "BasisOfRecordCode" */
 			if (fieldName != null) {
-				fieldValue = bos.getFieldValue(fieldName);
+				fieldValue = bos.getFieldValue((String) fieldName);
 			} else {
 				fieldValue = null;
 			}
@@ -96,6 +96,72 @@ public class LimsReadGeneiousFieldsValues {
 		}
 
 		return fieldValue;
+	}
+
+	public String getRegistrationNumberFromTableAnnotatedDocument(
+			Object filename, String xmlNotesName, String xmlNotesName1)
+			throws IOException {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		url = limsImporterUtil.getPropValues("url");
+		user = limsImporterUtil.getPropValues("user");
+		password = limsImporterUtil.getPropValues("password");
+
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT a.registrationnumber, a.name"
+					+ " FROM " + " ( "
+					+ " SELECT TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS registrationnumber, "
+					+ " TRIM(EXTRACTVALUE(document_xml,  ' " + xmlNotesName1
+					+ " ')) AS name " + " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?";
+
+			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				result = rs.getObject(1).toString();
+				logger.debug("Annotated document id : " + result);
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Username or Password is not correct: "
+							+ "User: " + user + " Password: " + password);
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return result;
 	}
 
 	public String getFileNameFromGeneiousDatabase(String filename) {
@@ -125,6 +191,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -198,6 +265,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " ) AS a " + " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -273,6 +341,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -382,6 +451,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name like ?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, "%" + extractid + "%");
 			rs = pst.executeQuery();
@@ -443,6 +513,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name like ?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, "%" + extractid + "%");
 			rs = pst.executeQuery();
@@ -506,6 +577,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -549,7 +621,7 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
-	public String getIDFromTableAnnotatedtDocument(Object filename,
+	public String getIDFromTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
 
 		Connection con = null;
@@ -571,6 +643,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -627,6 +700,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " WHERE id =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -686,6 +760,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -755,6 +830,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -900,6 +976,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url, user, password);
+			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);

@@ -141,7 +141,8 @@ public class LimsCRSImporter extends DocumentAction {
 										documentFileName,
 										"//document/hiddenFields/cache_name")
 								.equals(documentFileName)
-								&& !documentFileName.toString().contains("ab1")) {
+								&& !docs.toString().contains("ab1")
+								&& documentFileName.toString().contains("dum")) {
 
 							defaultNucleotideSequence = (DefaultNucleotideSequence) docs
 									.get(cnt).getDocument();
@@ -162,7 +163,9 @@ public class LimsCRSImporter extends DocumentAction {
 								.getCacheNameFromGeneiousDatabase(
 										documentFileName,
 										"//document/hiddenFields/override_cache_name")
-								.equals(documentFileName)) {
+								.equals(documentFileName)
+								&& !docs.toString().contains(
+										"DefaultNucleotideSequence")) {
 							alignmentDocument = (DefaultAlignmentDocument) docs
 									.get(cnt).getDocument();
 
@@ -191,11 +194,9 @@ public class LimsCRSImporter extends DocumentAction {
 
 					if (result) {
 						documents = annotatedPluginDocuments;
-						readDataFromCRSFile(documents[cnt], fileSelected, cnt);
 						/* Add notes */
-						// setCRSNotes(annotatedPluginDocuments, cnt);
-						// logger.info("Done with adding notes to the document: "
-						// + documentFileName);
+						readDataFromCRSFile(documents[cnt], fileSelected, cnt,
+								(String) documentFileName);
 						importCounter = DocumentUtilities
 								.getSelectedDocuments().size();
 					}
@@ -222,9 +223,10 @@ public class LimsCRSImporter extends DocumentAction {
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("CRS: "
+							+ Integer.toString(importTotal)
+							+ " out of "
 							+ Integer.toString(DocumentUtilities
 									.getSelectedDocuments().size())
-							+ " out of " + Integer.toString(importTotal)
 							+ " documents are imported." + "\n"
 							+ msgList.toString());
 					logger.info("CRS: Total imported document(s): "
@@ -360,8 +362,8 @@ public class LimsCRSImporter extends DocumentAction {
 	}
 
 	private void readDataFromCRSFile(
-			AnnotatedPluginDocument annotatedPluginDocument, String fileName,
-			int i) {
+			AnnotatedPluginDocument annotatedPluginDocuments, String fileName,
+			int i, String documentName) {
 
 		int counter = 0;
 		int cntVerwerkt = 0;
@@ -379,10 +381,15 @@ public class LimsCRSImporter extends DocumentAction {
 
 					registrationNumber = record[0];
 
-					if (matchRegistrationNumber(annotatedPluginDocument,
-							record[0])) {
+					String regnumber = readGeneiousFieldsValues
+							.getRegistrationNumberFromTableAnnotatedDocument(
+									documentName,
+									"//document/notes/note/RegistrationNumberCode_Samples",
+									"//document/hiddenFields/cache_name");
 
-						System.out.println("Registration number matched: "
+					if (regnumber.equals(registrationNumber)) {
+
+						logger.info("Registration number matched: "
 								+ registrationNumber);
 
 						match = true;
@@ -490,12 +497,12 @@ public class LimsCRSImporter extends DocumentAction {
 	/** DocumentNoteUtilities-Registration number */
 	/** Get value from "BasisOfRecordCode" */
 	private boolean matchRegistrationNumber(
-			AnnotatedPluginDocument annotatedPluginDocument,
-			String registrationNumber) {
+			AnnotatedPluginDocument[] annotatedPluginDocuments,
+			Object registrationNumber, int i) {
 
 		Object fieldValue = readGeneiousFieldsValues
-				.readValueFromAnnotatedPluginDocument(annotatedPluginDocument,
-						noteCode, fieldName);
+				.readValueFromAnnotatedPluginDocument(
+						annotatedPluginDocuments[i], noteCode, fieldName);
 		if (fieldValue == null) {
 			EventQueue.invokeLater(new Runnable() {
 

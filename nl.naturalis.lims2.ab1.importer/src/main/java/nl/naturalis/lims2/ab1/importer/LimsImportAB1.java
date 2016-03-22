@@ -83,7 +83,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		/* if exists then get the ID from the dummy file */
 		String annotatedDocumentID = ReadGeneiousFieldsValues
-				.getIDFromTableAnnotatedtDocument(ab1FileName[0] + ".dum",
+				.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
 
 		list.addAll(ReadGeneiousFieldsValues
@@ -126,7 +126,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		ArrayList<Integer> listcnt = new ArrayList<Integer>();
 
 		listcnt.add(cnt++);
-		System.out.println("Count: " + Integer.toString(cnt));
+		// System.out.println("Count: " + Integer.toString(cnt));
 
 		boolean ab1fileExists = ReadGeneiousFieldsValues
 				.fileNameExistsInGeneiousDatabase(file.getName());
@@ -159,6 +159,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		document = importCallback.addDocument(docs.listIterator().next());
 
 		if (file.getName() != null) {
+
 			limsAB1Fields
 					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
 
