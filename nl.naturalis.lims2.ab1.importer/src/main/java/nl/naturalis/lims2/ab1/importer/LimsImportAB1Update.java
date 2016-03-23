@@ -13,7 +13,6 @@ import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
-import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,6 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	private List<String> msgList = new ArrayList<String>();
 	private int versienummer = 0;
-	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private boolean isVersionnumberOne = false;
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
@@ -75,21 +73,34 @@ public class LimsImportAB1Update extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
+					isVersionnumberOne = docs.get(cnt).toString()
+							.contains("DocumentVersionCode_Seq");
+					if (!isVersionnumberOne) {
+						versienummer = 1;
+					}
+
 					if (seq.getName() != null && seq.getName().contains("_")) {
 						logger.info("Start extracting value from file: "
 								+ seq.getName());
 						msgList.add(seq.getName());
 
-						isVersionnumberOne = DocumentUtilities
-								.getSelectedDocuments().iterator().next()
-								.toString().contains("DocumentVersionCode_Seq");
+						/*
+						 * isVersionnumberOne = DocumentUtilities
+						 * .getSelectedDocuments().iterator().next()
+						 * .toString().contains("DocumentVersionCode_Seq");
+						 */
 
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
 
-							if (!isVersionnumberOne) {
-								versienummer = 1;
+							if (isVersionnumberOne) {
+								int version = (int) docs
+										.get(cnt)
+										.getDocument()
+										.getFieldValue(
+												"DocumentNoteUtilities-Document version");
+								versienummer = versienummer + version;
 							}
 							// versienummer = ReadGeneiousFieldsValues
 							// .getDocumentVersion(seq.getName());
@@ -98,7 +109,7 @@ public class LimsImportAB1Update extends DocumentAction {
 							try {
 								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
 										.loadFastaFile(seq.getName()));
-								if (!isVersionnumberOne) {
+								if (isVersionnumberOne) {
 									versienummer = 1;
 								}
 							} catch (FileNotFoundException e) {

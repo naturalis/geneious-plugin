@@ -24,11 +24,7 @@ import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
-import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
@@ -46,7 +42,6 @@ public class LimsCRSImporter extends DocumentAction {
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 
-	private SequenceDocument seq = null;
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> msgMatchList = new ArrayList<String>();
@@ -62,11 +57,9 @@ public class LimsCRSImporter extends DocumentAction {
 	private final String fieldName = "RegistrationNumberCode_Samples";
 	private boolean match = false;
 	private String registrationNumber;
-	private DefaultNucleotideSequence defaultNucleotideSequence = null;
-	private DefaultAlignmentDocument alignmentDocument = null;
 	private Object documentFileName = "";
 	private String fileSelected = "";
-	private boolean result = false;
+	private Object fasDocument = "";
 	private AnnotatedPluginDocument[] documents = null;
 	private boolean isRMNHNumber = false;
 
@@ -94,11 +87,6 @@ public class LimsCRSImporter extends DocumentAction {
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-			fileSelected = fcd.loadSelectedFile();
-			if (fileSelected == null) {
-				return;
-			}
-
 			isRMNHNumber = DocumentUtilities.getSelectedDocuments().iterator()
 					.next().toString()
 					.contains("RegistrationNumberCode_Samples");
@@ -108,103 +96,67 @@ public class LimsCRSImporter extends DocumentAction {
 				return;
 			}
 
+			fileSelected = fcd.loadSelectedFile();
+			if (fileSelected == null) {
+				return;
+			}
+
 			limsFrameProgress.createProgressBar();
 
 			logger.info("Start updating selected document(s) with CRS data.");
 			logger.info("-------------------------- S T A R T --------------------------");
 			logger.info("Start Reading data from a CRS file.");
-			try {
-				/** Add selected documents to a list. */
-				docs = DocumentUtilities.getSelectedDocuments();
+			/** Add selected documents to a list. */
+			docs = DocumentUtilities.getSelectedDocuments();
 
-				msgUitvalList.add("Filename: " + fileSelected + "\n");
-				msgUitvalList.add("Username: "
-						+ System.getProperty("user.name") + "\n");
-				msgUitvalList.add("Type action: Import CRS data " + "\n");
+			msgUitvalList.add("Filename: " + fileSelected + "\n");
+			msgUitvalList.add("Username: " + System.getProperty("user.name")
+					+ "\n");
+			msgUitvalList.add("Type action: Import CRS data " + "\n");
 
-				for (int cnt = 0; cnt < docs.size(); cnt++) {
-					documentFileName = annotatedPluginDocuments[cnt]
-							.getFieldValue("cache_name");
+			for (int cnt = 0; cnt < docs.size(); cnt++) {
+				documentFileName = annotatedPluginDocuments[cnt]
+						.getFieldValue("cache_name");
 
-					result = false;
-
-					/* Add sequence name for the dialog screen */
-					if (DocumentUtilities.getSelectedDocuments().listIterator()
-							.hasNext()) {
-						msgList.add(documentFileName + "\n");
-					}
-
-					/* Reads Assembly Contig 1 consensus sequence */
-					try {
-						if (readGeneiousFieldsValues
-								.getCacheNameFromGeneiousDatabase(
-										documentFileName,
-										"//document/hiddenFields/cache_name")
-								.equals(documentFileName)
-								&& !docs.toString().contains("ab1")
-								&& documentFileName.toString().contains("dum")) {
-
-							defaultNucleotideSequence = (DefaultNucleotideSequence) docs
-									.get(cnt).getDocument();
-
-							logger.info("Selected Contig consensus sequence document: "
-									+ defaultNucleotideSequence.getName());
-
-							result = true;
-							logger.debug("Result CRS :" + result);
-						}
-					} catch (IOException e2) {
-						e2.printStackTrace();
-					}
-
-					/* Reads Assembly Contig 1 file */
-					try {
-						if (readGeneiousFieldsValues
-								.getCacheNameFromGeneiousDatabase(
-										documentFileName,
-										"//document/hiddenFields/override_cache_name")
-								.equals(documentFileName)
-								&& !docs.toString().contains(
-										"DefaultNucleotideSequence")) {
-							alignmentDocument = (DefaultAlignmentDocument) docs
-									.get(cnt).getDocument();
-
-							logger.info("Selected Contig document: "
-									+ alignmentDocument.getName());
-
-							result = true;
-							logger.debug("Result CRS :" + result);
-						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-
-					/* AB1 file */
-					if (readGeneiousFieldsValues
-							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName).equals(
-									documentFileName)) {
-						seq = (SequenceDocument) docs.get(cnt).getDocument();
-
-						logger.info("Selected AB1 document: " + seq.getName());
-
-						result = true;
-						logger.debug("Result CRS :" + result);
-					}
-
-					if (result) {
-						documents = annotatedPluginDocuments;
-						/* Add notes */
-						readDataFromCRSFile(documents[cnt], fileSelected, cnt,
-								(String) documentFileName);
-						importCounter = DocumentUtilities
-								.getSelectedDocuments().size();
-					}
-
-					limsFrameProgress.showProgress();
+				if (documentFileName.toString().contains("ab1")
+						|| docs.toString().contains("fas")
+						&& !docs.toString().contains("dum")) {
+					fasDocument = readGeneiousFieldsValues
+							.readValueFromAnnotatedPluginDocument(
+									annotatedPluginDocuments[cnt],
+									"importedFrom", "filename");
 				}
-			} catch (DocumentOperationException e) {
-				e.printStackTrace();
+
+				/* Add sequence name for the dialog screen */
+				if (DocumentUtilities.getSelectedDocuments().listIterator()
+						.hasNext()) {
+					msgList.add(documentFileName + "\n");
+				}
+
+				/* Check of the filename contain "FAS" extension */
+				if (fasDocument.toString().contains("fas")
+						&& fasDocument != null) {
+					documentFileName = (String) readGeneiousFieldsValues
+							.readValueFromAnnotatedPluginDocument(
+									annotatedPluginDocuments[cnt],
+									"DocumentNoteUtilities-Extract ID (Seq)",
+									"ExtractIDCode_Seq");
+
+				} else {
+					/* get AB1 filename */
+					if (!docs.toString().contains("consensus sequence")
+							|| !docs.toString().contains("Contig")) {
+						documentFileName = docs.get(cnt).getName();
+					}
+				}
+
+				documents = annotatedPluginDocuments;
+				/* Add notes */
+				readDataFromCRSFile(documents[cnt], fileSelected, cnt,
+						(String) documentFileName);
+				importCounter = DocumentUtilities.getSelectedDocuments().size();
+
+				limsFrameProgress.showProgress();
 			}
 			logger.info("--------------------------------------------------------");
 			logger.info("Total of document(s) updated: " + importCounter);
@@ -247,7 +199,6 @@ public class LimsCRSImporter extends DocumentAction {
 
 	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
-		// if (regnr.equals(registrationNumber)) {
 		/** set note for Phylum: FieldValue, Label, NoteType, */
 		limsNotes.setNoteToAB1FileName(documents, "PhylumCode_CRS",
 				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum()
@@ -496,6 +447,7 @@ public class LimsCRSImporter extends DocumentAction {
 
 	/** DocumentNoteUtilities-Registration number */
 	/** Get value from "BasisOfRecordCode" */
+	@SuppressWarnings("unused")
 	private boolean matchRegistrationNumber(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
 			Object registrationNumber, int i) {
@@ -581,15 +533,6 @@ public class LimsCRSImporter extends DocumentAction {
 			// break;
 			// }
 		}
-	}
-
-	private String extractName(String nameValue) {
-		String result = "";
-		String[] name = StringUtils.split(nameValue, "/");
-		for (int i = 0; i < nameValue.length(); i++) {
-			result = name[i];
-		}
-		return result;
 	}
 
 }

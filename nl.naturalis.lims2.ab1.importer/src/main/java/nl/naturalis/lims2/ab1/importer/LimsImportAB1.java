@@ -58,14 +58,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	@Override
 	public String getFileTypeDescription() {
-		// return "Naturalis Extract AB1 Filename Importer";
 		return "All Naturalis Files";
 	}
 
 	@Override
 	public String[] getPermissibleExtensions() {
 		return new String[] { "" };
-		// return new String[] { "ab1", "scf", "fasta", "fa" };
 	}
 
 	@Override
@@ -126,7 +124,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		ArrayList<Integer> listcnt = new ArrayList<Integer>();
 
 		listcnt.add(cnt++);
-		// System.out.println("Count: " + Integer.toString(cnt));
 
 		boolean ab1fileExists = ReadGeneiousFieldsValues
 				.fileNameExistsInGeneiousDatabase(file.getName());
@@ -205,7 +202,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			try {
 				limsNotes.setImportNotes(document, "DocumentVersionCode_Seq",
 						"Document version", "Document version",
-						Integer.toString(versienummer));// limsAB1Fields.getVersieNummer());
+						Integer.toString(versienummer));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -280,18 +277,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		logger.info("Done with extracting/imported Ab1 files. ");
 	}
 
-	// else {
-	// EventQueue.invokeLater(new Runnable() {
-	//
-	// @Override
-	// public void run() {
-	// Dialogs.showMessageDialog("File: " + file.getName()
-	// + " already exists in the database");
-	// return;
-	// }
-	// });
-	// }
-
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
 			String fileContentsStart) {
@@ -303,6 +288,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	}
 
+	@SuppressWarnings("unused")
 	private void createLogFile(String fileName, List<String> list) {
 		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
 				+ limsImporterUtil.getLogFilename();

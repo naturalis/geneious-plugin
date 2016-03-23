@@ -68,7 +68,7 @@ public class LimsReadGeneiousFieldsValues {
 
 			DocumentNote bos = documentNotes.getNote(noteCode);
 			/** example: FieldName = "BasisOfRecordCode" */
-			if (fieldName != null) {
+			if (bos != null) {
 				fieldValue = bos.getFieldValue((String) fieldName);
 			} else {
 				fieldValue = null;
@@ -76,6 +76,32 @@ public class LimsReadGeneiousFieldsValues {
 		}
 
 		return fieldValue;
+	}
+
+	public boolean getValueFromAnnotatedPluginDocument(
+			AnnotatedPluginDocument annotatedPluginDocuments, String noteCode,
+			Object fieldName) {
+
+		/** noteCode = "DocumentNoteUtilities-Registration number"; */
+		DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteCode);
+		// Object fieldValue = "";
+		boolean truefalse = false;
+
+		if (noteType != null) {
+			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocuments
+					.getDocumentNotes(true);
+
+			DocumentNote bos = documentNotes.getNote(noteCode);
+			/** example: FieldName = "BasisOfRecordCode" */
+			if (bos != null) {
+				// fieldValue = bos.getFieldValue((String) fieldName);
+				truefalse = true;
+			} else {
+				truefalse = false;
+			}
+		}
+
+		return truefalse;
 	}
 
 	public Object object(AnnotatedPluginDocument annotatedPluginDocument) {
@@ -114,7 +140,7 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT a.registrationnumber, a.name"
+			final String SQL = " SELECT max(a.registrationnumber), a.name"
 					+ " FROM " + " ( "
 					+ " SELECT TRIM(EXTRACTVALUE(document_xml,  ' "
 					+ xmlNotesName + " ')) AS registrationnumber, "
@@ -130,8 +156,12 @@ public class LimsReadGeneiousFieldsValues {
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
 			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				logger.debug("Annotated document id : " + result);
+				if (rs.getNString(1) != null) {
+					result = rs.getObject(1).toString();
+				} else {
+					result = "no value";
+				}
+				logger.debug("Registrationnumber: " + result);
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
@@ -166,7 +196,6 @@ public class LimsReadGeneiousFieldsValues {
 
 	public String getFileNameFromGeneiousDatabase(String filename) {
 
-		boolean truefalse = false;
 		Connection con = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -199,11 +228,6 @@ public class LimsReadGeneiousFieldsValues {
 			rs = pst.executeQuery();
 			while (rs.next()) {
 				result = rs.getObject(1).toString();
-				if (rs.wasNull())
-					truefalse = false;
-				else
-					truefalse = true;
-
 				logger.debug("Filename: " + result
 						+ " already exists in the geneious database.");
 				limsLogList.UitvalList.add("Filename: " + result
@@ -393,6 +417,7 @@ public class LimsReadGeneiousFieldsValues {
 	// this utility method returns a SequenceDocument based on the given name
 	// , if they match the search parameters
 	// or null if there is no match
+	@SuppressWarnings("unused")
 	private SequenceDocument match(ArrayList<String> namesToMatch, String name,
 			boolean matchBoth) {
 		boolean nameMatch = false;
@@ -417,6 +442,7 @@ public class LimsReadGeneiousFieldsValues {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private void createLogFile(String fileName, List<String> list) {
 		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
 				+ limsImporterUtil.getLogFilename();
@@ -492,7 +518,6 @@ public class LimsReadGeneiousFieldsValues {
 	public String getFastaIDForSamples_GeneiousDB(String extractid)
 			throws IOException {
 
-		boolean truefalse = false;
 		Connection con = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -521,11 +546,6 @@ public class LimsReadGeneiousFieldsValues {
 				result = rs.getObject(1).toString();
 				logger.info("Extract ID: " + result
 						+ " already exsist in the geneious database.");
-
-				if (rs.wasNull())
-					truefalse = false;
-				else
-					truefalse = true;
 			}
 
 		} catch (SQLException ex) {
@@ -552,7 +572,7 @@ public class LimsReadGeneiousFieldsValues {
 	}
 
 	/**
-	 * Cachename opvragen uit xml veld document_xml tabel annotated_document
+	 * Get Cache name from XML field document_xml table annotated_document
 	 * //document/hiddenFields/override_cache_name
 	 * */
 	public String getCacheNameFromGeneiousDatabase(Object filename,
