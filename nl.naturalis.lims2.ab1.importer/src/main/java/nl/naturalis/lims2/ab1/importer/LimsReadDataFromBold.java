@@ -83,6 +83,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
+		/* Get Databasename */
+		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+				.getServerDatabaseServiceName();
+
 		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
 
@@ -167,10 +171,11 @@ public class LimsReadDataFromBold extends DocumentAction {
 						e1.printStackTrace();
 					}
 
-					/* AB1 file */
+					/* AB1 file '//ABIDocument/name' */
 					if (readGeneiousFieldsValues
 							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName).equals(
+									(String) documentFileName,
+									"//ABIDocument/name").equals(
 									documentFileName)) {
 
 						sequenceDocument = (SequenceDocument) docs.get(cnt)

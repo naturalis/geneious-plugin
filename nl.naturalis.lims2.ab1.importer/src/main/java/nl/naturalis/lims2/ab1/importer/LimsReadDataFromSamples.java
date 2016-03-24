@@ -73,6 +73,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private String plateNumber = "";
 	private boolean isSampleDoc = false;
 	private boolean isExtractIDSeqExists = false;
+	private int version = 0;
+	private String recordDocumentName = "";
 
 	public LimsReadDataFromSamples() {
 
@@ -87,17 +89,16 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	public void performOperation(AnnotatedPluginDocument[] documents) {
 
-		Object[] options = { "Create Dummy", "Read Samples", "Cancel" };
+		/* Get Databasename */
+		ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+				.getServerDatabaseServiceName();
+
+		Object[] options = { "Ok", "No", "Cancel" };
 		int n = JOptionPane.showOptionDialog(frame,
 				"Choose one option to start Samples import", "Samples",
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, options, options[2]);
 		if (n == 0) {
-			limsFrameProgress.createProgressBar();
-			fileSelected = fcd.loadSelectedFile();
-			setExtractIDFromSamplesSheet(fileSelected);
-			limsFrameProgress.hideFrame();
-		} else if (n == 1) {
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 
@@ -110,19 +111,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				});
 			}
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				docs = DocumentUtilities.getSelectedDocuments();
+
 				isExtractIDSeqExists = DocumentUtilities.getSelectedDocuments()
 						.iterator().next().toString()
-						.contains("ExtractIDCode_Seq");
+						.contains("MarkerCode_Seq");
 
 				if (!isExtractIDSeqExists) {
-					Dialogs.showMessageDialog("Document(s) doesn't- contained Extract ID (Seq) field. Run the Sample import first and then CRS import.");
+					Dialogs.showMessageDialog("Document(s) doesn't- contained Marker (Seq) field. Run the Sample import first and then CRS import.");
 					return;
 				}
 
 				logger.info("Start updating selected document(s).");
 				fileSelected = fcd.loadSelectedFile();
 				/** Add selected documents to a list. */
-				docs = DocumentUtilities.getSelectedDocuments();
 
 				if (fileSelected == null) {
 					return;
@@ -132,19 +134,46 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
-					documentFileName = documents[cnt]
+					documentFileName = docs.get(cnt)
 							.getFieldValue("cache_name");
+
+					recordDocumentName = docs.get(cnt).getName();
+
+					/*
+					 * if (docs.toString().contains("consensus sequence") ||
+					 * docs.toString().contains("Contig")) {
+					 * System.out.println("DocumentName: " +
+					 * recordDocumentName); }
+					 */
+					System.out.println("DocumentName: " + recordDocumentName);
+
+					if (documentFileName.equals(recordDocumentName)) {
+
+						if (!docs.toString().contains("consensus sequence")
+								|| !docs.toString().contains("Contig")) {
+							version = Integer
+									.parseInt((String) ReadGeneiousFieldsValues
+											.getVersionValueFromAnnotatedPluginDocument(
+													documents,
+													"DocumentNoteUtilities-Document version",
+													"DocumentVersionCode_Seq",
+													cnt));
+						}
+					}
 
 					result = "";
 
 					/* Get file name from the document(s) */
 					if (documentFileName.toString().contains("ab1")
-							|| docs.toString().contains("fas")
-							&& !docs.toString().contains("dum")) {
+							|| docs.get(cnt).getName().contains("fas")
+							|| docs.get(cnt).getName().contains("dum")) {
 						result = ReadGeneiousFieldsValues
-								.readValueFromAnnotatedPluginDocument(
-										documents[cnt], "importedFrom",
-										"filename");
+								.getFileNameFromGeneiousDatabase(
+										(String) documentFileName,
+										"//XMLSerialisableRootElement/name");
+						// .readValueFromAnnotatedPluginDocument(
+						// documents[cnt], "importedFrom",
+						// "filename");
 
 					}
 
@@ -156,17 +185,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 										"DocumentNoteUtilities-Extract ID (Seq)",
 										"ExtractIDCode_Seq");
 
-					} else {
+					} else if (result.toString().contains("ab1")) {
 						/* get AB1 filename */
-						if (!docs.toString().contains("consensus sequence")
-								|| !docs.toString().contains("Contig")) {
-							extractIDfileName = getExtractIDFromAB1FileName(docs
-									.get(cnt).getName());
-
-						} else {
-							extractIDfileName = docs.get(cnt).getName();
-						}
+						extractIDfileName = getExtractIDFromAB1FileName(docs
+								.get(cnt).getName());
+					} else if (docs.get(cnt).getName()
+							.contains("consensus sequence")
+							|| docs.get(cnt).getName().contains("Contig")) {
+						extractIDfileName = docs.get(cnt).getName();
+					} else if (result.toString().contains("dum")) {
+						/* get AB1 filename */
+						extractIDfileName = getExtractIDFromAB1FileName(docs
+								.get(cnt).getName());
 					}
+
 					msgList.add(extractIDfileName);
 
 					isSampleDoc = DocumentUtilities.getSelectedDocuments()
@@ -179,17 +211,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					/** Show the progress bar */
 					limsFrameProgress.showProgress();
 
-					/** Start reading data from the file selected */
-
-					logger.info("-------------------------- S T A R T --------------------------");
-					logger.info("Start Reading data from a samples file.");
-
 					readDataFromExcel(fileSelected, extractIDfileName,
 							documents, cnt);
 
-					logger.info("Done with adding notes to the document");
 					importCounter = msgList.size();
 				}
+
 				logger.info("--------------------------------------------------------");
 				logger.info("Total of document(s) updated: " + docs.size());
 				limsFrameProgress.hideFrame();
@@ -227,6 +254,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				});
 
 			}
+		} else if (n == 1) {
+			limsFrameProgress.createProgressBar();
+			fileSelected = fcd.loadSelectedFile();
+			setExtractIDFromSamplesSheet(fileSelected);
+			limsFrameProgress.hideFrame();
 		} else if (n == 2) {
 			System.out.println("Optie 2");
 			return;
@@ -275,7 +307,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 		limsNotes.setNoteToAB1FileName(documents, "DocumentVersionCode_Seq",
 				"Document version", "Document version",
-				limsExcelFields.getVersieNummer(), cnt);
+				String.valueOf(limsExcelFields.getVersieNummer()), cnt);
 
 		/** SequencingStaffCode_FixedValue */
 		try {
@@ -380,8 +412,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		int cntVerwerkt = 0;
 
 		logger.info("CSV file: " + fileName);
+		/** Start reading data from the file selected */
+		logger.info("-------------------------- S T A R T --------------------------");
+		logger.info("Start Reading data from a samples file.");
 
-		logger.info("Start with adding notes to the document");
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
@@ -407,6 +441,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 
 					if (ID.equals(extractID)) {
+
 						limsExcelFields.setProjectPlaatNummer(record[0]);
 						limsExcelFields.setPlaatPositie(record[1]);
 						limsExcelFields.setExtractPlaatNummer(plateNumber);
@@ -431,8 +466,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						logger.info("Sample method: "
 								+ limsExcelFields.getSubSample());
 
-						setSamplesNotes(documents, cnt);
+						limsExcelFields.setVersieNummer(version);
 
+						logger.info("Start with adding notes to the document");
+						setSamplesNotes(documents, cnt);
+						logger.info("Done with adding notes to the document");
 						counter--;
 						cntVerwerkt++;
 						verwerkingListCnt.add(Integer.toString(cntVerwerkt));

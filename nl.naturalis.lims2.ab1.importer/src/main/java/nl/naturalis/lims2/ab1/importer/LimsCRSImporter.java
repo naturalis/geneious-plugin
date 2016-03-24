@@ -74,6 +74,10 @@ public class LimsCRSImporter extends DocumentAction {
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
+		/* Get database name */
+		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+				.getServerDatabaseServiceName();
+
 		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
 

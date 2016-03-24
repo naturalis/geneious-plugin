@@ -14,7 +14,7 @@ public class LimsAB1Fields {
 	private String extractID;
 	private String pcrPlaatID;
 	private String marker;
-	private String versieNummer = "1";
+	private int versieNummer = 1;
 
 	public String getExtractID() {
 		return extractID;
@@ -58,12 +58,12 @@ public class LimsAB1Fields {
 
 	}
 
-	public String getVersieNummer() {
+	public int getVersieNummer() {
 		return versieNummer;
 	}
 
-	public void setVersieNummer(String versieNummer) {
-		this.versieNummer = versieNummer;
+	public void setVersieNummer(int versienummer) {
+		this.versieNummer = versienummer;
 	}
 
 }

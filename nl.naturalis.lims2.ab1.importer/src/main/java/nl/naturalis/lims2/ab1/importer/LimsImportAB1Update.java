@@ -13,6 +13,7 @@ import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
+import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,11 @@ public class LimsImportAB1Update extends DocumentAction {
 	private boolean isVersionnumberOne = false;
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
+	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private AnnotatedPluginDocument documents = null;
+	private int version = 0;
+	private String documentName = "";
+	private String recordDocumentName = "";
 
 	@Override
 	public void actionPerformed(
@@ -67,14 +73,14 @@ public class LimsImportAB1Update extends DocumentAction {
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
-				// AnnotatedPluginDocument annotatedPluginDocument =
-				// docs.iterator().next();
+				documents = docs.iterator().next();
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
 					isVersionnumberOne = docs.get(cnt).toString()
 							.contains("DocumentVersionCode_Seq");
+
 					if (!isVersionnumberOne) {
 						versienummer = 1;
 					}
@@ -84,27 +90,30 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ seq.getName());
 						msgList.add(seq.getName());
 
-						/*
-						 * isVersionnumberOne = DocumentUtilities
-						 * .getSelectedDocuments().iterator().next()
-						 * .toString().contains("DocumentVersionCode_Seq");
-						 */
+						documentName = (String) docs.get(cnt).getFieldValue(
+								"cache_name");
+
+						recordDocumentName = docs.get(cnt).getName();
+
+						if (isVersionnumberOne
+								&& documentName.equals(recordDocumentName)) {
+							version = Integer
+									.parseInt((String) ReadGeneiousFieldsValues
+											.getVersionValueFromAnnotatedPluginDocument(
+													annotatedPluginDocuments,
+													"DocumentNoteUtilities-Document version",
+													"DocumentVersionCode_Seq",
+													cnt));
+						}
 
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
 
-							if (isVersionnumberOne) {
-								int version = (int) docs
-										.get(cnt)
-										.getDocument()
-										.getFieldValue(
-												"DocumentNoteUtilities-Document version");
-								versienummer = versienummer + version;
+							if (isVersionnumberOne
+									&& documentName.equals(recordDocumentName)) {
+								versienummer = version;
 							}
-							// versienummer = ReadGeneiousFieldsValues
-							// .getDocumentVersion(seq.getName());
-
 						} else {
 							try {
 								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
@@ -117,6 +126,7 @@ public class LimsImportAB1Update extends DocumentAction {
 							}
 						}
 
+						limsAB1Fields.setVersieNummer(versienummer);
 						logger.info("Extract ID: "
 								+ limsAB1Fields.getExtractID());
 						logger.info("PCR plaat ID: "
@@ -145,6 +155,12 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/** set note for Document version */
 						if (!isVersionnumberOne) {
+							limsNotes.setNoteToAB1FileName(
+									annotatedPluginDocuments,
+									"DocumentVersionCode_Seq",
+									"Document version", "Document version",
+									Integer.toString(versienummer), cnt);
+						} else {
 							limsNotes.setNoteToAB1FileName(
 									annotatedPluginDocuments,
 									"DocumentVersionCode_Seq",

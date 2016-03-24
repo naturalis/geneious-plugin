@@ -71,6 +71,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
+		/* Get Databasename */
+		ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+				.getServerDatabaseServiceName();
+
 		/* Get the filename and extract the ID */
 		String[] ab1FileName = StringUtils.split(file.getName(), "_");
 
@@ -148,8 +152,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				file, ProgressListener.EMPTY);
 
 		progressListener.setProgress(0, 10);
-		// System.out.println("Database Services: "
-		// + PluginUtilities.getWritableDatabaseServiceRoots());
+		System.out.println("Database Services: "
+				+ PluginUtilities.getWritableDatabaseServiceRoots().toString());
 
 		count += docs.size();
 
