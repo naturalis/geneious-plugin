@@ -161,10 +161,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		ssl = limsImporterUtil.getPropValues("ssl");
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -233,9 +233,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -303,9 +304,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -378,9 +380,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -494,9 +497,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -556,9 +560,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -617,9 +622,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -684,9 +690,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -747,9 +754,10 @@ public class LimsReadGeneiousFieldsValues {
 		Connection con = null;
 		PreparedStatement pst = null;
 
-		url = limsImporterUtil.getPropValues("url");
-		user = limsImporterUtil.getPropValues("user");
-		password = limsImporterUtil.getPropValues("password");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		try {
 
@@ -800,9 +808,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -871,9 +880,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1009,9 +1019,10 @@ public class LimsReadGeneiousFieldsValues {
 		ResultSet rs = null;
 
 		try {
-			url = limsImporterUtil.getPropValues("url");
-			user = limsImporterUtil.getPropValues("user");
-			password = limsImporterUtil.getPropValues("password");
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -12,6 +12,10 @@ import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -22,12 +26,14 @@ import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
@@ -53,8 +59,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadDataFromSamples.class);
-	private Object documentFileName = "";
-	private Object result = "";
+	private String documentFileName = "";
+	private String result = "";
 
 	public int importCounter;
 	private int importTotal;
@@ -84,12 +90,18 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		performOperation(annotatedPluginDocuments);
+		try {
+			performOperation(annotatedPluginDocuments);
+		} catch (DocumentOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public void performOperation(AnnotatedPluginDocument[] documents) {
+	public void performOperation(AnnotatedPluginDocument[] documents)
+			throws DocumentOperationException {
 
-		/* Get Databasename */
+		/* Get Database name */
 		ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
@@ -134,18 +146,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
-					documentFileName = docs.get(cnt)
-							.getFieldValue("cache_name");
+					documentFileName = (String) docs.get(cnt).getFieldValue(
+							"cache_name");
 
 					recordDocumentName = docs.get(cnt).getName();
-
-					/*
-					 * if (docs.toString().contains("consensus sequence") ||
-					 * docs.toString().contains("Contig")) {
-					 * System.out.println("DocumentName: " +
-					 * recordDocumentName); }
-					 */
-					System.out.println("DocumentName: " + recordDocumentName);
 
 					if (documentFileName.equals(recordDocumentName)) {
 
@@ -161,42 +165,30 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 					}
 
-					result = "";
+					// if (!documentFileName.toString().contains("Contig")
+					// || !documentFileName.toString().contains("dum")
+					// || !documentFileName.toString().contains(
+					// "consensus sequence")) {
+					// documentFileName = ReadGeneiousFieldsValues
+					// .readValueFromAnnotatedPluginDocument(
+					// documents[cnt], "importedFrom",
+					// "filename");
+					// }
 
 					/* Get file name from the document(s) */
-					if (documentFileName.toString().contains("ab1")
-							|| docs.get(cnt).getName().contains("fas")
-							|| docs.get(cnt).getName().contains("dum")) {
-						result = ReadGeneiousFieldsValues
-								.getFileNameFromGeneiousDatabase(
-										(String) documentFileName,
-										"//XMLSerialisableRootElement/name");
-						// .readValueFromAnnotatedPluginDocument(
-						// documents[cnt], "importedFrom",
-						// "filename");
+					result = ReadGeneiousFieldsValues
+							.getFileNameFromGeneiousDatabase(
+									(String) documentFileName,
+									"//XMLSerialisableRootElement/name");
 
-					}
-
-					/* Check of the filename contain "FAS" extension */
-					if (result.toString().contains("fas") && result != null) {
-						extractIDfileName = (String) ReadGeneiousFieldsValues
-								.readValueFromAnnotatedPluginDocument(
-										documents[cnt],
-										"DocumentNoteUtilities-Extract ID (Seq)",
-										"ExtractIDCode_Seq");
-
-					} else if (result.toString().contains("ab1")) {
-						/* get AB1 filename */
+					if (!documentFileName.contains("Contig")
+							|| !documentFileName.contains("consensus sequence")) {
 						extractIDfileName = getExtractIDFromAB1FileName(docs
 								.get(cnt).getName());
 					} else if (docs.get(cnt).getName()
 							.contains("consensus sequence")
 							|| docs.get(cnt).getName().contains("Contig")) {
 						extractIDfileName = docs.get(cnt).getName();
-					} else if (result.toString().contains("dum")) {
-						/* get AB1 filename */
-						extractIDfileName = getExtractIDFromAB1FileName(docs
-								.get(cnt).getName());
 					}
 
 					msgList.add(extractIDfileName);
@@ -215,18 +207,22 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							documents, cnt);
 
 					importCounter = msgList.size();
+
 				}
 
 				logger.info("--------------------------------------------------------");
 				logger.info("Total of document(s) updated: " + docs.size());
 				limsFrameProgress.hideFrame();
 
+				// for (int cnt = 0; cnt < docs.size(); cnt++) {
 				/* Set for creating dummy files */
 				if (isSampleDoc) {
-					limsFrameProgress.createProgressBar();
-					setExtractIDFromSamplesSheet(fileSelected);
-					limsFrameProgress.hideFrame();
+					// limsFrameProgress.createProgressBar();
+					setExtractIDFromSamplesSheet(fileSelected,
+							extractIDfileName);
+					// limsFrameProgress.hideFrame();
 				}
+				// }
 
 				logger.info("-------------------------- E N D --------------------------");
 				logger.info("Done with updating the selected document(s). ");
@@ -257,7 +253,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		} else if (n == 1) {
 			limsFrameProgress.createProgressBar();
 			fileSelected = fcd.loadSelectedFile();
-			setExtractIDFromSamplesSheet(fileSelected);
+			setExtractIDFromSamplesSheet(fileSelected, extractIDfileName);
 			limsFrameProgress.hideFrame();
 		} else if (n == 2) {
 			System.out.println("Optie 2");
@@ -346,7 +342,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	 * Create dummy files for samples when there is no match with records in the
 	 * database
 	 */
-	private void setExtractIDFromSamplesSheet(String fileName) {
+	private void setExtractIDFromSamplesSheet(String fileName,
+			String extractFileID) {
 		try {
 			if (fileName != null) {
 				logger.info("Read samples file: " + fileName);
@@ -361,17 +358,17 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							continue;
 						}
 
-						String dummyFile = ReadGeneiousFieldsValues
-								.getFastaIDForSamples_GeneiousDB(ID);
-
-						limsFrameProgress.showProgress(dummyFile);
-
 						ID = "e" + record[3];
 
 						if (record[2].length() > 0 && record[2].contains("-")) {
 							plateNumber = record[2].substring(0,
 									record[2].indexOf("-"));
 						}
+
+						String dummyFile = ReadGeneiousFieldsValues
+								.getFastaIDForSamples_GeneiousDB(ID);
+
+						limsFrameProgress.showProgress(dummyFile);
 
 						if (dummyFile.trim() != "") {
 							dummyFile = getExtractIDFromAB1FileName(dummyFile);
@@ -388,6 +385,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					if (cnt > 0) {
 						Dialogs.showMessageDialog("Done creating:" + cnt
 								+ " Dummy Samples");
+						cnt = 0;
 					} else {
 						Dialogs.showMessageDialog(cnt
 								+ "(zero). No dummy Samples record(s) has been added.");
@@ -531,6 +529,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			underscore = StringUtils.split(fileName, "_");
 		} else if (fileName.contains(".") && fileName.contains("dum")) {
 			underscore = StringUtils.split(fileName, ".");
+		} else if (fileName.contains("_")) {
+			underscore = StringUtils.split(fileName, "_");
+		} else if (fileName.contains("Reads")) {
+			underscore = StringUtils.split(fileName, "Reads");
 		} else {
 			throw new IllegalArgumentException("String " + fileName
 					+ " cannot be split. ");
@@ -549,5 +551,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			return true;
 		}
 		return false;
+	}
+
+	private void loadXML(String element) throws XMLStreamException,
+			XPathExpressionException {
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		InputSource inputSource = new InputSource(element); // ??? = InputStream
+															// or Reader
+		String custName = xpath.evaluate("//*[1]/@filename", inputSource);
+
 	}
 }

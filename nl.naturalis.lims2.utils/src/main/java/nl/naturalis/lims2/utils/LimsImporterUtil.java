@@ -204,4 +204,37 @@ public class LimsImporterUtil {
 		return result;
 	}
 
+	public String getDatabasePropValues(String propertyType) throws IOException {
+		try {
+			Properties prop = new Properties();
+			String propFileName = "limsdatabase.properties";
+			String workingDatadirectory = System.getProperty("user.dir");
+
+			String absoluteFilePath = null;
+
+			if (workingDatadirectory != null) {
+				absoluteFilePath = workingDatadirectory + File.separator
+						+ propFileName;
+			}
+
+			inputStream = new FileInputStream(absoluteFilePath);
+			if (inputStream != null) {
+				prop.load(inputStream);
+			} else {
+				logger.info("property file '" + propFileName
+						+ "' not found in the classpath");
+				throw new FileNotFoundException("property file '"
+						+ propFileName + "' not found in the classpath");
+			}
+
+			// get the property value and print it out
+			result = prop.getProperty(propertyType);
+		} catch (Exception e) {
+			logger.info("Exception: " + e);
+		} finally {
+			inputStream.close();
+		}
+		return result;
+	}
+
 }
