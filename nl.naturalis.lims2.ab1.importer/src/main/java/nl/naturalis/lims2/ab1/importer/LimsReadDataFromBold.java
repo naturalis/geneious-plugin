@@ -194,7 +194,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 						readDataFromBold(annotatedPluginDocuments[cnt],
 								boldFileSelected, cnt,
 								(String) documentFileName);
-						limsFrameProgress.showProgress();
+						limsFrameProgress.showProgress(docs.get(cnt).getName());
 					}
 
 				}

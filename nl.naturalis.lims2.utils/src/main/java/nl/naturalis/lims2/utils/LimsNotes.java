@@ -162,7 +162,7 @@ public class LimsNotes {
 		}
 
 		if (documentNoteType.getName().equals("Ampl-staff (Seq)")) {
-			System.out.println("Note name:" + documentNoteType.getName());
+			// System.out.println("Note name:" + documentNoteType.getName());
 
 			documentNoteType.setDefaultVisibleInTable(false);
 			documentNoteType.setVisible(false);

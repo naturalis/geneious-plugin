@@ -96,7 +96,7 @@ public class LimsCRSImporter extends DocumentAction {
 					.contains("RegistrationNumberCode_Samples");
 
 			if (!isRMNHNumber) {
-				Dialogs.showMessageDialog("Document(s) doesn't- contained Registr-nmbr (Samples). Run the Sample import first and then CRS import.");
+				Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
 				return;
 			}
 
@@ -160,7 +160,7 @@ public class LimsCRSImporter extends DocumentAction {
 						(String) documentFileName);
 				importCounter = DocumentUtilities.getSelectedDocuments().size();
 
-				limsFrameProgress.showProgress();
+				limsFrameProgress.showProgress(docs.get(cnt).getName());
 			}
 			logger.info("--------------------------------------------------------");
 			logger.info("Total of document(s) updated: " + importCounter);

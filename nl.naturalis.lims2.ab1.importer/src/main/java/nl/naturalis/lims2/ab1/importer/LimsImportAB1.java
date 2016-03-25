@@ -120,8 +120,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			isDeleted = true;
 			logger.info("Filename: " + ab1FileName[0]
 					+ ".dum has been deleted from table annotated_document");
-		} else {
-			isDeleted = false;
 		}
 
 		String extractAb1FastaFileName = "";
@@ -152,14 +150,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				file, ProgressListener.EMPTY);
 
 		progressListener.setProgress(0, 10);
-		System.out.println("Database Services: "
-				+ PluginUtilities.getWritableDatabaseServiceRoots().toString());
 
 		count += docs.size();
 
 		document = importCallback.addDocument(docs.listIterator().next());
 
-		if (file.getName() != null) {
+		if (file.getName() != null && list.size() == 0) {
 
 			limsAB1Fields
 					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
@@ -224,61 +220,108 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsNotes.setImportConsensusSeqPassNotes(document,
 					limsNotes.ConsensusSeqPass, "ConsensusSeqPass_Code_Seq",
 					"Pass (Seq)", "Pass (Seq)", null);
-
-			if (isDeleted) {
-
-				/* set note for PCR Plaat-ID */
-				limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
-						"PCR plate ID (Seq)", "PCR plate ID (Seq)", "AA000");
-
-				/* set note for Marker */
-				limsNotes.setImportNotes(document, "MarkerCode_Seq",
-						"Marker (Seq)", "Marker (Seq)", "Dum");
-
-				/** set note for Extract-ID */
-				limsNotes.setImportNotes(document, "ExtractIDCode_Samples",
-						"Extract ID (Samples)", "Extract ID (Samples)",
-						list.get(7));
-
-				/** set note for Project Plate number */
-				limsNotes.setImportNotes(document,
-						"ProjectPlateNumberCode_Samples",
-						"Sample plate ID (Samples)",
-						"Sample plate ID (Samples)", list.get(5));
-
-				/** set note for Taxon name */
-				limsNotes.setImportNotes(document, "TaxonName2Code_Samples",
-						"[Scientific name] (Samples)",
-						"[Scientific name] (Samples)", list.get(4));
-
-				/** set note for Registration number */
-				limsNotes.setImportNotes(document,
-						"RegistrationNumberCode_Samples",
-						"Registr-nmbr (Samples)", "Registr-nmbr (Samples)",
-						list.get(3));
-
-				/** set note for Plate position */
-				limsNotes
-						.setImportNotes(document, "PlatePositionCode_Samples",
-								"Position (Samples)", "Position (Samples)",
-								list.get(6));
-
-				/** SequencingStaffCode_FixedValue */
-				try {
-					limsNotes.setImportNotes(document,
-							"SequencingStaffCode_FixedValue_Samples",
-							"Seq-staff (Samples)", "Seq-staff (Samples)",
-							limsImporterUtil
-									.getPropValues("samplessequencestaff"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
 		}
+
+		else {
+			// if (isDeleted) {
+
+			/* set note for PCR Plaat-ID */
+			// limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
+			// "PCR plate ID (Seq)", "PCR plate ID (Seq)", "AA000");
+
+			/* set note for Marker */
+			// limsNotes.setImportNotes(document, "MarkerCode_Seq",
+			// "Marker (Seq)", "Marker (Seq)", "Dum");
+
+			limsAB1Fields
+					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+
+			/* set note for PCR Plaat-ID */
+			try {
+				limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
+						"PCR plate ID (Seq)", "PCR plate ID (Seq)",
+						limsAB1Fields.getPcrPlaatID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/* set note for Marker */
+			try {
+				limsNotes.setImportNotes(document, "MarkerCode_Seq",
+						"Marker (Seq)", "Marker (Seq)",
+						limsAB1Fields.getMarker());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/* set note for Extract-ID */
+			try {
+				limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
+						"Extract ID (Seq)", "Extract ID (Seq)",
+						limsAB1Fields.getExtractID());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			/** set note for Extract-ID */
+			limsNotes
+					.setImportNotes(document, "ExtractIDCode_Samples",
+							"Extract ID (Samples)", "Extract ID (Samples)",
+							list.get(7));
+
+			/** set note for Project Plate number */
+			limsNotes.setImportNotes(document,
+					"ProjectPlateNumberCode_Samples",
+					"Sample plate ID (Samples)", "Sample plate ID (Samples)",
+					list.get(5));
+
+			/** set note for Taxon name */
+			limsNotes.setImportNotes(document, "TaxonName2Code_Samples",
+					"[Scientific name] (Samples)",
+					"[Scientific name] (Samples)", list.get(4));
+
+			/** set note for Registration number */
+			limsNotes.setImportNotes(document,
+					"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
+					"Registr-nmbr (Samples)", list.get(3));
+
+			/** set note for Plate position */
+			limsNotes.setImportNotes(document, "PlatePositionCode_Samples",
+					"Position (Samples)", "Position (Samples)", list.get(6));
+
+			/** SequencingStaffCode_FixedValue */
+			try {
+				limsNotes.setImportNotes(document,
+						"SequencingStaffCode_FixedValue_Samples",
+						"Seq-staff (Samples)", "Seq-staff (Samples)",
+						limsImporterUtil.getPropValues("samplessequencestaff"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			if (ab1fileExists) {
+				versienummer++;
+			} else if (fastaFileExists) {
+				versienummer++;
+			} else {
+				versienummer = 1;
+			}
+			/* set note for Version */
+			try {
+				limsNotes.setImportNotes(document, "DocumentVersionCode_Seq",
+						"Document version", "Document version",
+						Integer.toString(versienummer));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+		}
+		// }
+		// }
 		logger.info("Total of document(s) filename extracted: " + count);
 		logger.info("----------------------------E N D ---------------------------------");
 		logger.info("Done with extracting/imported Ab1 files. ");
+		isDeleted = false;
 	}
 
 	@Override

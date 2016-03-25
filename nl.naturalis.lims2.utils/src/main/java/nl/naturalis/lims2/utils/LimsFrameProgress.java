@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 public class LimsFrameProgress {
 
 	JLabel jl = new JLabel();
+	JLabel jlFilename = new JLabel();
 	final LimsProgressBar it = new LimsProgressBar();
 	static final int MY_MINIMUM = 0;
 	static final int MY_MAXIMUM = 100;
@@ -24,16 +25,18 @@ public class LimsFrameProgress {
 	public void createProgressBar() {
 		// JFrame frame = new JFrame("Reading records from files");
 		frame.getTitle();
-		frame.setSize(280, 75);
+		frame.setSize(330, 85);
 		frame.isAlwaysOnTop();
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setContentPane(it);
 		jl.setText("0%");
+		jlFilename.setText("");
 		frame.add(BorderLayout.CENTER, jl);
+		frame.add(BorderLayout.LINE_END, jlFilename);
 		frame.setVisible(true);
 	}
 
-	public void showProgress() {
+	public void showProgress(String fileName) {
 		for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
 			final int percent = i;
 			try {
@@ -41,6 +44,7 @@ public class LimsFrameProgress {
 					public void run() {
 						it.updateBar(percent);
 						jl.setText(percent + "%");
+						jlFilename.setText(fileName);
 					}
 				});
 				java.lang.Thread.sleep(3);

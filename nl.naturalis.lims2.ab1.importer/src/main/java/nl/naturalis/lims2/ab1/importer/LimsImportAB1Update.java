@@ -188,7 +188,7 @@ public class LimsImportAB1Update extends DocumentAction {
 								"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
 								"Pass (Seq)", null, cnt);
 
-						limsFrameProgress.showProgress();
+						limsFrameProgress.showProgress(docs.get(cnt).getName());
 					}
 
 					logger.info("Done with adding notes to the document");

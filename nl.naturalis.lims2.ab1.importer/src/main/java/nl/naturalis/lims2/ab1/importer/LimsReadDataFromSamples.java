@@ -118,7 +118,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						.contains("MarkerCode_Seq");
 
 				if (!isExtractIDSeqExists) {
-					Dialogs.showMessageDialog("Document(s) doesn't- contained Marker (Seq) field. Run the Sample import first and then CRS import.");
+					Dialogs.showMessageDialog("At least one selected document lacks Extract ID (Seq).");
 					return;
 				}
 
@@ -209,7 +209,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					limsFrameProgress.createProgressBar();
 
 					/** Show the progress bar */
-					limsFrameProgress.showProgress();
+					limsFrameProgress.showProgress(extractIDfileName);
 
 					readDataFromExcel(fileSelected, extractIDfileName,
 							documents, cnt);
@@ -360,7 +360,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						if (record.length == 0) {
 							continue;
 						}
-						limsFrameProgress.showProgress();
+
+						String dummyFile = ReadGeneiousFieldsValues
+								.getFastaIDForSamples_GeneiousDB(ID);
+
+						limsFrameProgress.showProgress(dummyFile);
 
 						ID = "e" + record[3];
 
@@ -369,8 +373,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
-						String dummyFile = ReadGeneiousFieldsValues
-								.getFastaIDForSamples_GeneiousDB(ID);
 						if (dummyFile.trim() != "") {
 							dummyFile = getExtractIDFromAB1FileName(dummyFile);
 						}
@@ -427,6 +429,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								+ "\n");
 				msgUitvalList.add("Ab1 filename: " + docs.get(cnt).getName()
 						+ "\n");
+
+				limsFrameProgress.showProgress(docs.get(cnt).getName());
 
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
