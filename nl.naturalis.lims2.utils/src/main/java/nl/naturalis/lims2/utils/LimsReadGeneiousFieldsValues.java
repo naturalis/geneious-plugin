@@ -54,6 +54,12 @@ public class LimsReadGeneiousFieldsValues {
 	private List<String> listDummyValues = new ArrayList<String>();
 	private String[] databaseName = null;
 	public String resultDB = "";
+	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
+	public String extractidSamplesFromDummy;
+	public String samplePlateIdSamplesFromDummy;
+	public String scientificNameSamplesFromDummy;
+	public String registrnmbrSamplesFromDummy;
+	public String positionSamplesFromDummy;
 
 	public LimsReadGeneiousFieldsValues() {
 
@@ -201,8 +207,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get regsitrationnumber: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -272,8 +278,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get filename from database: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -348,8 +354,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Check of fasta/Ab1 file exists: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -426,8 +432,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Filename exists in DB: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -659,8 +665,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get cachename from DB: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -724,8 +730,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get ID from annotateddocument table: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -781,8 +787,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Delete dummy: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -847,8 +853,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get last version: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -919,8 +925,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get document version: "
+							+ ex.getMessage());
 				}
 			});
 
@@ -1056,7 +1062,13 @@ public class LimsReadGeneiousFieldsValues {
 			rs = pst.executeQuery();
 			ResultSetMetaData metadata = rs.getMetaData();
 			int numberOfColumns = metadata.getColumnCount();
+			listDummyValues.clear();
 			while (rs.next()) {
+				registrnmbrSamplesFromDummy = rs.getString(4);
+				scientificNameSamplesFromDummy = rs.getString(5);
+				samplePlateIdSamplesFromDummy = rs.getString(6);
+				positionSamplesFromDummy = rs.getString(7);
+				extractidSamplesFromDummy = rs.getString(8);
 				int i = 1;
 				while (i <= numberOfColumns) {
 					listDummyValues.add(rs.getString(i++));
@@ -1070,8 +1082,8 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Username or Password is not correct: "
-							+ "User: " + user + " Password: " + password);
+					Dialogs.showMessageDialog("Get samples Value: "
+							+ ex.getMessage());
 				}
 			});
 

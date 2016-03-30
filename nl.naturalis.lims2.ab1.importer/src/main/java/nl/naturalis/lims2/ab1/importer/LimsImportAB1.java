@@ -3,6 +3,7 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +49,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private boolean fastaFileExists = false;
 	private int versienummer = 0;
 	private boolean isDeleted = false;
+	private String extractAb1FastaFileName = "";
 	private List<String> list = new ArrayList<String>();
+	private List<String> listDummy = new ArrayList<String>();
 
 	private int cnt = 0;
+	private int selectedTotal = 1;
 
 	public LimsImportAB1() {
 
@@ -88,41 +92,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
 
+		list.clear();
 		list.addAll(ReadGeneiousFieldsValues
 				.getDummySamplesValues(dummyFilename));
 
-		// System.out.println(list.toString());
-		//
-		// for (int i = 1; i < list.size(); i++) {
-		//
-		// ReadGeneiousFieldsValues.setDummyPcrPlateIdSeqValue(list.get(i));
-		// System.out.println("PCR Plate: "
-		// + ReadGeneiousFieldsValues.getDummyPcrPlateIdSeqValue());
-		// ReadGeneiousFieldsValues.setDummyMarkerSeqValue(list.get(i));
-		// ReadGeneiousFieldsValues.setDummyRegistrNmbrSamplesValue(list
-		// .get(i));
-		// ReadGeneiousFieldsValues.setDummyScientificNameSamplesValue(list
-		// .get(i));
-		// ReadGeneiousFieldsValues.setDummySamplePlateIdSamplesValue(list
-		// .get(i));
-		// ReadGeneiousFieldsValues.setDummyPositionSamplesValue(list.get(i));
-		// ReadGeneiousFieldsValues.setDummyExtractIDSamplesValue(list.get(i));
-		// ReadGeneiousFieldsValues.setDummySeqStaffSamplesValue(list.get(i));
-		// }
-
-		/*
-		 * if filename is equal to the dummy file name then delete the dummy
-		 * record.
-		 */
-		if (dummyFilename.equals(ab1FileName[0] + ".dum")) {
-			ReadGeneiousFieldsValues
-					.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
-			isDeleted = true;
-			logger.info("Filename: " + ab1FileName[0]
-					+ ".dum has been deleted from table annotated_document");
-		}
-
-		String extractAb1FastaFileName = "";
 		ArrayList<Integer> listcnt = new ArrayList<Integer>();
 
 		listcnt.add(cnt++);
@@ -155,7 +128,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		document = importCallback.addDocument(docs.listIterator().next());
 
-		if (file.getName() != null && list.size() == 0) {
+		if (file.getName() != null && list.size() == 0 && !isDeleted) {
 
 			limsAB1Fields
 					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
@@ -218,110 +191,137 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			}
 
 			limsNotes.setImportConsensusSeqPassNotes(document,
-					limsNotes.ConsensusSeqPass, "ConsensusSeqPass_Code_Seq",
+					limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
 					"Pass (Seq)", "Pass (Seq)", null);
 		}
 
 		else {
-			// if (isDeleted) {
-
-			/* set note for PCR Plaat-ID */
-			// limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
-			// "PCR plate ID (Seq)", "PCR plate ID (Seq)", "AA000");
-
-			/* set note for Marker */
-			// limsNotes.setImportNotes(document, "MarkerCode_Seq",
-			// "Marker (Seq)", "Marker (Seq)", "Dum");
 
 			limsAB1Fields
 					.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
 
-			/* set note for PCR Plaat-ID */
-			try {
-				limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
-						"PCR plate ID (Seq)", "PCR plate ID (Seq)",
-						limsAB1Fields.getPcrPlaatID());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+			String extractid = ReadGeneiousFieldsValues.extractidSamplesFromDummy;
 
-			/* set note for Marker */
-			try {
-				limsNotes.setImportNotes(document, "MarkerCode_Seq",
-						"Marker (Seq)", "Marker (Seq)",
-						limsAB1Fields.getMarker());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+			if (limsAB1Fields.getExtractID().equals(extractid)) {
 
-			/* set note for Extract-ID */
-			try {
-				limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
-						"Extract ID (Seq)", "Extract ID (Seq)",
-						limsAB1Fields.getExtractID());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+				/* set note for PCR Plaat-ID */
+				try {
+					limsNotes.setImportNotes(document, "PCRplateIDCode_Seq",
+							"PCR plate ID (Seq)", "PCR plate ID (Seq)",
+							limsAB1Fields.getPcrPlaatID());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 
-			/** set note for Extract-ID */
-			limsNotes
-					.setImportNotes(document, "ExtractIDCode_Samples",
-							"Extract ID (Samples)", "Extract ID (Samples)",
-							list.get(7));
+				/* set note for Marker */
+				try {
+					limsNotes.setImportNotes(document, "MarkerCode_Seq",
+							"Marker (Seq)", "Marker (Seq)",
+							limsAB1Fields.getMarker());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 
-			/** set note for Project Plate number */
-			limsNotes.setImportNotes(document,
-					"ProjectPlateNumberCode_Samples",
-					"Sample plate ID (Samples)", "Sample plate ID (Samples)",
-					list.get(5));
+				/* set note for Extract-ID */
+				try {
+					limsNotes.setImportNotes(document, "ExtractIDCode_Seq",
+							"Extract ID (Seq)", "Extract ID (Seq)",
+							limsAB1Fields.getExtractID());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 
-			/** set note for Taxon name */
-			limsNotes.setImportNotes(document, "TaxonName2Code_Samples",
-					"[Scientific name] (Samples)",
-					"[Scientific name] (Samples)", list.get(4));
+				/** set note for Extract-ID */
+				limsNotes.setImportNotes(document, "ExtractIDCode_Samples",
+						"Extract ID (Samples)", "Extract ID (Samples)",
+						ReadGeneiousFieldsValues.extractidSamplesFromDummy);
 
-			/** set note for Registration number */
-			limsNotes.setImportNotes(document,
-					"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
-					"Registr-nmbr (Samples)", list.get(3));
-
-			/** set note for Plate position */
-			limsNotes.setImportNotes(document, "PlatePositionCode_Samples",
-					"Position (Samples)", "Position (Samples)", list.get(6));
-
-			/** SequencingStaffCode_FixedValue */
-			try {
+				/** set note for Project Plate number */
 				limsNotes.setImportNotes(document,
-						"SequencingStaffCode_FixedValue_Samples",
-						"Seq-staff (Samples)", "Seq-staff (Samples)",
-						limsImporterUtil.getPropValues("samplessequencestaff"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+						"ProjectPlateNumberCode_Samples",
+						"Sample plate ID (Samples)",
+						"Sample plate ID (Samples)",
+						ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
 
-			if (ab1fileExists) {
-				versienummer++;
-			} else if (fastaFileExists) {
-				versienummer++;
-			} else {
-				versienummer = 1;
-			}
-			/* set note for Version */
-			try {
-				limsNotes.setImportNotes(document, "DocumentVersionCode_Seq",
-						"Document version", "Document version",
-						Integer.toString(versienummer));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+				/** set note for Taxon name */
+				limsNotes
+						.setImportNotes(
+								document,
+								"TaxonName2Code_Samples",
+								"[Scientific name] (Samples)",
+								"[Scientific name] (Samples)",
+								ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
 
+				/** set note for Registration number */
+				limsNotes.setImportNotes(document,
+						"RegistrationNumberCode_Samples",
+						"Registr-nmbr (Samples)", "Registr-nmbr (Samples)",
+						ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
+
+				/** set note for Plate position */
+				limsNotes.setImportNotes(document, "PlatePositionCode_Samples",
+						"Position (Samples)", "Position (Samples)",
+						ReadGeneiousFieldsValues.positionSamplesFromDummy);
+
+				/** SequencingStaffCode_FixedValue */
+				try {
+					limsNotes.setImportNotes(document,
+							"SequencingStaffCode_FixedValue_Samples",
+							"Seq-staff (Samples)", "Seq-staff (Samples)",
+							limsImporterUtil
+									.getPropValues("samplessequencestaff"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				if (ab1fileExists) {
+					versienummer++;
+				} else if (fastaFileExists) {
+					versienummer++;
+				} else {
+					versienummer = 1;
+				}
+				/* set note for Version */
+				try {
+					limsNotes.setImportNotes(document,
+							"DocumentVersionCode_Seq", "Document version",
+							"Document version", Integer.toString(versienummer));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				if (count > 0) {
+					selectedTotal = 0;
+				}
+			}
 		}
-		// }
-		// }
 		logger.info("Total of document(s) filename extracted: " + count);
 		logger.info("----------------------------E N D ---------------------------------");
 		logger.info("Done with extracting/imported Ab1 files. ");
 		isDeleted = false;
+
+		if (selectedTotal == 0) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					if (dummyFilename.equals(ab1FileName[0] + ".dum")) {
+						try {
+							/* Get Databasename */
+							ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+									.getServerDatabaseServiceName();
+							ReadGeneiousFieldsValues
+									.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						isDeleted = true;
+						logger.info("Filename: "
+								+ ab1FileName[0]
+								+ ".dum has been deleted from table annotated_document");
+					}
+				}
+			});
+		}
 	}
 
 	@Override

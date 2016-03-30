@@ -15,6 +15,54 @@ public class LimsAB1Fields {
 	private String pcrPlaatID;
 	private String marker;
 	private int versieNummer = 1;
+	private String extractidSamplesFromDummy;
+	private String samplePlateIdSamplesFromDummy;
+	private String scientificNameSamplesFromDummy;
+	private String registrnmbrSamplesFromDummy;
+	private String positionSamplesFromDummy;
+
+	public String getExtractidSamplesFromDummy() {
+		return extractidSamplesFromDummy;
+	}
+
+	public void setExtractidSamplesFromDummy(String extractidSamplesFromDummy) {
+		this.extractidSamplesFromDummy = extractidSamplesFromDummy;
+	}
+
+	public String getSamplePlateIdSamplesFromDummy() {
+		return samplePlateIdSamplesFromDummy;
+	}
+
+	public void setSamplePlateIdSamplesFromDummy(
+			String samplePlateIdSamplesFromDummy) {
+		this.samplePlateIdSamplesFromDummy = samplePlateIdSamplesFromDummy;
+	}
+
+	public String getScientificNameSamplesFromDummy() {
+		return scientificNameSamplesFromDummy;
+	}
+
+	public void setScientificNameSamplesFromDummy(
+			String scientificNameSamplesFromDummy) {
+		this.scientificNameSamplesFromDummy = scientificNameSamplesFromDummy;
+	}
+
+	public String getRegistrnmbrSamplesFromDummy() {
+		return registrnmbrSamplesFromDummy;
+	}
+
+	public void setRegistrnmbrSamplesFromDummy(
+			String registrnmbrSamplesFromDummy) {
+		this.registrnmbrSamplesFromDummy = registrnmbrSamplesFromDummy;
+	}
+
+	public String getPositionSamplesFromDummy() {
+		return positionSamplesFromDummy;
+	}
+
+	public void setPositionSamplesFromDummy(String positionSamplesFromDummy) {
+		this.positionSamplesFromDummy = positionSamplesFromDummy;
+	}
 
 	public String getExtractID() {
 		return extractID;

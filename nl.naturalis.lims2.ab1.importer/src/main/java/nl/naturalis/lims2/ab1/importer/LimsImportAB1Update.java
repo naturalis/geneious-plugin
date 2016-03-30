@@ -185,7 +185,7 @@ public class LimsImportAB1Update extends DocumentAction {
 						limsNotes.setNoteDropdownFieldToFileName(
 								annotatedPluginDocuments,
 								limsNotes.ConsensusSeqPass,
-								"ConsensusSeqPass_Code_Seq", "Pass (Seq)",
+								"ConsensusSeqPassCode_Seq", "Pass (Seq)",
 								"Pass (Seq)", null, cnt);
 
 						limsFrameProgress.showProgress(docs.get(cnt).getName());

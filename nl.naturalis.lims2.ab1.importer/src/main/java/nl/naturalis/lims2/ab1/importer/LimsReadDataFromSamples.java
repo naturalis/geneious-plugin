@@ -81,6 +81,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private boolean isExtractIDSeqExists = false;
 	private int version = 0;
 	private String recordDocumentName = "";
+	private String readAssembyContigFileName = "";
+	private boolean extractIdSeqIsNotNull = false;
 
 	public LimsReadDataFromSamples() {
 
@@ -146,8 +148,17 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 
+					isExtractIDSeqExists = ReadGeneiousFieldsValues
+							.getValueFromAnnotatedPluginDocument(
+									documents[cnt],
+									"DocumentNoteUtilities-Extract ID (Seq)",
+									"ExtractIDCode_Seq");
+
 					documentFileName = (String) docs.get(cnt).getFieldValue(
 							"cache_name");
+
+					readAssembyContigFileName = (String) docs.get(cnt)
+							.getFieldValue("override_cache_name");
 
 					recordDocumentName = docs.get(cnt).getName();
 
@@ -165,29 +176,47 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 					}
 
-					// if (!documentFileName.toString().contains("Contig")
-					// || !documentFileName.toString().contains("dum")
-					// || !documentFileName.toString().contains(
-					// "consensus sequence")) {
-					// documentFileName = ReadGeneiousFieldsValues
-					// .readValueFromAnnotatedPluginDocument(
-					// documents[cnt], "importedFrom",
-					// "filename");
-					// }
+					System.out.println("Documentname :"
+							+ docs.get(cnt).getName());
+
+					if ((readAssembyContigFileName != null)
+							&& readAssembyContigFileName.toString().contains(
+									"Reads Assembly Contig")) {
+						documentFileName = docs.get(cnt).getName();
+					} else if (docs.get(cnt).getName().toString()
+							.contains("consensus sequence")) {
+						documentFileName = docs.get(cnt).getName();
+
+					} else if (docs.get(cnt).getName().toString()
+							.contains("dum")) {
+						documentFileName = docs.get(cnt).getName();
+					} else {
+						documentFileName = (String) ReadGeneiousFieldsValues
+								.readValueFromAnnotatedPluginDocument(
+										documents[cnt], "importedFrom",
+										"filename");
+					}
 
 					/* Get file name from the document(s) */
-					result = ReadGeneiousFieldsValues
-							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName,
-									"//XMLSerialisableRootElement/name");
+					if (documentFileName.toString().contains("ab1")
+							|| documentFileName.toString().contains("fas")
+							|| documentFileName.toString().contains("dum")) {
+						result = ReadGeneiousFieldsValues
+								.getFileNameFromGeneiousDatabase(docs.get(cnt)
+										.getName(),
+										"//XMLSerialisableRootElement/name");
+					}
 
-					if (!documentFileName.contains("Contig")
-							|| !documentFileName.contains("consensus sequence")) {
+					if ((result != null && documentFileName.toString()
+							.contains("fas"))
+							|| (result.toString().contains("ab1"))
+							|| (result.toString().contains("dum"))) {
 						extractIDfileName = getExtractIDFromAB1FileName(docs
 								.get(cnt).getName());
-					} else if (docs.get(cnt).getName()
+					} else if (docs.get(cnt).getName().toString()
 							.contains("consensus sequence")
-							|| docs.get(cnt).getName().contains("Contig")) {
+							|| docs.get(cnt).getName().toString()
+									.contains("Contig")) {
 						extractIDfileName = docs.get(cnt).getName();
 					}
 
@@ -200,13 +229,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					/** Create progress bar */
 					limsFrameProgress.createProgressBar();
 
-					/** Show the progress bar */
-					limsFrameProgress.showProgress(extractIDfileName);
-
-					readDataFromExcel(fileSelected, extractIDfileName,
-							documents, cnt);
+					if (isExtractIDSeqExists) {
+						readDataFromExcel(fileSelected, extractIDfileName,
+								documents, cnt);
+					}
 
 					importCounter = msgList.size();
+
+					result = "";
 
 				}
 
@@ -217,10 +247,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				// for (int cnt = 0; cnt < docs.size(); cnt++) {
 				/* Set for creating dummy files */
 				if (isSampleDoc) {
-					// limsFrameProgress.createProgressBar();
+					limsFrameProgress.createProgressBar();
 					setExtractIDFromSamplesSheet(fileSelected,
 							extractIDfileName);
-					// limsFrameProgress.hideFrame();
+					limsFrameProgress.hideFrame();
 				}
 				// }
 
@@ -368,16 +398,16 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						String dummyFile = ReadGeneiousFieldsValues
 								.getFastaIDForSamples_GeneiousDB(ID);
 
-						limsFrameProgress.showProgress(dummyFile);
-
 						if (dummyFile.trim() != "") {
 							dummyFile = getExtractIDFromAB1FileName(dummyFile);
 						}
 
 						if (!dummyFile.equals(ID)) {
+							limsFrameProgress.showProgress(ID);
 							limsDummySeq.createDummySampleSequence(ID, ID,
 									record[0], plateNumber, record[5],
 									record[4], record[1]);
+
 							cnt++;
 						}
 
@@ -428,6 +458,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				msgUitvalList.add("Ab1 filename: " + docs.get(cnt).getName()
 						+ "\n");
 
+				/** Show the progress bar */
 				limsFrameProgress.showProgress(docs.get(cnt).getName());
 
 				while ((record = csvReader.readNext()) != null) {
@@ -447,8 +478,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						limsExcelFields.setProjectPlaatNummer(record[0]);
 						limsExcelFields.setPlaatPositie(record[1]);
 						limsExcelFields.setExtractPlaatNummer(plateNumber);
-						if (record[3] != null) {
+						if (ID != null) {
 							limsExcelFields.setExtractID(ID);
+						} else {
+							limsExcelFields.setExtractID("");
 						}
 						limsExcelFields.setRegistrationNumber(record[4]);
 						limsExcelFields.setTaxonNaam(record[5]);
@@ -531,8 +564,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			underscore = StringUtils.split(fileName, ".");
 		} else if (fileName.contains("_")) {
 			underscore = StringUtils.split(fileName, "_");
-		} else if (fileName.contains("Reads")) {
-			underscore = StringUtils.split(fileName, "Reads");
 		} else {
 			throw new IllegalArgumentException("String " + fileName
 					+ " cannot be split. ");
