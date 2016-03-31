@@ -54,12 +54,12 @@ public class LimsReadGeneiousFieldsValues {
 	private List<String> listDummyValues = new ArrayList<String>();
 	private String[] databaseName = null;
 	public String resultDB = "";
-	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	public String extractidSamplesFromDummy;
 	public String samplePlateIdSamplesFromDummy;
 	public String scientificNameSamplesFromDummy;
 	public String registrnmbrSamplesFromDummy;
 	public String positionSamplesFromDummy;
+	private SQLException exception = null;
 
 	public LimsReadGeneiousFieldsValues() {
 
@@ -202,13 +202,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get regsitrationnumber: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -273,13 +274,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get filename from database: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -349,13 +351,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Check of fasta/Ab1 file exists: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -427,13 +430,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Filename exists in DB: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -660,13 +664,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get cachename from DB: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -725,13 +730,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get ID from annotateddocument table: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -782,13 +788,14 @@ public class LimsReadGeneiousFieldsValues {
 					+ "From tabel annotated_document ");
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Delete dummy: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -848,13 +855,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get last version: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -920,13 +928,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get document version: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 
@@ -1077,13 +1086,14 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get samples Value: "
-							+ ex.getMessage());
+							+ exception.getMessage());
 				}
 			});
 

@@ -51,7 +51,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
 	private List<String> list = new ArrayList<String>();
-	private List<String> listDummy = new ArrayList<String>();
+	private String[] ab1FileName = null;
+	private String dummyFilename = "";
+	private String annotatedDocumentID = "";
 
 	private int cnt = 0;
 	private int selectedTotal = 1;
@@ -80,15 +82,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				.getServerDatabaseServiceName();
 
 		/* Get the filename and extract the ID */
-		String[] ab1FileName = StringUtils.split(file.getName(), "_");
+		ab1FileName = StringUtils.split(file.getName(), "_");
 
 		/* Check if Dummy file exists in the database */
-		String dummyFilename = ReadGeneiousFieldsValues
+		dummyFilename = ReadGeneiousFieldsValues
 				.getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
 
 		/* if exists then get the ID from the dummy file */
-		String annotatedDocumentID = ReadGeneiousFieldsValues
+		annotatedDocumentID = ReadGeneiousFieldsValues
 				.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
 						"//document/hiddenFields/cache_name");
 

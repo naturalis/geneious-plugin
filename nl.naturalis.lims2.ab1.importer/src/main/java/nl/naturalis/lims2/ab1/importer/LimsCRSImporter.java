@@ -122,9 +122,9 @@ public class LimsCRSImporter extends DocumentAction {
 				documentFileName = annotatedPluginDocuments[cnt]
 						.getFieldValue("cache_name");
 
-				if (documentFileName.toString().contains("ab1")
-						|| docs.toString().contains("fas")
-						&& !docs.toString().contains("dum")) {
+				if ((documentFileName.toString().contains("ab1"))
+						|| (docs.get(cnt).toString().contains("fas"))
+						&& (!docs.toString().contains("dum"))) {
 					fasDocument = readGeneiousFieldsValues
 							.readValueFromAnnotatedPluginDocument(
 									annotatedPluginDocuments[cnt],
@@ -140,11 +140,15 @@ public class LimsCRSImporter extends DocumentAction {
 				/* Check of the filename contain "FAS" extension */
 				if (fasDocument.toString().contains("fas")
 						&& fasDocument != null) {
-					documentFileName = (String) readGeneiousFieldsValues
-							.readValueFromAnnotatedPluginDocument(
-									annotatedPluginDocuments[cnt],
-									"DocumentNoteUtilities-Extract ID (Seq)",
-									"ExtractIDCode_Seq");
+					documentFileName = docs.get(cnt)
+							.getFieldValue("cache_name");
+					/*
+					 * (String) readGeneiousFieldsValues
+					 * .readValueFromAnnotatedPluginDocument(
+					 * annotatedPluginDocuments[cnt],
+					 * "DocumentNoteUtilities-Extract ID (Seq)",
+					 * "ExtractIDCode_Seq");
+					 */
 
 				} else {
 					/* get AB1 filename */

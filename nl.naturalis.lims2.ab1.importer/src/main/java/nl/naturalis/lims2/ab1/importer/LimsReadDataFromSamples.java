@@ -82,7 +82,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private int version = 0;
 	private String recordDocumentName = "";
 	private String readAssembyContigFileName = "";
-	private boolean extractIdSeqIsNotNull = false;
 
 	public LimsReadDataFromSamples() {
 
@@ -95,7 +94,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		try {
 			performOperation(annotatedPluginDocuments);
 		} catch (DocumentOperationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -176,8 +174,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 					}
 
-					System.out.println("Documentname :"
-							+ docs.get(cnt).getName());
+					// System.out.println("Documentname :"
+					// + docs.get(cnt).getName());
 
 					if ((readAssembyContigFileName != null)
 							&& readAssembyContigFileName.toString().contains(
@@ -244,7 +242,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				logger.info("Total of document(s) updated: " + docs.size());
 				limsFrameProgress.hideFrame();
 
-				// for (int cnt = 0; cnt < docs.size(); cnt++) {
 				/* Set for creating dummy files */
 				if (isSampleDoc) {
 					limsFrameProgress.createProgressBar();
@@ -252,7 +249,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							extractIDfileName);
 					limsFrameProgress.hideFrame();
 				}
-				// }
 
 				logger.info("-------------------------- E N D --------------------------");
 				logger.info("Done with updating the selected document(s). ");
@@ -286,7 +282,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			setExtractIDFromSamplesSheet(fileSelected, extractIDfileName);
 			limsFrameProgress.hideFrame();
 		} else if (n == 2) {
-			System.out.println("Optie 2");
 			return;
 		}
 	}

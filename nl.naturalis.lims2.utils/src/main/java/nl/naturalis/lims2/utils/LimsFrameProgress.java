@@ -36,7 +36,7 @@ public class LimsFrameProgress {
 		frame.setVisible(true);
 	}
 
-	public void showProgress(String fileName) {
+	public void showProgress(final String fileName) {
 		for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
 			final int percent = i;
 			try {
