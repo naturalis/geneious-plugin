@@ -182,12 +182,18 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ex.printStackTrace();
 			}
 
-			/* set note for AmplicificationStaffCode_FixedValue */
+			/* set note for SequencingStaffCode_FixedValue_Seq */
 			try {
+				/*
+				 * limsNotes.setImportNotes(document,
+				 * "AmplicificationStaffCode_FixedValue_Seq",
+				 * "Ampl-staff (Seq)", "Ampl-staff (Seq)",
+				 * limsImporterUtil.getPropValues("seqamplicification"));
+				 */
 				limsNotes.setImportNotes(document,
-						"AmplicificationStaffCode_FixedValue_Seq",
-						"Ampl-staff (Seq)", "Ampl-staff (Seq)",
-						limsImporterUtil.getPropValues("seqamplicification"));
+						"SequencingStaffCode_FixedValue_Seq",
+						"Seq-staff (Seq)", "Seq-staff (Seq)",
+						limsImporterUtil.getPropValues("seqsequencestaff"));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -265,13 +271,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						"Position (Samples)", "Position (Samples)",
 						ReadGeneiousFieldsValues.positionSamplesFromDummy);
 
-				/** SequencingStaffCode_FixedValue */
+				/** SequencingStaffCode_FixedValue_Seq */
 				try {
 					limsNotes.setImportNotes(document,
-							"SequencingStaffCode_FixedValue_Samples",
-							"Seq-staff (Samples)", "Seq-staff (Samples)",
-							limsImporterUtil
-									.getPropValues("samplessequencestaff"));
+							"SequencingStaffCode_FixedValue_Seq",
+							"Seq-staff (Seq)", "Seq-staff (Seq)",
+							limsImporterUtil.getPropValues("seqsequencestaff"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

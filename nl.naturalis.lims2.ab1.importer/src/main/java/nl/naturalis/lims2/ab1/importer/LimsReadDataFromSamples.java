@@ -330,14 +330,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				"Document version", "Document version",
 				String.valueOf(limsExcelFields.getVersieNummer()), cnt);
 
-		/** SequencingStaffCode_FixedValue */
+		/** AmplicificationStaffCode_FixedValue_Samples */
 		try {
-			limsNotes
-					.setNoteToAB1FileName(documents,
-							"SequencingStaffCode_FixedValue_Samples",
-							"Seq-staff (Samples)", "Seq-staff (Samples)",
-							limsImporterUtil
-									.getPropValues("samplessequencestaff"), cnt);
+			limsNotes.setNoteToAB1FileName(documents,
+					"AmplicificationStaffCode_FixedValue_Samples",
+					"Ampl-staff (Samples)", "Ampl-staff (Samples)",
+					limsImporterUtil.getPropValues("samplesamplicification"),
+					cnt);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

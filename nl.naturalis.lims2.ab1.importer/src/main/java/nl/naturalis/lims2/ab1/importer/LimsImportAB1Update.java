@@ -167,17 +167,15 @@ public class LimsImportAB1Update extends DocumentAction {
 									"Document version", "Document version",
 									Integer.toString(versienummer), cnt);
 						}
-						/* set note for AmplicificationStaffCode_FixedValue */
+						/* set note for SequencingStaffCode_FixedValue_Seq */
 						try {
-							limsNotes
-									.setNoteToAB1FileName(
-											annotatedPluginDocuments,
-											"AmplicificationStaffCode_FixedValue_Seq",
-											"Ampl-staff (Seq)",
-											"Ampl-staff (Seq)",
-											limsImporterUtil
-													.getPropValues("seqamplicification"),
-											cnt);
+							limsNotes.setNoteToAB1FileName(
+									annotatedPluginDocuments,
+									"SequencingStaffCode_FixedValue_Seq",
+									"Seq-staff (Seq)", "Seq-staff (Seq)",
+									limsImporterUtil
+											.getPropValues("seqsequencestaff"),
+									cnt);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
