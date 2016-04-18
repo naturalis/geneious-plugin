@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/nl.naturalis.lims2.ab1.importer"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_ENCODING" value="UTF-8"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=nl.naturalis.lims2.ab1.importer"/>
+<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="extraPlugins=&quot;nl.naturalis.lims2.ab1.importer.LimsImportAB1Plugin&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="nl.naturalis.lims2.ab1.importer"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseConcMarkSweepGC -ea -Xss512K -Xms256M -Xmx3072M -XX:MaxPermSize=256M -Djava.util.logging.config.file=logback.xml"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:GeneiousFiles}"/>
+</launchConfiguration>
