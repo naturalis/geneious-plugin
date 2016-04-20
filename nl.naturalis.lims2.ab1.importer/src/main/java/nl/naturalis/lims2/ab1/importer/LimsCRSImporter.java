@@ -78,130 +78,133 @@ public class LimsCRSImporter extends DocumentAction {
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
+		if (readGeneiousFieldsValues.resultDB != null) {
+			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				EventQueue.invokeLater(new Runnable() {
 
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Select at least one document");
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("Select at least one document");
+						return;
+					}
+				});
+			}
+
+			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+
+				isRMNHNumber = DocumentUtilities.getSelectedDocuments()
+						.iterator().next().toString()
+						.contains("RegistrationNumberCode_Samples");
+
+				if (!isRMNHNumber) {
+					Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
 					return;
 				}
-			});
-		}
 
-		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-
-			isRMNHNumber = DocumentUtilities.getSelectedDocuments().iterator()
-					.next().toString()
-					.contains("RegistrationNumberCode_Samples");
-
-			if (!isRMNHNumber) {
-				Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
-				return;
-			}
-
-			fileSelected = fcd.loadSelectedFile();
-			if (fileSelected == null) {
-				return;
-			}
-
-			limsFrameProgress.createProgressBar();
-
-			logger.info("Start updating selected document(s) with CRS data.");
-			logger.info("-------------------------- S T A R T --------------------------");
-			logger.info("Start Reading data from a CRS file.");
-			/** Add selected documents to a list. */
-			docs = DocumentUtilities.getSelectedDocuments();
-
-			msgUitvalList.add("Filename: " + fileSelected + "\n");
-			msgUitvalList.add("Username: " + System.getProperty("user.name")
-					+ "\n");
-			msgUitvalList.add("Type action: Import CRS data " + "\n");
-
-			for (int cnt = 0; cnt < docs.size(); cnt++) {
-				documentFileName = annotatedPluginDocuments[cnt]
-						.getFieldValue("cache_name");
-
-				if ((documentFileName.toString().contains("ab1"))
-						|| (docs.get(cnt).toString().contains("fas"))
-						&& (!docs.toString().contains("dum"))) {
-					fasDocument = readGeneiousFieldsValues
-							.readValueFromAnnotatedPluginDocument(
-									annotatedPluginDocuments[cnt],
-									"importedFrom", "filename");
+				fileSelected = fcd.loadSelectedFile();
+				if (fileSelected == null) {
+					return;
 				}
 
-				/* Add sequence name for the dialog screen */
-				if (DocumentUtilities.getSelectedDocuments().listIterator()
-						.hasNext()) {
-					msgList.add(documentFileName + "\n");
-				}
+				limsFrameProgress.createProgressBar();
 
-				/* Check of the filename contain "FAS" extension */
-				if (fasDocument.toString().contains("fas")
-						&& fasDocument != null) {
-					documentFileName = docs.get(cnt)
+				logger.info("Start updating selected document(s) with CRS data.");
+				logger.info("-------------------------- S T A R T --------------------------");
+				logger.info("Start Reading data from a CRS file.");
+				/** Add selected documents to a list. */
+				docs = DocumentUtilities.getSelectedDocuments();
+
+				msgUitvalList.add("Filename: " + fileSelected + "\n");
+				msgUitvalList.add("Username: "
+						+ System.getProperty("user.name") + "\n");
+				msgUitvalList.add("Type action: Import CRS data " + "\n");
+
+				for (int cnt = 0; cnt < docs.size(); cnt++) {
+					documentFileName = annotatedPluginDocuments[cnt]
 							.getFieldValue("cache_name");
-					/*
-					 * (String) readGeneiousFieldsValues
-					 * .readValueFromAnnotatedPluginDocument(
-					 * annotatedPluginDocuments[cnt],
-					 * "DocumentNoteUtilities-Extract ID (Seq)",
-					 * "ExtractIDCode_Seq");
-					 */
 
-				} else {
-					/* get AB1 filename */
-					if (!docs.toString().contains("consensus sequence")
-							|| !docs.toString().contains("Contig")) {
-						documentFileName = docs.get(cnt).getName();
+					if ((documentFileName.toString().contains("ab1"))
+							|| (docs.get(cnt).toString().contains("fas"))
+							&& (!docs.toString().contains("dum"))) {
+						fasDocument = readGeneiousFieldsValues
+								.readValueFromAnnotatedPluginDocument(
+										annotatedPluginDocuments[cnt],
+										"importedFrom", "filename");
 					}
+
+					/* Add sequence name for the dialog screen */
+					if (DocumentUtilities.getSelectedDocuments().listIterator()
+							.hasNext()) {
+						msgList.add(documentFileName + "\n");
+					}
+
+					/* Check of the filename contain "FAS" extension */
+					if (fasDocument.toString().contains("fas")
+							&& fasDocument != null) {
+						documentFileName = docs.get(cnt).getFieldValue(
+								"cache_name");
+						/*
+						 * (String) readGeneiousFieldsValues
+						 * .readValueFromAnnotatedPluginDocument(
+						 * annotatedPluginDocuments[cnt],
+						 * "DocumentNoteUtilities-Extract ID (Seq)",
+						 * "ExtractIDCode_Seq");
+						 */
+
+					} else {
+						/* get AB1 filename */
+						if (!docs.toString().contains("consensus sequence")
+								|| !docs.toString().contains("Contig")) {
+							documentFileName = docs.get(cnt).getName();
+						}
+					}
+
+					documents = annotatedPluginDocuments;
+					/* Add notes */
+					readDataFromCRSFile(documents[cnt], fileSelected, cnt,
+							(String) documentFileName);
+					importCounter = DocumentUtilities.getSelectedDocuments()
+							.size();
+
+					limsFrameProgress.showProgress(docs.get(cnt).getName());
 				}
+				logger.info("--------------------------------------------------------");
+				logger.info("Total of document(s) updated: " + importCounter);
+				logger.info("-------------------------- E N D --------------------------");
+				logger.info("Done with updating the selected document(s). ");
 
-				documents = annotatedPluginDocuments;
-				/* Add notes */
-				readDataFromCRSFile(documents[cnt], fileSelected, cnt,
-						(String) documentFileName);
-				importCounter = DocumentUtilities.getSelectedDocuments().size();
-
-				limsFrameProgress.showProgress(docs.get(cnt).getName());
-			}
-			logger.info("--------------------------------------------------------");
-			logger.info("Total of document(s) updated: " + importCounter);
-			logger.info("-------------------------- E N D --------------------------");
-			logger.info("Done with updating the selected document(s). ");
-
-			if (documentFileName != null) {
-				msgMatchList.add("No document(s) match found for : "
-						+ documentFileName);
-				int rest = importTotal - verwerkList.size();
-				msgUitvalList.add("Total records not matched: "
-						+ Integer.toString(rest) + "\n");
-			}
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("CRS: "
-							+ Integer.toString(importTotal)
-							+ " out of "
-							+ Integer.toString(DocumentUtilities
-									.getSelectedDocuments().size())
-							+ " documents are imported." + "\n"
-							+ msgList.toString());
-					logger.info("CRS: Total imported document(s): "
-							+ msgList.toString());
-
-					limsLogger.logToFile(logFileName, msgUitvalList.toString());
-					msgList.clear();
-					msgUitvalList.clear();
-					verwerkingCnt.clear();
-					verwerkList.clear();
-					match = false;
-					limsFrameProgress.hideFrame();
+				if (documentFileName != null) {
+					msgMatchList.add("No document(s) match found for : "
+							+ documentFileName);
+					int rest = importTotal - verwerkList.size();
+					msgUitvalList.add("Total records not matched: "
+							+ Integer.toString(rest) + "\n");
 				}
-			});
+				EventQueue.invokeLater(new Runnable() {
 
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("CRS: "
+								+ Integer.toString(importTotal)
+								+ " out of "
+								+ Integer.toString(DocumentUtilities
+										.getSelectedDocuments().size())
+								+ " documents are imported." + "\n"
+								+ msgList.toString());
+						logger.info("CRS: Total imported document(s): "
+								+ msgList.toString());
+
+						limsLogger.logToFile(logFileName,
+								msgUitvalList.toString());
+						msgList.clear();
+						msgUitvalList.clear();
+						verwerkingCnt.clear();
+						verwerkList.clear();
+						match = false;
+						limsFrameProgress.hideFrame();
+					}
+				});
+			}
 		}
 	}
 

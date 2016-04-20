@@ -87,144 +87,149 @@ public class LimsReadDataFromBold extends DocumentAction {
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
+		if (readGeneiousFieldsValues.resultDB != null) {
+			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				EventQueue.invokeLater(new Runnable() {
 
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Select at least one document.");
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("Select at least one document.");
+						return;
+					}
+				});
+			}
+
+			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				msgList.clear();
+				boldFileSelected = fcd.loadSelectedFile();
+				if (boldFileSelected == null) {
 					return;
 				}
-			});
-		}
 
-		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			msgList.clear();
-			boldFileSelected = fcd.loadSelectedFile();
-			if (boldFileSelected == null) {
-				return;
-			}
+				documents = annotatedPluginDocuments;
+				logger.info("------------------------------S T A R T -----------------------------------");
+				logger.info("Start adding Bold metadata to AB1 File(s)");
 
-			documents = annotatedPluginDocuments;
-			logger.info("------------------------------S T A R T -----------------------------------");
-			logger.info("Start adding Bold metadata to AB1 File(s)");
+				try {
+					docs = DocumentUtilities.getSelectedDocuments();
+					msgUitvalList.add("Filename: " + boldFileSelected + "\n");
+					for (int cnt = 0; cnt < docs.size(); cnt++) {
+						documentFileName = annotatedPluginDocuments[cnt]
+								.getFieldValue("cache_name");
 
-			try {
-				docs = DocumentUtilities.getSelectedDocuments();
-				msgUitvalList.add("Filename: " + boldFileSelected + "\n");
-				for (int cnt = 0; cnt < docs.size(); cnt++) {
-					documentFileName = annotatedPluginDocuments[cnt]
-							.getFieldValue("cache_name");
+						/* Add sequence name for the dialog screen */
+						if (DocumentUtilities.getSelectedDocuments()
+								.listIterator().hasNext()) {
+							msgList.add(documentFileName + "\n");
+						}
 
-					/* Add sequence name for the dialog screen */
-					if (DocumentUtilities.getSelectedDocuments().listIterator()
-							.hasNext()) {
-						msgList.add(documentFileName + "\n");
-					}
+						result = false;
 
-					result = false;
+						/* Reads Assembly Contig 1 file */
+						try {
+							if (readGeneiousFieldsValues
+									.getCacheNameFromGeneiousDatabase(
+											documentFileName,
+											"//document/hiddenFields/override_cache_name")
+									.equals(documentFileName)) {
+								defaultAlignmentDocument = (DefaultAlignmentDocument) docs
+										.get(cnt).getDocument();
 
-					/* Reads Assembly Contig 1 file */
-					try {
+								logger.info("Selected Contig document: "
+										+ defaultAlignmentDocument.getName());
+								setExtractIDfileName(defaultAlignmentDocument
+										.getName());
+								extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
+										.getName());
+								result = true;
+							}
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+
+						/* Reads Assembly Contig 1 consensus sequence */
+						try {
+							if (readGeneiousFieldsValues
+									.getCacheNameFromGeneiousDatabase(
+											documentFileName,
+											"//document/hiddenFields/cache_name")
+									.equals(documentFileName)
+									&& !documentFileName.toString().contains(
+											"ab1")) {
+
+								defaultNucleotideSequence = (DefaultNucleotideSequence) docs
+										.get(cnt).getDocument();
+
+								logger.info("Selected Contig consensus sequence document: "
+										+ defaultNucleotideSequence.getName());
+
+								setExtractIDfileName(defaultNucleotideSequence
+										.getName());
+								extractIDfileName = getExtractIDFromAB1FileName(defaultNucleotideSequence
+										.getName());
+								result = true;
+							}
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+
+						/* AB1 file '//ABIDocument/name' */
 						if (readGeneiousFieldsValues
-								.getCacheNameFromGeneiousDatabase(
-										documentFileName,
-										"//document/hiddenFields/override_cache_name")
-								.equals(documentFileName)) {
-							defaultAlignmentDocument = (DefaultAlignmentDocument) docs
-									.get(cnt).getDocument();
+								.getFileNameFromGeneiousDatabase(
+										(String) documentFileName,
+										"//ABIDocument/name").equals(
+										documentFileName)) {
 
-							logger.info("Selected Contig document: "
-									+ defaultAlignmentDocument.getName());
-							setExtractIDfileName(defaultAlignmentDocument
-									.getName());
-							extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
+							sequenceDocument = (SequenceDocument) docs.get(cnt)
+									.getDocument();
+							logger.info("Selected AB1 document: "
+									+ sequenceDocument.getName());
+							setExtractIDfileName(sequenceDocument.getName());
+							extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
 									.getName());
 							result = true;
+
 						}
-					} catch (IOException e2) {
-						e2.printStackTrace();
-					}
 
-					/* Reads Assembly Contig 1 consensus sequence */
-					try {
-						if (readGeneiousFieldsValues
-								.getCacheNameFromGeneiousDatabase(
-										documentFileName,
-										"//document/hiddenFields/cache_name")
-								.equals(documentFileName)
-								&& !documentFileName.toString().contains("ab1")) {
-
-							defaultNucleotideSequence = (DefaultNucleotideSequence) docs
-									.get(cnt).getDocument();
-
-							logger.info("Selected Contig consensus sequence document: "
-									+ defaultNucleotideSequence.getName());
-
-							setExtractIDfileName(defaultNucleotideSequence
+						if (result) {
+							limsFrameProgress.createProgressBar();
+							readDataFromBold(annotatedPluginDocuments[cnt],
+									boldFileSelected, cnt,
+									(String) documentFileName);
+							limsFrameProgress.showProgress(docs.get(cnt)
 									.getName());
-							extractIDfileName = getExtractIDFromAB1FileName(defaultNucleotideSequence
-									.getName());
-							result = true;
 						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-
-					/* AB1 file '//ABIDocument/name' */
-					if (readGeneiousFieldsValues
-							.getFileNameFromGeneiousDatabase(
-									(String) documentFileName,
-									"//ABIDocument/name").equals(
-									documentFileName)) {
-
-						sequenceDocument = (SequenceDocument) docs.get(cnt)
-								.getDocument();
-						logger.info("Selected AB1 document: "
-								+ sequenceDocument.getName());
-						setExtractIDfileName(sequenceDocument.getName());
-						extractIDfileName = getExtractIDFromAB1FileName(sequenceDocument
-								.getName());
-						result = true;
 
 					}
-
-					if (result) {
-						limsFrameProgress.createProgressBar();
-						readDataFromBold(annotatedPluginDocuments[cnt],
-								boldFileSelected, cnt,
-								(String) documentFileName);
-						limsFrameProgress.showProgress(docs.get(cnt).getName());
-					}
-
+				} catch (DocumentOperationException e) {
+					e.printStackTrace();
 				}
-			} catch (DocumentOperationException e) {
-				e.printStackTrace();
+				logger.info("Total of document(s) updated: " + docs.size());
+				logger.info("------------------------------E N D -----------------------------------");
+				logger.info("Done with reading bold file. ");
+				EventQueue.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						Dialogs.showMessageDialog("Bold: "
+								+ Integer.toString(importTotal) + " out of "
+								+ Integer.toString(docs.size())
+								+ " documents are imported." + "\n"
+								+ msgList.toString());
+						logger.info("Bold: Total imported document(s): "
+								+ msgList.toString());
+
+						limsLogger.logToFile(logFileName,
+								msgUitvalList.toString());
+
+						msgList.clear();
+						msgUitvalList.clear();
+						verwerkingListCnt.clear();
+						verwerkList.clear();
+						limsFrameProgress.hideFrame();
+					}
+				});
 			}
-			logger.info("Total of document(s) updated: " + docs.size());
-			logger.info("------------------------------E N D -----------------------------------");
-			logger.info("Done with reading bold file. ");
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Bold: "
-							+ Integer.toString(importTotal) + " out of "
-							+ Integer.toString(docs.size())
-							+ " documents are imported." + "\n"
-							+ msgList.toString());
-					logger.info("Bold: Total imported document(s): "
-							+ msgList.toString());
-
-					limsLogger.logToFile(logFileName, msgUitvalList.toString());
-
-					msgList.clear();
-					msgUitvalList.clear();
-					verwerkingListCnt.clear();
-					verwerkList.clear();
-					limsFrameProgress.hideFrame();
-				}
-			});
 		}
 	}
 

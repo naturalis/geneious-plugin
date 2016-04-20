@@ -5,6 +5,8 @@ package nl.naturalis.lims2.utils;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,11 +16,24 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -259,6 +274,7 @@ public class LimsReadGeneiousFieldsValues {
 
 			con = DriverManager.getConnection(url + resultDB + ssl, user,
 					password);
+			System.out.println(con.toString());
 			con.clearWarnings();
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
@@ -274,6 +290,7 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
+			logger.info("Url maybe not correct: " + url);
 			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
@@ -281,7 +298,8 @@ public class LimsReadGeneiousFieldsValues {
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get filename from database: "
-							+ exception.getMessage());
+							+ exception.getMessage() + "\n" + url
+							+ " settings is not correct");
 				}
 			});
 
@@ -1116,17 +1134,187 @@ public class LimsReadGeneiousFieldsValues {
 		return listDummyValues;
 	}
 
+	/*
+	 * public void setItemToComboBox() { List<String> lstdb = new
+	 * ArrayList<String>(); String output = "";
+	 * 
+	 * ListIterator<?> itr = PluginUtilities.getWritableDatabaseServiceRoots()
+	 * .listIterator();
+	 * 
+	 * while (itr.hasNext()) { String dbsvc = itr.next().toString(); if
+	 * (dbsvc.contains("geneious")) { String st[] = dbsvc.split("name=");
+	 * Map<String, Integer> mp = new TreeMap<String, Integer>(); for (int i = 0;
+	 * i < st.length; i++) {
+	 * 
+	 * Integer count = mp.get(st[i]); if (count == null) { count = 0; }
+	 * mp.put(st[i], ++count); String strGeneious = st[i];
+	 * 
+	 * if (strGeneious.contains("geneious")) { int indexEnd =
+	 * strGeneious.indexOf(","); output = strGeneious.substring(0, indexEnd); //
+	 * System.out.println(output); lstdb.add(output); }
+	 * 
+	 * }
+	 * 
+	 * } }
+	 * 
+	 * String splitOutPut = ""; JFrame frame = new
+	 * JFrame("Select geneious database");
+	 * frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	 * frame.setSize(300, 80); frame.setLayout(new FlowLayout()); JButton
+	 * jButton1 = new JButton("Select");
+	 * 
+	 * Vector<String> comboBoxItems = new Vector<String>(); Iterator<String>
+	 * lstitr = lstdb.listIterator(); while (lstitr.hasNext()) { splitOutPut =
+	 * lstitr.next().toString(); comboBoxItems.add(splitOutPut); } final
+	 * DefaultComboBoxModel model = new DefaultComboBoxModel( comboBoxItems);
+	 * JComboBox comboBox = new JComboBox(model); frame.add(comboBox);
+	 * frame.add(jButton1, "South");
+	 * 
+	 * ItemListener itemListener = new ItemListener() { public void
+	 * itemStateChanged(ItemEvent itemEvent) { int state =
+	 * itemEvent.getStateChange(); System.out.println((state ==
+	 * ItemEvent.SELECTED) ? "Selected" : "Deselected");
+	 * System.out.println("Item: " + itemEvent.getItem()); ItemSelectable is =
+	 * itemEvent.getItemSelectable(); System.out.println(", Selected: " +
+	 * selectedString(is)); resultDB = selectedString(is);// .toString();
+	 * System.out.println("Database:" + resultDB); } };
+	 * 
+	 * comboBox.addItemListener(itemListener);
+	 * 
+	 * // Object cmboitem = comboBox.getSelectedItem(); // dbName =
+	 * cmboitem.toString();
+	 * 
+	 * frame.setVisible(true); }
+	 * 
+	 * static private String selectedString(ItemSelectable is) { Object
+	 * selected[] = is.getSelectedObjects(); return ((selected.length == 0) ?
+	 * "null" : (String) selected[0]); }
+	 */
+
+	// private void itemDatabaseList(List databasename) {
+	//
+	// String[] splitOutPut = null;
+	// String[] mystring = null;
+	// JFrame frame = new JFrame("Select geneious database");
+	// frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	// frame.setSize(300, 80);
+	// JButton jButton1 = new JButton("Select");
+	//
+	// Iterator<String> lstitr = databasename.listIterator();
+	// while (lstitr.hasNext()) {
+	// splitOutPut = lstitr.next().toString().split(",");
+	// mystring = splitOutPut;
+	// }
+	// final JList jList1 = new JList(mystring);
+	// jButton1.addActionListener(new java.awt.event.ActionListener() {
+	// @Override
+	// public void actionPerformed(ActionEvent e) {
+	// Object contents = jList1.getSelectedValue();
+	// System.out.println(contents);
+	// dbName = contents.toString();
+	//
+	// }
+	// });
+	// frame.add(jList1, "Center");
+	// frame.add(jButton1, "South");
+	//
+	// frame.setVisible(true);
+	// }
+
 	public String getServerDatabaseServiceName() {
-		String databaseService = PluginUtilities
-				.getWritableDatabaseServiceRoots().toString();
-		if (databaseService.contains("=")) {
-			databaseName = StringUtils.split(databaseService, "=");
-		} else {
-			throw new IllegalArgumentException("String " + databaseService
-					+ " cannot be split. ");
+
+		List<String> lstdb = new ArrayList<String>();
+
+		String output = "";
+		String dbResult = "";
+
+		ListIterator<?> itr = PluginUtilities.getWritableDatabaseServiceRoots()
+				.listIterator();
+
+		while (itr.hasNext()) {
+			String dbsvc = itr.next().toString();
+			if (dbsvc.contains("geneious")) {
+				String st[] = dbsvc.split("name=");
+				Map<String, Integer> mp = new TreeMap<String, Integer>();
+				for (int i = 0; i < st.length; i++) {
+
+					Integer count = mp.get(st[i]);
+					if (count == null) {
+						count = 0;
+					}
+					mp.put(st[i], ++count);
+					String strGeneious = st[i];
+
+					if (strGeneious.contains("geneious")) {
+						int indexEnd = strGeneious.indexOf(",");
+						output = strGeneious.substring(0, indexEnd);
+						lstdb.add(output);
+					}
+
+				}
+
+			}
 		}
-		databaseName = StringUtils.split(databaseName[1], ",");
-		return databaseName[0];
+
+		Iterator<String> lstitr = lstdb.listIterator();
+		while (lstitr.hasNext()) {
+			dbResult = lstitr.next().toString();
+		}
+
+		//
+		// String databaseService = PluginUtilities
+		// .getWritableDatabaseServiceRoots().get(3).toString();
+		//
+		// // Dialogs.showMessageDialog("DatabaseService: " + databaseService);
+		//
+		// if (databaseService.contains("=")) {
+		// databaseName = StringUtils.split(databaseService, "=");
+		// } else {
+		// throw new IllegalArgumentException("String " + databaseService
+		// + " cannot be split. ");
+		// }
+		// databaseName = StringUtils.split(databaseName[1], ",");
+		return dbResult; // databaseName[0];
+	}
+
+	public static void listAllAttributes(Element element) {
+		System.out
+				.println("List attributes for node: " + element.getNodeName());
+		// get a map containing the attributes of this node
+		NamedNodeMap attributes = element.getAttributes();
+		// get the number of nodes in this map
+		int numAttrs = attributes.getLength();
+		for (int i = 0; i < numAttrs; i++) {
+			Attr attr = (Attr) attributes.item(i);
+			String attrName = attr.getNodeName();
+			String attrValue = attr.getNodeValue();
+			// if (attrValue.equals("databaseName")) {
+			// Dialogs.showMessageDialog("Found attribute: " + attrName
+			// + " with value: " + attrValue);
+			// System.out.println("Value: " + attr);}
+			System.out.println("Found attribute: " + attrName + " with value: "
+					+ attrValue);
+		}
+	}
+
+	public void getDatabaseEntry() throws ParserConfigurationException,
+			FileNotFoundException, SAXException, IOException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setValidating(false);
+		DocumentBuilder db = dbf.newDocumentBuilder();
+
+		Document doc = db.parse(new FileInputStream(new File(
+				"C:\\Geneious 8.1 Data\\user_preferences.xml")));
+
+		NodeList entries = doc.getElementsByTagName("entry");
+
+		int num = entries.getLength();
+
+		for (int i = 0; i < num; i++) {
+			Element node = (Element) entries.item(i);
+			listAllAttributes(node);
+		}
+
 	}
 
 }
