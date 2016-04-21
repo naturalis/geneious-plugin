@@ -30,7 +30,7 @@ public final class LimsLogger {
 	 * Instance of the real logger object.
 	 */
 	private Logger logger = Logger.getLogger(limsImporterUtil.getLogPath()
-			+ File.separator + limsImporterUtil.getLogFilename());
+			+ limsImporterUtil.getLogFilename());
 	private FileHandler fileHandler = null;
 	private Formatter simpleFormatter = null;
 	private Handler consoleHandler = new ConsoleHandler();

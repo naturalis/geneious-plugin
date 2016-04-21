@@ -4,7 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,10 +71,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private final String fieldName = "ExtractIDCode_Seq";
 	private JFrame frame = new JFrame();
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
-
-	LimsLogger limsLogger = new LimsLogger(logFileName);
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 	private String plateNumber = "";
 	private boolean isSampleDoc = false;
@@ -82,7 +78,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private int version = 0;
 	private String recordDocumentName = "";
 	private String readAssembyContigFileName = "";
-	private int sampleCount = 0;
+	private int sampleRecordCntVerwerkt = 0;
+	private int sampleRecordUitval = 0;
+	private int sampleTotaalRecords = 0;
+	private CSVReader csvReader = null;
+	private int sampleExactRecordsVerwerkt = 0;
+	private int dummyRecordsVerwerkt = 0;
+	private boolean match = false;
 
 	public LimsReadDataFromSamples() {
 
@@ -126,6 +128,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				}
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					docs = DocumentUtilities.getSelectedDocuments();
+
+					String logFileName = limsImporterUtil.getLogPath()
+							+ "Sample-method-Uitvallijst-"
+							+ limsImporterUtil.getLogFilename();
+
+					LimsLogger limsLogger = new LimsLogger(logFileName);
 
 					isExtractIDSeqExists = DocumentUtilities
 							.getSelectedDocuments().iterator().next()
@@ -176,9 +184,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							}
 						}
 
-						// System.out.println("Documentname :"
-						// + docs.get(cnt).getName());
-
 						if ((readAssembyContigFileName != null)
 								&& readAssembyContigFileName.toString()
 										.contains("Reads Assembly Contig")) {
@@ -207,12 +212,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 											"//XMLSerialisableRootElement/name");
 						}
 
-						// if (result.toString().contains("dum")) {
-						// Dialogs.showMessageDialog("Dummy: " +
-						// result.toString());
-						// return;
-						// }
-
 						if ((result != null && documentFileName.toString()
 								.contains("fas"))
 								|| (result.toString().contains("ab1"))
@@ -231,6 +230,20 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						isSampleDoc = DocumentUtilities.getSelectedDocuments()
 								.iterator().next().toString()
 								.contains("ExtractIDCode_Seq");
+
+						if (sampleTotaalRecords == 0) {
+							try {
+								csvReader = new CSVReader(new FileReader(
+										fileSelected), '\t', '\'', 0);
+								sampleTotaalRecords = csvReader.readAll()
+										.size();
+							} catch (FileNotFoundException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							csvReader = null;
+						}
 
 						/** Create progress bar */
 						limsFrameProgress.createProgressBar();
@@ -261,29 +274,64 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					logger.info("-------------------------- E N D --------------------------");
 					logger.info("Done with updating the selected document(s). ");
 
-					// EventQueue.invokeLater(new Runnable() {
-					//
-					// @Override
-					// public void run() {
-					// Dialogs.showMessageDialog("Sample-method: "
-					// + Integer.toString(importTotal)
-					// + " out of "
-					// + Integer.toString(docs.size())
-					// + " documents are imported." + "\n"
-					// + msgList.toString());
-					// logger.info("Sample-method: Total imported document(s): "
-					// + msgList.toString());
-					//
-					// limsLogger.logToFile(logFileName,
-					// msgUitvalList.toString());
-					//
-					// msgList.clear();
-					// msgUitvalList.clear();
-					// verwerkingListCnt.clear();
-					// verwerkList.clear();
-					// }
-					// });
+					if (extractIDfileName != null) {
+						msgUitvalList
+								.add("Total records not matched: "
+										+ Integer.toString(msgUitvalList.size())
+										+ "\n");
+					}
+					EventQueue.invokeLater(new Runnable() {
 
+						@Override
+						public void run() {
+
+							sampleRecordUitval = msgUitvalList.size() - 1;
+							sampleExactRecordsVerwerkt = (sampleTotaalRecords - (msgUitvalList
+									.size() - 1));
+
+							Dialogs.showMessageDialog(Integer
+									.toString(sampleTotaalRecords)
+									+ " sample records have been read of which: "
+									+ "\n"
+									+ "[1] "
+									+ Integer
+											.toString(sampleExactRecordsVerwerkt)
+									+ " samples are imported and linked to"
+									+ Integer.toString(sampleRecordCntVerwerkt)
+									+ " existing documents (of "
+									+ importCounter
+									+ " selected) \n"
+									+ "[2] "
+									+ Integer.toString(dummyRecordsVerwerkt)
+									+ " sample are imported as dummy"
+									+ "\n"
+									+ "\n"
+									+ "List of "
+									+ Integer.toString(importCounter)
+									+ " selected documents: "
+									+ "\n"
+									+ msgList.toString()
+									+ "\n"
+									+ "\n"
+									+ "[3] "
+									+ Integer.toString(sampleRecordUitval)
+									+ " sample records are ignored.");
+
+							logger.info("Sample-method: Total imported document(s): "
+									+ msgList.toString());
+
+							limsLogger.logToFile(logFileName,
+									msgUitvalList.toString());
+
+							msgList.clear();
+							msgUitvalList.clear();
+							verwerkingListCnt.clear();
+							verwerkList.clear();
+							sampleExactRecordsVerwerkt = 0;
+							sampleRecordUitval = 0;
+							sampleRecordCntVerwerkt = 0;
+						}
+					});
 				}
 			} else if (n == 1) {
 				limsFrameProgress.createProgressBar();
@@ -293,29 +341,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			} else if (n == 2) {
 				return;
 			}
-			EventQueue.invokeLater(new Runnable() {
 
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("[1] "
-							+ Integer.toString(importTotal)
-							+ " samples are imported and linked to"
-							+ Integer.toString(docs.size())
-							+ " existing documents (of S selected) " + "\n"
-							+ msgList.toString() + "\n" + "[2] " + sampleCount
-							+ " samples are imported as dummy");
-
-					logger.info("Sample-method: Total imported document(s): "
-							+ msgList.toString());
-
-					limsLogger.logToFile(logFileName, msgUitvalList.toString());
-
-					msgList.clear();
-					msgUitvalList.clear();
-					verwerkingListCnt.clear();
-					verwerkList.clear();
-				}
-			});
 		}
 	}
 
@@ -433,19 +459,19 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							limsDummySeq.createDummySampleSequence(ID, ID,
 									record[0], plateNumber, record[5],
 									record[4], record[1]);
-
+							dummyRecordsVerwerkt++;
 							cnt++;
-							sampleCount++;
 						}
 
 					} // end While
-					if (cnt > 0) {
-						// Dialogs.showMessageDialog(cnt
+					if (dummyRecordsVerwerkt > 0) {
+						// Dialogs.showMessageDialog("[2] " +
+						// dummyRecordsVerwerkt
 						// + " samples are imported as dummy");
 						cnt = 0;
-						sampleCount = 0;
+
 					} else {
-						Dialogs.showMessageDialog(cnt
+						Dialogs.showMessageDialog("[3]" + dummyRecordsVerwerkt
 								+ "(zero). dummy samples are ignored.");
 					}
 				} catch (IOException e) {
@@ -466,8 +492,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private void readDataFromExcel(String fileName, String extractID,
 			AnnotatedPluginDocument[] documents, int cnt) {
 
-		int counter = 0;
-		int cntVerwerkt = 0;
+		msgUitvalList.clear();
 
 		logger.info("CSV file: " + fileName);
 		/** Start reading data from the file selected */
@@ -475,8 +500,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		logger.info("Start Reading data from a samples file.");
 
 		try {
-			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
-					'\'', 0);
+			csvReader = new CSVReader(new FileReader(fileName), '\t', '\'', 0);
 			csvReader.readNext();
 
 			try {
@@ -502,6 +526,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 
 					if (ID.equals(extractID)) {
+
+						match = true;
+						sampleRecordCntVerwerkt++;
 
 						limsExcelFields.setProjectPlaatNummer(record[0]);
 						limsExcelFields.setPlaatPositie(record[1]);
@@ -534,14 +561,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						logger.info("Start with adding notes to the document");
 						setSamplesNotes(documents, cnt);
 						logger.info("Done with adding notes to the document");
-						counter--;
-						cntVerwerkt++;
-						verwerkingListCnt.add(Integer.toString(cntVerwerkt));
+
 						verwerkList.add(ID);
 
 					} // end IF
 
-					if (!verwerkList.contains(ID)) {
+					if (!verwerkList.contains(ID) && !match) {
 						limsExcelFields.setProjectPlaatNummer("");
 						limsExcelFields.setPlaatPositie("");
 						limsExcelFields.setExtractPlaatNummer("");
@@ -550,15 +575,22 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 						limsExcelFields.setRegistrationNumber("");
 						limsExcelFields.setTaxonNaam("");
-						msgUitvalList.add("Record ExtractID: " + record[3]
-								+ "\n");
+
+						if (!msgUitvalList
+								.contains("No document(s) match found for Registrationnumber: "
+										+ record[3])) {
+							msgUitvalList
+									.add("No document(s) match found for Registrationnumber: "
+											+ record[3] + "\n");
+						}
 					}
-					counter++;
+					match = false;
 				} // end While
-				importTotal = counter;
-				counter = counter - verwerkingListCnt.size();
-				msgUitvalList.add("Total records: " + Integer.toString(counter)
-						+ "\n");
+				importTotal = sampleExactRecordsVerwerkt;
+
+				// msgUitvalList.add("Total records: " +
+				// Integer.toString(counter)
+				// + "\n");
 
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -4,7 +4,6 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,9 +73,6 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private int importTotal;
 	private String[] record = null;
 
-	String logFileName = limsImporterUtil.getLogPath() + File.separator
-			+ "Bold-Uitvallijst-" + limsImporterUtil.getLogFilename();
-	LimsLogger limsLogger = new LimsLogger(logFileName);
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
 	@Override
@@ -105,6 +101,11 @@ public class LimsReadDataFromBold extends DocumentAction {
 				if (boldFileSelected == null) {
 					return;
 				}
+
+				String logFileName = limsImporterUtil.getLogPath()
+						+ "Bold-Uitvallijst-"
+						+ limsImporterUtil.getLogFilename();
+				LimsLogger limsLogger = new LimsLogger(logFileName);
 
 				documents = annotatedPluginDocuments;
 				logger.info("------------------------------S T A R T -----------------------------------");
