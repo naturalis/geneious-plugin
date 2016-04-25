@@ -66,6 +66,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private int crsTotaalRecords = 0;
 	private CSVReader csvReader = null;
 	private int crsExactRecordsVerwerkt = 0;
+	private String regnumber = "";
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -374,11 +375,19 @@ public class LimsCRSImporter extends DocumentAction {
 
 					registrationNumber = record[0];
 
-					String regnumber = readGeneiousFieldsValues
+					String cacheNameCopy = "";
+					if (documentName.contains("Copy")
+							|| documentName.contains("kopie")) {
+						cacheNameCopy = "//document/hiddenFields/override_cache_name";
+					} else {
+						cacheNameCopy = "//document/hiddenFields/cache_name";
+					}
+
+					regnumber = readGeneiousFieldsValues
 							.getRegistrationNumberFromTableAnnotatedDocument(
 									documentName,
 									"//document/notes/note/RegistrationNumberCode_Samples",
-									"//document/hiddenFields/cache_name");
+									cacheNameCopy);
 
 					if (regnumber.equals(registrationNumber)) {
 
@@ -543,36 +552,6 @@ public class LimsCRSImporter extends DocumentAction {
 			} else if (forwardSlash[i].trim().equals("tribe")) {
 				LimsCRSFields.setTribe(name[i]);
 			}
-
-			// switch (forwardSlash[i].trim()) {
-			// case "phylum":
-			// LimsCRSFields.setPhylum(name[i]);
-			// break;
-			// case "subclass":
-			// LimsCRSFields.setSubclass(name[i]);
-			// break;
-			// case "class":
-			// LimsCRSFields.setKlasse(name[i]);
-			// break;
-			// case "suborder":
-			// LimsCRSFields.setSuborder(name[i]);
-			// break;
-			// case "order":
-			// LimsCRSFields.setOrder(name[i]);
-			// break;
-			// case "family":
-			// LimsCRSFields.setFamily(name[i]);
-			// break;
-			// case "superfamily":
-			// LimsCRSFields.setSuperFamily(name[i]);
-			// break;
-			// case "subfamily":
-			// LimsCRSFields.setSubFamily(name[i]);
-			// break;
-			// case "tribe":
-			// LimsCRSFields.setTribe(name[i]);
-			// break;
-			// }
 		}
 	}
 

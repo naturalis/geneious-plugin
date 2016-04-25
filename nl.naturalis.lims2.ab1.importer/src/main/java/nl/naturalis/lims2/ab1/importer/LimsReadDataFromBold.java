@@ -25,6 +25,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
@@ -133,16 +134,37 @@ public class LimsReadDataFromBold extends DocumentAction {
 											documentFileName,
 											"//document/hiddenFields/override_cache_name")
 									.equals(documentFileName)) {
-								defaultAlignmentDocument = (DefaultAlignmentDocument) docs
-										.get(cnt).getDocument();
 
-								logger.info("Selected Contig document: "
-										+ defaultAlignmentDocument.getName());
-								setExtractIDfileName(defaultAlignmentDocument
-										.getName());
-								extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
-										.getName());
-								result = true;
+								if (documentFileName.toString()
+										.contains("Copy")
+										|| documentFileName.toString()
+												.contains("kopie")) {
+									defaultNucleotideSequence = (DefaultNucleotideGraphSequence) docs
+											.get(cnt).getDocument();
+
+									logger.info("Selected Contig document: "
+											+ defaultNucleotideSequence
+													.getName());
+
+									setExtractIDfileName(defaultNucleotideSequence
+											.getName());
+
+									extractIDfileName = getExtractIDFromAB1FileName(defaultNucleotideSequence
+											.getName());
+									result = true;
+								} else {
+									defaultAlignmentDocument = (DefaultAlignmentDocument) docs
+											.get(cnt).getDocument();
+
+									logger.info("Selected Contig document: "
+											+ defaultAlignmentDocument
+													.getName());
+									setExtractIDfileName(defaultAlignmentDocument
+											.getName());
+									extractIDfileName = getExtractIDFromAB1FileName(defaultAlignmentDocument
+											.getName());
+									result = true;
+								}
 							}
 						} catch (IOException e2) {
 							e2.printStackTrace();
@@ -284,16 +306,19 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					/** DocumentNoteUtilities-Registration number */
 					/** Get value from "RegistrationnumberCode_Samples" */
-					// Object fieldValue = readGeneiousFieldsValues
-					// .readValueFromAnnotatedPluginDocument(
-					// annotatedPluginDocument, noteCode,
-					// fieldName);
+					String cacheName = "";
+					if (documentName.contains("Copy")
+							|| documentName.contains("kopie")) {
+						cacheName = "//document/hiddenFields/override_cache_name";
+					} else {
+						cacheName = "//document/hiddenFields/cache_name";
+					}
 
 					Object fieldValue = readGeneiousFieldsValues
 							.getRegistrationNumberFromTableAnnotatedDocument(
 									documentName,
 									"//document/notes/note/RegistrationNumberCode_Samples",
-									"//document/hiddenFields/cache_name");
+									cacheName);
 
 					/** Match only on registration number */
 					if (record[2].equals(fieldValue)) {

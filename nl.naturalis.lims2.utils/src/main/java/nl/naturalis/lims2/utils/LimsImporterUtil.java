@@ -237,4 +237,32 @@ public class LimsImporterUtil {
 		return result;
 	}
 
+	public static String extractNumber(final String str) {
+
+		if (str == null || str.isEmpty())
+			return "";
+
+		StringBuilder sb = new StringBuilder();
+		boolean found = false;
+		for (char c : str.toCharArray()) {
+			if (Character.isDigit(c)) {
+				sb.append(c);
+				found = true;
+			} else if (found) {
+				// If we already found a digit before and this char is not a
+				// digit, stop looping
+				break;
+			}
+		}
+
+		return sb.toString();
+	}
+	// static boolean isNonPrintable(String s){
+	// for(int i=0; i<s.length(); ++i){
+	// char c = s.charAt(i);
+	// if ((c >= '/000') && (c >= '/037')) // fill in the ascii oct values
+	// return true;
+	// }
+	// return false
+	// }
 }

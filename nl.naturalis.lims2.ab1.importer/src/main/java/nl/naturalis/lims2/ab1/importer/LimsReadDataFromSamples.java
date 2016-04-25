@@ -7,16 +7,14 @@ import java.awt.EventQueue;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import nl.naturalis.lims2.utils.Lims2Connectie;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -26,7 +24,6 @@ import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -49,7 +46,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private LimsSamplesFields limsExcelFields = new LimsSamplesFields();
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsFileSelector fcd = new LimsFileSelector();
-	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsReadGeneiousFieldsValues geneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsDummySeq limsDummySeq = new LimsDummySeq();
 
 	private String extractIDfileName = "";
@@ -63,7 +60,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private String result = "";
 
 	public int importCounter;
-	private int importTotal;
 	private String[] record = null;
 	private String ID = "";
 	private String fileSelected = "";
@@ -85,6 +81,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private int sampleExactRecordsVerwerkt = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private boolean match = false;
+	private Lims2Connectie lims2Connectie = new Lims2Connectie();
+	private String mapName = "";
 
 	public LimsReadDataFromSamples() {
 
@@ -105,10 +103,18 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			throws DocumentOperationException {
 
 		/* Get Database name */
-		ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+		geneiousFieldsValues.resultDB = geneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (ReadGeneiousFieldsValues.resultDB != null) {
+		try {
+			System.out.println("Actieve Connectie: "
+					+ lims2Connectie.getSimpleConnectionServer(
+							geneiousFieldsValues.resultDB).getCatalog());
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+
+		if (geneiousFieldsValues.resultDB != null) {
 			Object[] options = { "Ok", "No", "Cancel" };
 			int n = JOptionPane.showOptionDialog(frame,
 					"Choose one option to start Samples import", "Samples",
@@ -156,7 +162,22 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					for (int cnt = 0; cnt < docs.size(); cnt++) {
 
-						isExtractIDSeqExists = ReadGeneiousFieldsValues
+						// System.out.println("Database:"
+						// + documents[cnt].isInLocalRepository());
+						// System.out.println("Database:"
+						// + documents[cnt].getDatabase().getFullPath());
+						// System.out.println("Database:"
+						// + documents[cnt].getDatabase());
+						// int beginIndex = documents[cnt].getDatabase()
+						// .toString().indexOf("=");
+						// int endIndex =
+						// documents[cnt].getDatabase().toString()
+						// .indexOf(",");
+						// mapName = documents[cnt].getDatabase().toString()
+						// .substring(beginIndex + 1, endIndex);
+						// System.out.println("Database map:" + mapName);
+
+						isExtractIDSeqExists = geneiousFieldsValues
 								.getValueFromAnnotatedPluginDocument(
 										documents[cnt],
 										"DocumentNoteUtilities-Extract ID (Seq)",
@@ -175,7 +196,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							if (!docs.toString().contains("consensus sequence")
 									|| !docs.toString().contains("Contig")) {
 								version = Integer
-										.parseInt((String) ReadGeneiousFieldsValues
+										.parseInt((String) geneiousFieldsValues
 												.getVersionValueFromAnnotatedPluginDocument(
 														documents,
 														"DocumentNoteUtilities-Document version",
@@ -196,7 +217,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								.contains("dum")) {
 							documentFileName = docs.get(cnt).getName();
 						} else {
-							documentFileName = (String) ReadGeneiousFieldsValues
+							documentFileName = (String) geneiousFieldsValues
 									.readValueFromAnnotatedPluginDocument(
 											documents[cnt], "importedFrom",
 											"filename");
@@ -206,7 +227,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						if (documentFileName.toString().contains("ab1")
 								|| documentFileName.toString().contains("fas")
 								|| documentFileName.toString().contains("dum")) {
-							result = ReadGeneiousFieldsValues
+							result = geneiousFieldsValues
 									.getFileNameFromGeneiousDatabase(
 											docs.get(cnt).getName(),
 											"//XMLSerialisableRootElement/name");
@@ -249,8 +270,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						limsFrameProgress.createProgressBar();
 
 						if (isExtractIDSeqExists) {
-							readDataFromExcel(fileSelected, extractIDfileName,
-									documents, cnt);
+							try {
+								readDataFromExcel(fileSelected,
+										extractIDfileName, documents, cnt);
+							} catch (IOException e) {
+
+								e.printStackTrace();
+							}
 						}
 
 						importCounter = msgList.size();
@@ -284,10 +310,15 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 						@Override
 						public void run() {
-
+							int totalResult = 0;
 							sampleRecordUitval = msgUitvalList.size() - 1;
-							sampleExactRecordsVerwerkt = (sampleTotaalRecords - (msgUitvalList
+							totalResult = (sampleTotaalRecords - (msgUitvalList
 									.size() - 1));
+							if (totalResult > 0 && totalResult != 1) {
+								sampleExactRecordsVerwerkt = totalResult;
+							} else {
+								sampleExactRecordsVerwerkt = 0;
+							}
 
 							Dialogs.showMessageDialog(Integer
 									.toString(sampleTotaalRecords)
@@ -296,7 +327,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 									+ "[1] "
 									+ Integer
 											.toString(sampleExactRecordsVerwerkt)
-									+ " samples are imported and linked to"
+									+ " samples are imported and linked to "
 									+ Integer.toString(sampleRecordCntVerwerkt)
 									+ " existing documents (of "
 									+ importCounter
@@ -330,6 +361,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							sampleExactRecordsVerwerkt = 0;
 							sampleRecordUitval = 0;
 							sampleRecordCntVerwerkt = 0;
+							dummyRecordsVerwerkt = 0;
 						}
 					});
 				}
@@ -433,21 +465,23 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				CSVReader csvReader = new CSVReader(new FileReader(fileName),
 						'\t', '\'', 0);
 				csvReader.readNext();
-				int cnt = 0;
+
 				try {
 					while ((record = csvReader.readNext()) != null) {
 						if (record.length == 0) {
 							continue;
 						}
 
-						ID = "e" + record[3];
+						if (record[3].trim() != null) {
+							ID = "e" + record[3];
+						}
 
 						if (record[2].length() > 0 && record[2].contains("-")) {
 							plateNumber = record[2].substring(0,
 									record[2].indexOf("-"));
 						}
 
-						String dummyFile = ReadGeneiousFieldsValues
+						String dummyFile = geneiousFieldsValues
 								.getFastaIDForSamples_GeneiousDB(ID);
 
 						if (dummyFile.trim() != "") {
@@ -456,22 +490,22 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 						if (!dummyFile.equals(ID)) {
 							limsFrameProgress.showProgress(ID);
-							limsDummySeq.createDummySampleSequence(ID, ID,
-									record[0], plateNumber, record[5],
-									record[4], record[1]);
-							dummyRecordsVerwerkt++;
-							cnt++;
+
+							if (ID.equals("e")
+									&& LimsImporterUtil.extractNumber(ID)
+											.isEmpty()) {
+								logger.info("Record is empty: " + ID);
+							} else {
+								limsDummySeq.createDummySampleSequence(ID, ID,
+										record[0], plateNumber, record[5],
+										record[4], record[1]);
+								dummyRecordsVerwerkt++;
+							}
 						}
-
 					} // end While
-					if (dummyRecordsVerwerkt > 0) {
-						// Dialogs.showMessageDialog("[2] " +
-						// dummyRecordsVerwerkt
-						// + " samples are imported as dummy");
-						cnt = 0;
 
-					} else {
-						Dialogs.showMessageDialog("[3]" + dummyRecordsVerwerkt
+					if (dummyRecordsVerwerkt == 0) {
+						Dialogs.showMessageDialog("[3] " + dummyRecordsVerwerkt
 								+ "(zero). dummy samples are ignored.");
 					}
 				} catch (IOException e) {
@@ -490,7 +524,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	}
 
 	private void readDataFromExcel(String fileName, String extractID,
-			AnnotatedPluginDocument[] documents, int cnt) {
+			AnnotatedPluginDocument[] documents, int cnt) throws IOException {
 
 		msgUitvalList.clear();
 
@@ -503,16 +537,15 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			csvReader = new CSVReader(new FileReader(fileName), '\t', '\'', 0);
 			csvReader.readNext();
 
+			msgUitvalList.add("-----------------------------------------------"
+					+ "\n");
+			// msgUitvalList
+			// .add("Ab1 filename: " + docs.get(cnt).getName() + "\n");
+
+			/** Show the progress bar */
+			limsFrameProgress.showProgress(docs.get(cnt).getName());
+
 			try {
-				msgUitvalList
-						.add("-----------------------------------------------"
-								+ "\n");
-				msgUitvalList.add("Ab1 filename: " + docs.get(cnt).getName()
-						+ "\n");
-
-				/** Show the progress bar */
-				limsFrameProgress.showProgress(docs.get(cnt).getName());
-
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
 						continue;
@@ -585,16 +618,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 					}
 					match = false;
-				} // end While
-				importTotal = sampleExactRecordsVerwerkt;
-
-				// msgUitvalList.add("Total records: " +
-				// Integer.toString(counter)
-				// + "\n");
-
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			} // end While
 			try {
 				csvReader.close();
 			} catch (IOException e) {
@@ -635,21 +662,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private boolean matchExtractId(
 			AnnotatedPluginDocument annotatedPluginDocument, String extractID) {
 
-		Object fieldValue = ReadGeneiousFieldsValues
+		Object fieldValue = geneiousFieldsValues
 				.readValueFromAnnotatedPluginDocument(annotatedPluginDocument,
 						noteCode, fieldName);
 		if (extractID.equals(fieldValue)) {
 			return true;
 		}
 		return false;
-	}
-
-	private void loadXML(String element) throws XMLStreamException,
-			XPathExpressionException {
-		XPath xpath = XPathFactory.newInstance().newXPath();
-		InputSource inputSource = new InputSource(element); // ??? = InputStream
-															// or Reader
-		String custName = xpath.evaluate("//*[1]/@filename", inputSource);
-
 	}
 }
