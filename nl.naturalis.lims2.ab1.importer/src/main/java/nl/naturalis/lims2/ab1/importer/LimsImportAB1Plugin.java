@@ -48,7 +48,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getVersion() {
-		return "0.45";
+		return "0.50";
 	}
 
 	public DocumentFileImporter[] getDocumentFileImporters() {

@@ -4,6 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,10 +53,15 @@ public class LimsImportAB1Update extends DocumentAction {
 	private int version = 0;
 	private String documentName = "";
 	private String recordDocumentName = "";
+	private String extractAb1FastaFileName = "";
+	private boolean fastaFileExists = false;
+	private LimsFileSelector fileselector = new LimsFileSelector();
+	private File file = null;
 
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
+
 		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
 
@@ -69,6 +75,9 @@ public class LimsImportAB1Update extends DocumentAction {
 
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
+			/* Get Databasename */
+			ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+					.getServerDatabaseServiceName();
 			limsFrameProgress.createProgressBar();
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
@@ -78,12 +87,32 @@ public class LimsImportAB1Update extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
-					isVersionnumberOne = docs.get(cnt).toString()
-							.contains("DocumentVersionCode_Seq");
+					boolean ab1fileExists = ReadGeneiousFieldsValues
+							.fileNameExistsInGeneiousDatabase(seq.getName());
 
-					if (!isVersionnumberOne) {
-						versienummer = 1;
+					if (!ab1fileExists) {
+						try {
+							file = new File(fcd.loadFastaFile(seq.getName()));
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						}
+
+						if (file.getName() != "") {
+							extractAb1FastaFileName = file.getName();
+							fastaFileExists = ReadGeneiousFieldsValues
+									.checkOfFastaOrAB1Exists(
+											extractAb1FastaFileName,
+											"plugin_document_xml",
+											"//XMLSerialisableRootElement/name");
+							versienummer = ReadGeneiousFieldsValues
+									.getLastVersionFromDocument(extractAb1FastaFileName);
+						}
+					} else {
+						extractAb1FastaFileName = documents.getName();
+						versienummer = ReadGeneiousFieldsValues
+								.getLastVersionFromDocument(extractAb1FastaFileName);
 					}
+					// }
 
 					if (seq.getName() != null && seq.getName().contains("_")) {
 						logger.info("Start extracting value from file: "
@@ -95,34 +124,23 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						recordDocumentName = docs.get(cnt).getName();
 
-						if (isVersionnumberOne
-								&& documentName.equals(recordDocumentName)) {
-							version = Integer
-									.parseInt((String) ReadGeneiousFieldsValues
-											.getVersionValueFromAnnotatedPluginDocument(
-													annotatedPluginDocuments,
-													"DocumentNoteUtilities-Document version",
-													"DocumentVersionCode_Seq",
-													cnt));
-						}
-
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
 
-							if (isVersionnumberOne
+							if (ab1fileExists
 									&& documentName.equals(recordDocumentName)) {
-								versienummer = version;
+								versienummer++;
+							} else {
+								versienummer = 1;
 							}
 						} else {
-							try {
-								limsAB1Fields.setFieldValuesFromAB1FileName(fcd
-										.loadFastaFile(seq.getName()));
-								if (isVersionnumberOne) {
-									versienummer = 1;
-								}
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
+							limsAB1Fields.setFieldValuesFromAB1FileName(file
+									.getName());
+							if (fastaFileExists) {
+								versienummer++;
+							} else {
+								versienummer = 1;
 							}
 						}
 

@@ -69,10 +69,11 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private Object documentFileName = "";
 	private String boldFileSelected = "";
 	private boolean result = false;
-
+	private String logBoldFileName = "";
 	public int importCounter;
 	private int importTotal;
 	private String[] record = null;
+	private LimsLogger limsLogger = null;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -103,10 +104,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 					return;
 				}
 
-				String logFileName = limsImporterUtil.getLogPath()
+				logBoldFileName = limsImporterUtil.getLogPath()
 						+ "Bold-Uitvallijst-"
 						+ limsImporterUtil.getLogFilename();
-				LimsLogger limsLogger = new LimsLogger(logFileName);
+				limsLogger = new LimsLogger(logBoldFileName);
 
 				documents = annotatedPluginDocuments;
 				logger.info("------------------------------S T A R T -----------------------------------");
@@ -242,7 +243,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 						logger.info("Bold: Total imported document(s): "
 								+ msgList.toString());
 
-						limsLogger.logToFile(logFileName,
+						limsLogger.logToFile(logBoldFileName,
 								msgUitvalList.toString());
 
 						msgList.clear();

@@ -424,7 +424,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name =?";
+					+ " WHERE a.name = ?";
 
 			con = DriverManager.getConnection(url + resultDB + ssl, user,
 					password);

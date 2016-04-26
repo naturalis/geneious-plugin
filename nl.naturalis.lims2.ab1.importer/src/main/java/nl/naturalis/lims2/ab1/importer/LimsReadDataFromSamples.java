@@ -82,7 +82,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private int dummyRecordsVerwerkt = 0;
 	private boolean match = false;
 	private Lims2Connectie lims2Connectie = new Lims2Connectie();
-	private String mapName = "";
+	// private String mapName = "";
+	private String logSamplesFileName = "";
+	private LimsLogger limsLogger = null;
 
 	public LimsReadDataFromSamples() {
 
@@ -107,7 +109,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				.getServerDatabaseServiceName();
 
 		try {
-			System.out.println("Actieve Connectie: "
+			logger.info("Actieve Connectie: "
 					+ lims2Connectie.getSimpleConnectionServer(
 							geneiousFieldsValues.resultDB).getCatalog());
 		} catch (SQLException e1) {
@@ -135,11 +137,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					docs = DocumentUtilities.getSelectedDocuments();
 
-					String logFileName = limsImporterUtil.getLogPath()
+					logSamplesFileName = limsImporterUtil.getLogPath()
 							+ "Sample-method-Uitvallijst-"
 							+ limsImporterUtil.getLogFilename();
 
-					LimsLogger limsLogger = new LimsLogger(logFileName);
+					limsLogger = new LimsLogger(logSamplesFileName);
 
 					isExtractIDSeqExists = DocumentUtilities
 							.getSelectedDocuments().iterator().next()
@@ -351,7 +353,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							logger.info("Sample-method: Total imported document(s): "
 									+ msgList.toString());
 
-							limsLogger.logToFile(logFileName,
+							limsLogger.logToFile(logSamplesFileName,
 									msgUitvalList.toString());
 
 							msgList.clear();

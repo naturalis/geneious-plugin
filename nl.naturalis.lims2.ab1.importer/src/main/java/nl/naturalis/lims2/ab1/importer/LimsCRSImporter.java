@@ -67,6 +67,8 @@ public class LimsCRSImporter extends DocumentAction {
 	private CSVReader csvReader = null;
 	private int crsExactRecordsVerwerkt = 0;
 	private String regnumber = "";
+	private String logCrsFileName = "";
+	private LimsLogger limsLogger = null;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -92,11 +94,11 @@ public class LimsCRSImporter extends DocumentAction {
 
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-				String logFileName = limsImporterUtil.getLogPath()
+				logCrsFileName = limsImporterUtil.getLogPath()
 						+ "CRS-Uitvallijst-"
 						+ limsImporterUtil.getLogFilename();
 
-				LimsLogger limsLogger = new LimsLogger(logFileName);
+				limsLogger = new LimsLogger(logCrsFileName);
 
 				isRMNHNumber = DocumentUtilities.getSelectedDocuments()
 						.iterator().next().toString()
@@ -225,7 +227,7 @@ public class LimsCRSImporter extends DocumentAction {
 						logger.info("CRS: Total imported document(s): "
 								+ msgList.toString());
 
-						limsLogger.logToFile(logFileName,
+						limsLogger.logToFile(logCrsFileName,
 								msgUitvalList.toString());
 
 						msgList.clear();
