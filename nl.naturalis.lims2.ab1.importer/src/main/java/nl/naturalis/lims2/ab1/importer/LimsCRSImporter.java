@@ -17,7 +17,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -79,6 +81,8 @@ public class LimsCRSImporter extends DocumentAction {
 	private String logCrsFileName = "";
 	private LimsLogger limsLogger = null;
 	private long startTime, elapsedTime;
+	long lEndTime = 0; // new Date().getTime();
+	long difference = 0;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -137,7 +141,7 @@ public class LimsCRSImporter extends DocumentAction {
 						+ System.getProperty("user.name") + "\n");
 				msgUitvalList.add("Type action: Import CRS data " + "\n");
 
-				startTime = System.nanoTime();
+				startTime = new Date().getTime(); // System.nanoTime();
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					documentFileName = annotatedPluginDocuments[cnt]
 							.getFieldValue("cache_name");
@@ -207,9 +211,23 @@ public class LimsCRSImporter extends DocumentAction {
 					msgUitvalList.add("Total records not matched: "
 							+ Integer.toString(msgUitvalList.size()) + "\n");
 				}
-				elapsedTime = System.nanoTime() - startTime;
-				System.out.println("Elapsed Time is "
-						+ (elapsedTime / 1000000.0) + " msec");
+				lEndTime = new Date().getTime();
+				difference = lEndTime - startTime;
+				String hms = String.format("%02d:%02d:%02d",
+						TimeUnit.MILLISECONDS.toHours(difference),
+						TimeUnit.MILLISECONDS.toMinutes(difference)
+								% TimeUnit.HOURS.toMinutes(1),
+						TimeUnit.MILLISECONDS.toSeconds(difference)
+								% TimeUnit.MINUTES.toSeconds(1));
+				logger.info("Import records in : '" + hms
+						+ " hour(s)/minute(s)/second(s).'");
+				logger.info("Import records in : '"
+						+ TimeUnit.MILLISECONDS.toMinutes(difference)
+						+ " minutes.'");
+
+				// elapsedTime = System.nanoTime() - startTime;
+				// System.out.println("Elapsed Time is "
+				// + (elapsedTime / 1000000.0) + " msec");
 				EventQueue.invokeLater(new Runnable() {
 
 					@Override
