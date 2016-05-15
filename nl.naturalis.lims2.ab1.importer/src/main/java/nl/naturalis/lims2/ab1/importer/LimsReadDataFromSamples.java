@@ -7,14 +7,14 @@ import java.awt.EventQueue;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import nl.naturalis.lims2.utils.Lims2Connectie;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -81,10 +81,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private int sampleExactRecordsVerwerkt = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private boolean match = false;
-	private Lims2Connectie lims2Connectie = new Lims2Connectie();
-	// private String mapName = "";
 	private String logSamplesFileName = "";
 	private LimsLogger limsLogger = null;
+	private long startTime;
+	long lEndTime = 0;
+	long difference = 0;
 
 	public LimsReadDataFromSamples() {
 
@@ -108,13 +109,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		geneiousFieldsValues.resultDB = geneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		try {
-			logger.info("Actieve Connectie: "
-					+ lims2Connectie.getSimpleConnectionServer(
-							geneiousFieldsValues.resultDB).getCatalog());
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
+		// try {
+		// logger.info("Actieve Connectie: "
+		// + lims2Connectie.getSimpleConnectionServer(
+		// geneiousFieldsValues.resultDB).getCatalog());
+		// } catch (SQLException e1) {
+		// e1.printStackTrace();
+		// }
 
 		if (geneiousFieldsValues.resultDB != null) {
 			Object[] options = { "Ok", "No", "Cancel" };
@@ -162,22 +163,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					msgUitvalList.add("Filename: " + fileSelected + "\n");
 
-					for (int cnt = 0; cnt < docs.size(); cnt++) {
-
-						// System.out.println("Database:"
-						// + documents[cnt].isInLocalRepository());
-						// System.out.println("Database:"
-						// + documents[cnt].getDatabase().getFullPath());
-						// System.out.println("Database:"
-						// + documents[cnt].getDatabase());
-						// int beginIndex = documents[cnt].getDatabase()
-						// .toString().indexOf("=");
-						// int endIndex =
-						// documents[cnt].getDatabase().toString()
-						// .indexOf(",");
-						// mapName = documents[cnt].getDatabase().toString()
-						// .substring(beginIndex + 1, endIndex);
-						// System.out.println("Database map:" + mapName);
+					startTime = new Date().getTime();
+					for (int cnt = 0; cnt < DocumentUtilities
+							.getSelectedDocuments().size(); cnt++) {
 
 						isExtractIDSeqExists = geneiousFieldsValues
 								.getValueFromAnnotatedPluginDocument(
@@ -308,6 +296,21 @@ public class LimsReadDataFromSamples extends DocumentAction {
 										+ Integer.toString(msgUitvalList.size())
 										+ "\n");
 					}
+
+					lEndTime = new Date().getTime();
+					difference = lEndTime - startTime;
+					String hms = String.format("%02d:%02d:%02d",
+							TimeUnit.MILLISECONDS.toHours(difference),
+							TimeUnit.MILLISECONDS.toMinutes(difference)
+									% TimeUnit.HOURS.toMinutes(1),
+							TimeUnit.MILLISECONDS.toSeconds(difference)
+									% TimeUnit.MINUTES.toSeconds(1));
+					logger.info("Import records in : '" + hms
+							+ " hour(s)/minute(s)/second(s).'");
+					logger.info("Import records in : '"
+							+ TimeUnit.MILLISECONDS.toMinutes(difference)
+							+ " minutes.'");
+
 					EventQueue.invokeLater(new Runnable() {
 
 						@Override
@@ -316,7 +319,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							sampleRecordUitval = msgUitvalList.size() - 1;
 							totalResult = (sampleTotaalRecords - (msgUitvalList
 									.size() - 1));
-							if (totalResult > 0 && totalResult != 1) {
+							if (totalResult != 0) {
 								sampleExactRecordsVerwerkt = totalResult;
 							} else {
 								sampleExactRecordsVerwerkt = 0;
@@ -541,11 +544,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 			msgUitvalList.add("-----------------------------------------------"
 					+ "\n");
-			// msgUitvalList
-			// .add("Ab1 filename: " + docs.get(cnt).getName() + "\n");
 
 			/** Show the progress bar */
-			limsFrameProgress.showProgress(docs.get(cnt).getName());
+			limsFrameProgress.showProgress(documents[cnt].getName());
 
 			try {
 				while ((record = csvReader.readNext()) != null) {

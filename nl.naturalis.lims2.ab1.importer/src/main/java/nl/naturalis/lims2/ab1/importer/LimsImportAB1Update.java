@@ -55,8 +55,10 @@ public class LimsImportAB1Update extends DocumentAction {
 	private String recordDocumentName = "";
 	private String extractAb1FastaFileName = "";
 	private boolean fastaFileExists = false;
+	private boolean fileExists = false;
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private File file = null;
+	private Boolean extractValue = false;
 
 	@Override
 	public void actionPerformed(
@@ -87,32 +89,60 @@ public class LimsImportAB1Update extends DocumentAction {
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
 
-					boolean ab1fileExists = ReadGeneiousFieldsValues
+					versienummer = 0;
+					ReadGeneiousFieldsValues.recordcount = 0;
+					fileExists = ReadGeneiousFieldsValues
 							.fileNameExistsInGeneiousDatabase(seq.getName());
 
-					if (!ab1fileExists) {
-						try {
-							file = new File(fcd.loadFastaFile(seq.getName()));
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
+					if (fileExists && ReadGeneiousFieldsValues.recordcount >= 1) {
+						isVersionnumberOne = true;
+					} else {
+						isVersionnumberOne = docs.get(cnt).toString()
+								.contains("DocumentVersionCode_Seq");
+					}
 
-						if (file.getName() != "") {
+					extractValue = ReadGeneiousFieldsValues
+							.getValueFromAnnotatedPluginDocument(
+									annotatedPluginDocuments[cnt],
+									"DocumentNoteUtilities-Extract ID (Seq)",
+									"ExtractIDCode_Seq");
+
+					System.out.println(extractValue);
+
+					if (!isVersionnumberOne && !fileExists) {
+						versienummer = 1;
+					}
+
+					if (fileExists) {
+
+						if (!docs.get(cnt).toString().contains("ab1")) {
+							try {
+								file = new File(
+										fcd.loadFastaFile(seq.getName()));
+							} catch (FileNotFoundException e1) {
+								e1.printStackTrace();
+							}
+							// }
+							//
+							// if (file.getName() != "" && fastaFileExists) {
+							extractAb1FastaFileName = null;
 							extractAb1FastaFileName = file.getName();
+
 							fastaFileExists = ReadGeneiousFieldsValues
 									.checkOfFastaOrAB1Exists(
 											extractAb1FastaFileName,
 											"plugin_document_xml",
 											"//XMLSerialisableRootElement/name");
+
 							versienummer = ReadGeneiousFieldsValues
-									.getLastVersionFromDocument(extractAb1FastaFileName);
+									.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
+
+						} else {
+							extractAb1FastaFileName = seq.getName();
+							versienummer = ReadGeneiousFieldsValues
+									.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
 						}
-					} else {
-						extractAb1FastaFileName = documents.getName();
-						versienummer = ReadGeneiousFieldsValues
-								.getLastVersionFromDocument(extractAb1FastaFileName);
 					}
-					// }
 
 					if (seq.getName() != null && seq.getName().contains("_")) {
 						logger.info("Start extracting value from file: "
@@ -127,24 +157,24 @@ public class LimsImportAB1Update extends DocumentAction {
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
 									.getName());
-
-							if (ab1fileExists
-									&& documentName.equals(recordDocumentName)) {
+							if (fileExists && !extractValue) {
 								versienummer++;
-							} else {
-								versienummer = 1;
 							}
+
 						} else {
 							limsAB1Fields.setFieldValuesFromAB1FileName(file
 									.getName());
-							if (fastaFileExists) {
+							if (fastaFileExists && !extractValue) {
 								versienummer++;
-							} else {
-								versienummer = 1;
 							}
 						}
 
-						limsAB1Fields.setVersieNummer(versienummer);
+						if (fastaFileExists && !extractValue) {
+							limsAB1Fields.setVersieNummer(versienummer);
+						} else if (fileExists && !extractValue) {
+							limsAB1Fields.setVersieNummer(versienummer);
+						}
+
 						logger.info("Extract ID: "
 								+ limsAB1Fields.getExtractID());
 						logger.info("PCR plaat ID: "
@@ -172,19 +202,20 @@ public class LimsImportAB1Update extends DocumentAction {
 								limsAB1Fields.getMarker(), cnt);
 
 						/** set note for Document version */
-						if (!isVersionnumberOne) {
-							limsNotes.setNoteToAB1FileName(
-									annotatedPluginDocuments,
-									"DocumentVersionCode_Seq",
-									"Document version", "Document version",
-									Integer.toString(versienummer), cnt);
-						} else {
+						if (fileExists && !extractValue) {
 							limsNotes.setNoteToAB1FileName(
 									annotatedPluginDocuments,
 									"DocumentVersionCode_Seq",
 									"Document version", "Document version",
 									Integer.toString(versienummer), cnt);
 						}
+						// else {
+						// limsNotes.setNoteToAB1FileName(
+						// annotatedPluginDocuments,
+						// "DocumentVersionCode_Seq",
+						// "Document version", "Document version",
+						// Integer.toString(versienummer), cnt);
+						// }
 						/* set note for SequencingStaffCode_FixedValue_Seq */
 						try {
 							limsNotes.setNoteToAB1FileName(

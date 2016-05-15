@@ -46,7 +46,7 @@ import com.opencsv.CSVReader;
  */
 public class LimsCRSImporter extends DocumentAction {
 
-	private List<AnnotatedPluginDocument> docs;
+	// private List<AnnotatedPluginDocument> docs;
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsCRSFields LimsCRSFields = new LimsCRSFields();
 	private LimsNotes limsNotes = new LimsNotes();
@@ -80,8 +80,8 @@ public class LimsCRSImporter extends DocumentAction {
 	private String regnumber = "";
 	private String logCrsFileName = "";
 	private LimsLogger limsLogger = null;
-	private long startTime, elapsedTime;
-	long lEndTime = 0; // new Date().getTime();
+	private long startTime;
+	long lEndTime = 0;
 	long difference = 0;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
@@ -134,21 +134,24 @@ public class LimsCRSImporter extends DocumentAction {
 				logger.info("-------------------------- S T A R T --------------------------");
 				logger.info("Start Reading data from a CRS file.");
 				/** Add selected documents to a list. */
-				docs = DocumentUtilities.getSelectedDocuments();
+				// docs = DocumentUtilities.getSelectedDocuments();
 
 				msgUitvalList.add("Filename: " + fileSelected + "\n");
 				msgUitvalList.add("Username: "
 						+ System.getProperty("user.name") + "\n");
 				msgUitvalList.add("Type action: Import CRS data " + "\n");
 
-				startTime = new Date().getTime(); // System.nanoTime();
-				for (int cnt = 0; cnt < docs.size(); cnt++) {
+				startTime = new Date().getTime();
+				for (int cnt = 0; cnt < DocumentUtilities
+						.getSelectedDocuments().size(); cnt++) {
 					documentFileName = annotatedPluginDocuments[cnt]
 							.getFieldValue("cache_name");
 
 					if ((documentFileName.toString().contains("ab1"))
-							|| (docs.get(cnt).toString().contains("fas"))
-							&& (!docs.toString().contains("dum"))) {
+							|| (annotatedPluginDocuments[cnt].toString()
+									.contains("fas"))
+							&& (!annotatedPluginDocuments[cnt].toString()
+									.contains("dum"))) {
 						fasDocument = readGeneiousFieldsValues
 								.readValueFromAnnotatedPluginDocument(
 										annotatedPluginDocuments[cnt],
@@ -164,13 +167,16 @@ public class LimsCRSImporter extends DocumentAction {
 					/* Check of the filename contain "FAS" extension */
 					if (fasDocument.toString().contains("fas")
 							&& fasDocument != null) {
-						documentFileName = docs.get(cnt).getFieldValue(
-								"cache_name");
+						documentFileName = annotatedPluginDocuments[cnt]
+								.getFieldValue("cache_name");
 					} else {
 						/* get AB1 filename */
-						if (!docs.toString().contains("consensus sequence")
-								|| !docs.toString().contains("Contig")) {
-							documentFileName = docs.get(cnt).getName();
+						if (!annotatedPluginDocuments[cnt].toString().contains(
+								"consensus sequence")
+								|| !annotatedPluginDocuments[cnt].toString()
+										.contains("Contig")) {
+							documentFileName = annotatedPluginDocuments[cnt]
+									.getName();
 						}
 					}
 
@@ -196,7 +202,9 @@ public class LimsCRSImporter extends DocumentAction {
 					importCounter = DocumentUtilities.getSelectedDocuments()
 							.size();
 
-					limsFrameProgress.showProgress(docs.get(cnt).getName());
+					limsFrameProgress
+							.showProgress(annotatedPluginDocuments[cnt]
+									.getName());
 				}
 
 				logger.info("--------------------------------------------------------");
@@ -225,9 +233,6 @@ public class LimsCRSImporter extends DocumentAction {
 						+ TimeUnit.MILLISECONDS.toMinutes(difference)
 						+ " minutes.'");
 
-				// elapsedTime = System.nanoTime() - startTime;
-				// System.out.println("Elapsed Time is "
-				// + (elapsedTime / 1000000.0) + " msec");
 				EventQueue.invokeLater(new Runnable() {
 
 					@Override

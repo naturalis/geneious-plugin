@@ -75,6 +75,7 @@ public class LimsReadGeneiousFieldsValues {
 	public String registrnmbrSamplesFromDummy;
 	public String positionSamplesFromDummy;
 	private SQLException exception = null;
+	public int recordcount = 0;
 
 	public LimsReadGeneiousFieldsValues() {
 
@@ -419,7 +420,7 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT a.name"
+			final String SQL = " SELECT a.name, count(a.name) as count"
 					+ " FROM "
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
@@ -435,7 +436,10 @@ public class LimsReadGeneiousFieldsValues {
 			pst.setString(1, filename);
 			rs = pst.executeQuery();
 			while (rs.next()) {
-				result = rs.getObject(1).toString();
+				// result = rs.getObject(1).toString();
+				result = rs.getString("name");
+				recordcount = rs.getInt("count");
+
 				if (rs.wasNull())
 					truefalse = false;
 				else
@@ -830,6 +834,151 @@ public class LimsReadGeneiousFieldsValues {
 				logger.warn(ex.getMessage(), ex);
 			}
 		}
+	}
+
+	public int getLastVersionCountFromDocument(String fileName) {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT COUNT(a.version) as version"
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
+					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+			con = DriverManager.getConnection(url + resultDB + ssl, user,
+					password);
+			con.clearWarnings();
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) fileName);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+					logger.debug("Versionnumber : " + result);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+			exception = ex;
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Get last version: "
+							+ exception.getMessage());
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+
+		return result;
+
+	}
+
+	public int getLastVersion_For_AB1_Fasta(String fileName) {
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			ssl = limsImporterUtil.getDatabasePropValues("ssl");
+			url = limsImporterUtil.getDatabasePropValues("url");
+			user = limsImporterUtil.getDatabasePropValues("user");
+			password = limsImporterUtil.getDatabasePropValues("password");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT Max(a.version) as version, a.name, a.reference_count "
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/strong_referenced_documents/strong_referenced_documents')) AS reference_count "
+					+ " FROM annotated_document) AS a "
+					+ " WHERE a.name =?"
+					+ " AND   a.reference_count = 0 " + " AND   a.version > 0";
+			con = DriverManager.getConnection(url + resultDB + ssl, user,
+					password);
+			con.clearWarnings();
+			logger.debug("User:" + user);
+			logger.debug("Password:" + password);
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) fileName);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+					logger.debug("Versionnumber : " + result);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+			exception = ex;
+
+			EventQueue.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Get last version: "
+							+ exception.getMessage());
+				}
+			});
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return result;
 	}
 
 	public int getLastVersionFromDocument(String fileName) {
