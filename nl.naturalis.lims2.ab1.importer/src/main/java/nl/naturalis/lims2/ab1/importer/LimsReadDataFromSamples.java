@@ -120,8 +120,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		if (geneiousFieldsValues.resultDB != null) {
 			Object[] options = { "Ok", "No", "Cancel" };
 			int n = JOptionPane.showOptionDialog(frame,
-					"Choose one option to start Samples import", "Samples",
-					JOptionPane.YES_NO_CANCEL_OPTION,
+					"Create dummy sequences for unknown extract ID's?",
+					"Samples", JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
 			if (n == 0) {
 				if (DocumentUtilities.getSelectedDocuments().isEmpty()) {

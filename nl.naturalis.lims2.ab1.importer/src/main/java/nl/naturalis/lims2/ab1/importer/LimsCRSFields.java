@@ -3,6 +3,10 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author Reinier.Kartowikromo
  *
@@ -181,7 +185,17 @@ public class LimsCRSFields {
 	}
 
 	public String getCollectingDate() {
-		return collectingDate;
+		String strDateFormat = "yyyyMMdd";
+		Date collDate = null;
+		SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+		try {
+			collDate = sdf.parse(collectingDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		return formatter.format(collDate);
+
 	}
 
 	public void setCollectingDate(String collectingDate) {

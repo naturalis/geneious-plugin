@@ -458,7 +458,7 @@ public class LimsReadGeneiousFieldsValues {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Filename exists in DB: "
+					Dialogs.showMessageDialog("SQL Exception Information: "
 							+ exception.getMessage());
 				}
 			});

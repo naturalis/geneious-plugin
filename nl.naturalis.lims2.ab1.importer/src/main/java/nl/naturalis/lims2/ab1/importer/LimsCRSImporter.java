@@ -653,7 +653,7 @@ public class LimsCRSImporter extends DocumentAction {
 		String cvsSplitBy = "\t";
 
 		try {
-
+			long startTime = System.nanoTime();
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
 
@@ -683,21 +683,57 @@ public class LimsCRSImporter extends DocumentAction {
 					match = true;
 					crsRecordCntVerwerkt++;
 
-					LimsCRSFields.setRegistratienummer(row[0]);
-					extractRankOrClassification(row[1], row[2]);
-					LimsCRSFields.setGenus(row[3]);
-					LimsCRSFields.setTaxon(row[4]);
-					LimsCRSFields.setDeterminator(row[5]);
-					LimsCRSFields.setSex(row[6]);
-					LimsCRSFields.setStadium(row[7]);
-					LimsCRSFields.setLegavit(row[8]);
-					LimsCRSFields.setCollectingDate(row[9]);
-					LimsCRSFields.setCountry(row[10]);
-					LimsCRSFields.setBioRegion(row[11]);
-					LimsCRSFields.setLocality(row[12]);
-					LimsCRSFields.setLatitudeDecimal(row[13]);
-					LimsCRSFields.setLongitudeDecimal(row[14]);
-					LimsCRSFields.setHeight(row[15]);
+					// for (String rowValue : row) {
+					// System.out.println(rowValue + "\n");
+					// }
+					for (int i = 0; i < row.length; i++) {
+						System.out.println(row[i]);
+						LimsCRSFields.setRegistratienummer(row[0]);
+						extractRankOrClassification(row[1], row[2]);
+						LimsCRSFields.setGenus(row[3]);
+						LimsCRSFields.setTaxon(row[4]);
+						LimsCRSFields.setDeterminator(row[5]);
+						LimsCRSFields.setSex(row[6]);
+						LimsCRSFields.setStadium(row[7]);
+						LimsCRSFields.setLegavit(row[8]);
+						LimsCRSFields.setCollectingDate(row[9]);
+						LimsCRSFields.setCountry(row[10]);
+						if (i == 11) {
+							LimsCRSFields.setBioRegion(row[i]);
+						}
+
+						if (i == 12) {
+							System.out.println("Row[12]: " + i);
+							LimsCRSFields.setLocality(row[i]);
+						}
+
+						if (i == 13) {
+							LimsCRSFields.setLatitudeDecimal(row[i]);
+						}
+
+						if (i == 14) {
+							LimsCRSFields.setLongitudeDecimal(row[i]);
+						}
+						if (i == 15) {
+							LimsCRSFields.setHeight(row[i]);
+						}
+					}
+
+					// LimsCRSFields.setRegistratienummer(row[0]);
+					// extractRankOrClassification(row[1], row[2]);
+					// LimsCRSFields.setGenus(row[3]);
+					// LimsCRSFields.setTaxon(row[4]);
+					// LimsCRSFields.setDeterminator(row[5]);
+					// LimsCRSFields.setSex(row[6]);
+					// LimsCRSFields.setStadium(row[7]);
+					// LimsCRSFields.setLegavit(row[8]);
+					// LimsCRSFields.setCollectingDate(row[9]);
+					// LimsCRSFields.setCountry(row[10]);
+					// LimsCRSFields.setBioRegion(row[11]);
+					// LimsCRSFields.setLocality(row[12]);
+					// LimsCRSFields.setLatitudeDecimal(row[13]);
+					// LimsCRSFields.setLongitudeDecimal(row[14]);
+					// LimsCRSFields.setHeight(row[15]);
 
 					/* Add notes */
 					setCRSNotes(documents, cnt);
@@ -708,6 +744,8 @@ public class LimsCRSImporter extends DocumentAction {
 					if (row[0] != null) {
 						verwerkList.add(row[0]);
 					}
+					long endTime = System.nanoTime();
+					System.out.println("Took: " + (endTime - startTime));
 
 				} // end IF
 				else if (!verwerkList.contains(registrationNumber) && !match) {

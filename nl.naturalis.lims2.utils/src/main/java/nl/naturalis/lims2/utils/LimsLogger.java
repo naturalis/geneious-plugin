@@ -60,6 +60,11 @@ public final class LimsLogger {
 		try {
 			LogManager lm = LogManager.getLogManager();
 			Logger logger;
+
+			File filedir = new File(filename);
+			if (!filedir.exists()) {
+				filedir.mkdir();
+			}
 			FileHandler fh = new FileHandler(filename, true);
 
 			logger = Logger.getLogger("LimsLogger");

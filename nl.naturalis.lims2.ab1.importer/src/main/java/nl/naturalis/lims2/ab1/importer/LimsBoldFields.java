@@ -51,7 +51,7 @@ public class LimsBoldFields {
 	}
 
 	public void setBoldBIN(String boldBIN) {
-		boldBIN = boldBIN;
+		this.boldBIN = boldBIN;
 	}
 
 	public String getColRegistratiecode() {
