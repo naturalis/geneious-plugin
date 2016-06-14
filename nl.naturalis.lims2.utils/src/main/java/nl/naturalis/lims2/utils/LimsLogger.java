@@ -61,9 +61,22 @@ public final class LimsLogger {
 			LogManager lm = LogManager.getLogManager();
 			Logger logger;
 
-			File filedir = new File(filename);
-			if (!filedir.exists()) {
-				filedir.mkdir();
+			String pathUitVal = limsImporterUtil.getLogPath().substring(0,
+					limsImporterUtil.getLogPath().length() - 1);
+			File dir = new File(pathUitVal);
+			if (!dir.exists()) {
+				System.out.println("creating directory: " + pathUitVal);
+				boolean result = false;
+
+				try {
+					dir.mkdir();
+					result = true;
+				} catch (SecurityException se) {
+					// handle it
+				}
+				if (result) {
+					System.out.println("Directory created");
+				}
 			}
 			FileHandler fh = new FileHandler(filename, true);
 
