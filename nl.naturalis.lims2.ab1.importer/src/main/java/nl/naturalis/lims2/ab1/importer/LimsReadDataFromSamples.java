@@ -144,9 +144,17 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					limsLogger = new LimsLogger(logSamplesFileName);
 
-					isExtractIDSeqExists = DocumentUtilities
-							.getSelectedDocuments().iterator().next()
-							.toString().contains("MarkerCode_Seq");
+					for (int cnt = 0; cnt < DocumentUtilities
+							.getSelectedDocuments().size(); cnt++) {
+						isExtractIDSeqExists = documents[cnt].toString()
+								.contains("MarkerCode_Seq");
+
+						/*
+						 * DocumentUtilities
+						 * .getSelectedDocuments().iterator().next()
+						 * .toString().contains("MarkerCode_Seq");
+						 */
+					}
 
 					if (!isExtractIDSeqExists) {
 						Dialogs.showMessageDialog("At least one selected document lacks Extract ID (Seq).");
@@ -445,6 +453,18 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 1.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
+
+		// GeneiousActionOptions parent = new GeneiousActionOptions("Naturalis",
+		// "Samples import")
+		// .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
+		// .setInMainToolbar(true).setInPopupMenu(true);
+		// GeneiousActionOptions submenuItem1 = new GeneiousActionOptions(
+		// "1 of 2 Samples", "Samples Import");
+		// GeneiousActionOptions sub2 =
+		// parent.createSubmenuActionOptions(parent,
+		// submenuItem1);
+		//
+		// return sub2;
 	}
 
 	@Override

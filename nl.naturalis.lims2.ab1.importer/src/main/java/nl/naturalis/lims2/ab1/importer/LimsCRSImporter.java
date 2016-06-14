@@ -6,6 +6,7 @@ package nl.naturalis.lims2.ab1.importer;
 import java.awt.EventQueue;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -58,7 +59,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private List<String> msgMatchList = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsReadDataFromSamples.class);
+			.getLogger(LimsCRSImporter.class);
 
 	public int importCounter;
 	private int importTotal;
@@ -68,7 +69,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private boolean match = false;
 	private String registrationNumber;
 	private Object documentFileName = "";
-	private String fileSelected = "";
+	private String fileSelected = null;
 	private Object fasDocument = "";
 	private AnnotatedPluginDocument[] documents = null;
 	private boolean isRMNHNumber = false;
@@ -83,6 +84,7 @@ public class LimsCRSImporter extends DocumentAction {
 	private long startTime;
 	long lEndTime = 0;
 	long difference = 0;
+	// private ArrayList<Object> listContainSamples = new ArrayList<>();
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -114,9 +116,11 @@ public class LimsCRSImporter extends DocumentAction {
 
 				limsLogger = new LimsLogger(logCrsFileName);
 
-				isRMNHNumber = DocumentUtilities.getSelectedDocuments()
-						.iterator().next().toString()
-						.contains("RegistrationNumberCode_Samples");
+				for (int cnt = 0; cnt < DocumentUtilities
+						.getSelectedDocuments().size(); cnt++) {
+					isRMNHNumber = annotatedPluginDocuments[cnt].toString()
+							.contains("RegistrationNumberCode_Samples");
+				}
 
 				if (!isRMNHNumber) {
 					Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
@@ -264,8 +268,20 @@ public class LimsCRSImporter extends DocumentAction {
 								+ "[2] "
 								+ Integer.toString(crsRecordUitval)
 								+ " records are ignored.");
-						logger.info("CRS: Total imported document(s): "
-								+ msgList.toString());
+
+						logger.info(crsExactRecordsVerwerkt
+								+ " records are imported and linked to "
+								+ Integer.toString(crsRecordCntVerwerkt)
+								+ " existing documents (of " + importCounter
+								+ " selected)" + "\n" + "\n" + "List of "
+								+ Integer.toString(importCounter));
+						logger.info(Integer.toString(crsRecordUitval)
+								+ " records are ignored.");
+
+						/*
+						 * limsLogger.logToFile(logCrsFileName,
+						 * msgUitvalList.toString());
+						 */
 
 						limsLogger.logToFile(logCrsFileName,
 								msgUitvalList.toString());
@@ -342,9 +358,11 @@ public class LimsCRSImporter extends DocumentAction {
 				cnt);
 
 		/** set note for Collecting date */
-		limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
-				"Date (CRS)", "Date (CRS)", LimsCRSFields.getCollectingDate(),
-				cnt);
+		if (LimsCRSFields.getCollectingDate().length() > 0) {
+			limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
+					"Date (CRS)", "Date (CRS)",
+					LimsCRSFields.getCollectingDate(), cnt);
+		}
 
 		/** set note for Country */
 		limsNotes.setNoteToAB1FileName(documents, "CountryCode_CRS",
@@ -382,10 +400,26 @@ public class LimsCRSImporter extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("3 CRS").setInPopupMenu(true)
+		return new GeneiousActionOptions("3 CRS", "CRS Import")
+				.setToolbarName("3 CRS").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
+
+		// the parent options need to be shared between the two document
+		// operations so you should create a method to get the same options from
+		// both places.
+		/*
+		 * GeneiousActionOptions parent = new GeneiousActionOptions("Naturalis",
+		 * "CRS import")
+		 * .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
+		 * .setInMainToolbar(true).setInPopupMenu(true); GeneiousActionOptions
+		 * submenuItem1 = new GeneiousActionOptions("3 CRS", "CRS Import");
+		 * GeneiousActionOptions sub1 =
+		 * parent.createSubmenuActionOptions(parent, submenuItem1);
+		 * 
+		 * return sub1;
+		 */
 	}
 
 	@Override
@@ -651,11 +685,17 @@ public class LimsCRSImporter extends DocumentAction {
 		msgUitvalList.clear();
 		String line = "";
 		String cvsSplitBy = "\t";
-
+		int recordCount = 0;
 		try {
+
 			long startTime = System.nanoTime();
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
-			while ((line = in.readLine()) != null) {
+			InputStream in = new FileInputStream(new File(fileName));
+			BufferedReader bufReader = new BufferedReader(
+					new InputStreamReader(in));
+			while ((line = bufReader.readLine()) != null) {
+				if (line.length() == 0) {
+					continue;
+				}
 
 				String[] row = line.split(cvsSplitBy);
 
@@ -674,20 +714,23 @@ public class LimsCRSImporter extends DocumentAction {
 								documentName,
 								"//document/notes/note/RegistrationNumberCode_Samples",
 								cacheNameCopy);
-
+				recordCount++;
 				if (regnumber.equals(registrationNumber)) {
+
+					limsFrameProgress.showProgress("Match : "
+							+ registrationNumber + "\n" + "  Recordcount: "
+							+ recordCount);
 
 					logger.info("Registration number matched: "
 							+ registrationNumber);
+					logger.info("Start with adding notes to the document");
 
 					match = true;
 					crsRecordCntVerwerkt++;
 
-					// for (String rowValue : row) {
-					// System.out.println(rowValue + "\n");
-					// }
+					clearVariabelen();
+
 					for (int i = 0; i < row.length; i++) {
-						System.out.println(row[i]);
 						LimsCRSFields.setRegistratienummer(row[0]);
 						extractRankOrClassification(row[1], row[2]);
 						LimsCRSFields.setGenus(row[3]);
@@ -696,14 +739,17 @@ public class LimsCRSImporter extends DocumentAction {
 						LimsCRSFields.setSex(row[6]);
 						LimsCRSFields.setStadium(row[7]);
 						LimsCRSFields.setLegavit(row[8]);
-						LimsCRSFields.setCollectingDate(row[9]);
+						if (row[9].length() > 0) {
+							LimsCRSFields.setCollectingDate(row[9]);
+						} else {
+							LimsCRSFields.setCollectingDate("10000101L");
+						}
 						LimsCRSFields.setCountry(row[10]);
 						if (i == 11) {
 							LimsCRSFields.setBioRegion(row[i]);
 						}
 
 						if (i == 12) {
-							System.out.println("Row[12]: " + i);
 							LimsCRSFields.setLocality(row[i]);
 						}
 
@@ -719,24 +765,172 @@ public class LimsCRSImporter extends DocumentAction {
 						}
 					}
 
-					// LimsCRSFields.setRegistratienummer(row[0]);
-					// extractRankOrClassification(row[1], row[2]);
-					// LimsCRSFields.setGenus(row[3]);
-					// LimsCRSFields.setTaxon(row[4]);
-					// LimsCRSFields.setDeterminator(row[5]);
-					// LimsCRSFields.setSex(row[6]);
-					// LimsCRSFields.setStadium(row[7]);
-					// LimsCRSFields.setLegavit(row[8]);
-					// LimsCRSFields.setCollectingDate(row[9]);
-					// LimsCRSFields.setCountry(row[10]);
-					// LimsCRSFields.setBioRegion(row[11]);
-					// LimsCRSFields.setLocality(row[12]);
-					// LimsCRSFields.setLatitudeDecimal(row[13]);
-					// LimsCRSFields.setLongitudeDecimal(row[14]);
-					// LimsCRSFields.setHeight(row[15]);
-
 					/* Add notes */
 					setCRSNotes(documents, cnt);
+					logger.info("Done with adding notes to the document: "
+							+ documentFileName);
+
+					// setCRSNotesLog();
+					if (row[0] != null) {
+						verwerkList.add(row[0]);
+					}
+					long endTime = System.nanoTime();
+					long elapsedTime = endTime - startTime;
+					logger.info("Took: "
+							+ (TimeUnit.SECONDS.convert(elapsedTime,
+									TimeUnit.NANOSECONDS)) + " second(s)");
+					;
+					break;
+				} // end IF
+				else if (!verwerkList.contains(registrationNumber) && !match) {
+					// else if (!match) {
+
+					if (!msgUitvalList
+							.contains("No document(s) match found for Registrationnumber: "
+									+ registrationNumber)) {
+						msgUitvalList
+								.add("No document(s) match found for Registrationnumber: "
+										+ registrationNumber + "\n");
+						/*
+						 * limsFrameProgress.showProgress("No Match : " +
+						 * registrationNumber + "\n" + "  Recordcount: " +
+						 * recordCount);
+						 */
+					}
+
+				}
+				match = false;
+
+			}
+			bufReader.close();
+			in.close();
+
+			importTotal = crsRecordCntVerwerkt;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
+	}
+
+	private void clearVariabelen() {
+		LimsCRSFields.setRegistratienummer("");
+		LimsCRSFields.setPhylum("");
+		LimsCRSFields.setKlasse("");
+		LimsCRSFields.setOrder("");
+		LimsCRSFields.setFamily("");
+		LimsCRSFields.setSubFamily("");
+		LimsCRSFields.setGenus("");
+		LimsCRSFields.setTaxon("");
+		LimsCRSFields.setDeterminator("");
+		LimsCRSFields.setSex("");
+		LimsCRSFields.setStadium("");
+		LimsCRSFields.setLegavit("");
+		LimsCRSFields.setCollectingDate("");
+		LimsCRSFields.setCountry("");
+		LimsCRSFields.setBioRegion("");
+		LimsCRSFields.setLocality("");
+		LimsCRSFields.setLatitudeDecimal("");
+		LimsCRSFields.setLongitudeDecimal("");
+		LimsCRSFields.setHeight("");
+	}
+
+	private void readDataFromCRSFrom_File(
+			AnnotatedPluginDocument[] annotatedPluginDocuments) {
+
+		fileSelected = fcd.loadSelectedFile();
+		if (fileSelected == null) {
+			return;
+		}
+
+		msgUitvalList.clear();
+		String line = "";
+		String cvsSplitBy = "\t";
+		int recordCount = 0;
+		try {
+
+			long startTime = System.nanoTime();
+			InputStream in = new FileInputStream(new File(fileSelected));
+			BufferedReader bufReader = new BufferedReader(
+					new InputStreamReader(in));
+
+			documentFileName = annotatedPluginDocuments[0]
+					.getFieldValue("cache_name");
+
+			while ((line = bufReader.readLine()) != null) {
+				if (line.length() == 0) {
+					continue;
+				}
+
+				String[] row = line.split(cvsSplitBy);
+
+				registrationNumber = row[0];
+
+				recordCount++;
+
+				String cacheNameCopy = "";
+				if (documentFileName.toString().contains("Copy")
+						|| documentFileName.toString().contains("kopie")) {
+					cacheNameCopy = "//document/hiddenFields/override_cache_name";
+				} else {
+					cacheNameCopy = "//document/hiddenFields/cache_name";
+				}
+
+				regnumber = readGeneiousFieldsValues
+						.getRegistrationNumberFromTableAnnotatedDocument(
+								documentFileName,
+								"//document/notes/note/RegistrationNumberCode_Samples",
+								cacheNameCopy);
+
+				if (regnumber.equals(registrationNumber)) {
+
+					limsFrameProgress.showProgress("Match : "
+							+ registrationNumber + "\n" + "  Recordcount: "
+							+ recordCount);
+
+					logger.info("Registration number matched: "
+							+ registrationNumber);
+
+					match = true;
+					crsRecordCntVerwerkt++;
+
+					for (int i = 0; i < row.length; i++) {
+						LimsCRSFields.setRegistratienummer(row[0]);
+						extractRankOrClassification(row[1], row[2]);
+						LimsCRSFields.setGenus(row[3]);
+						LimsCRSFields.setTaxon(row[4]);
+						LimsCRSFields.setDeterminator(row[5]);
+						LimsCRSFields.setSex(row[6]);
+						LimsCRSFields.setStadium(row[7]);
+						LimsCRSFields.setLegavit(row[8]);
+						if (row[9].length() > 0) {
+							LimsCRSFields.setCollectingDate(row[9]);
+						} else {
+							LimsCRSFields.setCollectingDate("10000101L");
+						}
+						LimsCRSFields.setCountry(row[10]);
+						if (i == 11) {
+							LimsCRSFields.setBioRegion(row[i]);
+						}
+
+						if (i == 12) {
+							LimsCRSFields.setLocality(row[i]);
+						}
+
+						if (i == 13) {
+							LimsCRSFields.setLatitudeDecimal(row[i]);
+						}
+
+						if (i == 14) {
+							LimsCRSFields.setLongitudeDecimal(row[i]);
+						}
+						if (i == 15) {
+							LimsCRSFields.setHeight(row[i]);
+						}
+					}
+
+					/* Add notes */
+					setCRSNotes(documents, 0);
 					logger.info("Done with adding notes to the document: "
 							+ documentFileName);
 
@@ -777,14 +971,20 @@ public class LimsCRSImporter extends DocumentAction {
 								.add("No document(s) match found for Registrationnumber: "
 										+ registrationNumber + "\n");
 					}
+
+					limsFrameProgress.showProgress("No match : "
+							+ registrationNumber + "\n" + "  Recordcount: "
+							+ recordCount);
 				}
 				match = false;
 			}
 			in.close();
+			bufReader.close();
 			importTotal = crsRecordCntVerwerkt;
 		} catch (IOException e) {
 
 			e.printStackTrace();
 		}
 	}
+
 }

@@ -45,7 +45,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private SequenceDocument sequenceDocument;
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsImportAB1Update.class);
+			.getLogger(LimsReadDataFromBold.class);
 
 	/*
 	 * String logFileName = limsImporterUtil.getLogPath() + File.separator +
@@ -74,6 +74,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private int importTotal;
 	private String[] record = null;
 	private LimsLogger limsLogger = null;
+	private boolean isRMNHNumber = false;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -99,6 +100,18 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				msgList.clear();
+
+				for (int cnt = 0; cnt < DocumentUtilities
+						.getSelectedDocuments().size(); cnt++) {
+					isRMNHNumber = annotatedPluginDocuments[cnt].toString()
+							.contains("RegistrationNumberCode_Samples");
+				}
+
+				if (!isRMNHNumber) {
+					Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
+					return;
+				}
+
 				boldFileSelected = fcd.loadSelectedFile();
 				if (boldFileSelected == null) {
 					return;

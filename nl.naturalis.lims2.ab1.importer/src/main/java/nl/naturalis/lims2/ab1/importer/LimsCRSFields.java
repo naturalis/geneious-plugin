@@ -186,7 +186,7 @@ public class LimsCRSFields {
 
 	public String getCollectingDate() {
 		String strDateFormat = "yyyyMMdd";
-		Date collDate = null;
+		Date collDate = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
 		try {
 			collDate = sdf.parse(collectingDate);
