@@ -48,6 +48,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsReadGeneiousFieldsValues geneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsDummySeq limsDummySeq = new LimsDummySeq();
+	// private Lims2Connectie lims2Connectie = new Lims2Connectie();
 
 	private String extractIDfileName = "";
 	private List<String> msgList = new ArrayList<String>();
@@ -109,13 +110,12 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		geneiousFieldsValues.resultDB = geneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		// try {
-		// logger.info("Actieve Connectie: "
-		// + lims2Connectie.getSimpleConnectionServer(
-		// geneiousFieldsValues.resultDB).getCatalog());
-		// } catch (SQLException e1) {
-		// e1.printStackTrace();
-		// }
+		/*
+		 * try { logger.info("Actieve Connectie: " +
+		 * lims2Connectie.getSimpleConnectionServer(
+		 * geneiousFieldsValues.resultDB).getCatalog()); } catch (SQLException
+		 * e1) { e1.printStackTrace(); }
+		 */
 
 		if (geneiousFieldsValues.resultDB != null) {
 			Object[] options = { "Ok", "No", "Cancel" };

@@ -87,7 +87,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				documents = docs.iterator().next();
 
 				versienummer = 0;
-				ReadGeneiousFieldsValues.recordcount = 0;
+				// ReadGeneiousFieldsValues.recordcount = 0;
 
 				for (int cnt = 0; cnt < docs.size(); cnt++) {
 					seq = (SequenceDocument) docs.get(cnt).getDocument();
