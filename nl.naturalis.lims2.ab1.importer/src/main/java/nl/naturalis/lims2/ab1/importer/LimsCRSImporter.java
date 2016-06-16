@@ -645,7 +645,6 @@ public class LimsCRSImporter extends DocumentAction {
 		}
 		count++;
 		return count; // number of lines
-
 	}
 
 	public Reader getReader(String relativePath) {
@@ -670,8 +669,6 @@ public class LimsCRSImporter extends DocumentAction {
 					+ Arrays.toString((Object[]) row));
 			System.out.println("-----------------------");
 		}
-
-		// printAndValidate();
 	}
 
 	public void printAndValidate(Collection<?> rows) {
@@ -687,7 +684,6 @@ public class LimsCRSImporter extends DocumentAction {
 		String cvsSplitBy = "\t";
 		int recordCount = 0;
 		try {
-
 			long startTime = System.nanoTime();
 			InputStream in = new FileInputStream(new File(fileName));
 			BufferedReader bufReader = new BufferedReader(
@@ -779,12 +775,9 @@ public class LimsCRSImporter extends DocumentAction {
 					logger.info("Took: "
 							+ (TimeUnit.SECONDS.convert(elapsedTime,
 									TimeUnit.NANOSECONDS)) + " second(s)");
-					;
 					break;
 				} // end IF
 				else if (!verwerkList.contains(registrationNumber) && !match) {
-					// else if (!match) {
-
 					if (!msgUitvalList
 							.contains("No document(s) match found for Registrationnumber: "
 									+ registrationNumber)) {
@@ -797,20 +790,16 @@ public class LimsCRSImporter extends DocumentAction {
 						 * recordCount);
 						 */
 					}
-
 				}
 				match = false;
-
 			}
 			bufReader.close();
 			in.close();
 
 			importTotal = crsRecordCntVerwerkt;
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
-
 	}
 
 	private void clearVariabelen() {
@@ -833,158 +822,6 @@ public class LimsCRSImporter extends DocumentAction {
 		LimsCRSFields.setLatitudeDecimal("");
 		LimsCRSFields.setLongitudeDecimal("");
 		LimsCRSFields.setHeight("");
-	}
-
-	private void readDataFromCRSFrom_File(
-			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-
-		fileSelected = fcd.loadSelectedFile();
-		if (fileSelected == null) {
-			return;
-		}
-
-		msgUitvalList.clear();
-		String line = "";
-		String cvsSplitBy = "\t";
-		int recordCount = 0;
-		try {
-
-			long startTime = System.nanoTime();
-			InputStream in = new FileInputStream(new File(fileSelected));
-			BufferedReader bufReader = new BufferedReader(
-					new InputStreamReader(in));
-
-			documentFileName = annotatedPluginDocuments[0]
-					.getFieldValue("cache_name");
-
-			while ((line = bufReader.readLine()) != null) {
-				if (line.length() == 0) {
-					continue;
-				}
-
-				String[] row = line.split(cvsSplitBy);
-
-				registrationNumber = row[0];
-
-				recordCount++;
-
-				String cacheNameCopy = "";
-				if (documentFileName.toString().contains("Copy")
-						|| documentFileName.toString().contains("kopie")) {
-					cacheNameCopy = "//document/hiddenFields/override_cache_name";
-				} else {
-					cacheNameCopy = "//document/hiddenFields/cache_name";
-				}
-
-				regnumber = readGeneiousFieldsValues
-						.getRegistrationNumberFromTableAnnotatedDocument(
-								documentFileName,
-								"//document/notes/note/RegistrationNumberCode_Samples",
-								cacheNameCopy);
-
-				if (regnumber.equals(registrationNumber)) {
-
-					limsFrameProgress.showProgress("Match : "
-							+ registrationNumber + "\n" + "  Recordcount: "
-							+ recordCount);
-
-					logger.info("Registration number matched: "
-							+ registrationNumber);
-
-					match = true;
-					crsRecordCntVerwerkt++;
-
-					for (int i = 0; i < row.length; i++) {
-						LimsCRSFields.setRegistratienummer(row[0]);
-						extractRankOrClassification(row[1], row[2]);
-						LimsCRSFields.setGenus(row[3]);
-						LimsCRSFields.setTaxon(row[4]);
-						LimsCRSFields.setDeterminator(row[5]);
-						LimsCRSFields.setSex(row[6]);
-						LimsCRSFields.setStadium(row[7]);
-						LimsCRSFields.setLegavit(row[8]);
-						if (row[9].length() > 0) {
-							LimsCRSFields.setCollectingDate(row[9]);
-						} else {
-							LimsCRSFields.setCollectingDate("10000101L");
-						}
-						LimsCRSFields.setCountry(row[10]);
-						if (i == 11) {
-							LimsCRSFields.setBioRegion(row[i]);
-						}
-
-						if (i == 12) {
-							LimsCRSFields.setLocality(row[i]);
-						}
-
-						if (i == 13) {
-							LimsCRSFields.setLatitudeDecimal(row[i]);
-						}
-
-						if (i == 14) {
-							LimsCRSFields.setLongitudeDecimal(row[i]);
-						}
-						if (i == 15) {
-							LimsCRSFields.setHeight(row[i]);
-						}
-					}
-
-					/* Add notes */
-					setCRSNotes(documents, 0);
-					logger.info("Done with adding notes to the document: "
-							+ documentFileName);
-
-					setCRSNotesLog();
-					if (row[0] != null) {
-						verwerkList.add(row[0]);
-					}
-					long endTime = System.nanoTime();
-					System.out.println("Took: " + (endTime - startTime));
-
-				} // end IF
-				else if (!verwerkList.contains(registrationNumber) && !match) {
-
-					LimsCRSFields.setRegistratienummer("");
-					LimsCRSFields.setPhylum("");
-					LimsCRSFields.setKlasse("");
-					LimsCRSFields.setOrder("");
-					LimsCRSFields.setFamily("");
-					LimsCRSFields.setSubFamily("");
-					LimsCRSFields.setGenus("");
-					LimsCRSFields.setTaxon("");
-					LimsCRSFields.setDeterminator("");
-					LimsCRSFields.setSex("");
-					LimsCRSFields.setStadium("");
-					LimsCRSFields.setLegavit("");
-					LimsCRSFields.setCollectingDate("");
-					LimsCRSFields.setCountry("");
-					LimsCRSFields.setBioRegion("");
-					LimsCRSFields.setLocality("");
-					LimsCRSFields.setLatitudeDecimal("");
-					LimsCRSFields.setLongitudeDecimal("");
-					LimsCRSFields.setHeight("");
-
-					if (!msgUitvalList
-							.contains("No document(s) match found for Registrationnumber: "
-									+ registrationNumber)) {
-						msgUitvalList
-								.add("No document(s) match found for Registrationnumber: "
-										+ registrationNumber + "\n");
-					}
-
-					limsFrameProgress.showProgress("No match : "
-							+ registrationNumber + "\n" + "  Recordcount: "
-							+ recordCount);
-				}
-				match = false;
-			}
-			in.close();
-			bufReader.close();
-			importTotal = crsRecordCntVerwerkt;
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
 	}
 
 }

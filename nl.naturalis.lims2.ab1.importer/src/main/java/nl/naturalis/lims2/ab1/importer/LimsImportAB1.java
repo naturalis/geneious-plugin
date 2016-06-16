@@ -292,6 +292,34 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						e.printStackTrace();
 					}
 
+					/** AmplicificationStaffCode_FixedValue_Samples */
+					try {
+						limsNotes
+								.setImportNotes(
+										document,
+										"AmplicificationStaffCode_FixedValue_Samples",
+										"Ampl-staff (Samples)",
+										"Ampl-staff (Samples)",
+										limsImporterUtil
+												.getPropValues("samplesamplicification"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					/** set note for Extract Plate ID Samples */
+					limsNotes.setImportNotes(document,
+							"ExtractPlateNumberCode_Samples",
+							"Extract plate ID (Samples)",
+							"Extract plate ID (Samples)",
+							ReadGeneiousFieldsValues.extractPlateIDSamples);
+
+					/** set note for Extract Method */
+					limsNotes.setImportNotes(document,
+							"SampleMethodCode_Samples",
+							"Extraction method (Samples)",
+							"Extraction method (Samples)",
+							ReadGeneiousFieldsValues.extractionMethodSamples);
+
 					if (ab1fileExists) {
 						versienummer++;
 					} else if (fastaFileExists) {
