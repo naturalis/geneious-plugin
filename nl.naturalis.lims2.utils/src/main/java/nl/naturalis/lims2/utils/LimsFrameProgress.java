@@ -47,7 +47,7 @@ public class LimsFrameProgress {
 						jlFilename.setText(fileName);
 					}
 				});
-				java.lang.Thread.sleep(0, 3);
+				java.lang.Thread.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

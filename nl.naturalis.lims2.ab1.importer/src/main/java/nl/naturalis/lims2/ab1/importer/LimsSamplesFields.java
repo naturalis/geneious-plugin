@@ -30,6 +30,7 @@ public class LimsSamplesFields implements PluginDocument,
 	private String subSample = "Sample method";
 	private int versieNummer = 1;
 	private LimsSamplesDocumentFields samplesResults;
+	private String regNumberScientificName;
 
 	public LimsSamplesFields(LimsSamplesDocumentFields typeSamples) {
 		samplesResults = typeSamples;
@@ -229,6 +230,14 @@ public class LimsSamplesFields implements PluginDocument,
 		}
 		htmlBuilder.append("</table>\n");
 		return htmlBuilder.toString();
+	}
+
+	public String getRegNumberScientificName() {
+		return regNumberScientificName;
+	}
+
+	public void setRegNumberScientificName(String regNumberScientificName) {
+		this.regNumberScientificName = regNumberScientificName;
 	}
 
 }

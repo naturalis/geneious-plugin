@@ -85,6 +85,7 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleRecordUitval = 0;
 	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
+	private int exactVerwerkt = 0;
 
 	@Override
 	public void actionPerformed(
@@ -142,7 +143,7 @@ public class LimsImportSamples extends DocumentAction {
 
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-					docs = DocumentUtilities.getSelectedDocuments();
+					// docs = DocumentUtilities.getSelectedDocuments();
 
 					logSamplesFileName = limsImporterUtil.getLogPath()
 							+ "Sample-method-Uitvallijst-"
@@ -212,28 +213,33 @@ public class LimsImportSamples extends DocumentAction {
 												"ExtractIDCode_Seq");
 
 								/* Read the cache_name from the document */
-								documentFileName = (String) docs.get(cnt)
+								documentFileName = (String) DocumentUtilities
+										.getSelectedDocuments().get(cnt)
 										.getFieldValue("cache_name");
 
 								/*
 								 * Read the override_cache_name from the
 								 * document
 								 */
-								readAssembyContigFileName = (String) docs.get(
-										cnt).getFieldValue(
-										"override_cache_name");
+								readAssembyContigFileName = (String) DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getFieldValue("override_cache_name");
 
 								/*
 								 * Compare the cacahe_name with the name of the
 								 * document
 								 */
-								if (documentFileName.equals(docs.get(cnt)
+								if (documentFileName.equals(DocumentUtilities
+										.getSelectedDocuments().get(cnt)
 										.getName())) {
 
-									if (!docs.toString().contains(
-											"consensus sequence")
-											|| !docs.toString().contains(
-													"Contig")) {
+									if (!DocumentUtilities
+											.getSelectedDocuments().toString()
+											.contains("consensus sequence")
+											|| !DocumentUtilities
+													.getSelectedDocuments()
+													.toString()
+													.contains("Contig")) {
 										version = Integer
 												.parseInt((String) readGeneiousFieldsValues
 														.getVersionValueFromAnnotatedPluginDocument(
@@ -250,19 +256,28 @@ public class LimsImportSamples extends DocumentAction {
 												.toString()
 												.contains(
 														"Reads Assembly Contig")) {
-									documentFileName = docs.get(cnt).getName();
+									documentFileName = DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName();
 								} /*
 								 * Check if name is from a Consensus document
 								 */
-								else if (docs.get(cnt).getName().toString()
+								else if (DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getName().toString()
 										.contains("consensus sequence")) {
-									documentFileName = docs.get(cnt).getName();
+									documentFileName = DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName();
 								} /*
 								 * Check if name is from a dummy document
 								 */
-								else if (docs.get(cnt).getName().toString()
-										.contains("dum")) {
-									documentFileName = docs.get(cnt).getName();
+								else if (DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getName().toString().contains("dum")) {
+									documentFileName = DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName();
 								} /* from a imported file */
 								else {
 									documentFileName = (String) readGeneiousFieldsValues
@@ -282,7 +297,9 @@ public class LimsImportSamples extends DocumentAction {
 									 */
 									result = readGeneiousFieldsValues
 											.getFileNameFromGeneiousDatabase(
-													docs.get(cnt).getName(),
+													DocumentUtilities
+															.getSelectedDocuments()
+															.get(cnt).getName(),
 													"//XMLSerialisableRootElement/name");
 								}
 
@@ -290,13 +307,20 @@ public class LimsImportSamples extends DocumentAction {
 										.toString().contains("fas"))
 										|| (result.toString().contains("ab1"))
 										|| (result.toString().contains("dum"))) {
-									extractIDfileName = getExtractIDFromAB1FileName(docs
-											.get(cnt).getName());
-								} else if (docs.get(cnt).getName().toString()
+									extractIDfileName = getExtractIDFromAB1FileName(DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName());
+								} else if (DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getName().toString()
 										.contains("consensus sequence")
-										|| docs.get(cnt).getName().toString()
+										|| DocumentUtilities
+												.getSelectedDocuments()
+												.get(cnt).getName().toString()
 												.contains("Contig")) {
-									extractIDfileName = docs.get(cnt).getName();
+									extractIDfileName = DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName();
 								}
 
 								isSampleDoc = DocumentUtilities
@@ -384,38 +408,43 @@ public class LimsImportSamples extends DocumentAction {
 														TimeUnit.NANOSECONDS))
 												+ " second(s)");
 										elapsedTime = 0;
+										match = false;
 
 									} // end IF
-								}
+									else if (!verwerkList.contains(ID)
+											&& !match) {
+										recordCount++;
 
-								match = false;
+										limsExcelFields
+												.setProjectPlaatNummer("");
+										limsExcelFields.setPlaatPositie("");
+										limsExcelFields
+												.setExtractPlaatNummer("");
+										if (record[3] != null) {
+											limsExcelFields.setExtractID("");
+										}
+										limsExcelFields
+												.setRegistrationNumber("");
+										limsExcelFields.setTaxonNaam("");
+
+										if (!UitvalList.contains(ID)) {
+											UitvalList
+													.add("No document(s) match found for Registrationnumber: "
+															+ ID + "\n");
+
+											limsFrameProgress
+													.showProgress("No match : "
+															+ ID + "\n"
+															+ "  Recordcount: "
+															+ recordCount);
+										}
+									}
+
+								}
 
 								result = "";
 							} // end For
 
-							if (!verwerkList.contains(ID) && !match) {
-								recordCount++;
-
-								limsExcelFields.setProjectPlaatNummer("");
-								limsExcelFields.setPlaatPositie("");
-								limsExcelFields.setExtractPlaatNummer("");
-								if (record[3] != null) {
-									limsExcelFields.setExtractID("");
-								}
-								limsExcelFields.setRegistrationNumber("");
-								limsExcelFields.setTaxonNaam("");
-
-								if (!UitvalList.contains(ID)) {
-									UitvalList
-											.add("No document(s) match found for Registrationnumber: "
-													+ ID + "\n");
-
-									limsFrameProgress
-											.showProgress("No match : " + ID
-													+ "\n" + "  Recordcount: "
-													+ recordCount);
-								}
-							}
 						} // end While
 						logger.info("--------------------------------------------------------");
 						logger.info("Total of document(s) updated: "
@@ -529,6 +558,291 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
+	/*
+	 * private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
+	 * 
+	 * Get Database name readGeneiousFieldsValues.resultDB =
+	 * readGeneiousFieldsValues .getServerDatabaseServiceName();
+	 * 
+	 * if (readGeneiousFieldsValues.resultDB != null) {
+	 * 
+	 * Object[] options = { "Ok", "No", "Cancel" }; int n =
+	 * JOptionPane.showOptionDialog(frame,
+	 * "Create dummy sequences for unknown extract ID's?", "Samples",
+	 * JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+	 * options, options[2]); if (n == 0) {
+	 *//** Check if document(s) has been selected **/
+	/*
+	 * if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+	 * EventQueue.invokeLater(new Runnable() {
+	 * 
+	 * @Override public void run() {
+	 * 
+	 * Dialogs.showMessageDialog("Select at least one document"); return; } });
+	 * }
+	 * 
+	 * if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+	 * 
+	 * // docs = DocumentUtilities.getSelectedDocuments();
+	 * 
+	 * logSamplesFileName = limsImporterUtil.getLogPath() +
+	 * "Sample-method-Uitvallijst-" + limsImporterUtil.getLogFilename();
+	 * 
+	 * limsLogger = new LimsLogger(logSamplesFileName);
+	 * 
+	 * for (int cnt = 0; cnt < DocumentUtilities .getSelectedDocuments().size();
+	 * cnt++) { isExtractIDSeqExists = documents[cnt].toString()
+	 * .contains("MarkerCode_Seq"); }
+	 * 
+	 * if (!isExtractIDSeqExists) { Dialogs.showMessageDialog(
+	 * "At least one selected document lacks Extract ID (Seq)."); return; }
+	 * 
+	 * logger.info("Start updating selected document(s)."); fileSelected =
+	 * fcd.loadSelectedFile();
+	 *//** Add selected documents to a list. */
+	/*
+	 * if (fileSelected == null) { return; }
+	 * 
+	 * Create the progressbar limsFrameProgress.createProgressBar();
+	 *//** Start reading data from the file selected */
+	/*
+	 * logger.info("-------------------------- S T A R T --------------------------"
+	 * ); logger.info("Start Reading data from a samples file.");
+	 * logger.info("CSV file: " + fileSelected);
+	 * 
+	 * UitvalList.clear(); UitvalList.add("Filename: " + fileSelected + "\n");
+	 * UitvalList .add("-----------------------------------------------" +
+	 * "\n"); startTime = new Date().getTime();
+	 * 
+	 * try { csvReader = new CSVReader(new FileReader(fileSelected), '\t', '\'',
+	 * 0); csvReader.readNext();
+	 * 
+	 * importCounter = DocumentUtilities .getSelectedDocuments().size();
+	 * 
+	 * String[] record = null; while ((record = csvReader.readNext()) != null) {
+	 * if (record.length == 0) { continue; }
+	 * 
+	 * long startBeginTime = System.nanoTime();
+	 * 
+	 * ID = "e" + record[3];
+	 * 
+	 * for (int cnt = 0; cnt < DocumentUtilities .getSelectedDocuments().size();
+	 * cnt++) {
+	 * 
+	 * isExtractIDSeqExists = readGeneiousFieldsValues
+	 * .getValueFromAnnotatedPluginDocument( documents[cnt],
+	 * "DocumentNoteUtilities-Extract ID (Seq)", "ExtractIDCode_Seq");
+	 * 
+	 * Read the cache_name from the document
+	 * 
+	 * documentFileName = (String) docs.get(cnt) .getFieldValue("cache_name");
+	 * 
+	 * 
+	 * documentFileName = (String) DocumentUtilities
+	 * .getSelectedDocuments().get(cnt) .getFieldValue("cache_name");
+	 * 
+	 * 
+	 * Read the override_cache_name from the document
+	 * 
+	 * readAssembyContigFileName = (String) DocumentUtilities
+	 * .getSelectedDocuments().get(cnt) .getFieldValue("override_cache_name");
+	 * 
+	 * 
+	 * Compare the cacahe_name with the name of the document
+	 * 
+	 * if (documentFileName.equals(DocumentUtilities
+	 * .getSelectedDocuments().get(cnt) .getName())) {
+	 * 
+	 * if (!documentFileName.toString().contains( "consensus sequence") ||
+	 * !documentFileName.toString() .contains("Contig")) { if
+	 * (readGeneiousFieldsValues .getVersionValueFromAnnotatedPluginDocument(
+	 * documents, "DocumentNoteUtilities-Document version",
+	 * "DocumentVersionCode_Seq", cnt) != null) { version = Integer
+	 * .parseInt((String) readGeneiousFieldsValues
+	 * .getVersionValueFromAnnotatedPluginDocument( documents,
+	 * "DocumentNoteUtilities-Document version", "DocumentVersionCode_Seq",
+	 * cnt)); } else version = 1; } }
+	 * 
+	 * Check if name is from a Contig file if ((readAssembyContigFileName !=
+	 * null) && readAssembyContigFileName .toString() .contains(
+	 * "Reads Assembly Contig")) { documentFileName = DocumentUtilities
+	 * .getSelectedDocuments().get(cnt) .getName(); } Check if name is from a
+	 * Consensus document
+	 * 
+	 * else if (DocumentUtilities .getSelectedDocuments().get(cnt)
+	 * .getName().toString() .contains("consensus sequence")) { documentFileName
+	 * = DocumentUtilities .getSelectedDocuments().get(cnt) .getName(); } Check
+	 * if name is from a dummy document
+	 * 
+	 * else if (DocumentUtilities .getSelectedDocuments().get(cnt)
+	 * .getName().toString().contains("dum")) { documentFileName =
+	 * DocumentUtilities .getSelectedDocuments().get(cnt) .getName(); } from a
+	 * imported file else { documentFileName = (String) readGeneiousFieldsValues
+	 * .readValueFromAnnotatedPluginDocument( documents[cnt], "importedFrom",
+	 * "filename"); }
+	 * 
+	 * Get file name from the document(s) if
+	 * (documentFileName.toString().contains("ab1") ||
+	 * documentFileName.toString() .contains("fas") ||
+	 * documentFileName.toString() .contains("dum")) {
+	 * 
+	 * Value from the Database table field
+	 * 
+	 * result = readGeneiousFieldsValues .getFileNameFromGeneiousDatabase(
+	 * DocumentUtilities .getSelectedDocuments() .get(cnt).getName(),
+	 * "//XMLSerialisableRootElement/name"); }
+	 * 
+	 * if ((result != null && documentFileName .toString().contains("fas")) ||
+	 * (result.toString().contains("ab1")) ||
+	 * (result.toString().contains("dum"))) { extractIDfileName =
+	 * getExtractIDFromAB1FileName(DocumentUtilities
+	 * .getSelectedDocuments().get(cnt) .getName()); } else if
+	 * (DocumentUtilities .getSelectedDocuments().get(cnt) .getName().toString()
+	 * .contains("consensus sequence") || DocumentUtilities
+	 * .getSelectedDocuments() .get(cnt).getName().toString()
+	 * .contains("Contig")) { extractIDfileName = DocumentUtilities
+	 * .getSelectedDocuments().get(cnt).getName(); }
+	 * 
+	 * isSampleDoc = DocumentUtilities .getSelectedDocuments().iterator()
+	 * .next().toString() .contains("ExtractIDCode_Seq");
+	 * 
+	 * if (sampleTotaalRecords == 0) { CSVReader reader = new CSVReader( new
+	 * FileReader(fileSelected), '\t', '\'', 0); sampleTotaalRecords =
+	 * reader.readAll() .size(); reader.close(); }
+	 *//** Create progress bar */
+	/*
+	 * limsFrameProgress.createProgressBar();
+	 * 
+	 * if (isExtractIDSeqExists) {
+	 * 
+	 * 
+	 * Check if record(PlateNumber) contain "-"
+	 * 
+	 * if (record[2].length() > 0 && record[2].contains("-")) { plateNumber =
+	 * record[2].substring(0, record[2].indexOf("-")); }
+	 * 
+	 * 
+	 * ID (ID = record[0]) match extractid from the filename
+	 * 
+	 * if (ID.equals(extractIDfileName)) {
+	 * 
+	 * match = true; sampleRecordVerwerkt++;
+	 * 
+	 * msgList.add(extractIDfileName + "\n");
+	 * 
+	 * recordCount++;
+	 *//** Show the progress bar */
+	/*
+	 * limsFrameProgress .showProgress("Match : " + extractIDfileName + "\n" +
+	 * "  Recordcount: " + recordCount);
+	 * 
+	 * limsExcelFields .setProjectPlaatNummer(record[0]); limsExcelFields
+	 * .setPlaatPositie(record[1]); limsExcelFields
+	 * .setExtractPlaatNummer(plateNumber); if (ID != null) {
+	 * limsExcelFields.setExtractID(ID); } else {
+	 * limsExcelFields.setExtractID(""); } limsExcelFields
+	 * .setRegistrationNumber(record[4]);
+	 * limsExcelFields.setTaxonNaam(record[5]); limsExcelFields
+	 * .setVersieNummer(version);
+	 * 
+	 * logger.info("Document Filename: " + documentFileName);
+	 * 
+	 * logger.info("Start with adding notes to the document");
+	 * setSamplesNotes(documents, cnt);
+	 * logger.info("Done with adding notes to the document");
+	 * 
+	 * if (!verwerkList.contains(ID)) { verwerkList.add(ID); }
+	 * 
+	 * long endTime = System.nanoTime(); long elapsedTime = endTime -
+	 * startBeginTime; logger.info("Took: " + (TimeUnit.SECONDS.convert(
+	 * elapsedTime, TimeUnit.NANOSECONDS)) + " second(s)"); elapsedTime = 0;
+	 * 
+	 * } // end IF }
+	 * 
+	 * match = false;
+	 * 
+	 * result = ""; } // end For
+	 * 
+	 * if (!verwerkList.contains(ID) && !match) { recordCount++;
+	 * 
+	 * limsExcelFields.setProjectPlaatNummer("");
+	 * limsExcelFields.setPlaatPositie("");
+	 * limsExcelFields.setExtractPlaatNummer(""); if (record[3] != null) {
+	 * limsExcelFields.setExtractID(""); }
+	 * limsExcelFields.setRegistrationNumber("");
+	 * limsExcelFields.setTaxonNaam("");
+	 * 
+	 * if (!UitvalList.contains(ID)) { UitvalList
+	 * .add("No document(s) match found for Registrationnumber: " + ID + "\n");
+	 * 
+	 * 
+	 * limsFrameProgress .showProgress("No match : " + ID + "\n" +
+	 * "  Recordcount: " + recordCount);
+	 * 
+	 * }
+	 * 
+	 * } } // end While
+	 * logger.info("--------------------------------------------------------");
+	 * logger.info("Total of document(s) updated: " + DocumentUtilities
+	 * .getSelectedDocuments().size());
+	 * 
+	 * Set for creating dummy files if (isSampleDoc) {
+	 * limsFrameProgress.createProgressBar();
+	 * setExtractIDFromSamplesSheet(fileSelected, extractIDfileName);
+	 * limsFrameProgress.hideFrame(); }
+	 * 
+	 * logger.info("-------------------------- E N D --------------------------")
+	 * ; logger.info("Done with updating the selected document(s). ");
+	 * 
+	 * if (extractIDfileName != null) {
+	 * UitvalList.add("Total records not matched: " +
+	 * Integer.toString(UitvalList.size()) + "\n"); }
+	 * 
+	 * lEndTime = new Date().getTime(); difference = lEndTime - startTime;
+	 * String hms = String.format("%02d:%02d:%02d",
+	 * TimeUnit.MILLISECONDS.toHours(difference),
+	 * TimeUnit.MILLISECONDS.toMinutes(difference) %
+	 * TimeUnit.HOURS.toMinutes(1), TimeUnit.MILLISECONDS.toSeconds(difference)
+	 * % TimeUnit.MINUTES.toSeconds(1)); logger.info("Import records in : '" +
+	 * hms + " hour(s)/minute(s)/second(s).'");
+	 * logger.info("Import records in : '" +
+	 * TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
+	 * exactVerwerkt = verwerkList.size();
+	 * logger.info("Totaal records verwerkt: " + exactVerwerkt);
+	 * 
+	 * EventQueue.invokeLater(new Runnable() {
+	 * 
+	 * @Override public void run() { sampleRecordUitval = UitvalList.size() - 1;
+	 * sampleExactRecordsVerwerkt = verwerkList.size();
+	 * 
+	 * Dialogs.showMessageDialog(Integer .toString(sampleTotaalRecords) +
+	 * " sample records have been read of which: " + "\n" + "[1] " + Integer
+	 * .toString(sampleExactRecordsVerwerkt) +
+	 * " samples are imported and linked to " + Integer
+	 * .toString(sampleRecordVerwerkt) + " existing documents (of " +
+	 * importCounter + " selected) \n" + "[2] " + Integer
+	 * .toString(dummyRecordsVerwerkt) + " sample are imported as dummy" + "\n"
+	 * + "\n" + "List of " + Integer.toString(importCounter) +
+	 * " selected documents: " + "\n" + msgList.toString() + "\n" + "\n" +
+	 * "[3] " + Integer.toString(sampleRecordUitval) +
+	 * " sample records are ignored.");
+	 * 
+	 * logger.info("Sample-method: Total imported document(s): " +
+	 * msgList.toString());
+	 * 
+	 * limsLogger.logToFile(logSamplesFileName, UitvalList.toString());
+	 * 
+	 * msgList.clear(); UitvalList.clear(); verwerkingListCnt.clear();
+	 * verwerkList.clear(); sampleExactRecordsVerwerkt = 0; sampleRecordUitval =
+	 * 0; sampleRecordVerwerkt = 0; dummyRecordsVerwerkt = 0; recordCount = 0;
+	 * exactVerwerkt = 0; limsFrameProgress.hideFrame(); } }); } catch
+	 * (IOException e) { e.printStackTrace(); } try { csvReader.close(); } catch
+	 * (IOException e) { e.printStackTrace(); } } } else if (n == 1) {
+	 * limsFrameProgress.createProgressBar(); fileSelected =
+	 * fcd.loadSelectedFile(); setExtractIDFromSamplesSheet(fileSelected,
+	 * extractIDfileName); limsFrameProgress.hideFrame(); } else if (n == 2) {
+	 * return; } } }
+	 */
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
 		/** set note for Registration number */
@@ -621,8 +935,8 @@ public class LimsImportSamples extends DocumentAction {
 						}
 
 						if (!dummyFile.equals(ID)) {
-							limsFrameProgress.showProgress("Create dummy id: "
-									+ ID);
+							limsFrameProgress
+									.showProgress("Creating dummy id: " + ID);
 
 							if (ID.equals("e")
 									&& LimsImporterUtil.extractNumber(ID)

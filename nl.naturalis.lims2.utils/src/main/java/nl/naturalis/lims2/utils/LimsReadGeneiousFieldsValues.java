@@ -76,6 +76,7 @@ public class LimsReadGeneiousFieldsValues {
 	public String positionSamplesFromDummy;
 	public String extractPlateIDSamples;
 	public String extractionMethodSamples;
+	public String registrationScientificName;
 	private SQLException exception = null;
 	public int recordcount = 0;
 
@@ -1215,7 +1216,7 @@ public class LimsReadGeneiousFieldsValues {
 		try {
 
 			final String SQL = " SELECT a.name, a.pcrplateid, a.marker, a.Registrationnumber, a.ScientificName, "
-					+ " a.SamplePlateId, a.Position, a.ExtractID, a.Seqstaff, a.extractPlateNumberIDSamples, a.extractMethod "
+					+ " a.SamplePlateId, a.Position, a.ExtractID, a.Seqstaff, a.extractPlateNumberIDSamples, a.extractMethod, a.registrationScientificName "
 					+ " FROM( "
 					+ " SELECT "
 					+ " TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name, "
@@ -1227,8 +1228,9 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/PlatePositionCode_Samples')) AS position, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractIDCode_Samples')) AS extractID, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SequencingStaffCode_FixedValue_Samples')) AS seqStaff, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractPlateNumberCode_Samples')) As extractPlateNumberIDSamples, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) As extractMethod "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractPlateNumberCode_Samples')) AS extractPlateNumberIDSamples, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) AS extractMethod, "
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
 
 			con = DriverManager.getConnection(url + resultDB + ssl, user,
@@ -1243,14 +1245,17 @@ public class LimsReadGeneiousFieldsValues {
 			int numberOfColumns = metadata.getColumnCount();
 			listDummyValues.clear();
 			while (rs.next()) {
-				registrnmbrSamplesFromDummy = rs.getString(4);
-				scientificNameSamplesFromDummy = rs.getString(5);
-				samplePlateIdSamplesFromDummy = rs.getString(6);
-				positionSamplesFromDummy = rs.getString(7);
-				extractidSamplesFromDummy = rs.getString(8);
+				registrnmbrSamplesFromDummy = rs
+						.getString("Registrationnumber");
+				scientificNameSamplesFromDummy = rs.getString("ScientificName");
+				samplePlateIdSamplesFromDummy = rs.getString("SamplePlateId");
+				positionSamplesFromDummy = rs.getString("Position");
+				extractidSamplesFromDummy = rs.getString("ExtractID");
 				extractPlateIDSamples = rs
 						.getString("extractPlateNumberIDSamples");
 				extractionMethodSamples = rs.getString("extractMethod");
+				registrationScientificName = rs
+						.getString("registrationScientificName");
 				int i = 1;
 				while (i <= numberOfColumns) {
 					listDummyValues.add(rs.getString(i++));

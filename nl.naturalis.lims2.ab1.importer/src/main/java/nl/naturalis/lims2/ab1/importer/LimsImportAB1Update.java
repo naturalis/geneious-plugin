@@ -49,7 +49,7 @@ public class LimsImportAB1Update extends DocumentAction {
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	private AnnotatedPluginDocument documents = null;
+	// private AnnotatedPluginDocument documents = null;
 	private int version = 0;
 	private String documentName = "";
 	private String recordDocumentName = "";
@@ -84,13 +84,17 @@ public class LimsImportAB1Update extends DocumentAction {
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
-				documents = docs.iterator().next();
+				// documents =
+				// DocumentUtilities.getSelectedDocuments().iterator().next();
+				// //docs.iterator().next();
 
 				versienummer = 0;
 				// ReadGeneiousFieldsValues.recordcount = 0;
 
-				for (int cnt = 0; cnt < docs.size(); cnt++) {
-					seq = (SequenceDocument) docs.get(cnt).getDocument();
+				for (int cnt = 0; cnt < DocumentUtilities
+						.getSelectedDocuments().size(); cnt++) {
+					seq = (SequenceDocument) DocumentUtilities
+							.getSelectedDocuments().get(cnt).getDocument();
 
 					fileExists = ReadGeneiousFieldsValues
 							.fileNameExistsInGeneiousDatabase(seq.getName());
@@ -98,7 +102,8 @@ public class LimsImportAB1Update extends DocumentAction {
 					if (fileExists && ReadGeneiousFieldsValues.recordcount >= 1) {
 						isVersionnumberOne = true;
 					} else {
-						isVersionnumberOne = docs.get(cnt).toString()
+						isVersionnumberOne = DocumentUtilities
+								.getSelectedDocuments().get(cnt).toString()
 								.contains("DocumentVersionCode_Seq");
 					}
 
@@ -108,7 +113,7 @@ public class LimsImportAB1Update extends DocumentAction {
 									"DocumentNoteUtilities-Extract ID (Seq)",
 									"ExtractIDCode_Seq");
 
-					System.out.println(extractValue);
+					// System.out.println(extractValue);
 
 					if (!isVersionnumberOne && !fileExists) {
 						versienummer = 1;
@@ -116,7 +121,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 					if (fileExists) {
 
-						if (!docs.get(cnt).toString().contains("ab1")) {
+						if (!DocumentUtilities.getSelectedDocuments().get(cnt)
+								.toString().contains("ab1")) {
 							try {
 								file = new File(
 										fcd.loadFastaFile(seq.getName()));
@@ -126,7 +132,7 @@ public class LimsImportAB1Update extends DocumentAction {
 							// }
 							//
 							// if (file.getName() != "" && fastaFileExists) {
-							extractAb1FastaFileName = null;
+							extractAb1FastaFileName = "";
 							extractAb1FastaFileName = file.getName();
 
 							fastaFileExists = ReadGeneiousFieldsValues
@@ -150,10 +156,12 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ seq.getName());
 						msgList.add(seq.getName());
 
-						documentName = (String) docs.get(cnt).getFieldValue(
-								"cache_name");
+						documentName = (String) DocumentUtilities
+								.getSelectedDocuments().get(cnt)
+								.getFieldValue("cache_name");
 
-						recordDocumentName = docs.get(cnt).getName();
+						recordDocumentName = DocumentUtilities
+								.getSelectedDocuments().get(cnt).getName();
 
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
@@ -162,9 +170,9 @@ public class LimsImportAB1Update extends DocumentAction {
 								versienummer++;
 							}
 
-						} else {
-							limsAB1Fields.setFieldValuesFromAB1FileName(file
-									.getName());
+						} else if (extractAb1FastaFileName != null) {
+							limsAB1Fields
+									.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
 							if (fastaFileExists && !extractValue) {
 								versienummer++;
 							}
@@ -236,7 +244,8 @@ public class LimsImportAB1Update extends DocumentAction {
 								"ConsensusSeqPassCode_Seq", "Pass (Seq)",
 								"Pass (Seq)", null, cnt);
 
-						limsFrameProgress.showProgress(docs.get(cnt).getName());
+						limsFrameProgress.showProgress(DocumentUtilities
+								.getSelectedDocuments().get(cnt).getName());
 					}
 
 					logger.info("Done with adding notes to the document");
@@ -250,7 +259,8 @@ public class LimsImportAB1Update extends DocumentAction {
 				}
 			}
 
-			logger.info("Total of document(s) updated: " + docs.size());
+			logger.info("Total of document(s) updated: "
+					+ DocumentUtilities.getSelectedDocuments().size());
 			logger.info("------------------------- E N D--------------------------------------");
 			logger.info("Done with extracting Ab1 file name. ");
 			EventQueue.invokeLater(new Runnable() {

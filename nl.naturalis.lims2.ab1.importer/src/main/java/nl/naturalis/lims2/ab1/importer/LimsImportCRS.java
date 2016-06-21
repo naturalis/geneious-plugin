@@ -333,8 +333,8 @@ public class LimsImportCRS extends DocumentAction {
 
 								} // end IF
 								match = false;
-							}
-						}
+							} // end For Selected documents+
+						} // end if registration contain only numbers
 
 						if (!verwerkList.contains(registrationNumber) && !match) {
 							recordCount++;

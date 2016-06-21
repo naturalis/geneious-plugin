@@ -445,6 +445,17 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			e.printStackTrace();
 		}
 
+		/*
+		 * Lims-190:Sample import maak of update extra veld veldnaam -
+		 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
+		 * RegistrationNumberCode_TaxonName2Code_Samples
+		 */
+		limsNotes.setNoteToAB1FileName(documents,
+				"RegistrationNumberCode_TaxonName2Code_Samples",
+				"Registr-nmbr_[Scientific name] (Samples)",
+				"Registr-nmbr_[Scientific name] (Samples)",
+				limsExcelFields.getRegNumberScientificName(), cnt);
+
 	}
 
 	@Override
@@ -597,6 +608,15 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						limsExcelFields.setRegistrationNumber(record[4]);
 						limsExcelFields.setTaxonNaam(record[5]);
 
+						String regScientificname = "";
+						if (record[4].length() > 0 && record[5].length() > 0) {
+							regScientificname = record[4] + " " + record[5];
+						} else {
+							regScientificname = record[4];
+						}
+						limsExcelFields
+								.setRegNumberScientificName(regScientificname);
+
 						logger.info("Extract-ID: "
 								+ limsExcelFields.getExtractID());
 						logger.info("Project plaatnummer: "
@@ -611,6 +631,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								+ limsExcelFields.getPlaatPositie());
 						logger.info("Sample method: "
 								+ limsExcelFields.getSubSample());
+						logger.info("Registr-nmbr_[Scientific name] (Samples): "
+								+ limsExcelFields.getRegNumberScientificName());
 
 						limsExcelFields.setVersieNummer(version);
 

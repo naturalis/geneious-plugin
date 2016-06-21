@@ -320,6 +320,18 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							"Extraction method (Samples)",
 							ReadGeneiousFieldsValues.extractionMethodSamples);
 
+					/**
+					 * set note for
+					 * RegistrationNumberCode_TaxonName2Code_Samples
+					 */
+					limsNotes
+							.setImportNotes(
+									document,
+									"RegistrationNumberCode_TaxonName2Code_Samples",
+									"Registr-nmbr_[Scientific name] (Samples)",
+									"Registr-nmbr_[Scientific name] (Samples)",
+									ReadGeneiousFieldsValues.registrationScientificName);
+
 					if (ab1fileExists) {
 						versienummer++;
 					} else if (fastaFileExists) {

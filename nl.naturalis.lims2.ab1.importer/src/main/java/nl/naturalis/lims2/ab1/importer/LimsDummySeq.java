@@ -101,10 +101,28 @@ public class LimsDummySeq {
 			e.printStackTrace();
 		}
 
+		/*
+		 * Lims-190:Sample import maak of update extra veld veldnaam -
+		 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
+		 * RegistrationNumberCode_TaxonName2Code_Samples
+		 */
+
+		String regScientificname = "";
+		if (registrationNumber.length() > 0 && taxonName.length() > 0) {
+			regScientificname = registrationNumber + " " + taxonName;
+		} else {
+			regScientificname = registrationNumber;
+		}
+
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"RegistrationNumberCode_TaxonName2Code_Samples",
+				"Registr-nmbr_[Scientific name] (Samples)",
+				"Registr-nmbr_[Scientific name] (Samples)",
+				regScientificname.trim());
+
 		logger.info("New Dummy: " + filename + " file added.");
 		DocumentUtilities.addGeneratedDocuments(sequenceList, false);
 	}
-
 	/*
 	 * public List<AnnotatedPluginDocument> performOperation(
 	 * AnnotatedPluginDocument[] docs, ProgressListener progress, Options
