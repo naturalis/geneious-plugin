@@ -58,8 +58,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsImportAB1Update(),
 				new LimsReadDataFromSamples(), new LimsReadDataFromBold(),
-				new LimsCRSImporter(), new LimsImportCRS(),
-				new LimsImportSamples() };
+				new LimsCRSImporter(), new LimsImportCRS()
+		/* new LimsImportSamples() */};
 	}
 
 	@Override

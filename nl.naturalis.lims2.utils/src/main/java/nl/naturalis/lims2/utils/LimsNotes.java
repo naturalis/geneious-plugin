@@ -387,4 +387,74 @@ public class LimsNotes {
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
 	}
+
+	/*
+	 * public void setAB1Notes(AnnotatedPluginDocument annotatedPluginDocuments,
+	 * String fieldCode, String textNoteField, String noteTypeCode, String
+	 * fieldValue) {
+	 * 
+	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+	 *//** "ExtractPlaatNummerCode" */
+	/*
+	 * this.fieldCode = fieldCode; Parameter example noteTypeCode =
+	 * "Extract-Plaatnummer" this.description = "Naturalis AB1 file " +
+	 * noteTypeCode + " note";
+	 *//**
+	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
+	 * fieldcode
+	 */
+	/*
+	 * listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
+	 * this.description, this.fieldCode, Collections.<Constraint> emptyList(),
+	 * false));
+	 *//** Check if note type exists */
+	/*
+		*//** Parameter noteTypeCode get value "" */
+	/*
+	 * this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
+	 * DocumentNoteType documentNoteType = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCode);
+	 *//** Extract-ID note */
+	/*
+	 * if (documentNoteType == null) { documentNoteType =
+	 * DocumentNoteUtilities.createNewNoteType( noteTypeCode, this.noteTypeCode,
+	 * this.description, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteType);
+	 * logger.info("NoteType " + noteTypeCode + " created succesful"); }
+	 * 
+	 * if (documentNoteType.getName().equals("Extraction method (Samples)") ||
+	 * documentNoteType.getName().equals( "Extract plate ID (Samples)") ||
+	 * documentNoteType.getName().equals("Region (CRS)") ||
+	 * documentNoteType.getName().equals("Lat (CRS)") ||
+	 * documentNoteType.getName().equals("Long (CRS)") ||
+	 * documentNoteType.getName().equals("Altitude (CRS)") ||
+	 * documentNoteType.getName().equals("Phylum (CRS)") ||
+	 * documentNoteType.getName().equals("Class (CRS)") ||
+	 * documentNoteType.getName().equals("Family (CRS)") ||
+	 * documentNoteType.getName().equals("Subfamily (CRS)") ||
+	 * documentNoteType.getName().equals("Genus (CRS)") ||
+	 * documentNoteType.getName().equals("BOLD proj-ID (Bold)") ||
+	 * documentNoteType.getName().equals("Field ID (Bold)") ||
+	 * documentNoteType.getName().equals("BOLD BIN (Bold)") ||
+	 * documentNoteType.getName() .equals("Nucleotide length (Bold)") ||
+	 * documentNoteType.getName().equals("GenBank ID (Bold)")) {
+	 * documentNoteType.setDefaultVisibleInTable(false); }
+	 * 
+	 * Create note for Extract-ID
+	 * 
+	 * DocumentNote documentNote = documentNoteType.createDocumentNote();
+	 * documentNote.setFieldValue(this.fieldCode, fieldValue);
+	 * 
+	 * AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes)
+	 * annotatedPluginDocuments .getDocumentNotes(true);
+	 * 
+	 * Set note documentNotes.setNote(documentNote); Save the selected sequence
+	 * document documentNotes.saveNotes();
+	 * 
+	 * logger.info("Note value " + noteTypeCode + ": " + fieldValue +
+	 * " added succesful"); // geneiousPlugin.getDocumentTypes();
+	 * listNotes.clear();
+	 * 
+	 * }
+	 */
 }

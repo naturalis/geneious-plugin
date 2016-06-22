@@ -124,6 +124,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					"Samples", JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
 			if (n == 0) {
+
 				if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					EventQueue.invokeLater(new Runnable() {
 
@@ -168,6 +169,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					if (fileSelected == null) {
 						return;
 					}
+					logger.info("CSV file: " + fileSelected);
+					/** Start reading data from the file selected */
+					logger.info("-------------------------- S T A R T --------------------------");
+					logger.info("Start Reading data from a samples file.");
 
 					msgUitvalList.add("Filename: " + fileSelected + "\n");
 
@@ -253,7 +258,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						if (sampleTotaalRecords == 0) {
 							try {
 								csvReader = new CSVReader(new FileReader(
-										fileSelected), '\t', '\'', 0);
+										fileSelected), '\t', '\'', 1);
 								sampleTotaalRecords = csvReader.readAll()
 										.size();
 							} catch (FileNotFoundException e) {
@@ -276,11 +281,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								e.printStackTrace();
 							}
 						}
-
 						importCounter = msgList.size();
 
 						result = "";
-
 					}
 
 					logger.info("--------------------------------------------------------");
@@ -379,9 +382,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					});
 				}
 			} else if (n == 1) {
-				limsFrameProgress.createProgressBar();
+
 				fileSelected = fcd.loadSelectedFile();
-				setExtractIDFromSamplesSheet(fileSelected, extractIDfileName);
+				limsFrameProgress.createProgressBar();
+				setExtractIDMatchSamplesSheetRecords(fileSelected, documents);
 				limsFrameProgress.hideFrame();
 			} else if (n == 2) {
 				return;
@@ -398,7 +402,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				"Registr-nmbr (Samples)",
 				limsExcelFields.getRegistrationNumber(), cnt);
 
-		/** set note for Taxonname */
+		/** set note for Taxonomy Name */
 		limsNotes.setNoteToAB1FileName(documents, "TaxonName2Code_Samples",
 				"[Scientific name] (Samples)", "[Scientific name] (Samples)",
 				limsExcelFields.getTaxonNaam(), cnt);
@@ -455,7 +459,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				"Registr-nmbr_[Scientific name] (Samples)",
 				"Registr-nmbr_[Scientific name] (Samples)",
 				limsExcelFields.getRegNumberScientificName(), cnt);
-
 	}
 
 	@Override
@@ -503,10 +506,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				csvReader.readNext();
 
 				try {
+
 					while ((record = csvReader.readNext()) != null) {
 						if (record.length == 0) {
 							continue;
 						}
+
+						long startBeginTime = System.nanoTime();
 
 						if (record[3].trim() != null) {
 							ID = "e" + record[3];
@@ -520,12 +526,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						String dummyFile = geneiousFieldsValues
 								.getFastaIDForSamples_GeneiousDB(ID);
 
-						if (dummyFile.trim() != "") {
+						if (dummyFile.length() > 0) {
 							dummyFile = getExtractIDFromAB1FileName(dummyFile);
 						}
 
 						if (!dummyFile.equals(ID)) {
-							limsFrameProgress.showProgress(ID);
+							limsFrameProgress
+									.showProgress("Creating dummy document: "
+											+ ID);
 
 							if (ID.equals("e")
 									&& LimsImporterUtil.extractNumber(ID)
@@ -538,6 +546,14 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								dummyRecordsVerwerkt++;
 							}
 						}
+						long endTime = System.nanoTime();
+						long elapsedTime = endTime - startBeginTime;
+						logger.info("Took: "
+								+ (TimeUnit.SECONDS.convert(elapsedTime,
+										TimeUnit.NANOSECONDS)) + " second(s)");
+						elapsedTime = 0;
+						logger.info("-----------------");
+
 					} // end While
 
 					if (dummyRecordsVerwerkt == 0) {
@@ -556,19 +572,149 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private void setExtractIDMatchSamplesSheetRecords(String fileName,
+			AnnotatedPluginDocument[] docsSamples) {
+
+		List<String> UitvalList = new ArrayList<String>();
+		List<String> exactVerwerkList = new ArrayList<String>();
+
+		try {
+			if (fileName != null) {
+				logger.info("Read samples file: " + fileName);
+				CSVReader csvReader = new CSVReader(new FileReader(fileName),
+						'\t', '\'', 0);
+				csvReader.readNext();
+
+				logSamplesFileName = limsImporterUtil.getLogPath()
+						+ "Sample-method-Uitvallijst-"
+						+ limsImporterUtil.getLogFilename();
+
+				limsLogger = new LimsLogger(logSamplesFileName);
+
+				try {
+					while ((record = csvReader.readNext()) != null) {
+						if (record.length == 0) {
+							continue;
+						}
+
+						if (record[3].trim() != null) {
+							ID = "e" + record[3];
+						}
+
+						if (record[2].length() > 0 && record[2].contains("-")) {
+							plateNumber = record[2].substring(0,
+									record[2].indexOf("-"));
+						}
+
+						/*
+						 * String dummyFile = geneiousFieldsValues
+						 * .getFastaIDForSamples_GeneiousDB(ID);
+						 * 
+						 * if (dummyFile.length() > 0) { dummyFile =
+						 * getExtractIDFromAB1FileName(dummyFile); }
+						 */
+
+						Boolean isMatched = false;
+						if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+							docs = DocumentUtilities.getSelectedDocuments();
+						}
+						for (int cnt = 0; cnt < docs.size(); cnt++) {
+
+							if ((docs.get(cnt).toString().contains("fas"))
+									|| (docs.get(cnt).toString()
+											.contains("ab1"))
+									|| (docs.get(cnt).toString()
+											.contains("dum"))) {
+								extractIDfileName = getExtractIDFromAB1FileName(docs
+										.get(cnt).getName());
+							}
+
+							if (extractIDfileName.equals(ID)) {
+								isMatched = true;
+								if (!exactVerwerkList.contains(ID)) {
+									exactVerwerkList.add(ID);
+								}
+								limsFrameProgress
+										.showProgress("Document match: " + ID);
+								setFieldsValues(record[0], record[1],
+										plateNumber, ID, record[4], record[5],
+										version);
+								logger.info("Start with adding notes to the document");
+								setSamplesNotes(docsSamples, cnt);
+								logger.info("Done with adding notes to the document");
+							}
+						} // For
+						if (!exactVerwerkList.contains(ID) && !isMatched) {
+							if (!UitvalList
+									.contains("No document(s) match found for Registrationnumber: "
+											+ ID)) {
+								UitvalList
+										.add("No document(s) match found for Registrationnumber: "
+												+ ID + "\n");
+							}
+						}
+						isMatched = false;
+					} // end While
+
+					if (exactVerwerkList.size() > 0) {
+						Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
+								+ " sample records have been read of which: "
+								+ "\n"
+								+ "[1] "
+								+ Integer.toString(exactVerwerkList.size())
+								+ " samples are imported and linked to "
+								+ Integer.toString(docs.size())
+								+ " existing documents (of "
+								+ docs.size()
+								+ " selected) \n"
+								+ "[2] "
+								+ Integer.toString(UitvalList.size())
+								+ " samples records are ignored.");
+						UitvalList.add("Total records not matched: "
+								+ Integer.toString(UitvalList.size()) + "\n");
+
+						limsLogger.logToFile(logSamplesFileName,
+								UitvalList.toString());
+						UitvalList.clear();
+						exactVerwerkList.clear();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				try {
+					csvReader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private int readTotalRecordsOfFileSelected(String fileName) {
+		int result = 0;
+		if (result == 0) {
+			try {
+				csvReader = new CSVReader(new FileReader(fileName), '\t', '\'',
+						1);
+				result = csvReader.readAll().size();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			csvReader = null;
+		}
+		return result;
 	}
 
 	private void readDataFromExcel(String fileName, String extractID,
 			AnnotatedPluginDocument[] documents, int cnt) throws IOException {
 
 		msgUitvalList.clear();
-
-		logger.info("CSV file: " + fileName);
-		/** Start reading data from the file selected */
-		logger.info("-------------------------- S T A R T --------------------------");
-		logger.info("Start Reading data from a samples file.");
-
 		try {
 			csvReader = new CSVReader(new FileReader(fileName), '\t', '\'', 0);
 			csvReader.readNext();
@@ -578,7 +724,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 			/** Show the progress bar */
 			limsFrameProgress.showProgress(documents[cnt].getName());
-
+			long startBeginTime = System.nanoTime();
 			try {
 				while ((record = csvReader.readNext()) != null) {
 					if (record.length == 0) {
@@ -597,50 +743,21 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						match = true;
 						sampleRecordCntVerwerkt++;
 
-						limsExcelFields.setProjectPlaatNummer(record[0]);
-						limsExcelFields.setPlaatPositie(record[1]);
-						limsExcelFields.setExtractPlaatNummer(plateNumber);
-						if (ID != null) {
-							limsExcelFields.setExtractID(ID);
-						} else {
-							limsExcelFields.setExtractID("");
-						}
-						limsExcelFields.setRegistrationNumber(record[4]);
-						limsExcelFields.setTaxonNaam(record[5]);
-
-						String regScientificname = "";
-						if (record[4].length() > 0 && record[5].length() > 0) {
-							regScientificname = record[4] + " " + record[5];
-						} else {
-							regScientificname = record[4];
-						}
-						limsExcelFields
-								.setRegNumberScientificName(regScientificname);
-
-						logger.info("Extract-ID: "
-								+ limsExcelFields.getExtractID());
-						logger.info("Project plaatnummer: "
-								+ limsExcelFields.getProjectPlaatNummer());
-						logger.info("Extract plaatnummer: "
-								+ limsExcelFields.getExtractPlaatNummer());
-						logger.info("Taxon naam: "
-								+ limsExcelFields.getTaxonNaam());
-						logger.info("Registrationnumber: "
-								+ limsExcelFields.getRegistrationNumber());
-						logger.info("Plaat positie: "
-								+ limsExcelFields.getPlaatPositie());
-						logger.info("Sample method: "
-								+ limsExcelFields.getSubSample());
-						logger.info("Registr-nmbr_[Scientific name] (Samples): "
-								+ limsExcelFields.getRegNumberScientificName());
-
-						limsExcelFields.setVersieNummer(version);
+						setFieldsValues(record[0], record[1], plateNumber, ID,
+								record[4], record[5], version);
 
 						logger.info("Start with adding notes to the document");
 						setSamplesNotes(documents, cnt);
 						logger.info("Done with adding notes to the document");
 
 						verwerkList.add(ID);
+						long endTime = System.nanoTime();
+						long elapsedTime = endTime - startBeginTime;
+						logger.info("Took: "
+								+ (TimeUnit.SECONDS.convert(elapsedTime,
+										TimeUnit.NANOSECONDS)) + " second(s)");
+						elapsedTime = 0;
+						logger.info("-----------------");
 
 					} // end IF
 
@@ -663,7 +780,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 					}
 					match = false;
-				}
+				} // While
 			} catch (IOException e) {
 				e.printStackTrace();
 			} // end While
@@ -687,7 +804,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private String getExtractIDFromAB1FileName(String fileName) {
 		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
 		String[] underscore = null;
-		logger.info("Document Filename: " + fileName);
+		// logger.info("Document Filename: " + fileName);
 		if (fileName.contains("_") && fileName.contains("ab1")) {
 			underscore = StringUtils.split(fileName, "_");
 		} else if (fileName.contains("_") && !fileName.contains(".")) {
@@ -714,5 +831,45 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			return true;
 		}
 		return false;
+	}
+
+	private void setFieldsValues(String projectPlaatNr, String plaatPositie,
+			String extractPlaatNr, String extractID, String registrationNumber,
+			String taxonNaam, int versieNummer) {
+
+		limsExcelFields.setProjectPlaatNummer(projectPlaatNr); // record[0]
+		limsExcelFields.setPlaatPositie(plaatPositie); // record[1]
+		limsExcelFields.setExtractPlaatNummer(extractPlaatNr);
+		if (extractID != null) {
+			limsExcelFields.setExtractID(extractID);
+		} else {
+			limsExcelFields.setExtractID("");
+		}
+		limsExcelFields.setRegistrationNumber(registrationNumber); // record[4]
+		limsExcelFields.setTaxonNaam(taxonNaam); // record[5]
+
+		String regScientificname = "";
+		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
+			regScientificname = registrationNumber + " " + taxonNaam;
+		} else {
+			regScientificname = registrationNumber;
+		}
+		limsExcelFields.setRegNumberScientificName(regScientificname);
+
+		logger.info("Extract-ID: " + limsExcelFields.getExtractID());
+		logger.info("Project plaatnummer: "
+				+ limsExcelFields.getProjectPlaatNummer());
+		logger.info("Extract plaatnummer: "
+				+ limsExcelFields.getExtractPlaatNummer());
+		logger.info("Taxon naam: " + limsExcelFields.getTaxonNaam());
+		logger.info("Registrationnumber: "
+				+ limsExcelFields.getRegistrationNumber());
+		logger.info("Plaat positie: " + limsExcelFields.getPlaatPositie());
+		logger.info("Sample method: " + limsExcelFields.getSubSample());
+		logger.info("Registr-nmbr_[Scientific name] (Samples): "
+				+ limsExcelFields.getRegNumberScientificName());
+
+		limsExcelFields.setVersieNummer(versieNummer);
+
 	}
 }
