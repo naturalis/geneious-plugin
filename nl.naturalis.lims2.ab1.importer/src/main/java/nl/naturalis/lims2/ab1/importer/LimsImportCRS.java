@@ -108,7 +108,7 @@ public class LimsImportCRS extends DocumentAction {
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		Boolean noMatched = false;
+		List<String> lackCRSList = new ArrayList<String>();
 
 		if (readGeneiousFieldsValues.resultDB != null) {
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
@@ -260,17 +260,22 @@ public class LimsImportCRS extends DocumentAction {
 										.toString()
 										.contains(
 												"RegistrationNumberCode_Samples");
+								if (!isRMNHNumber) {
+									if (!lackCRSList.contains(DocumentUtilities
+											.getSelectedDocuments().get(cnt)
+											.getName())) {
+										lackCRSList.add(DocumentUtilities
+												.getSelectedDocuments()
+												.get(cnt).getName());
+										logger.info("At least one selected document lacks Registr-nmbr (Sample)."
+												+ DocumentUtilities
+														.getSelectedDocuments()
+														.get(cnt).getName());
+									}
+								}
 
-								/*
-								 * if (!(regnumberDoc.length() > 0)) {
-								 * UitvalList .add(
-								 * "No document(s) match found for Registrationnumber: "
-								 * + registrationNumber + "\n"); }
-								 */
 								if (regnumberDoc.equals(registrationNumber)
 										&& isRMNHNumber) {
-
-									noMatched = true;
 
 									recordCount++;
 
@@ -346,7 +351,6 @@ public class LimsImportCRS extends DocumentAction {
 									elapsedTime = 0;
 
 								} // end IF
-
 								match = false;
 							} // end For Selected
 						} // end if registration contain only numbers
@@ -364,13 +368,6 @@ public class LimsImportCRS extends DocumentAction {
 									+ "  Recordcount: " + recordCount);
 						}
 
-						if (!isRMNHNumber) {
-							logger.info("At least one selected document lacks Registr-nmbr (Sample)."
-									+ registrationNumber);
-							noMatched = false;
-							// limsFrameProgress.hideFrame();
-							// return;
-						}
 					} // end While
 					bufReader.close();
 					in.close();
@@ -443,7 +440,7 @@ public class LimsImportCRS extends DocumentAction {
 									+ "\n"
 									+ "[3] "
 									+ "At least one or "
-									+ crsRecordUitval
+									+ lackCRSList.size()
 									+ " selected document lacks Registr-nmbr (Sample).");
 
 							logger.info(verwerkList.size()
@@ -455,11 +452,6 @@ public class LimsImportCRS extends DocumentAction {
 									+ Integer.toString(importCounter));
 							logger.info(Integer.toString(crsRecordUitval)
 									+ " records are ignored.");
-
-							/*
-							 * limsLogger.logToFile(logCrsFileName,
-							 * msgUitvalList.toString());
-							 */
 
 							limsLogger.logToFile(logCrsFileName,
 									UitvalList.toString());

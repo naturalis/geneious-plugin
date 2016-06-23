@@ -25,7 +25,7 @@ public class LimsFrameProgress {
 	public void createProgressBar() {
 		// JFrame frame = new JFrame("Reading records from files");
 		frame.getTitle();
-		frame.setSize(330, 85);
+		frame.setSize(350, 90);
 		frame.isAlwaysOnTop();
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setContentPane(it);

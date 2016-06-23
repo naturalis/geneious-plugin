@@ -75,7 +75,7 @@ public class LimsImportSamples extends DocumentAction {
 	private boolean isSampleDoc = false;
 
 	private int sampleRecordVerwerkt = 0;
-	private int version = 0;
+	private Object version = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private long startTime;
 	private long lEndTime = 0;
@@ -386,7 +386,7 @@ public class LimsImportSamples extends DocumentAction {
 												.setRegistrationNumber(record[4]);
 										limsExcelFields.setTaxonNaam(record[5]);
 										limsExcelFields
-												.setVersieNummer(version);
+												.setVersieNummer((String) version);
 
 										logger.info("Document Filename: "
 												+ documentFileName);

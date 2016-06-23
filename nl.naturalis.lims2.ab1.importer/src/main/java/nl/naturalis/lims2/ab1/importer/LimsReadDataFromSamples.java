@@ -55,6 +55,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> verwerkingListCnt = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
+	private List<String> lackYesList = new ArrayList<String>();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadDataFromSamples.class);
 	private String documentFileName = "";
@@ -72,14 +73,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private String plateNumber = "";
 	private boolean isSampleDoc = false;
 	private boolean isExtractIDSeqExists = false;
-	private int version = 0;
+	private Object version = 0;
 	private String recordDocumentName = "";
 	private String readAssembyContigFileName = "";
 	private int sampleRecordCntVerwerkt = 0;
 	private int sampleRecordUitval = 0;
 	private int sampleTotaalRecords = 0;
 	private CSVReader csvReader = null;
-	private int sampleExactRecordsVerwerkt = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private boolean match = false;
 	private String logSamplesFileName = "";
@@ -87,6 +87,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 	private long startTime;
 	long lEndTime = 0;
 	long difference = 0;
+	private int totalLack = 0;
 
 	public LimsReadDataFromSamples() {
 
@@ -145,22 +146,16 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					limsLogger = new LimsLogger(logSamplesFileName);
 
-					for (int cnt = 0; cnt < DocumentUtilities
-							.getSelectedDocuments().size(); cnt++) {
-						isExtractIDSeqExists = documents[cnt].toString()
-								.contains("MarkerCode_Seq");
-
-						/*
-						 * DocumentUtilities
-						 * .getSelectedDocuments().iterator().next()
-						 * .toString().contains("MarkerCode_Seq");
-						 */
-					}
-
-					if (!isExtractIDSeqExists) {
-						Dialogs.showMessageDialog("At least one selected document lacks Extract ID (Seq).");
-						return;
-					}
+					/*
+					 * for (int cnt = 0; cnt < DocumentUtilities
+					 * .getSelectedDocuments().size(); cnt++) {
+					 * isExtractIDSeqExists = documents[cnt].toString()
+					 * .contains("MarkerCode_Seq"); }
+					 * 
+					 * if (!isExtractIDSeqExists) { Dialogs.showMessageDialog(
+					 * "At least one selected document lacks Extract ID (Seq)."
+					 * ); return; }
+					 */
 
 					logger.info("Start updating selected document(s).");
 					fileSelected = fcd.loadSelectedFile();
@@ -198,13 +193,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 							if (!docs.toString().contains("consensus sequence")
 									|| !docs.toString().contains("Contig")) {
-								version = Integer
-										.parseInt((String) geneiousFieldsValues
-												.getVersionValueFromAnnotatedPluginDocument(
-														documents,
-														"DocumentNoteUtilities-Document version",
-														"DocumentVersionCode_Seq",
-														cnt));
+								version = geneiousFieldsValues
+										.getVersionValueFromAnnotatedPluginDocument(
+												documents,
+												"DocumentNoteUtilities-Document version",
+												"DocumentVersionCode_Seq", cnt);
 							}
 						}
 
@@ -249,8 +242,6 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							extractIDfileName = docs.get(cnt).getName();
 						}
 
-						msgList.add(extractIDfileName);
-
 						isSampleDoc = DocumentUtilities.getSelectedDocuments()
 								.iterator().next().toString()
 								.contains("ExtractIDCode_Seq");
@@ -280,14 +271,36 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 								e.printStackTrace();
 							}
+						} else {
+							limsFrameProgress
+									.showProgress("At least one selected document lacks Extract ID (Seq)."
+											+ DocumentUtilities
+													.getSelectedDocuments()
+													.get(cnt).getName());
+							logger.info("At least one selected document lacks Extract ID (Seq)."
+									+ DocumentUtilities.getSelectedDocuments()
+											.get(cnt).getName());
+							if (!lackYesList.contains(DocumentUtilities
+									.getSelectedDocuments().get(cnt).getName())) {
+								logger.info("At least one selected document lacks Extract ID (Seq)."
+										+ DocumentUtilities
+												.getSelectedDocuments()
+												.get(cnt).getName());
+								lackYesList.add(DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getName());
+							}
 						}
-						importCounter = msgList.size();
+
+						importCounter = DocumentUtilities
+								.getSelectedDocuments().size();
 
 						result = "";
 					}
 
 					logger.info("--------------------------------------------------------");
-					logger.info("Total of document(s) updated: " + docs.size());
+					logger.info("Total of document(s) updated: "
+							+ verwerkList.size());
 					limsFrameProgress.hideFrame();
 
 					/* Set for creating dummy files */
@@ -326,14 +339,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 						@Override
 						public void run() {
-							int totalResult = 0;
-							sampleRecordUitval = msgUitvalList.size() - 1;
-							totalResult = (sampleTotaalRecords - (msgUitvalList
-									.size() - 1));
-							if (totalResult != 0) {
-								sampleExactRecordsVerwerkt = totalResult;
+
+							if (isExtractIDSeqExists) {
+								sampleRecordUitval = msgUitvalList.size() - 1;
 							} else {
-								sampleExactRecordsVerwerkt = 0;
+								sampleRecordUitval = msgUitvalList.size() - 2;
 							}
 
 							Dialogs.showMessageDialog(Integer
@@ -341,13 +351,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 									+ " sample records have been read of which: "
 									+ "\n"
 									+ "[1] "
-									+ Integer
-											.toString(sampleExactRecordsVerwerkt)
+									+ Integer.toString(verwerkList.size())
 									+ " samples are imported and linked to "
 									+ Integer.toString(sampleRecordCntVerwerkt)
 									+ " existing documents (of "
 									+ importCounter
-									+ " selected) \n"
+									+ " selected)"
+									+ "\n"
 									+ "[2] "
 									+ Integer.toString(dummyRecordsVerwerkt)
 									+ " sample are imported as dummy"
@@ -362,7 +372,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 									+ "\n"
 									+ "[3] "
 									+ Integer.toString(sampleRecordUitval)
-									+ " sample records are ignored.");
+									+ " sample records are ignored."
+									+ "\n"
+									+ "\n"
+									+ "[4] "
+									+ "At least one or "
+									+ Integer.toString(lackYesList.size())
+									+ " selected document lacks Extract ID (Seq).");
 
 							logger.info("Sample-method: Total imported document(s): "
 									+ msgList.toString());
@@ -374,10 +390,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							msgUitvalList.clear();
 							verwerkingListCnt.clear();
 							verwerkList.clear();
-							sampleExactRecordsVerwerkt = 0;
 							sampleRecordUitval = 0;
 							sampleRecordCntVerwerkt = 0;
 							dummyRecordsVerwerkt = 0;
+							lackYesList.clear();
 						}
 					});
 				}
@@ -545,6 +561,9 @@ public class LimsReadDataFromSamples extends DocumentAction {
 										record[4], record[1]);
 								dummyRecordsVerwerkt++;
 							}
+						} else {
+							limsFrameProgress.showProgress("Dummy document: "
+									+ ID + " already exists.");
 						}
 						long endTime = System.nanoTime();
 						long elapsedTime = endTime - startBeginTime;
@@ -556,10 +575,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					} // end While
 
-					if (dummyRecordsVerwerkt == 0) {
-						Dialogs.showMessageDialog("[3] " + dummyRecordsVerwerkt
-								+ "(zero). dummy samples are ignored.");
-					}
+					/*
+					 * if (dummyRecordsVerwerkt == 0) {
+					 * Dialogs.showMessageDialog("[3] " + dummyRecordsVerwerkt +
+					 * "(zero). dummy samples are ignored."); }
+					 */
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -574,11 +594,13 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		}
 	}
 
+	/* Uitvoeren "NO" keuze */
 	private void setExtractIDMatchSamplesSheetRecords(String fileName,
 			AnnotatedPluginDocument[] docsSamples) {
 
 		List<String> UitvalList = new ArrayList<String>();
 		List<String> exactVerwerkList = new ArrayList<String>();
+		List<String> lackList = new ArrayList<String>();
 
 		try {
 			if (fileName != null) {
@@ -631,7 +653,26 @@ public class LimsReadDataFromSamples extends DocumentAction {
 										.get(cnt).getName());
 							}
 
-							if (extractIDfileName.equals(ID)) {
+							isExtractIDSeqExists = docs.get(cnt).toString()
+									.contains("MarkerCode_Seq");
+
+							if (!isExtractIDSeqExists) {
+								if (!lackList.contains(DocumentUtilities
+										.getSelectedDocuments().get(cnt)
+										.getName())) {
+									limsFrameProgress
+											.showProgress("At least one selected document lacks Extract ID (Seq)."
+													+ "\n"
+													+ docs.get(cnt).getName());
+									logger.info("At least one selected document lacks Extract ID (Seq)."
+											+ docs.get(cnt).getName());
+									lackList.add(docs.get(cnt).getName());
+								}
+
+							}
+
+							if (extractIDfileName.equals(ID)
+									&& isExtractIDSeqExists) {
 								isMatched = true;
 								if (!exactVerwerkList.contains(ID)) {
 									exactVerwerkList.add(ID);
@@ -658,20 +699,36 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						isMatched = false;
 					} // end While
 
-					if (exactVerwerkList.size() > 0) {
+					if (exactVerwerkList.size() > 0 || !isExtractIDSeqExists) {
+						/*
+						 * int exactLack = 0; if (exactVerwerkList.size() > 0) {
+						 * exactLack = docs.size() - exactVerwerkList.size(); }
+						 * else { exactLack = lackList.size(); }
+						 */
+
 						Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
 								+ " sample records have been read of which: "
+								+ "\n"
 								+ "\n"
 								+ "[1] "
 								+ Integer.toString(exactVerwerkList.size())
 								+ " samples are imported and linked to "
-								+ Integer.toString(docs.size())
+								+ Integer.toString(exactVerwerkList.size())
 								+ " existing documents (of "
 								+ docs.size()
-								+ " selected) \n"
+								+ " selected)"
+								+ "\n"
+								+ "\n"
 								+ "[2] "
 								+ Integer.toString(UitvalList.size())
-								+ " samples records are ignored.");
+								+ " samples records are ignored."
+								+ "\n"
+								+ "\n"
+								+ "[3] "
+								+ "At least one or "
+								+ Integer.toString(lackList.size())
+								+ " selected document lacks Extract ID (Seq).");
+
 						UitvalList.add("Total records not matched: "
 								+ Integer.toString(UitvalList.size()) + "\n");
 
@@ -679,6 +736,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								UitvalList.toString());
 						UitvalList.clear();
 						exactVerwerkList.clear();
+						lackList.clear();
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -719,11 +777,10 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			csvReader = new CSVReader(new FileReader(fileName), '\t', '\'', 0);
 			csvReader.readNext();
 
-			msgUitvalList.add("-----------------------------------------------"
-					+ "\n");
-
 			/** Show the progress bar */
+
 			limsFrameProgress.showProgress(documents[cnt].getName());
+
 			long startBeginTime = System.nanoTime();
 			try {
 				while ((record = csvReader.readNext()) != null) {
@@ -738,19 +795,26 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								record[2].indexOf("-"));
 					}
 
-					if (ID.equals(extractID)) {
+					isExtractIDSeqExists = documents[cnt].toString().contains(
+							"MarkerCode_Seq");
+
+					if (ID.equals(extractID) && isExtractIDSeqExists) {
 
 						match = true;
 						sampleRecordCntVerwerkt++;
 
+						msgList.add(extractID);
+
 						setFieldsValues(record[0], record[1], plateNumber, ID,
-								record[4], record[5], version);
+								record[4], record[5], (String) version);
 
 						logger.info("Start with adding notes to the document");
 						setSamplesNotes(documents, cnt);
 						logger.info("Done with adding notes to the document");
 
-						verwerkList.add(ID);
+						if (!verwerkList.contains(ID)) {
+							verwerkList.add(ID);
+						}
 						long endTime = System.nanoTime();
 						long elapsedTime = endTime - startBeginTime;
 						logger.info("Took: "
@@ -771,9 +835,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						limsExcelFields.setRegistrationNumber("");
 						limsExcelFields.setTaxonNaam("");
 
-						if (!msgUitvalList
-								.contains("No document(s) match found for Registrationnumber: "
-										+ record[3])) {
+						if (!msgUitvalList.contains(record[3])) {
 							msgUitvalList
 									.add("No document(s) match found for Registrationnumber: "
 											+ record[3] + "\n");
@@ -781,6 +843,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 					}
 					match = false;
 				} // While
+				totalLack = lackYesList.size();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} // end While
@@ -835,7 +898,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 	private void setFieldsValues(String projectPlaatNr, String plaatPositie,
 			String extractPlaatNr, String extractID, String registrationNumber,
-			String taxonNaam, int versieNummer) {
+			String taxonNaam, Object versieNummer) {
 
 		limsExcelFields.setProjectPlaatNummer(projectPlaatNr); // record[0]
 		limsExcelFields.setPlaatPositie(plaatPositie); // record[1]

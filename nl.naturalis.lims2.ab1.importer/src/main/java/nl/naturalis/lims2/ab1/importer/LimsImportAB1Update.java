@@ -89,7 +89,6 @@ public class LimsImportAB1Update extends DocumentAction {
 				// //docs.iterator().next();
 
 				versienummer = 0;
-				// ReadGeneiousFieldsValues.recordcount = 0;
 
 				for (int cnt = 0; cnt < DocumentUtilities
 						.getSelectedDocuments().size(); cnt++) {
@@ -113,27 +112,23 @@ public class LimsImportAB1Update extends DocumentAction {
 									"DocumentNoteUtilities-Extract ID (Seq)",
 									"ExtractIDCode_Seq");
 
-					// System.out.println(extractValue);
-
 					if (!isVersionnumberOne && !fileExists) {
 						versienummer = 1;
 					}
 
 					if (fileExists) {
-
-						if (!DocumentUtilities.getSelectedDocuments().get(cnt)
-								.toString().contains("ab1")) {
+						String docFileName = seq.getName();
+						if (!(docFileName.toString().contains("ab1") || docFileName
+								.toString().contains("dum"))) {
 							try {
 								file = new File(
 										fcd.loadFastaFile(seq.getName()));
+
+								extractAb1FastaFileName = "";
+								extractAb1FastaFileName = file.getName();
 							} catch (FileNotFoundException e1) {
 								e1.printStackTrace();
 							}
-							// }
-							//
-							// if (file.getName() != "" && fastaFileExists) {
-							extractAb1FastaFileName = "";
-							extractAb1FastaFileName = file.getName();
 
 							fastaFileExists = ReadGeneiousFieldsValues
 									.checkOfFastaOrAB1Exists(
@@ -151,7 +146,8 @@ public class LimsImportAB1Update extends DocumentAction {
 						}
 					}
 
-					if (seq.getName() != null && seq.getName().contains("_")) {
+					if (seq.getName() != null
+							&& seq.getName().toString().contains("_")) {
 						logger.info("Start extracting value from file: "
 								+ seq.getName());
 						msgList.add(seq.getName());
@@ -218,13 +214,7 @@ public class LimsImportAB1Update extends DocumentAction {
 									"Document version", "Document version",
 									Integer.toString(versienummer), cnt);
 						}
-						// else {
-						// limsNotes.setNoteToAB1FileName(
-						// annotatedPluginDocuments,
-						// "DocumentVersionCode_Seq",
-						// "Document version", "Document version",
-						// Integer.toString(versienummer), cnt);
-						// }
+
 						/* set note for SequencingStaffCode_FixedValue_Seq */
 						try {
 							limsNotes.setNoteToAB1FileName(
@@ -246,9 +236,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						limsFrameProgress.showProgress(DocumentUtilities
 								.getSelectedDocuments().get(cnt).getName());
+						logger.info("Done with adding notes to the document");
 					}
-
-					logger.info("Done with adding notes to the document");
 
 				}
 			} catch (DocumentOperationException e) {
@@ -262,13 +251,19 @@ public class LimsImportAB1Update extends DocumentAction {
 			logger.info("Total of document(s) updated: "
 					+ DocumentUtilities.getSelectedDocuments().size());
 			logger.info("------------------------- E N D--------------------------------------");
-			logger.info("Done with extracting Ab1 file name. ");
+			if ((seq.getName().toString().contains("ab1") || seq.getName()
+					.toString().contains("dum"))) {
+				logger.info("Done with extracting Ab1/Dummy file name. ");
+			} else {
+				logger.info("Done with extracting Fas file name. ");
+			}
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					String filename = "";
-					if (seq.getName().contains("ab1")) {
+					if ((seq.getName().toString().contains("ab1") || seq
+							.getName().toString().contains("dum"))) {
 						filename = "AB1";
 					} else {
 						filename = "FAS";

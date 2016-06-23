@@ -28,7 +28,7 @@ public class LimsSamplesFields implements PluginDocument,
 	private String taxonNaam;
 	private String registrationNumber;
 	private String subSample = "Sample method";
-	private int versieNummer = 1;
+	private Object versieNummer = "1";
 	private LimsSamplesDocumentFields samplesResults;
 	private String regNumberScientificName;
 
@@ -100,11 +100,11 @@ public class LimsSamplesFields implements PluginDocument,
 		this.subSample = subSample;
 	}
 
-	public int getVersieNummer() {
+	public Object getVersieNummer() {
 		return versieNummer;
 	}
 
-	public void setVersieNummer(int versieNummer) {
+	public void setVersieNummer(Object versieNummer) {
 		this.versieNummer = versieNummer;
 	}
 
