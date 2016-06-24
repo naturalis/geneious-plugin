@@ -4,6 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> verwerkingListCnt = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
+	private List<String> lackBoldList = new ArrayList<String>();
 	private AnnotatedPluginDocument[] documents = null;
 	private DefaultAlignmentDocument defaultAlignmentDocument = null;
 	private DefaultNucleotideSequence defaultNucleotideSequence = null;
@@ -75,6 +77,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 	private String[] record = null;
 	private LimsLogger limsLogger = null;
 	private boolean isRMNHNumber = false;
+	private int crsTotaalRecords = 0;
 
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
@@ -101,16 +104,18 @@ public class LimsReadDataFromBold extends DocumentAction {
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				msgList.clear();
 
-				for (int cnt = 0; cnt < DocumentUtilities
-						.getSelectedDocuments().size(); cnt++) {
-					isRMNHNumber = annotatedPluginDocuments[cnt].toString()
-							.contains("RegistrationNumberCode_Samples");
-				}
+				/*
+				 * for (int cnt = 0; cnt < DocumentUtilities
+				 * .getSelectedDocuments().size(); cnt++) { isRMNHNumber =
+				 * annotatedPluginDocuments[cnt].toString()
+				 * .contains("RegistrationNumberCode_Samples"); }
+				 */
 
-				if (!isRMNHNumber) {
-					Dialogs.showMessageDialog("At least one selected document lacks Registr-nmbr (Sample).");
-					return;
-				}
+				/*
+				 * if (!isRMNHNumber) { Dialogs.showMessageDialog(
+				 * "At least one selected document lacks Registr-nmbr (Sample)."
+				 * ); return; }
+				 */
 
 				boldFileSelected = fcd.loadSelectedFile();
 				if (boldFileSelected == null) {
@@ -229,12 +234,14 @@ public class LimsReadDataFromBold extends DocumentAction {
 						}
 
 						if (result) {
-							limsFrameProgress.createProgressBar();
+							limsFrameProgress.createProgressGUI();
+							logger.info("CSV Bold file: " + documentFileName);
+							logger.info("Start with adding notes to the document");
+
 							readDataFromBold(annotatedPluginDocuments[cnt],
 									boldFileSelected, cnt,
 									(String) documentFileName);
-							limsFrameProgress.showProgress(docs.get(cnt)
-									.getName());
+
 						}
 
 					}
@@ -248,13 +255,26 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 					@Override
 					public void run() {
-						Dialogs.showMessageDialog("Bold: "
-								+ Integer.toString(importTotal) + " out of "
+						Dialogs.showMessageDialog(Integer
+								.toString(crsTotaalRecords)
+								+ " records have been read of which: "
+								+ "\n"
+								+ "[1]"
+								+ "Bold: "
+								+ Integer.toString(importTotal)
+								+ " out of "
 								+ Integer.toString(docs.size())
-								+ " documents are imported." + "\n"
-								+ msgList.toString());
+								+ " documents are imported."
+								+ "\n"
+								// + "[2]"
+								// + msgList.toString()
+								+ "[2] "
+								+ "At least one or "
+								+ lackBoldList.size()
+								+ " selected document lacks Registr-nmbr (Sample).");
+
 						logger.info("Bold: Total imported document(s): "
-								+ msgList.toString());
+								+ msgList.size() + "\n");
 
 						limsLogger.logToFile(logBoldFileName,
 								msgUitvalList.toString());
@@ -294,8 +314,19 @@ public class LimsReadDataFromBold extends DocumentAction {
 			int cnt, String documentName) {
 
 		String[] headerCOI = null;
-		logger.info("CSV Bold file: " + fileName);
-		logger.info("Start with adding notes to the document");
+
+		if (crsTotaalRecords == 0) {
+			try {
+				CSVReader csvReadertot = new CSVReader(
+						new FileReader(fileName), '\t', '\'', 1);
+				crsTotaalRecords = csvReadertot.readAll().size();
+				csvReadertot.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
@@ -334,9 +365,26 @@ public class LimsReadDataFromBold extends DocumentAction {
 									"//document/notes/note/RegistrationNumberCode_Samples",
 									cacheName);
 
-					/** Match only on registration number */
-					if (record[2].equals(fieldValue)) {
+					isRMNHNumber = DocumentUtilities.getSelectedDocuments()
+							.get(cnt).toString()
+							.contains("RegistrationNumberCode_Samples");
 
+					if (!isRMNHNumber) {
+						if (!lackBoldList.contains(DocumentUtilities
+								.getSelectedDocuments().get(cnt).getName())) {
+							lackBoldList.add(DocumentUtilities
+									.getSelectedDocuments().get(cnt).getName());
+							logger.info("At least one selected document lacks Registr-nmbr (Sample)."
+									+ DocumentUtilities.getSelectedDocuments()
+											.get(cnt).getName());
+						}
+					}
+
+					/** Match only on registration number */
+					if (record[2].equals(fieldValue) && isRMNHNumber) {
+
+						limsFrameProgress.showProgress("Match: " + documentName
+								+ "\n");
 						String processID = record[1];
 						String boldURI = "";
 						if (processID != null) {
@@ -353,16 +401,26 @@ public class LimsReadDataFromBold extends DocumentAction {
 								record[9], record[0], record[3], record[4],
 								boldURI);
 						setNotesToBoldDocumentsRegistration(documents, cnt);
-
+					} else {
+						limsFrameProgress.showProgress("No match: "
+								+ documentName + "\n");
 					}
 
 					/** Match only on registration number and Marker */
 					if (record[2].equals(fieldValue)
-							&& headerCOI[6].equals("COI-5P Seq. Length")) {
+							&& headerCOI[6].equals("COI-5P Seq. Length")
+							&& isRMNHNumber) {
+
+						limsFrameProgress.showProgress("Match: " + documentName
+								+ "\n");
+
 						setNotesThatMatchRegistrationNumberAndMarker(record[6],
 								record[7], record[8]);
 						setNotesToBoldDocumentsRegistrationMarker(documents,
 								cnt);
+					} else {
+						limsFrameProgress.showProgress("No match: "
+								+ documentName + "\n");
 					}
 
 					cntVerwerkt++;
@@ -370,7 +428,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 					verwerkList.add(record[2]);
 
 					if (!verwerkList.contains(record[5])) {
-						msgUitvalList.add("Catalognumber: " + record[5] + "\n");
+						if (!msgUitvalList.contains(record[5])) {
+							msgUitvalList.add("Catalognumber: " + record[5]
+									+ "\n");
+						}
 					}
 
 					counter++;
@@ -463,6 +524,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 		}
 
 		logger.info("Done with adding notes to the document");
+		logger.info(" ");
 	}
 
 	/* Set value to Notes */

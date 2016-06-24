@@ -171,7 +171,7 @@ public class LimsImportSamples extends DocumentAction {
 					}
 
 					/* Create the progressbar */
-					limsFrameProgress.createProgressBar();
+					limsFrameProgress.createProgressGUI();
 
 					/** Start reading data from the file selected */
 					logger.info("-------------------------- S T A R T --------------------------");
@@ -338,7 +338,7 @@ public class LimsImportSamples extends DocumentAction {
 								}
 
 								/** Create progress bar */
-								limsFrameProgress.createProgressBar();
+								limsFrameProgress.createProgressGUI();
 
 								if (isExtractIDSeqExists) {
 
@@ -452,7 +452,7 @@ public class LimsImportSamples extends DocumentAction {
 
 						/* Set for creating dummy files */
 						if (isSampleDoc) {
-							limsFrameProgress.createProgressBar();
+							limsFrameProgress.createProgressGUI();
 							setExtractIDFromSamplesSheet(fileSelected,
 									extractIDfileName);
 							limsFrameProgress.hideFrame();
@@ -548,7 +548,7 @@ public class LimsImportSamples extends DocumentAction {
 					}
 				}
 			} else if (n == 1) {
-				limsFrameProgress.createProgressBar();
+				limsFrameProgress.createProgressGUI();
 				fileSelected = fcd.loadSelectedFile();
 				setExtractIDFromSamplesSheet(fileSelected, extractIDfileName);
 				limsFrameProgress.hideFrame();

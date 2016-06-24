@@ -147,7 +147,7 @@ public class LimsImportCRS extends DocumentAction {
 					return;
 				}
 
-				limsFrameProgress.createProgressBar();
+				limsFrameProgress.createProgressGUI();
 				logger.info("Start updating selected document(s) with CRS data.");
 				logger.info("-------------------------- S T A R T --------------------------");
 				logger.info("Start Reading data from a CRS file.");

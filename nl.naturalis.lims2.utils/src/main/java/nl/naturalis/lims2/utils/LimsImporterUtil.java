@@ -257,12 +257,8 @@ public class LimsImporterUtil {
 
 		return sb.toString();
 	}
-	// static boolean isNonPrintable(String s){
-	// for(int i=0; i<s.length(); ++i){
-	// char c = s.charAt(i);
-	// if ((c >= '/000') && (c >= '/037')) // fill in the ascii oct values
-	// return true;
-	// }
-	// return false
-	// }
+
+	public boolean isAlpha(String name) {
+		return name.matches("[a-zA-Z]+");
+	}
 }

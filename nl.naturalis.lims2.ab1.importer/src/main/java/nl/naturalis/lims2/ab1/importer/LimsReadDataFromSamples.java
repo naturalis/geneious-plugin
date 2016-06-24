@@ -261,7 +261,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						}
 
 						/** Create progress bar */
-						limsFrameProgress.createProgressBar();
+						limsFrameProgress.createProgressGUI();
 
 						if (isExtractIDSeqExists) {
 							try {
@@ -305,7 +305,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 					/* Set for creating dummy files */
 					if (isSampleDoc) {
-						limsFrameProgress.createProgressBar();
+						limsFrameProgress.createProgressGUI();
 						setExtractIDFromSamplesSheet(fileSelected,
 								extractIDfileName);
 						limsFrameProgress.hideFrame();
@@ -400,7 +400,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			} else if (n == 1) {
 
 				fileSelected = fcd.loadSelectedFile();
-				limsFrameProgress.createProgressBar();
+				limsFrameProgress.createProgressGUI();
 				setExtractIDMatchSamplesSheetRecords(fileSelected, documents);
 				limsFrameProgress.hideFrame();
 			} else if (n == 2) {
@@ -688,9 +688,8 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							}
 						} // For
 						if (!exactVerwerkList.contains(ID) && !isMatched) {
-							if (!UitvalList
-									.contains("No document(s) match found for Registrationnumber: "
-											+ ID)) {
+							if (!UitvalList.contains(ID)
+									&& !limsImporterUtil.isAlpha(ID)) {
 								UitvalList
 										.add("No document(s) match found for Registrationnumber: "
 												+ ID + "\n");
@@ -836,9 +835,11 @@ public class LimsReadDataFromSamples extends DocumentAction {
 						limsExcelFields.setTaxonNaam("");
 
 						if (!msgUitvalList.contains(record[3])) {
-							msgUitvalList
-									.add("No document(s) match found for Registrationnumber: "
-											+ record[3] + "\n");
+							if (record[3].length() == 1 && record[3].isEmpty()) {
+								msgUitvalList
+										.add("No document(s) match found for Registrationnumber: "
+												+ record[3] + "\n");
+							}
 						}
 					}
 					match = false;

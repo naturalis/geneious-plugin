@@ -132,7 +132,7 @@ public class LimsCRSImporter extends DocumentAction {
 					return;
 				}
 
-				limsFrameProgress.createProgressBar();
+				limsFrameProgress.createProgressGUI();
 
 				logger.info("Start updating selected document(s) with CRS data.");
 				logger.info("-------------------------- S T A R T --------------------------");
@@ -689,7 +689,7 @@ public class LimsCRSImporter extends DocumentAction {
 			BufferedReader bufReader = new BufferedReader(
 					new InputStreamReader(in));
 			while ((line = bufReader.readLine()) != null) {
-				if (line.length() == 0) {
+				if (line.length() == 1 && line.isEmpty()) {
 					continue;
 				}
 

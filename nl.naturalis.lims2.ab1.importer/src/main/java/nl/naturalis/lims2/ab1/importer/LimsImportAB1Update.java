@@ -80,7 +80,7 @@ public class LimsImportAB1Update extends DocumentAction {
 			/* Get Databasename */
 			ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
-			limsFrameProgress.createProgressBar();
+			limsFrameProgress.createProgressGUI();
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
 				docs = DocumentUtilities.getSelectedDocuments();
