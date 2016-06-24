@@ -314,7 +314,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 				msgUitvalList.add("Bold filename: " + documentFileName + "\n");
 
 				while ((record = csvReader.readNext()) != null) {
-					if (record.length == 0) {
+					if (record.length == 1 && record[0].isEmpty()) {
 						continue;
 					}
 

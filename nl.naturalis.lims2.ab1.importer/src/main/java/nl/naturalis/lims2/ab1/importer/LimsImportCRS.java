@@ -186,7 +186,7 @@ public class LimsImportCRS extends DocumentAction {
 					}
 
 					while ((line = bufReader.readLine()) != null) {
-						if (line.length() == 0) {
+						if (line.length() == 1 && line.isEmpty()) {
 							continue;
 						}
 

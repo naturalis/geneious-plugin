@@ -524,7 +524,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 				try {
 
 					while ((record = csvReader.readNext()) != null) {
-						if (record.length == 0) {
+						if (record.length == 1 && record[0].isEmpty()) {
 							continue;
 						}
 
@@ -617,7 +617,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 
 				try {
 					while ((record = csvReader.readNext()) != null) {
-						if (record.length == 0) {
+						if (record.length == 1 && record[0].isEmpty()) {
 							continue;
 						}
 
@@ -713,7 +713,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 								+ "[1] "
 								+ Integer.toString(exactVerwerkList.size())
 								+ " samples are imported and linked to "
-								+ Integer.toString(exactVerwerkList.size())
+								+ Integer.toString(docs.size())
 								+ " existing documents (of "
 								+ docs.size()
 								+ " selected)"
@@ -784,7 +784,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			long startBeginTime = System.nanoTime();
 			try {
 				while ((record = csvReader.readNext()) != null) {
-					if (record.length == 0) {
+					if (record.length == 1 && record[0].isEmpty()) {
 						continue;
 					}
 
