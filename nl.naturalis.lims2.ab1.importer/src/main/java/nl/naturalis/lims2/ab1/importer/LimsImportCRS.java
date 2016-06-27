@@ -73,6 +73,7 @@ public class LimsImportCRS extends DocumentAction {
 	private List<String> verwerkList = new ArrayList<String>();
 	private List<String> MatchList = new ArrayList<String>();
 	private List<String> msgList = new ArrayList<String>();
+	private List<String> lackCRSList = new ArrayList<String>();
 
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] documentsSelected) {
@@ -108,8 +109,6 @@ public class LimsImportCRS extends DocumentAction {
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		List<String> lackCRSList = new ArrayList<String>();
-
 		if (readGeneiousFieldsValues.resultDB != null) {
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
@@ -129,18 +128,6 @@ public class LimsImportCRS extends DocumentAction {
 						+ limsImporterUtil.getLogFilename();
 
 				limsLogger = new LimsLogger(logCrsFileName);
-
-				/*
-				 * for (int cnt = 0; cnt < DocumentUtilities
-				 * .getSelectedDocuments().size(); cnt++) { isRMNHNumber =
-				 * annotatedPluginDocuments[cnt].toString()
-				 * .contains("RegistrationNumberCode_Samples"); }
-				 */
-				/*
-				 * if (!isRMNHNumber) { Dialogs.showMessageDialog(
-				 * "At least one selected document lacks Registr-nmbr (Sample)."
-				 * ); return; }
-				 */
 
 				fileSelected = fcd.loadSelectedFile();
 				if (fileSelected == null) {
@@ -177,12 +164,12 @@ public class LimsImportCRS extends DocumentAction {
 							csvReader = new CSVReader(new FileReader(
 									fileSelected), '\t', '\'', 1);
 							crsTotaalRecords = csvReader.readAll().size();
+							csvReader.close();
 						} catch (FileNotFoundException e) {
 							e.printStackTrace();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
-						csvReader = null;
 					}
 
 					while ((line = bufReader.readLine()) != null) {
@@ -440,7 +427,7 @@ public class LimsImportCRS extends DocumentAction {
 									+ "\n"
 									+ "[3] "
 									+ "At least one or "
-									+ lackCRSList.size()
+									+ Integer.toString(lackCRSList.size())
 									+ " selected document lacks Registr-nmbr (Sample).");
 
 							logger.info(verwerkList.size()
