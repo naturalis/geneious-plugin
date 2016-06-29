@@ -396,26 +396,34 @@ public class LimsNotes {
 	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 	 *//** "ExtractPlaatNummerCode" */
 	/*
-	 * this.fieldCode = fieldCode; Parameter example noteTypeCode =
-	 * "Extract-Plaatnummer" this.description = "Naturalis AB1 file " +
-	 * noteTypeCode + " note";
+	 * 
+	 * this.fieldCode = fieldCode;
 	 *//**
+	 * Parameter example noteTypeCode = "Extract-Plaatnummer"
+	 * this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+	 */
+	/*
+		*//**
 	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 	 * fieldcode
 	 */
 	/*
+	 * 
 	 * listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
 	 * this.description, this.fieldCode, Collections.<Constraint> emptyList(),
 	 * false));
 	 *//** Check if note type exists */
 	/*
+
 		*//** Parameter noteTypeCode get value "" */
 	/*
+	 * 
 	 * this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
 	 * DocumentNoteType documentNoteType = DocumentNoteUtilities
 	 * .getNoteType(this.noteTypeCode);
 	 *//** Extract-ID note */
 	/*
+	 * 
 	 * if (documentNoteType == null) { documentNoteType =
 	 * DocumentNoteUtilities.createNewNoteType( noteTypeCode, this.noteTypeCode,
 	 * this.description, listNotes, false);
@@ -440,6 +448,7 @@ public class LimsNotes {
 	 * documentNoteType.getName().equals("GenBank ID (Bold)")) {
 	 * documentNoteType.setDefaultVisibleInTable(false); }
 	 * 
+	 * 
 	 * Create note for Extract-ID
 	 * 
 	 * DocumentNote documentNote = documentNoteType.createDocumentNote();
@@ -447,9 +456,12 @@ public class LimsNotes {
 	 * 
 	 * AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes)
 	 * annotatedPluginDocuments .getDocumentNotes(true);
-	 * 
-	 * Set note documentNotes.setNote(documentNote); Save the selected sequence
-	 * document documentNotes.saveNotes();
+	 *//**
+	 * Set note documentNotes.setNote(documentNote); Save the selected
+	 * sequence document
+	 */
+	/*
+	 * documentNotes.saveNotes();
 	 * 
 	 * logger.info("Note value " + noteTypeCode + ": " + fieldValue +
 	 * " added succesful"); // geneiousPlugin.getDocumentTypes();
