@@ -194,6 +194,7 @@ public class LimsImportCRS extends DocumentAction {
 
 					logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
+					lackCRSList.clear();
 					while ((line = bufReader.readLine()) != null) {
 						if (line.length() == 1 && line.isEmpty()) {
 							continue;
@@ -247,7 +248,8 @@ public class LimsImportCRS extends DocumentAction {
 										"RegistrationNumberCode_Samples");
 
 								if (!isRMNHNumber) {
-									if (!lackCRSList.contains(list.getName())) {
+									if (!lackCRSList.toString().contains(
+											list.getName())) {
 										lackCRSList.add(list.getName());
 										logger.info("At least one selected document lacks Registr-nmbr (Sample)."
 												+ list.getName());

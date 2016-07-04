@@ -276,7 +276,9 @@ public class LimsImportSamples extends DocumentAction {
 										.contains("dum")) {
 									documentFileName = list.getName();
 								} /* from a imported file */
-								else {
+								else if (!list.toString().contains(
+										"Reads Assembly Contig")) {
+									/* Contig don't have imported filename. */
 									documentFileName = (String) list
 											.getDocumentNotes(true)
 											.getNote("importedFrom")
@@ -446,8 +448,8 @@ public class LimsImportSamples extends DocumentAction {
 										+ Integer.toString(importCounter)
 										+ " selected documents: "
 										+ "\n"
-										+ msgList.toString()
-										+ "\n"
+										// + msgList.toString()
+										// + "\n"
 										+ "\n"
 										+ "[3] "
 										+ Integer.toString(sampleRecordUitval)
@@ -609,7 +611,7 @@ public class LimsImportSamples extends DocumentAction {
 
 						if (!dummyFile.equals(ID)) {
 							limsFrameProgress
-									.showProgress("Creating dummy id: " + ID);
+									.showProgress("Creating dummy file: " + ID);
 
 							if (ID.equals("e")
 									&& LimsImporterUtil.extractNumber(ID)
@@ -621,6 +623,10 @@ public class LimsImportSamples extends DocumentAction {
 										record[4], record[1]);
 								dummyRecordsVerwerkt++;
 							}
+						} else {
+							limsFrameProgress
+									.showProgress("Dummy file already exists in the DB: "
+											+ ID);
 						}
 					} // end While
 
