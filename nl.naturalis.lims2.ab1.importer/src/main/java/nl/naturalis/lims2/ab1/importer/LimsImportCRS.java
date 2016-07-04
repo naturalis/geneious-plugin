@@ -55,7 +55,6 @@ public class LimsImportCRS extends DocumentAction {
 	private boolean isRMNHNumber = false;
 	private String fileSelected = null;
 	private Object documentFileName = "";
-	private boolean match = false;
 	private String registrationNumber = "";
 	private int crsRecordVerwerkt = 0;
 	private int crsRecordUitval = 0;
@@ -65,7 +64,6 @@ public class LimsImportCRS extends DocumentAction {
 	private long lEndTime = 0;
 	private long difference = 0;
 	public int importCounter;
-	private int crsExactRecordsVerwerkt = 0;
 	private String logCrsFileName = "";
 	private Object fasDocument = "";
 	private LimsLogger limsLogger = null;
@@ -75,8 +73,6 @@ public class LimsImportCRS extends DocumentAction {
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> lackCRSList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
-
-	// List<AnnotatedPluginDocument> result;
 
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] documentsSelected) {
@@ -108,11 +104,16 @@ public class LimsImportCRS extends DocumentAction {
 	private void readDataFromCRSFrom_File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
-		/* Get database name */
+		long startBeginTime = 0;
+
+		/* Get the active database name */
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
+		/* if database exists then continue the process else abort. */
 		if (readGeneiousFieldsValues.resultDB != null) {
+
+			/* if no documents in Geneious has been selected show a message. */
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 
@@ -122,21 +123,30 @@ public class LimsImportCRS extends DocumentAction {
 						return;
 					}
 				});
-			}
-
+			} else /*
+					 * if documents has been selected continue the process to
+					 * import data
+					 */
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
+				/* get the path from the propertie file: lims-import.properties */
 				logCrsFileName = limsImporterUtil.getLogPath()
 						+ "CRS-Uitvallijst-"
 						+ limsImporterUtil.getLogFilename();
 
+				/* Create logfile */
 				limsLogger = new LimsLogger(logCrsFileName);
 
+				/*
+				 * Dialoogscherm voor het selecteren van een Bold file om in
+				 * kunnen te lezen.
+				 */
 				fileSelected = fcd.loadSelectedFile();
 				if (fileSelected == null) {
 					return;
 				}
 
+				/* Create Dialog windows for processing the file */
 				limsFrameProgress.createProgressGUI();
 				logger.info("Start updating selected document(s) with CRS data.");
 				logger.info("-------------------------- S T A R T --------------------------");
@@ -148,21 +158,27 @@ public class LimsImportCRS extends DocumentAction {
 						+ "\n");
 				UitvalList.add("Type action: Import CRS data " + "\n");
 
+				/*
+				 * Begintijd opstarten tijdens het proces van verwerken van de
+				 * import.
+				 */
 				startTime = new Date().getTime();
 
 				String line = "";
 				String cvsSplitBy = "\t";
 				int recordCount = 0;
 				try {
-
+					/* read the file in memory */
 					InputStream in = new FileInputStream(new File(fileSelected));
 					BufferedReader bufReader = new BufferedReader(
 							new InputStreamReader(in));
 
 					importCounter = DocumentUtilities.getSelectedDocuments()
 							.size();
+					/* add the selected document into the list. */
 					listDocuments = DocumentUtilities.getSelectedDocuments();
 
+					/* Opvragen aantal in te lezen records uit de Bold file. */
 					if (crsTotaalRecords == 0) {
 						try {
 							csvReader = new CSVReader(new FileReader(
@@ -178,49 +194,33 @@ public class LimsImportCRS extends DocumentAction {
 
 					logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
-					int teller = 0;
-
 					while ((line = bufReader.readLine()) != null) {
 						if (line.length() == 1 && line.isEmpty()) {
 							continue;
 						}
 
-						teller++;
-
-						long startBeginTime = System.nanoTime();
+						/* Splitting the data */
 						String[] row = line.split(cvsSplitBy);
 
+						/* get the registration number. */
 						registrationNumber = row[0];
 
+						/* if registration string contains number */
 						if (registrationNumber.matches(".*\\d+.*")
 								&& registrationNumber.length() > 0) {
 
-							// for (int cnt = 0; cnt < listDocuments.size();
-							// cnt++) {
 							int cnt = 0;
 							for (AnnotatedPluginDocument list : listDocuments) {
 
-								/*
-								 * System.out.println(list
-								 * .getFieldValue("cache_name"));
-								 */
-
-								/*
-								 * documentFileName =
-								 * annotatedPluginDocuments[cnt]
-								 * .getFieldValue("cache_name");
-								 */
-								documentFileName = list
-										.getFieldValue("cache_name");
+								documentFileName = list.getName();
 
 								if ((documentFileName.toString()
-										.contains("ab1")) || (list // annotatedPluginDocuments[cnt]
-										.toString().contains("fas")) && (!list // annotatedPluginDocuments[cnt]
-										.toString().contains("dum"))) {
-									fasDocument = readGeneiousFieldsValues
-											.readValueFromAnnotatedPluginDocument(
-													list, // annotatedPluginDocuments[cnt],
-													"importedFrom", "filename");
+										.contains("ab1"))
+										|| (list.toString().contains("fas"))
+										&& (!list.toString().contains("dum"))) {
+									fasDocument = list.getDocumentNotes(true)
+											.getNote("importedFrom")
+											.getFieldValue("filename");
 								}
 
 								/* Add sequence name for the dialog screen */
@@ -232,71 +232,20 @@ public class LimsImportCRS extends DocumentAction {
 								/* Check of the filename contain "FAS" extension */
 								if (fasDocument.toString().contains("fas")
 										&& fasDocument != null) {
-									documentFileName = list // annotatedPluginDocuments[cnt]
-											.getFieldValue("cache_name");
+									documentFileName = list.getName();
 								} else {
 									/* get AB1 filename */
-									if (!list // annotatedPluginDocuments[cnt]
-											.toString().contains(
-													"consensus sequence")
-											|| !list // annotatedPluginDocuments[cnt]
-											.toString().contains("Contig")) {
-										documentFileName = list // annotatedPluginDocuments[cnt]
-												.getName();
+									if (!list.toString().contains(
+											"consensus sequence")
+											|| !list.toString().contains(
+													"Contig")) {
+										documentFileName = list.getName();
 									}
 								}
 
-								String cacheNameCopy = "";
-								if (documentFileName.toString()
-										.contains("Copy")
-										|| documentFileName.toString()
-												.contains("kopie")) {
-									cacheNameCopy = "//document/hiddenFields/override_cache_name";
-								} else {
-									cacheNameCopy = "//document/hiddenFields/cache_name";
-								}
+								isRMNHNumber = list.toString().contains(
+										"RegistrationNumberCode_Samples");
 
-								/*
-								 * regnumberDoc = readGeneiousFieldsValues
-								 * .getRegistrationNumberFromTableAnnotatedDocument
-								 * ( documentFileName,
-								 * "//document/notes/note/RegistrationNumberCode_Samples"
-								 * , cacheNameCopy);
-								 */
-
-								isRMNHNumber = list
-										// annotatedPluginDocuments[cnt]
-										.toString()
-										.contains(
-												"RegistrationNumberCode_Samples");
-								/*
-								 * if (isRMNHNumber) {
-								 * 
-								 * Object result = (list .getDocumentNotes(true)
-								 * .getNote(
-								 * "DocumentNoteUtilities-Registr-nmbr (Samples)"
-								 * )
-								 * .getFieldValue("RegistrationNumberCode_Samples"
-								 * )); if (result.equals(registrationNumber)) {
-								 * System.out.println("HALLOOOOOOOOO");
-								 * System.out .println(list
-								 * .getDocumentNotes(true) .getNote(
-								 * "DocumentNoteUtilities-Registr-nmbr (Samples)"
-								 * ) .getFieldValue(
-								 * "RegistrationNumberCode_Samples")); } }
-								 */
-
-								/*
-								 * if (!isRMNHNumber) { if
-								 * (!lackCRSList.contains(DocumentUtilities
-								 * .getSelectedDocuments().get(cnt) .getName()))
-								 * { lackCRSList.add(DocumentUtilities
-								 * .getSelectedDocuments() .get(cnt).getName());
-								 * logger.info(
-								 * "At least one selected document lacks Registr-nmbr (Sample)."
-								 * + DocumentUtilities .getSelectedDocuments()
-								 * .get(cnt).getName()); } }
-								 */
 								if (!isRMNHNumber) {
 									if (!lackCRSList.contains(list.getName())) {
 										lackCRSList.add(list.getName());
@@ -314,6 +263,8 @@ public class LimsImportCRS extends DocumentAction {
 								if (resultRegNum.equals(registrationNumber)
 										&& isRMNHNumber) {
 
+									startBeginTime = System.nanoTime();
+
 									recordCount++;
 
 									limsFrameProgress.showProgress("Match : "
@@ -323,14 +274,11 @@ public class LimsImportCRS extends DocumentAction {
 									logger.info("Registration number matched: "
 											+ registrationNumber);
 
-									match = true;
 									crsRecordVerwerkt++;
 
 									clearFieldValues();
 
 									for (int i = 0, n = row.length; i < n; i++) {
-										// for (int i = 0; i < row.length; i++)
-										// {
 										LimsCRSFields
 												.setRegistratienummer(row[0]);
 										extractRankOrClassification(row[1],
@@ -390,19 +338,9 @@ public class LimsImportCRS extends DocumentAction {
 											+ " second(s)");
 									elapsedTime = 0;
 									endTime = 0;
-
 								} // end IF
-								/*
-								 * else { // recordCount++; match = false;
-								 * limsFrameProgress
-								 * .showProgress("No registration match: " +
-								 * registrationNumber + "\n" + " Record: " +
-								 * teller); continue; }
-								 */
 								cnt++;
-
 							} // end For Selected
-
 						} // end if registration contain only numbers
 
 						if (!verwerkList.toString()
@@ -418,23 +356,6 @@ public class LimsImportCRS extends DocumentAction {
 									+ "  Recordcount: " + recordCount);
 							continue;
 						}
-
-						// if (!verwerkList.toString()
-						// .contains(registrationNumber)) {
-
-						/*
-						 * if (!UitvalList.toString().contains(
-						 * registrationNumber)) { UitvalList .add(
-						 * "No document(s) match found for Registrationnumber: "
-						 * + registrationNumber + "\n");
-						 * 
-						 * limsFrameProgress.showProgress("No match : " +
-						 * registrationNumber + "\n" + "  Recordcount: " +
-						 * recordCount); }
-						 */
-
-						// }
-
 					} // end While
 					bufReader.close();
 					in.close();
@@ -477,8 +398,6 @@ public class LimsImportCRS extends DocumentAction {
 						@Override
 						public void run() {
 							crsRecordUitval = UitvalList.size() - 4;
-							crsExactRecordsVerwerkt = (crsTotaalRecords - (UitvalList
-									.size() - 1));
 
 							Dialogs.showMessageDialog(Integer
 									.toString(crsTotaalRecords)
@@ -526,12 +445,9 @@ public class LimsImportCRS extends DocumentAction {
 							msgList.clear();
 							UitvalList.clear();
 							verwerkList.clear();
-							match = false;
 							limsFrameProgress.hideFrame();
-							crsExactRecordsVerwerkt = 0;
 							crsRecordUitval = 0;
 							crsRecordVerwerkt = 0;
-
 						}
 					});
 				} catch (IOException e) {

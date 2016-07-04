@@ -101,6 +101,16 @@ public class LimsDummySeq {
 			e.printStackTrace();
 		}
 
+		/** AmplicificationStaffCode_FixedValue_Samples */
+		try {
+			limsNotes.setImportNotes(sequenceList.iterator().next(),
+					"AmplicificationStaffCode_FixedValue_Samples",
+					"Ampl-staff (Samples)", "Ampl-staff (Samples)",
+					limsImporterUtil.getPropValues("samplesamplicification"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		/*
 		 * Lims-190:Sample import maak of update extra veld veldnaam -
 		 * Registr-nmbr_[Scientific name] (Samples) en veldcode =

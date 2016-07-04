@@ -18,7 +18,6 @@ import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
-import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
@@ -46,19 +44,19 @@ public class LimsImportBold extends DocumentAction {
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsBoldFields limsBoldFields = new LimsBoldFields();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	private SequenceDocument sequenceDocument;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadDataFromBold.class);
 	private LimsLogger limsLogger = null;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
-	private List<AnnotatedPluginDocument> docs;
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> msgUitvalList = new ArrayList<String>();
 	private List<String> verwerkList = new ArrayList<String>();
 	private List<String> lackBoldList = new ArrayList<String>();
+	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
+	private Object resultRegNum = null;
 	private Object documentFileName = "";
 	private String boldFileSelected = "";
 	private String logBoldFileName = "";
@@ -69,13 +67,12 @@ public class LimsImportBold extends DocumentAction {
 
 	// private boolean result = false;
 	private boolean isRMNHNumber = false;
-	private boolean overrideCacheName = false;
+	private boolean isOverrideCacheName = false;
 
 	public int importCounter;
-	private int importTotal;
 	private int VerwerktReg = 0;
 	private int VerwerktRegMarker = 0;
-	private int crsTotaalRecords = 0;
+	private int BoldTotaalRecords = 0;
 
 	private long startTime;
 	private long lEndTime = 0;
@@ -111,12 +108,16 @@ public class LimsImportBold extends DocumentAction {
 
 	private void readDataFromBold(AnnotatedPluginDocument[] annotatedDocument) {
 
+		long startBeginTime = 0;
+
 		/* Get Databasename */
 		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
+		/* if database exists then continue the process else abort. */
 		if (readGeneiousFieldsValues.resultDB != null) {
 
+			/* if no documents in Geneious has been selected show a message. */
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 
@@ -126,21 +127,34 @@ public class LimsImportBold extends DocumentAction {
 						return;
 					}
 				});
-			}
-
+			} else /*
+					 * if documents has been selected continue the process to
+					 * import data
+					 */
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				msgList.clear();
 
+				/*
+				 * Get the path of the log Uitvallijst from the propertie file:
+				 * lims-import.properties.
+				 */
 				logBoldFileName = limsImporterUtil.getLogPath()
 						+ "Bold-Uitvallijst-"
 						+ limsImporterUtil.getLogFilename();
+
+				/* Create logfile */
 				limsLogger = new LimsLogger(logBoldFileName);
 
+				/*
+				 * Dialoogscherm voor het selecteren van een Bold file om in
+				 * kunnen te lezen.
+				 */
 				boldFileSelected = fcd.loadSelectedFile();
 				if (boldFileSelected == null) {
 					return;
 				}
 
+				/* Create Dialog windows for processing the file */
 				limsFrameProgress.createProgressGUI();
 				logger.info("------------------------------S T A R T -----------------------------------");
 				logger.info("Start reading from Bold File(s)");
@@ -150,11 +164,12 @@ public class LimsImportBold extends DocumentAction {
 
 				String[] headerCOI = null;
 
-				if (crsTotaalRecords == 0) {
+				/* Opvragen aantal in te lezen records uit de Bold file. */
+				if (BoldTotaalRecords == 0) {
 					try {
 						CSVReader csvReadertot = new CSVReader(new FileReader(
 								boldFileSelected), '\t', '\'', 1);
-						crsTotaalRecords = csvReadertot.readAll().size();
+						BoldTotaalRecords = csvReadertot.readAll().size();
 						csvReadertot.close();
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
@@ -163,31 +178,45 @@ public class LimsImportBold extends DocumentAction {
 					}
 				}
 
+				logger.info("Totaal records Bold file: " + BoldTotaalRecords);
+
+				/* Begintijd opstarten tijdens het proces van verwerken. */
 				startTime = new Date().getTime();
 
+				/* Create CSv object to read the Csv file. */
 				try {
 					CSVReader csvReader = new CSVReader(new FileReader(
 							boldFileSelected), '\t', '\'', 0);
+
+					/* Get the rowheader of the csv file. */
 					headerCOI = csvReader.readNext();
 
 					try {
 
 						while ((record = csvReader.readNext()) != null) {
+							/*
+							 * Doorgaan indien er lege regels aanwezig zijn in
+							 * het bestand dat wordt ingelezen.
+							 */
 							if (record.length == 1 && record[0].isEmpty()) {
 								continue;
 							}
 
-							long startBeginTime = System.nanoTime();
-
+							/* Get the registrationnumber from the CSV file. */
 							String regNumber = record[2];
 
-							docs = DocumentUtilities.getSelectedDocuments();
+							/*
+							 * Get the selected document from Geneious which
+							 * metadata will be added.
+							 */
+							listDocuments = DocumentUtilities
+									.getSelectedDocuments();
 
-							for (int cnt = 0; cnt < DocumentUtilities
-									.getSelectedDocuments().size(); cnt++) {
+							int cnt = 0;
+							for (AnnotatedPluginDocument list : listDocuments) {
 
-								documentFileName = annotatedDocument[cnt]
-										.getFieldValue("cache_name");
+								/* get documentname. */
+								documentFileName = list.getName();
 
 								/* Add sequence name for the dialog screen */
 								if (DocumentUtilities.getSelectedDocuments()
@@ -198,12 +227,14 @@ public class LimsImportBold extends DocumentAction {
 								/* Reads Assembly Contig 1 file */
 								try {
 
-									overrideCacheName = DocumentUtilities
-											.getSelectedDocuments().get(cnt)
-											.toString()
+									/*
+									 * Check if document contains
+									 * override_cache_name
+									 */
+									isOverrideCacheName = list.toString()
 											.contains("override_cache_name");
 
-									if (overrideCacheName) {
+									if (isOverrideCacheName) {
 										/*
 										 * Kopie van Fas document wordt
 										 * opgeslagen als
@@ -213,8 +244,8 @@ public class LimsImportBold extends DocumentAction {
 												.contains("Copy")
 												|| documentFileName.toString()
 														.contains("kopie")) {
-											defaultNucleotideSequence = (DefaultNucleotideSequence) docs
-													.get(cnt).getDocument();
+											defaultNucleotideSequence = (DefaultNucleotideSequence) list
+													.getDocument();
 											documentFileName = defaultNucleotideSequence
 													.getName();
 										}
@@ -228,15 +259,13 @@ public class LimsImportBold extends DocumentAction {
 												.toString().contains("kopie"))
 												&& documentFileName.toString()
 														.contains(".ab1")) {
-											defaultNucleotideSequence = (DefaultNucleotideGraphSequence) docs
-													.get(cnt).getDocument();
+											defaultNucleotideSequence = (DefaultNucleotideGraphSequence) list
+													.getDocument();
 											documentFileName = defaultNucleotideSequence
 													.getName();
-										}
-
-										else {
-											defaultAlignmentDocument = (DefaultAlignmentDocument) docs
-													.get(cnt).getDocument();
+										} else {
+											defaultAlignmentDocument = (DefaultAlignmentDocument) list
+													.getDocument();
 											documentFileName = defaultAlignmentDocument
 													.getName();
 										}
@@ -245,26 +274,10 @@ public class LimsImportBold extends DocumentAction {
 									e.printStackTrace();
 								}
 
-								/**
-								 * Get value from
-								 * "RegistrationnumberCode_Samples"
+								/*
+								 * Check if document already contain the note
+								 * RegistrationNumberCode_Samples
 								 */
-								String cacheName = "";
-								if (documentFileName.toString()
-										.contains("Copy")
-										|| documentFileName.toString()
-												.contains("kopie")) {
-									cacheName = "//document/hiddenFields/override_cache_name";
-								} else {
-									cacheName = "//document/hiddenFields/cache_name";
-								}
-
-								Object fieldValue = readGeneiousFieldsValues
-										.getRegistrationNumberFromTableAnnotatedDocument(
-												documentFileName,
-												"//document/notes/note/RegistrationNumberCode_Samples",
-												cacheName);
-
 								isRMNHNumber = DocumentUtilities
 										.getSelectedDocuments()
 										.get(cnt)
@@ -272,7 +285,12 @@ public class LimsImportBold extends DocumentAction {
 										.contains(
 												"RegistrationNumberCode_Samples");
 
+								/* if not contain RegistrationNumberCode_Samples */
 								if (!isRMNHNumber) {
+									/*
+									 * All documents will be added to the
+									 * lackBoldlist
+									 */
 									if (!lackBoldList
 											.contains(DocumentUtilities
 													.getSelectedDocuments()
@@ -285,16 +303,40 @@ public class LimsImportBold extends DocumentAction {
 														.getSelectedDocuments()
 														.get(cnt).getName());
 									}
+								} else {
+									/**
+									 * Get value from
+									 * "RegistrationnumberCode_Samples"
+									 */
+									resultRegNum = (list
+											.getDocumentNotes(true)
+											.getNote(
+													"DocumentNoteUtilities-Registr-nmbr (Samples)")
+											.getFieldValue("RegistrationNumberCode_Samples"));
 								}
 
 								/** Match only on registration number */
-								if (regNumber.equals(fieldValue)
+								if (regNumber.equals(resultRegNum)
 										&& isRMNHNumber) {
 
+									/*
+									 * Start the processing time for the notes
+									 * adding to the document.
+									 */
+									startBeginTime = System.nanoTime();
+
+									/* Show the progressbar with information */
 									limsFrameProgress.showProgress("Match: "
 											+ documentFileName + "\n");
+
+									/* get the Process ID = NLCOA778-12 */
 									String processID = record[1];
 									String boldURI = "";
+									/*
+									 * get the URI from the propertie file
+									 * lims-import.properties and concatenating
+									 * the Process ID
+									 */
 									if (processID != null) {
 										boldURI = limsImporterUtil
 												.getPropValues("bolduri")
@@ -302,6 +344,7 @@ public class LimsImportBold extends DocumentAction {
 									}
 
 									/*
+									 * Set value from the variables and logfile
 									 * BoldID = 1, NumberofImagesBold = 9,
 									 * BoldProjectID = 0, FieldID = 3, BoldBIN =
 									 * 4, BoldURI = uit LimsProperties File
@@ -309,13 +352,24 @@ public class LimsImportBold extends DocumentAction {
 									setNotesThatMatchRegistrationNumber(
 											record[1], record[9], record[0],
 											record[3], record[4], boldURI);
+
+									/* Set the notes. */
 									setNotesToBoldDocumentsRegistration(
 											annotatedDocument, cnt);
+
+									/*
+									 * Add the registration number to the
+									 * document which has been processed.
+									 */
 									if (!verwerkList.toString().contains(
 											regNumber)) {
 										verwerkList.add(regNumber);
 										VerwerktReg++;
 									}
+									/*
+									 * Get the end time to see the duration from
+									 * adding notes.
+									 */
 									long endTime = System.nanoTime();
 									long elapsedTime = endTime - startBeginTime;
 									logger.info("Took: "
@@ -324,29 +378,52 @@ public class LimsImportBold extends DocumentAction {
 													TimeUnit.NANOSECONDS))
 											+ " second(s)");
 									elapsedTime = 0;
-
 								}
 
 								/**
 								 * Match only on registration number and Marker
 								 */
-								if (regNumber.equals(fieldValue)
+								if (regNumber.equals(resultRegNum)
 										&& headerCOI[6]
 												.equals("COI-5P Seq. Length")
 										&& isRMNHNumber) {
 
+									/* Get the start time of processing */
+									startBeginTime = System.nanoTime();
+
+									/*
+									 * Start the progressbar and show some
+									 * information.
+									 */
 									limsFrameProgress.showProgress("Match: "
 											+ documentFileName + "\n");
-
+									/*
+									 * Set value from the file to the variables
+									 * 
+									 * record[6] = COI-5P Seq. Length, record[7]
+									 * = COI-5P Trace Count, record[8] = COI-5P
+									 * Accession
+									 */
 									setNotesThatMatchRegistrationNumberAndMarker(
 											record[6], record[7], record[8]);
+
+									/* Set the notes. */
 									setNotesToBoldDocumentsRegistrationMarker(
 											annotatedDocument, cnt);
+									/*
+									 * Add the registration number to the
+									 * document which has been processed.
+									 */
 									if (!verwerkList.toString().contains(
 											regNumber)) {
 										verwerkList.add(regNumber);
 										VerwerktRegMarker++;
 									}
+
+									/*
+									 * Get the end time to see the duration from
+									 * processing the notes.
+									 */
 									long endTime = System.nanoTime();
 									long elapsedTime = endTime - startBeginTime;
 									logger.info("Took: "
@@ -358,6 +435,10 @@ public class LimsImportBold extends DocumentAction {
 
 								}
 
+								/*
+								 * Log the total of records that not has been
+								 * processed/skip
+								 */
 								if (!verwerkList.toString().contains(regNumber)
 										&& regNumber.matches(".*\\d+.*")) {
 									if (!msgUitvalList.toString().contains(
@@ -370,16 +451,20 @@ public class LimsImportBold extends DocumentAction {
 														+ documentFileName
 														+ "\n");
 									}
-
 								}
+								cnt++;
 							} // end for
-
 						} // end While
+
 						logger.info("Total of document(s) updated: "
 								+ verwerkList.size());
 						logger.info("------------------------------E N D -----------------------------------");
 						logger.info("Done with reading bold file. ");
 
+						/*
+						 * add the total of records that has been skipped(no
+						 * match).
+						 */
 						if (documentFileName != null) {
 							msgUitvalList.add("Total records: "
 									+ Integer.toString(msgUitvalList.size())
@@ -401,6 +486,7 @@ public class LimsImportBold extends DocumentAction {
 								+ TimeUnit.MILLISECONDS.toMinutes(difference)
 								+ " minutes.'");
 
+						/* Show information after the import of data. */
 						EventQueue.invokeLater(new Runnable() {
 
 							@Override
@@ -408,7 +494,7 @@ public class LimsImportBold extends DocumentAction {
 								int totaalVerwerkt = VerwerktReg
 										+ VerwerktRegMarker;
 								Dialogs.showMessageDialog(Integer
-										.toString(crsTotaalRecords)
+										.toString(BoldTotaalRecords)
 										+ " records have been read of which: "
 										+ "\n"
 										+ "[1] "
@@ -416,14 +502,12 @@ public class LimsImportBold extends DocumentAction {
 										+ " records are imported and linked to "
 										+ Integer.toString(totaalVerwerkt)
 										+ " existing documents (of "
-										+ DocumentUtilities
-												.getSelectedDocuments().size()
+										+ listDocuments.size()
 										+ " selected)"
 										+ "\n"
 										+ "\n"
 										+ "List of "
-										+ Integer.toString(DocumentUtilities
-												.getSelectedDocuments().size())
+										+ Integer.toString(listDocuments.size())
 										+ " selected documents: "
 										+ "\n"
 										+ "[2] "
@@ -436,15 +520,17 @@ public class LimsImportBold extends DocumentAction {
 										+ lackBoldList.size()
 										+ " selected document lacks Registr-nmbr (Sample).");
 
-								logger.info("Bold: Total imported document(s): "
-										+ msgList.size() + "\n");
+								logger.info("Bold: Total of document(s) updated: "
+										+ verwerkList.size() + "\n");
 
+								/* Save the logfile */
 								limsLogger.logToFile(logBoldFileName,
 										msgUitvalList.toString());
 
 								msgList.clear();
 								msgUitvalList.clear();
 								verwerkList.clear();
+								/* Hide the progressbar */
 								limsFrameProgress.hideFrame();
 							}
 						});
@@ -463,12 +549,6 @@ public class LimsImportBold extends DocumentAction {
 				}
 			}
 		}
-	}
-
-	private String getExtractIDFromAB1FileName(String fileName) {
-		/* for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1 */
-		String[] underscore = StringUtils.split(fileName, "_");
-		return underscore[0];
 	}
 
 	/* Set value to Notes */

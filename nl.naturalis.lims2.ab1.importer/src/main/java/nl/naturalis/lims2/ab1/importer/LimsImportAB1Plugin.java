@@ -48,7 +48,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getVersion() {
-		return "0.65";
+		return "0.70";
 	}
 
 	public DocumentFileImporter[] getDocumentFileImporters() {
@@ -59,8 +59,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return new DocumentAction[] { new LimsImportAB1Update(),
 				new LimsReadDataFromSamples(), new LimsReadDataFromBold(),
 				new LimsCRSImporter(), new LimsImportCRS(),
-				new LimsImportBold()
-		/* new LimsImportSamples() */};
+				new LimsImportBold(), new LimsImportSamples() };
 	}
 
 	@Override
