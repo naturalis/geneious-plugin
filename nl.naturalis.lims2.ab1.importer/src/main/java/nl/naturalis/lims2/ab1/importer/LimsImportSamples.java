@@ -242,18 +242,17 @@ public class LimsImportSamples extends DocumentAction {
 								 */
 								if (documentFileName.equals(list.getName())) {
 
-									if (!list.toString().contains(
-											"consensus sequence")
-											|| !list.toString().contains(
-													"Contig")) {
-										version = Integer
-												.parseInt((String) readGeneiousFieldsValues
-														.getVersionValueFromAnnotatedPluginDocument(
-																documents,
-																"DocumentNoteUtilities-Document version",
-																"DocumentVersionCode_Seq",
-																cnt));
+									if (list.toString().contains(
+											"Reads Assembly Contig")) {
+										continue;
 									}
+									version = Integer
+											.parseInt((String) readGeneiousFieldsValues
+													.getVersionValueFromAnnotatedPluginDocument(
+															documents,
+															"DocumentNoteUtilities-Document version",
+															"DocumentVersionCode_Seq",
+															cnt));
 								}
 
 								/* Check if name is from a Contig file */
@@ -764,6 +763,11 @@ public class LimsImportSamples extends DocumentAction {
 
 						int cnt = 0;
 						for (AnnotatedPluginDocument list : listDocuments) {
+
+							if (list.toString().contains(
+									"Reads Assembly Contig")) {
+								continue;
+							}
 
 							if ((list.toString().contains("fas"))
 									|| (list.toString().contains("ab1"))
