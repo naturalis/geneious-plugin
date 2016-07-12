@@ -262,86 +262,95 @@ public class LimsImportCRS extends DocumentAction {
 											.getFieldValue("RegistrationNumberCode_Samples"));
 								}
 
-								if (resultRegNum.equals(registrationNumber)
-										&& isRMNHNumber) {
+								if (isRMNHNumber) {
+									if (resultRegNum.equals(registrationNumber)) {
 
-									startBeginTime = System.nanoTime();
+										startBeginTime = System.nanoTime();
 
-									recordCount++;
+										recordCount++;
 
-									limsFrameProgress.showProgress("Match : "
-											+ registrationNumber + "\n"
-											+ "  Recordcount: " + recordCount);
+										limsFrameProgress
+												.showProgress("Match : "
+														+ registrationNumber
+														+ "\n"
+														+ "  Recordcount: "
+														+ recordCount);
 
-									logger.info("Registration number matched: "
-											+ registrationNumber);
+										logger.info("Registration number matched: "
+												+ registrationNumber);
 
-									crsRecordVerwerkt++;
+										crsRecordVerwerkt++;
 
-									clearFieldValues();
+										clearFieldValues();
 
-									for (int i = 0, n = row.length; i < n; i++) {
-										LimsCRSFields
-												.setRegistratienummer(row[0]);
-										extractRankOrClassification(row[1],
-												row[2]);
-										LimsCRSFields.setGenus(row[3]);
-										LimsCRSFields.setTaxon(row[4]);
-										LimsCRSFields.setDeterminator(row[5]);
-										LimsCRSFields.setSex(row[6]);
-										LimsCRSFields.setStadium(row[7]);
-										LimsCRSFields.setLegavit(row[8]);
-										if (row[9].length() > 0) {
+										for (int i = 0, n = row.length; i < n; i++) {
 											LimsCRSFields
-													.setCollectingDate(row[9]);
-										} else {
+													.setRegistratienummer(row[0]);
+											extractRankOrClassification(row[1],
+													row[2]);
+											LimsCRSFields.setGenus(row[3]);
+											LimsCRSFields.setTaxon(row[4]);
 											LimsCRSFields
-													.setCollectingDate("10000101L");
-										}
-										LimsCRSFields.setCountry(row[10]);
-										if (i == 11) {
-											LimsCRSFields.setBioRegion(row[i]);
+													.setDeterminator(row[5]);
+											LimsCRSFields.setSex(row[6]);
+											LimsCRSFields.setStadium(row[7]);
+											LimsCRSFields.setLegavit(row[8]);
+											if (row[9].length() > 0) {
+												LimsCRSFields
+														.setCollectingDate(row[9]);
+											} else {
+												LimsCRSFields
+														.setCollectingDate("10000101L");
+											}
+											LimsCRSFields.setCountry(row[10]);
+											if (i == 11) {
+												LimsCRSFields
+														.setBioRegion(row[i]);
+											}
+
+											if (i == 12) {
+												LimsCRSFields
+														.setLocality(row[i]);
+											}
+
+											if (i == 13) {
+												LimsCRSFields
+														.setLatitudeDecimal(row[i]);
+											}
+
+											if (i == 14) {
+												LimsCRSFields
+														.setLongitudeDecimal(row[i]);
+											}
+											if (i == 15) {
+												LimsCRSFields.setHeight(row[i]);
+											}
 										}
 
-										if (i == 12) {
-											LimsCRSFields.setLocality(row[i]);
+										/* Add notes */
+										setCRSNotes(annotatedPluginDocuments,
+												cnt);
+										logger.info("Done with adding notes to the document: "
+												+ documentFileName);
+
+										if (!verwerkList.contains(resultRegNum)) {
+											verwerkList.add(resultRegNum
+													.toString());
 										}
 
-										if (i == 13) {
-											LimsCRSFields
-													.setLatitudeDecimal(row[i]);
-										}
-
-										if (i == 14) {
-											LimsCRSFields
-													.setLongitudeDecimal(row[i]);
-										}
-										if (i == 15) {
-											LimsCRSFields.setHeight(row[i]);
-										}
-									}
-
-									/* Add notes */
-									setCRSNotes(annotatedPluginDocuments, cnt);
-									logger.info("Done with adding notes to the document: "
-											+ documentFileName);
-
-									if (!verwerkList.contains(resultRegNum)) {
-										verwerkList
-												.add(resultRegNum.toString());
-									}
-
-									long endTime = System.nanoTime();
-									long elapsedTime = endTime - startBeginTime;
-									logger.info("Took: "
-											+ (TimeUnit.SECONDS.convert(
-													elapsedTime,
-													TimeUnit.NANOSECONDS))
-											+ " second(s)");
-									elapsedTime = 0;
-									endTime = 0;
-								} // end IF
-								cnt++;
+										long endTime = System.nanoTime();
+										long elapsedTime = endTime
+												- startBeginTime;
+										logger.info("Took: "
+												+ (TimeUnit.SECONDS.convert(
+														elapsedTime,
+														TimeUnit.NANOSECONDS))
+												+ " second(s)");
+										elapsedTime = 0;
+										endTime = 0;
+									} // end IF
+									cnt++;
+								}
 							} // end For Selected
 						} // end if registration contain only numbers
 

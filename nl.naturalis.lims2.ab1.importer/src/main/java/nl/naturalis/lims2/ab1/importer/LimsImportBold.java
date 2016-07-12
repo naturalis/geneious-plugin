@@ -215,6 +215,7 @@ public class LimsImportBold extends DocumentAction {
 							int cnt = 0;
 							for (AnnotatedPluginDocument list : listDocuments) {
 
+								resultRegNum = null;
 								/* get documentname. */
 								documentFileName = list.getName();
 

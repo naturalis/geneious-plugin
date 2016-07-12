@@ -207,6 +207,7 @@ public class LimsImportSamples extends DocumentAction {
 							int cnt = 0;
 							for (AnnotatedPluginDocument list : listDocuments) {
 
+								resultExists = null;
 								if (list.toString()
 										.contains(
 												"DocumentNoteUtilities-Extract ID (Seq)")) {
@@ -246,13 +247,14 @@ public class LimsImportSamples extends DocumentAction {
 											"Reads Assembly Contig")) {
 										continue;
 									}
-									version = Integer
-											.parseInt((String) readGeneiousFieldsValues
-													.getVersionValueFromAnnotatedPluginDocument(
-															documents,
-															"DocumentNoteUtilities-Document version",
-															"DocumentVersionCode_Seq",
-															cnt));
+									if (isExtractIDSeqExists)
+										version = Integer
+												.parseInt((String) readGeneiousFieldsValues
+														.getVersionValueFromAnnotatedPluginDocument(
+																documents,
+																"DocumentNoteUtilities-Document version",
+																"DocumentVersionCode_Seq",
+																cnt));
 								}
 
 								/* Check if name is from a Contig file */
@@ -791,6 +793,14 @@ public class LimsImportSamples extends DocumentAction {
 									lackList.add(list.getName());
 								}
 
+							} else if (isExtractIDSeqExists) {
+								version = Integer
+										.parseInt((String) readGeneiousFieldsValues
+												.getVersionValueFromAnnotatedPluginDocument(
+														docsSamples,
+														"DocumentNoteUtilities-Document version",
+														"DocumentVersionCode_Seq",
+														cnt));
 							}
 
 							if (extractIDfileName.equals(ID)
