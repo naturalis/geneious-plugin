@@ -930,7 +930,7 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT Max(a.version) as version, a.name, a.reference_count "
+			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version, a.name, a.reference_count "
 					+ " FROM "
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
@@ -1002,7 +1002,7 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT MAX(a.version) as version, a.name "
+			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version, a.name  "
 					+ " FROM "
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "

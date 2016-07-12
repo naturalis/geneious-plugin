@@ -39,7 +39,6 @@ public class LimsImportAB1Update extends DocumentAction {
 	LimsNotes limsNotes = new LimsNotes();
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private List<AnnotatedPluginDocument> docs;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
 
@@ -49,14 +48,9 @@ public class LimsImportAB1Update extends DocumentAction {
 	LimsFileSelector fcd = new LimsFileSelector();
 	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	// private AnnotatedPluginDocument documents = null;
-	private int version = 0;
-	private String documentName = "";
-	private String recordDocumentName = "";
 	private String extractAb1FastaFileName = "";
 	private boolean fastaFileExists = false;
 	private boolean fileExists = false;
-	private LimsFileSelector fileselector = new LimsFileSelector();
 	private File file = null;
 	private Boolean extractValue = false;
 
@@ -83,15 +77,10 @@ public class LimsImportAB1Update extends DocumentAction {
 			limsFrameProgress.createProgressGUI();
 			logger.info("----------------------------S T A R T -------------------------------");
 			try {
-				docs = DocumentUtilities.getSelectedDocuments();
-				// documents =
-				// DocumentUtilities.getSelectedDocuments().iterator().next();
-				// //docs.iterator().next();
-
-				versienummer = 0;
 
 				for (int cnt = 0; cnt < DocumentUtilities
 						.getSelectedDocuments().size(); cnt++) {
+
 					seq = (SequenceDocument) DocumentUtilities
 							.getSelectedDocuments().get(cnt).getDocument();
 
@@ -152,12 +141,14 @@ public class LimsImportAB1Update extends DocumentAction {
 								+ seq.getName());
 						msgList.add(seq.getName());
 
-						documentName = (String) DocumentUtilities
-								.getSelectedDocuments().get(cnt)
-								.getFieldValue("cache_name");
-
-						recordDocumentName = DocumentUtilities
-								.getSelectedDocuments().get(cnt).getName();
+						/*
+						 * documentName = (String) DocumentUtilities
+						 * .getSelectedDocuments().get(cnt)
+						 * .getFieldValue("cache_name");
+						 * 
+						 * recordDocumentName = DocumentUtilities
+						 * .getSelectedDocuments().get(cnt).getName();
+						 */
 
 						if (seq.getName().contains("ab1")) {
 							limsAB1Fields.setFieldValuesFromAB1FileName(seq
