@@ -81,6 +81,10 @@ public class LimsImportAB1Update extends DocumentAction {
 				for (int cnt = 0; cnt < DocumentUtilities
 						.getSelectedDocuments().size(); cnt++) {
 
+					if (DocumentUtilities.getSelectedDocuments().get(cnt)
+							.getName().contains("Reads Assembly Contig")) {
+						continue;
+					}
 					seq = (SequenceDocument) DocumentUtilities
 							.getSelectedDocuments().get(cnt).getDocument();
 

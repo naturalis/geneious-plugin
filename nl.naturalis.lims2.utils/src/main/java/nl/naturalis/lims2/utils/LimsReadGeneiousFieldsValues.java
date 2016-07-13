@@ -673,7 +673,7 @@ public class LimsReadGeneiousFieldsValues {
 			try {
 				con = DriverManager.getConnection(url + activeDB + ssl, user,
 						password);
-				con.clearWarnings();
+				// con.clearWarnings();
 			} catch (SQLException e) {
 				throw new IllegalStateException("Cannot connect the database!",
 						e);
@@ -794,7 +794,7 @@ public class LimsReadGeneiousFieldsValues {
 		Connection con = null;
 		PreparedStatement pst = null;
 
-		// ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
 		url = limsImporterUtil.getDatabasePropValues("url");
 		user = limsImporterUtil.getDatabasePropValues("user");
 		password = limsImporterUtil.getDatabasePropValues("password");
@@ -805,9 +805,9 @@ public class LimsReadGeneiousFieldsValues {
 					+ System.lineSeparator() + "WHERE id =?";
 
 			try {
-				con = DriverManager.getConnection(url + activeDB, user,
+				con = DriverManager.getConnection(url + activeDB + ssl, user,
 						password);
-				con.clearWarnings();
+				// con.clearWarnings();
 			} catch (SQLException e) {
 				throw new IllegalStateException("Cannot connect the database!",
 						e);
