@@ -107,11 +107,11 @@ public class LimsImportCRS extends DocumentAction {
 		long startBeginTime = 0;
 
 		/* Get the active database name */
-		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
 		/* if database exists then continue the process else abort. */
-		if (readGeneiousFieldsValues.resultDB != null) {
+		if (readGeneiousFieldsValues.activeDB != null) {
 
 			/* if no documents in Geneious has been selected show a message. */
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
@@ -213,6 +213,7 @@ public class LimsImportCRS extends DocumentAction {
 							int cnt = 0;
 							for (AnnotatedPluginDocument list : listDocuments) {
 
+								isRMNHNumber = false;
 								documentFileName = list.getName();
 
 								if ((documentFileName.toString()
@@ -349,8 +350,8 @@ public class LimsImportCRS extends DocumentAction {
 										elapsedTime = 0;
 										endTime = 0;
 									} // end IF
-									cnt++;
 								}
+								cnt++;
 							} // end For Selected
 						} // end if registration contain only numbers
 

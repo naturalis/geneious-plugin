@@ -72,7 +72,7 @@ public class LimsImportAB1Update extends DocumentAction {
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
 			/* Get Databasename */
-			ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
 			limsFrameProgress.createProgressGUI();
 			logger.info("----------------------------S T A R T -------------------------------");
@@ -225,8 +225,9 @@ public class LimsImportAB1Update extends DocumentAction {
 								"ConsensusSeqPassCode_Seq", "Pass (Seq)",
 								"Pass (Seq)", null, cnt);
 
-						limsFrameProgress.showProgress(DocumentUtilities
-								.getSelectedDocuments().get(cnt).getName());
+						limsFrameProgress.showProgress("Processing: "
+								+ DocumentUtilities.getSelectedDocuments()
+										.get(cnt).getName());
 						logger.info("Done with adding notes to the document");
 					}
 

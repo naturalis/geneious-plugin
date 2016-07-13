@@ -111,11 +111,11 @@ public class LimsImportBold extends DocumentAction {
 		long startBeginTime = 0;
 
 		/* Get Databasename */
-		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
 		/* if database exists then continue the process else abort. */
-		if (readGeneiousFieldsValues.resultDB != null) {
+		if (readGeneiousFieldsValues.activeDB != null) {
 
 			/* if no documents in Geneious has been selected show a message. */
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {

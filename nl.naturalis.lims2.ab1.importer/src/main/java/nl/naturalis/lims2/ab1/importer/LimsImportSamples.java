@@ -114,10 +114,10 @@ public class LimsImportSamples extends DocumentAction {
 	private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
 
 		/* Get Database name */
-		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (readGeneiousFieldsValues.resultDB != null) {
+		if (readGeneiousFieldsValues.activeDB != null) {
 
 			Object[] options = { "Ok", "No", "Cancel" };
 			int n = JOptionPane.showOptionDialog(frame,

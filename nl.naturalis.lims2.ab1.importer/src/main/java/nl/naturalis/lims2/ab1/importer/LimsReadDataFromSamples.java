@@ -108,7 +108,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 			throws DocumentOperationException {
 
 		/* Get Database name */
-		geneiousFieldsValues.resultDB = geneiousFieldsValues
+		geneiousFieldsValues.activeDB = geneiousFieldsValues
 				.getServerDatabaseServiceName();
 
 		/*
@@ -118,7 +118,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 		 * e1) { e1.printStackTrace(); }
 		 */
 
-		if (geneiousFieldsValues.resultDB != null) {
+		if (geneiousFieldsValues.activeDB != null) {
 			Object[] options = { "Ok", "No", "Cancel" };
 			int n = JOptionPane.showOptionDialog(frame,
 					"Create dummy sequences for unknown extract ID's?",

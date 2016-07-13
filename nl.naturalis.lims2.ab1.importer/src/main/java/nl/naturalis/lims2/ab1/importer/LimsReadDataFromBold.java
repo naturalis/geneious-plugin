@@ -86,10 +86,10 @@ public class LimsReadDataFromBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
 		/* Get Databasename */
-		readGeneiousFieldsValues.resultDB = readGeneiousFieldsValues
+		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (readGeneiousFieldsValues.resultDB != null) {
+		if (readGeneiousFieldsValues.activeDB != null) {
 			if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
 				EventQueue.invokeLater(new Runnable() {
 

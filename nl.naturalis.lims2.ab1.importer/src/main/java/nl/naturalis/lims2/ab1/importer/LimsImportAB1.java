@@ -37,6 +37,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsCRSFields LimsCRSFields = new LimsCRSFields();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private AnnotatedPluginDocument document;
 	private int count = 0;
@@ -78,10 +79,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			DocumentImportException {
 
 		/* Get Databasename */
-		ReadGeneiousFieldsValues.resultDB = ReadGeneiousFieldsValues
+		ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (ReadGeneiousFieldsValues.resultDB != null) {
+		if (ReadGeneiousFieldsValues.activeDB != null) {
 			/* Get the filename and extract the ID */
 			ab1FileName = StringUtils.split(file.getName(), "_");
 
@@ -187,12 +188,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* set note for SequencingStaffCode_FixedValue_Seq */
 				try {
-					/*
-					 * limsNotes.setImportNotes(document,
-					 * "AmplicificationStaffCode_FixedValue_Seq",
-					 * "Ampl-staff (Seq)", "Ampl-staff (Seq)",
-					 * limsImporterUtil.getPropValues("seqamplicification"));
-					 */
 					limsNotes.setImportNotes(document,
 							"SequencingStaffCode_FixedValue_Seq",
 							"Seq-staff (Seq)", "Seq-staff (Seq)",
@@ -351,6 +346,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					if (count > 0) {
 						selectedTotal = 0;
 					}
+
+					// setCRSNotes(document);
 				}
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
@@ -367,7 +364,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							try {
 								/* Get Databasename */
 								/*
-								 * ReadGeneiousFieldsValues.resultDB =
+								 * ReadGeneiousFieldsValues.activeDB =
 								 * ReadGeneiousFieldsValues
 								 * .getServerDatabaseServiceName();
 								 */
@@ -405,5 +402,87 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		LimsLogger limsLogger = new LimsLogger(logFileName);
 		limsLogger.logToFile(logFileName, list.toString());
 	}
+
+	/*
+	 * private void setCRSNotes(AnnotatedPluginDocument documents) {
+	 *//** set note for Phylum: FieldValue, Label, NoteType, */
+	/*
+	 * limsNotes.setImportNotes(documents, "PhylumCode_CRS", "Phylum (CRS)",
+	 * "Phylum (CRS)", LimsCRSFields.getPhylum().trim());
+	 *//** Set note for Class */
+	/*
+	 * limsNotes.setImportNotes(documents, "ClassCode_CRS", "Class (CRS)",
+	 * "Class (CRS)", LimsCRSFields.getKlasse().trim());
+	 *//** set note for Order */
+	/*
+	 * limsNotes.setImportNotes(documents, "OrderCode_CRS", "Order (CRS)",
+	 * "Order (CRS)", LimsCRSFields.getOrder().trim());
+	 * 
+	 * set note for Family limsNotes.setImportNotes(documents, "FamilyCode_CRS",
+	 * "Family (CRS)", "Family (CRS)", LimsCRSFields.getFamily().trim());
+	 *//** set note for SubFamily */
+	/*
+	 * limsNotes.setImportNotes(documents, "SubFamilyCode_CRS",
+	 * "Subfamily (CRS)", "Subfamily (CRS)", LimsCRSFields
+	 * .getSubFamily().trim());
+	 *//** set note for Genus */
+	/*
+	 * limsNotes.setImportNotes(documents, "GenusCode_CRS", "Genus (CRS)",
+	 * "Genus (CRS)", LimsCRSFields.getGenus().trim());
+	 *//** set note for TaxonName */
+	/*
+	 * limsNotes.setImportNotes(documents, "TaxonName1Code_CRS",
+	 * "Scientific name (CRS)", "Scientific name (CRS)", LimsCRSFields
+	 * .getTaxon().trim());
+	 *//** set note for Identifier */
+	/*
+	 * limsNotes.setImportNotes(documents, "IdentifierCode_CRS",
+	 * "Identifier (CRS)", "Identifier (CRS)", LimsCRSFields
+	 * .getDeterminator().trim());
+	 *//** set note for Sex */
+	/*
+	 * limsNotes.setImportNotes(documents, "SexCode_CRS", "Sex (CRS)",
+	 * "Sex (CRS)", LimsCRSFields.getSex().trim());
+	 *//** set note for Phase Or Stage */
+	/*
+	 * limsNotes .setImportNotes(documents, "PhaseOrStageCode_CRS",
+	 * "Stage (CRS)", "Stage (CRS)", LimsCRSFields .getStadium().trim());
+	 *//** set note for Collector */
+	/*
+	 * limsNotes.setImportNotes(documents, "CollectorCode_CRS", "Leg (CRS)",
+	 * "Leg (CRS)", LimsCRSFields.getLegavit().trim());
+	 *//** set note for Collecting date */
+	/*
+	 * if (LimsCRSFields.getCollectingDate().length() > 0) {
+	 * limsNotes.setImportNotes(documents, "CollectingDateCode_CRS",
+	 * "Date (CRS)", "Date (CRS)", LimsCRSFields.getCollectingDate()); }
+	 *//** set note for Country */
+	/*
+	 * limsNotes.setImportNotes(documents, "CountryCode_CRS", "Country (CRS)",
+	 * "Country (CRS)", LimsCRSFields.getCountry().trim());
+	 *//** set note for BioRegion */
+	/*
+	 * limsNotes.setImportNotes(documents, "StateOrProvinceBioRegionCode_CRS",
+	 * "Region (CRS)", "Region (CRS)", LimsCRSFields.getBioRegion() .trim());
+	 *//** set note for Locality */
+	/*
+	 * limsNotes.setImportNotes(documents, "LocalityCode_CRS", "Locality (CRS)",
+	 * "Locality (CRS)", LimsCRSFields.getLocality() .trim());
+	 *//** set note for Latitude */
+	/*
+	 * limsNotes.setImportNotes(documents, "LatitudeDecimalCode_CRS",
+	 * "Lat (CRS)", "Lat (CRS)", LimsCRSFields.getLatitudeDecimal());
+	 *//** set note for Longitude */
+	/*
+	 * limsNotes .setImportNotes(documents, "LongitudeDecimalCode_CRS",
+	 * "Long (CRS)", "Long (CRS)", LimsCRSFields.getLongitudeDecimal());
+	 *//** set note for Height */
+	/*
+	 * limsNotes.setImportNotes(documents, "HeightCode_CRS", "Altitude (CRS)",
+	 * "Altitude (CRS)", LimsCRSFields.getHeight());
+	 * 
+	 * // limsNotes.setImportTrueFalseNotes(documents, "CRSCode_CRS", //
+	 * "CRS (CRS)", "CRS (CRS)", true); }
+	 */
 
 }

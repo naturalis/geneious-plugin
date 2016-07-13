@@ -67,8 +67,8 @@ public class LimsReadGeneiousFieldsValues {
 	private String dummyExtractIDSamplesValue = "";
 	private String dummySeqStaffSamplesValue = "";
 	private List<String> listDummyValues = new ArrayList<String>();
-	private String[] databaseName = null;
-	public String resultDB = "";
+	// private String[] databaseName = null;
+	public String activeDB = "";
 	public String extractidSamplesFromDummy;
 	public String samplePlateIdSamplesFromDummy;
 	public String scientificNameSamplesFromDummy;
@@ -203,7 +203,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " ')) AS name " + " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -276,7 +276,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ xmlnotes + " ' )) AS name " + " FROM annotated_document"
 					+ " ) AS a " + " WHERE a.name =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -350,7 +350,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ xmlnotes + " ')) AS name " + " FROM annotated_document"
 					+ " ) AS a " + " WHERE a.name =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -429,7 +429,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name = ?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -547,7 +547,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name like ?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
@@ -610,7 +610,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name like ?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
@@ -670,10 +670,14 @@ public class LimsReadGeneiousFieldsValues {
 					+ xmlNotesName + " ')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name =?";
-
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
-					password);
-			con.clearWarnings();
+			try {
+				con = DriverManager.getConnection(url + activeDB + ssl, user,
+						password);
+				con.clearWarnings();
+			} catch (SQLException e) {
+				throw new IllegalStateException("Cannot connect the database!",
+						e);
+			}
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -740,7 +744,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -790,19 +794,24 @@ public class LimsReadGeneiousFieldsValues {
 		Connection con = null;
 		PreparedStatement pst = null;
 
-		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		// ssl = limsImporterUtil.getDatabasePropValues("ssl");
 		url = limsImporterUtil.getDatabasePropValues("url");
 		user = limsImporterUtil.getDatabasePropValues("user");
 		password = limsImporterUtil.getDatabasePropValues("password");
 
 		try {
 
-			final String SQL = " DELETE FROM annotated_document"
-					+ " WHERE id =?";
+			final String SQL = "DELETE FROM annotated_document"
+					+ System.lineSeparator() + "WHERE id =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
-					password);
-			con.clearWarnings();
+			try {
+				con = DriverManager.getConnection(url + activeDB, user,
+						password);
+				con.clearWarnings();
+			} catch (SQLException e) {
+				throw new IllegalStateException("Cannot connect the database!",
+						e);
+			}
 			logger.debug("User:" + user);
 			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
@@ -863,7 +872,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -939,7 +948,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " FROM annotated_document) AS a "
 					+ " WHERE a.name =?"
 					+ " AND   a.reference_count = 0 " + " AND   a.version > 0";
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -1008,7 +1017,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -1081,7 +1090,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -1233,7 +1242,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
 
-			con = DriverManager.getConnection(url + resultDB + ssl, user,
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			logger.debug("User:" + user);
@@ -1336,8 +1345,8 @@ public class LimsReadGeneiousFieldsValues {
 	 * ItemEvent.SELECTED) ? "Selected" : "Deselected");
 	 * System.out.println("Item: " + itemEvent.getItem()); ItemSelectable is =
 	 * itemEvent.getItemSelectable(); System.out.println(", Selected: " +
-	 * selectedString(is)); resultDB = selectedString(is);// .toString();
-	 * System.out.println("Database:" + resultDB); } };
+	 * selectedString(is)); activeDB = selectedString(is);// .toString();
+	 * System.out.println("Database:" + activeDB); } };
 	 * 
 	 * comboBox.addItemListener(itemListener);
 	 * 
