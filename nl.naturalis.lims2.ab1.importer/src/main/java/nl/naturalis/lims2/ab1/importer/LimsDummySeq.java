@@ -121,8 +121,10 @@ public class LimsDummySeq {
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonName.length() > 0) {
 			regScientificname = registrationNumber + " " + taxonName;
-		} else {
+		} else if (registrationNumber.length() > 0) {
 			regScientificname = registrationNumber;
+		} else if (registrationNumber.length() == 0 && taxonName.length() > 0) {
+			regScientificname = taxonName;
 		}
 
 		limsNotes.setImportNotes(sequenceList.iterator().next(),

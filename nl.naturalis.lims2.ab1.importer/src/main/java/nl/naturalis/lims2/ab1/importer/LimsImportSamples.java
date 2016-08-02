@@ -694,9 +694,12 @@ public class LimsImportSamples extends DocumentAction {
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
 			regScientificname = registrationNumber + " " + taxonNaam;
-		} else {
+		} else if (registrationNumber.length() > 0) {
 			regScientificname = registrationNumber;
+		} else if (registrationNumber.length() == 0 && taxonNaam.length() > 0) {
+			regScientificname = taxonNaam;
 		}
+
 		limsExcelFields.setRegNumberScientificName(regScientificname);
 
 		logger.info("Extract-ID: " + limsExcelFields.getExtractID());
