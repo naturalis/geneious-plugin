@@ -32,7 +32,8 @@ public class LimsDummySeq {
 
 	public void createDummySampleSequence(String filename, String extractID,
 			String projectPlaatnummer, String extractPlaatnummer,
-			String taxonName, String registrationNumber, String plaatPositie) {
+			String taxonName, String registrationNumber, String plaatPositie,
+			String extractMethod) {
 
 		ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
 
@@ -76,7 +77,7 @@ public class LimsDummySeq {
 		/** set note for Sample method */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"SampleMethodCode_Samples", "Extraction method (Samples)",
-				"Extraction method (Samples)", "Sample method");
+				"Extraction method (Samples)", extractMethod);
 
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"DocumentVersionCode_Seq", "Document version",

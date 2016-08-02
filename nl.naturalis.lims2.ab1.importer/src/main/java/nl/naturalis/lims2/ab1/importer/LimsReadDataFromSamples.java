@@ -558,7 +558,7 @@ public class LimsReadDataFromSamples extends DocumentAction {
 							} else {
 								limsDummySeq.createDummySampleSequence(ID, ID,
 										record[0], plateNumber, record[5],
-										record[4], record[1]);
+										record[4], record[1], record[6]);
 								dummyRecordsVerwerkt++;
 							}
 						} else {

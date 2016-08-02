@@ -337,7 +337,7 @@ public class LimsImportSamples extends DocumentAction {
 
 									setFieldsValues(record[0], record[1],
 											plateNumber, ID, record[4],
-											record[5], version);
+											record[5], version, record[6]);
 
 									logger.info("Document Filename: "
 											+ documentFileName);
@@ -621,7 +621,7 @@ public class LimsImportSamples extends DocumentAction {
 							} else {
 								limsDummySeq.createDummySampleSequence(ID, ID,
 										record[0], plateNumber, record[5],
-										record[4], record[1]);
+										record[4], record[1], record[6]);
 								dummyRecordsVerwerkt++;
 							}
 						} else {
@@ -677,7 +677,7 @@ public class LimsImportSamples extends DocumentAction {
 
 	private void setFieldsValues(String projectPlaatNr, String plaatPositie,
 			String extractPlaatNr, String extractID, String registrationNumber,
-			String taxonNaam, Object versieNummer) {
+			String taxonNaam, Object versieNummer, String sampleMethod) {
 
 		limsExcelFields.setProjectPlaatNummer(projectPlaatNr); // record[0]
 		limsExcelFields.setPlaatPositie(plaatPositie); // record[1]
@@ -689,6 +689,7 @@ public class LimsImportSamples extends DocumentAction {
 		}
 		limsExcelFields.setRegistrationNumber(registrationNumber); // record[4]
 		limsExcelFields.setTaxonNaam(taxonNaam); // record[5]
+		limsExcelFields.setSubSample(sampleMethod); // record[6]
 
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
@@ -813,7 +814,7 @@ public class LimsImportSamples extends DocumentAction {
 										.showProgress("Document match: " + ID);
 								setFieldsValues(record[0], record[1],
 										plateNumber, ID, record[4], record[5],
-										version);
+										version, record[6]);
 								logger.info("Start with adding notes to the document");
 								setSamplesNotes(docsSamples, cnt);
 								logger.info("Done with adding notes to the document");
