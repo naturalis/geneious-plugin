@@ -614,6 +614,7 @@ public class LimsImportSamples extends DocumentAction {
 							limsFrameProgress
 									.showProgress("Creating dummy file: " + ID);
 
+							/* extract only the numbers from ID */
 							if (ID.equals("e")
 									&& LimsImporterUtil.extractNumber(ID)
 											.isEmpty()) {
@@ -825,6 +826,7 @@ public class LimsImportSamples extends DocumentAction {
 							cnt++;
 						} // For
 						if (!exactVerwerkList.contains(ID) && !isMatched) {
+							/* isAlpha: Check for Letters character in "ID " */
 							if (!UitvalList.contains(ID)
 									&& !limsImporterUtil.isAlpha(ID)) {
 								UitvalList
