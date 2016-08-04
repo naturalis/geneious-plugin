@@ -325,7 +325,7 @@ public class LimsReadGeneiousFieldsValues {
 	public boolean checkOfFastaOrAB1Exists(String fileName, String fieldName, String xmlnotes)
 	{
 
-		if (fastaAb1Cache.contains(fileName))
+		if (fastaAb1Cache.contains(fileName + '|' + fieldName))
 			return true;
 
 		boolean truefalse = false;
@@ -401,7 +401,7 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		}
 		if (truefalse)
-			fastaAb1Cache.add(fileName);
+			fastaAb1Cache.add(fileName + '|' + fieldName);
 		return truefalse;
 	}
 
