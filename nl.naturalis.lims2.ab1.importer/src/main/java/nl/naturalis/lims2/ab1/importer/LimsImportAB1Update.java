@@ -163,6 +163,7 @@ public class LimsImportAB1Update extends DocumentAction {
 					if (!(documentFileName.getName().toString().contains("ab1") || !documentFileName
 							.getName().toString().contains("dum"))) {
 
+						/* Get the filename from the Fasta content */
 						try {
 							file = new File(fcd.loadFastaFile(
 									documentFileName.getName(),
@@ -176,22 +177,29 @@ public class LimsImportAB1Update extends DocumentAction {
 							e1.printStackTrace();
 						}
 
+						/* Check if fasta file exists in the database */
 						fastaFileExists = ReadGeneiousFieldsValues
 								.checkOfFastaOrAB1Exists(
 										extractAb1FastaFileName,
 										"plugin_document_xml",
 										"//XMLSerialisableRootElement/name");
 
+						/*
+						 * Get the last version number from the last insert
+						 * fasta file.
+						 */
 						versienummer = ReadGeneiousFieldsValues
 								.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
 
 					} else {
+						/* Get AB1 Filename and Version from AB1 file */
 						extractAb1FastaFileName = documentFileName.getName();
 						versienummer = ReadGeneiousFieldsValues
 								.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
 					}
 				}
 
+				/* AB1 File extracten */
 				if (documentFileName.getName() != null
 						&& documentFileName.getName().toString().contains("_")) {
 					logger.info("Start extracting value from file: "
@@ -199,9 +207,14 @@ public class LimsImportAB1Update extends DocumentAction {
 					msgList.add(documentFileName.getName());
 
 					if (documentFileName.getName().contains("ab1")) {
+						/* Extract values from the AB1 filename */
 						limsAB1Fields
 								.setFieldValuesFromAB1FileName(documentFileName
 										.getName());
+						/*
+						 * if file exists and is not extravalue
+						 * "ExtractIDCode_Seq" increase Version number.
+						 */
 						if (fileExists && !extractValue) {
 							versienummer++;
 						}
@@ -209,13 +222,19 @@ public class LimsImportAB1Update extends DocumentAction {
 					} else if (extractAb1FastaFileName.trim() != null) {
 						logger.info("Fasta file to extract : "
 								+ extractAb1FastaFileName);
+						/* Extract values from the Fasta filename */
 						limsAB1Fields
 								.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+						/*
+						 * if file exists and is not extravalue
+						 * "ExtractIDCode_Seq" increase Version number.
+						 */
 						if (fastaFileExists && !extractValue) {
 							versienummer++;
 						}
 					}
 
+					/* Set version number Fasta file and AB1 */
 					if (fastaFileExists && !extractValue) {
 						limsAB1Fields.setVersieNummer(versienummer);
 					} else if (fileExists && !extractValue) {
@@ -270,12 +289,14 @@ public class LimsImportAB1Update extends DocumentAction {
 						e.printStackTrace();
 					}
 
+					/** Set note ConsensusSeqPassCode_Seq */
 					limsNotes.setNoteDropdownFieldToFileName(
 							annotatedPluginDocuments,
 							limsNotes.ConsensusSeqPass,
 							"ConsensusSeqPassCode_Seq", "Pass (Seq)",
 							"Pass (Seq)", null, cnt);
 
+					/** Show processing dialog */
 					limsFrameProgress.showProgress("Processing: "
 							+ DocumentUtilities.getSelectedDocuments().get(cnt)
 									.getName());

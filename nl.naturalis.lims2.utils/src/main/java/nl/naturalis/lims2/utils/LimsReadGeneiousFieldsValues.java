@@ -4,9 +4,6 @@
 package nl.naturalis.lims2.utils;
 
 import java.awt.EventQueue;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,33 +12,20 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
-import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
@@ -56,7 +40,6 @@ public class LimsReadGeneiousFieldsValues {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadGeneiousFieldsValues.class);
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private String logFileName = "";
 	private LimsLogList limsLogList = new LimsLogList();
 	private String dummyPcrPlateIdSeqValue = "";
 	private String dummyMarkerSeqValue = "";
@@ -67,7 +50,6 @@ public class LimsReadGeneiousFieldsValues {
 	private String dummyExtractIDSamplesValue = "";
 	private String dummySeqStaffSamplesValue = "";
 	private List<String> listDummyValues = new ArrayList<String>();
-	// private String[] databaseName = null;
 	public String activeDB = "";
 	public String extractidSamplesFromDummy;
 	public String samplePlateIdSamplesFromDummy;
@@ -84,6 +66,11 @@ public class LimsReadGeneiousFieldsValues {
 
 	}
 
+	// To DO:
+	/*
+	 * Mag later worden verwijderd na opruiming van de volgende bestanden Used
+	 * by LimsCRSImporter and LimsReadDataFromSamples (both depricated)
+	 */
 	public Object readValueFromAnnotatedPluginDocument(
 			AnnotatedPluginDocument annotatedPluginDocuments, String noteCode,
 			Object fieldName) {
@@ -108,6 +95,11 @@ public class LimsReadGeneiousFieldsValues {
 		return fieldValue;
 	}
 
+	/**
+	 * Check if Notes value exists in a selected Document file Return Boolean
+	 * value = true or false Used in LimsImportAB1Update and
+	 * (Depricated)LimsReaddataFromSamples
+	 */
 	public boolean getValueFromAnnotatedPluginDocument(
 			AnnotatedPluginDocument annotatedPluginDocuments, String noteCode,
 			Object fieldName) {
@@ -124,16 +116,20 @@ public class LimsReadGeneiousFieldsValues {
 			DocumentNote bos = documentNotes.getNote(noteCode);
 			/** example: FieldName = "BasisOfRecordCode" */
 			if (bos != null) {
-				// fieldValue = bos.getFieldValue((String) fieldName);
 				truefalse = true;
 			} else {
 				truefalse = false;
 			}
 		}
-
 		return truefalse;
 	}
 
+	/**
+	 * Get value from Notes from a selected Document file Return a string
+	 * version value;
+	 * 
+	 * Used in LimsImportSamples and (Depricated)LimsReaddataFromSamples
+	 */
 	public Object getVersionValueFromAnnotatedPluginDocument(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
 			String noteCode, Object fieldName, int i) {
@@ -154,30 +150,34 @@ public class LimsReadGeneiousFieldsValues {
 				fieldValue = null;
 			}
 		}
-
 		return fieldValue;
 	}
 
-	public Object object(AnnotatedPluginDocument annotatedPluginDocument) {
+	/*
+	 * public Object object(AnnotatedPluginDocument annotatedPluginDocument) {
+	 *//** noteCode = "DocumentNoteUtilities-Version number"; */
+	/*
+	 * DocumentNoteType noteType = DocumentNoteUtilities
+	 * .getNoteType("DocumentNoteUtilities-VersieCode"); Object fieldValue =
+	 * null;
+	 * 
+	 * if (noteType != null) { AnnotatedPluginDocument.DocumentNotes
+	 * documentNotes = annotatedPluginDocument .getDocumentNotes(true);
+	 * 
+	 * DocumentNote bos = documentNotes
+	 * .getNote("DocumentNoteUtilities-VersieCode");
+	 *//** example: FieldName = "Version number" */
+	/*
+	 * fieldValue = bos.getFieldValue("Version number"); }
+	 * 
+	 * return fieldValue; }
+	 */
 
-		/** noteCode = "DocumentNoteUtilities-Version number"; */
-		DocumentNoteType noteType = DocumentNoteUtilities
-				.getNoteType("DocumentNoteUtilities-VersieCode");
-		Object fieldValue = null;
-
-		if (noteType != null) {
-			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocument
-					.getDocumentNotes(true);
-
-			DocumentNote bos = documentNotes
-					.getNote("DocumentNoteUtilities-VersieCode");
-			/** example: FieldName = "Version number" */
-			fieldValue = bos.getFieldValue("Version number");
-		}
-
-		return fieldValue;
-	}
-
+	// To DO:
+	/*
+	 * Mag later worden verwijderd na opruiming van de volgende bestanden
+	 * LimsReadDataFromBold and LimsCRSImporter
+	 */
 	public String getRegistrationNumberFromTableAnnotatedDocument(
 			Object filename, String xmlNotesRegistration, String xmlNotesName)
 			throws IOException {
@@ -206,8 +206,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
@@ -251,6 +249,11 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	// To DO:
+	/*
+	 * Mag later worden verwijderd na opruiming van de volgende bestanden
+	 * LimsReadDataFromBold and LimsReadDataFromSamples
+	 */
 	public String getFileNameFromGeneiousDatabase(String filename,
 			String xmlnotes) {
 
@@ -279,8 +282,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, filename);
 			rs = pst.executeQuery();
@@ -325,6 +326,10 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	/**
+	 * Check if Fasts filename exists in the Database Used in LimsImportAB1 and
+	 * LimsImportAB1Update
+	 * */
 	public boolean checkOfFastaOrAB1Exists(String fileName, String fieldName,
 			String xmlnotes) {
 		boolean truefalse = false;
@@ -353,8 +358,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, fileName);
 			rs = pst.executeQuery();
@@ -402,6 +405,10 @@ public class LimsReadGeneiousFieldsValues {
 		return truefalse;
 	}
 
+	/**
+	 * Check if AB1 filename exists in the Database Used in LimsImportAB1 and
+	 * LimsImportAB1Update
+	 * */
 	public boolean fileNameExistsInGeneiousDatabase(String filename) {
 
 		boolean truefalse = false;
@@ -432,13 +439,10 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, filename);
 			rs = pst.executeQuery();
 			while (rs.next()) {
-				// result = rs.getObject(1).toString();
 				result = rs.getString("name");
 				recordcount = rs.getInt("count");
 
@@ -457,7 +461,6 @@ public class LimsReadGeneiousFieldsValues {
 			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
-
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("SQL Exception Information: "
@@ -476,7 +479,6 @@ public class LimsReadGeneiousFieldsValues {
 				if (con != null) {
 					con.close();
 				}
-
 			} catch (SQLException ex) {
 				logger.warn(ex.getMessage(), ex);
 			}
@@ -488,105 +490,66 @@ public class LimsReadGeneiousFieldsValues {
 	// , if they match the search parameters
 	// or null if there is no match
 	@SuppressWarnings("unused")
-	private SequenceDocument match(ArrayList<String> namesToMatch, String name,
-			boolean matchBoth) {
-		boolean nameMatch = false;
-		if (namesToMatch.size() > 0) {
-			for (String nameToMatch : namesToMatch) {
-				if (name.toUpperCase().contains(nameToMatch)) {
-					nameMatch = true;
-				}
-			}
-		}
-
-		boolean match;
-		if (matchBoth) {
-			match = nameMatch;
-		} else {
-			match = nameMatch;
-		}
-		if (match) {
-			return new DefaultNucleotideSequence(name.substring(0,
-					name.indexOf(" ")), name, "NNNNNNNNNN", new Date());
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unused")
-	private void createLogFile(String fileName, List<String> list) {
-		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
-				+ limsImporterUtil.getLogFilename();
-		File logfile = new File(logFileName);
-		if (!logfile.exists()) {
-			LimsLogger limsLogger = new LimsLogger(logFileName);
-			limsLogger.logToFile(logFileName, list.toString());
-		}
-	}
-
-	public boolean getExtractIDFromSamples_GeneiousDB(String extractid)
-			throws IOException {
-
-		boolean truefalse = false;
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		ssl = limsImporterUtil.getDatabasePropValues("ssl");
-		url = limsImporterUtil.getDatabasePropValues("url");
-		user = limsImporterUtil.getDatabasePropValues("user");
-		password = limsImporterUtil.getDatabasePropValues("password");
-
-		String result = "";
-
-		try {
-
-			final String SQL = " SELECT a.name"
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
-					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name like ?";
-
-			con = DriverManager.getConnection(url + activeDB + ssl, user,
-					password);
-			con.clearWarnings();
-			pst = con.prepareStatement(SQL);
-			pst.setString(1, "%" + extractid + "%");
-			rs = pst.executeQuery();
-			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				logger.info("Extract ID: " + result
-						+ " add to the geneious database.");
-
-				if (rs.wasNull())
-					truefalse = false;
-				else
-					truefalse = true;
-			}
-
-		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pst != null) {
-					pst.close();
-				}
-				if (con != null) {
-					con.close();
-				}
-
-			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
-			}
-		}
-
-		return truefalse;
-	}
-
+	/*
+	 * private SequenceDocument match(ArrayList<String> namesToMatch, String
+	 * name, boolean matchBoth) { boolean nameMatch = false; if
+	 * (namesToMatch.size() > 0) { for (String nameToMatch : namesToMatch) { if
+	 * (name.toUpperCase().contains(nameToMatch)) { nameMatch = true; } } }
+	 * 
+	 * boolean match; if (matchBoth) { match = nameMatch; } else { match =
+	 * nameMatch; } if (match) { return new
+	 * DefaultNucleotideSequence(name.substring(0, name.indexOf(" ")), name,
+	 * "NNNNNNNNNN", new Date()); } return null; }
+	 */
+	/*
+	 * private void createLogFile(String fileName, List<String> list) {
+	 * logFileName = limsImporterUtil.getLogPath() + File.separator + fileName +
+	 * limsImporterUtil.getLogFilename(); File logfile = new File(logFileName);
+	 * if (!logfile.exists()) { LimsLogger limsLogger = new
+	 * LimsLogger(logFileName); limsLogger.logToFile(logFileName,
+	 * list.toString()); } }
+	 */
+	/*
+	 * public boolean getExtractIDFromSamples_GeneiousDB(String extractid)
+	 * throws IOException {
+	 * 
+	 * boolean truefalse = false; Connection con = null; PreparedStatement pst =
+	 * null; ResultSet rs = null;
+	 * 
+	 * ssl = limsImporterUtil.getDatabasePropValues("ssl"); url =
+	 * limsImporterUtil.getDatabasePropValues("url"); user =
+	 * limsImporterUtil.getDatabasePropValues("user"); password =
+	 * limsImporterUtil.getDatabasePropValues("password");
+	 * 
+	 * String result = "";
+	 * 
+	 * try {
+	 * 
+	 * final String SQL = " SELECT a.name" + " FROM " + " ( " +
+	 * " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
+	 * + " FROM annotated_document" + " ) AS a " + " WHERE a.name like ?";
+	 * 
+	 * con = DriverManager.getConnection(url + activeDB + ssl, user, password);
+	 * con.clearWarnings(); pst = con.prepareStatement(SQL); pst.setString(1,
+	 * "%" + extractid + "%"); rs = pst.executeQuery(); while (rs.next()) {
+	 * result = rs.getObject(1).toString(); logger.info("Extract ID: " + result
+	 * + " add to the geneious database.");
+	 * 
+	 * if (rs.wasNull()) truefalse = false; else truefalse = true; }
+	 * 
+	 * } catch (SQLException ex) { logger.info(ex.getMessage(), ex);
+	 * 
+	 * } finally { try { if (rs != null) { rs.close(); } if (pst != null) {
+	 * pst.close(); } if (con != null) { con.close(); }
+	 * 
+	 * } catch (SQLException ex) { logger.warn(ex.getMessage(), ex); } } return
+	 * truefalse; }
+	 */
+	/**
+	 * Get Name from Samples files in the database Used LimsImportSamples and
+	 * LimsReadDataFromSamples
+	 * 
+	 * */
 	public String getFastaIDForSamples_GeneiousDB(String extractid)
 			throws IOException {
 
@@ -600,7 +563,6 @@ public class LimsReadGeneiousFieldsValues {
 		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
-
 		try {
 
 			final String SQL = " SELECT a.name"
@@ -641,13 +603,13 @@ public class LimsReadGeneiousFieldsValues {
 				logger.warn(ex.getMessage(), ex);
 			}
 		}
-
 		return result;
 	}
 
 	/**
 	 * Get Cache name from XML field document_xml table annotated_document
-	 * //document/hiddenFields/override_cache_name
+	 * //document/hiddenFields/override_cache_name Used in LimsImportAB1 and
+	 * LimsReadDataFromBold
 	 * */
 	public String getCacheNameFromGeneiousDatabase(Object filename,
 			String xmlNotesName) throws IOException {
@@ -678,8 +640,6 @@ public class LimsReadGeneiousFieldsValues {
 				throw new IllegalStateException("Cannot connect the database!",
 						e);
 			}
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
@@ -722,6 +682,10 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	/**
+	 * Get the ID and Name from a file(Parameter fileName) in the Database Used
+	 * in LimsImportAB1
+	 * */
 	public String getIDFromTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
 
@@ -747,8 +711,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
@@ -761,7 +723,6 @@ public class LimsReadGeneiousFieldsValues {
 			exception = ex;
 
 			EventQueue.invokeLater(new Runnable() {
-
 				@Override
 				public void run() {
 					Dialogs.showMessageDialog("Get ID from annotateddocument table: "
@@ -788,6 +749,10 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	/**
+	 * Delete Dummy documents when Import file match Dummy filename Used in
+	 * LimsImportAB1
+	 * */
 	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
 			throws IOException {
 
@@ -812,8 +777,6 @@ public class LimsReadGeneiousFieldsValues {
 				throw new IllegalStateException("Cannot connect the database!",
 						e);
 			}
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) ID);
 			pst.executeUpdate();
@@ -847,79 +810,48 @@ public class LimsReadGeneiousFieldsValues {
 		}
 	}
 
-	public int getLastVersionCountFromDocument(String fileName) {
+	/*
+	 * public int getLastVersionCountFromDocument(String fileName) {
+	 * 
+	 * Connection con = null; PreparedStatement pst = null; ResultSet rs = null;
+	 * 
+	 * try { ssl = limsImporterUtil.getDatabasePropValues("ssl"); url =
+	 * limsImporterUtil.getDatabasePropValues("url"); user =
+	 * limsImporterUtil.getDatabasePropValues("user"); password =
+	 * limsImporterUtil.getDatabasePropValues("password"); } catch (IOException
+	 * e) { e.printStackTrace(); }
+	 * 
+	 * int result = 0;
+	 * 
+	 * try {
+	 * 
+	 * final String SQL = " SELECT COUNT(a.version) as version" + " FROM " +
+	 * " ( " +
+	 * " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+	 * +
+	 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
+	 * + " FROM annotated_document) AS a " + " WHERE a.name =?"; con =
+	 * DriverManager.getConnection(url + activeDB + ssl, user, password);
+	 * con.clearWarnings(); pst = con.prepareStatement(SQL); pst.setString(1,
+	 * (String) fileName); rs = pst.executeQuery(); if (rs.next()) { do { result
+	 * = rs.getInt(1); logger.debug("Versionnumber : " + result); } while
+	 * (rs.next()); } } catch (SQLException ex) { logger.info(ex.getMessage(),
+	 * ex); exception = ex;
+	 * 
+	 * EventQueue.invokeLater(new Runnable() {
+	 * 
+	 * @Override public void run() {
+	 * Dialogs.showMessageDialog("Get last version: " + exception.getMessage());
+	 * } });
+	 * 
+	 * } finally { try { if (rs != null) { rs.close(); } if (pst != null) {
+	 * pst.close(); } if (con != null) { con.close(); }
+	 * 
+	 * } catch (SQLException ex) { logger.warn(ex.getMessage(), ex); } } return
+	 * result; }
+	 */
 
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		int result = 0;
-
-		try {
-
-			final String SQL = " SELECT COUNT(a.version) as version"
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
-					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-			con = DriverManager.getConnection(url + activeDB + ssl, user,
-					password);
-			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
-			pst = con.prepareStatement(SQL);
-			pst.setString(1, (String) fileName);
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				do {
-					result = rs.getInt(1);
-					logger.debug("Versionnumber : " + result);
-				} while (rs.next());
-			}
-		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get last version: "
-							+ exception.getMessage());
-				}
-			});
-
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pst != null) {
-					pst.close();
-				}
-				if (con != null) {
-					con.close();
-				}
-
-			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
-			}
-		}
-
-		return result;
-
-	}
-
+	/** Used in LimsImportAB1Update */
 	public int getLastVersion_For_AB1_Fasta(String fileName) {
 
 		Connection con = null;
@@ -951,8 +883,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) fileName);
 			rs = pst.executeQuery();
@@ -984,7 +914,6 @@ public class LimsReadGeneiousFieldsValues {
 				if (con != null) {
 					con.close();
 				}
-
 			} catch (SQLException ex) {
 				logger.warn(ex.getMessage(), ex);
 			}
@@ -992,6 +921,7 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	/** Used in LimsImportAB1Update */
 	public int getLastVersionFromDocument(String fileName) {
 
 		Connection con = null;
@@ -1020,8 +950,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) fileName);
 			rs = pst.executeQuery();
@@ -1060,83 +988,52 @@ public class LimsReadGeneiousFieldsValues {
 				logger.warn(ex.getMessage(), ex);
 			}
 		}
-
 		return result;
-
 	}
 
-	public int getDocumentVersion(String fileName) {
-
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		int result = 0;
-
-		try {
-
-			final String SQL = " SELECT a.version, a.name "
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
-					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-			con = DriverManager.getConnection(url + activeDB + ssl, user,
-					password);
-			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
-			pst = con.prepareStatement(SQL);
-			pst.setString(1, (String) fileName);
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				do {
-					result = rs.getInt(1);
-					logger.debug("Versionnumber : " + result);
-				} while (rs.next());
-			}
-		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get document version: "
-							+ exception.getMessage());
-				}
-			});
-
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pst != null) {
-					pst.close();
-				}
-				if (con != null) {
-					con.close();
-				}
-
-			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
-			}
-		}
-
-		return result;
-
-	}
+	/*
+	 * public int getDocumentVersion(String fileName) {
+	 * 
+	 * Connection con = null; PreparedStatement pst = null; ResultSet rs = null;
+	 * 
+	 * try { ssl = limsImporterUtil.getDatabasePropValues("ssl"); url =
+	 * limsImporterUtil.getDatabasePropValues("url"); user =
+	 * limsImporterUtil.getDatabasePropValues("user"); password =
+	 * limsImporterUtil.getDatabasePropValues("password"); } catch (IOException
+	 * e) { e.printStackTrace(); }
+	 * 
+	 * int result = 0;
+	 * 
+	 * try {
+	 * 
+	 * final String SQL = " SELECT a.version, a.name " + " FROM " + " ( " +
+	 * " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+	 * +
+	 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
+	 * + " FROM annotated_document) AS a " + " WHERE a.name =?"; con =
+	 * DriverManager.getConnection(url + activeDB + ssl, user, password);
+	 * con.clearWarnings(); logger.debug("User:" + user);
+	 * logger.debug("Password:" + password); pst = con.prepareStatement(SQL);
+	 * pst.setString(1, (String) fileName); rs = pst.executeQuery(); if
+	 * (rs.next()) { do { result = rs.getInt(1); logger.debug("Versionnumber : "
+	 * + result); } while (rs.next()); } } catch (SQLException ex) {
+	 * logger.info(ex.getMessage(), ex); exception = ex;
+	 * 
+	 * EventQueue.invokeLater(new Runnable() {
+	 * 
+	 * @Override public void run() {
+	 * Dialogs.showMessageDialog("Get document version: " +
+	 * exception.getMessage()); } });
+	 * 
+	 * } finally { try { if (rs != null) { rs.close(); } if (pst != null) {
+	 * pst.close(); } if (con != null) { con.close(); }
+	 * 
+	 * } catch (SQLException ex) { logger.warn(ex.getMessage(), ex); } }
+	 * 
+	 * return result;
+	 * 
+	 * }
+	 */
 
 	public String getDummyPcrPlateIdSeqValue() {
 		return dummyPcrPlateIdSeqValue;
@@ -1245,8 +1142,6 @@ public class LimsReadGeneiousFieldsValues {
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
-			logger.debug("User:" + user);
-			logger.debug("Password:" + password);
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
@@ -1303,95 +1198,8 @@ public class LimsReadGeneiousFieldsValues {
 		return listDummyValues;
 	}
 
-	/*
-	 * public void setItemToComboBox() { List<String> lstdb = new
-	 * ArrayList<String>(); String output = "";
-	 * 
-	 * ListIterator<?> itr = PluginUtilities.getWritableDatabaseServiceRoots()
-	 * .listIterator();
-	 * 
-	 * while (itr.hasNext()) { String dbsvc = itr.next().toString(); if
-	 * (dbsvc.contains("geneious")) { String st[] = dbsvc.split("name=");
-	 * Map<String, Integer> mp = new TreeMap<String, Integer>(); for (int i = 0;
-	 * i < st.length; i++) {
-	 * 
-	 * Integer count = mp.get(st[i]); if (count == null) { count = 0; }
-	 * mp.put(st[i], ++count); String strGeneious = st[i];
-	 * 
-	 * if (strGeneious.contains("geneious")) { int indexEnd =
-	 * strGeneious.indexOf(","); output = strGeneious.substring(0, indexEnd); //
-	 * System.out.println(output); lstdb.add(output); }
-	 * 
-	 * }
-	 * 
-	 * } }
-	 * 
-	 * String splitOutPut = ""; JFrame frame = new
-	 * JFrame("Select geneious database");
-	 * frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-	 * frame.setSize(300, 80); frame.setLayout(new FlowLayout()); JButton
-	 * jButton1 = new JButton("Select");
-	 * 
-	 * Vector<String> comboBoxItems = new Vector<String>(); Iterator<String>
-	 * lstitr = lstdb.listIterator(); while (lstitr.hasNext()) { splitOutPut =
-	 * lstitr.next().toString(); comboBoxItems.add(splitOutPut); } final
-	 * DefaultComboBoxModel model = new DefaultComboBoxModel( comboBoxItems);
-	 * JComboBox comboBox = new JComboBox(model); frame.add(comboBox);
-	 * frame.add(jButton1, "South");
-	 * 
-	 * ItemListener itemListener = new ItemListener() { public void
-	 * itemStateChanged(ItemEvent itemEvent) { int state =
-	 * itemEvent.getStateChange(); System.out.println((state ==
-	 * ItemEvent.SELECTED) ? "Selected" : "Deselected");
-	 * System.out.println("Item: " + itemEvent.getItem()); ItemSelectable is =
-	 * itemEvent.getItemSelectable(); System.out.println(", Selected: " +
-	 * selectedString(is)); activeDB = selectedString(is);// .toString();
-	 * System.out.println("Database:" + activeDB); } };
-	 * 
-	 * comboBox.addItemListener(itemListener);
-	 * 
-	 * // Object cmboitem = comboBox.getSelectedItem(); // dbName =
-	 * cmboitem.toString();
-	 * 
-	 * frame.setVisible(true); }
-	 * 
-	 * static private String selectedString(ItemSelectable is) { Object
-	 * selected[] = is.getSelectedObjects(); return ((selected.length == 0) ?
-	 * "null" : (String) selected[0]); }
-	 */
-
-	// private void itemDatabaseList(List databasename) {
-	//
-	// String[] splitOutPut = null;
-	// String[] mystring = null;
-	// JFrame frame = new JFrame("Select geneious database");
-	// frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-	// frame.setSize(300, 80);
-	// JButton jButton1 = new JButton("Select");
-	//
-	// Iterator<String> lstitr = databasename.listIterator();
-	// while (lstitr.hasNext()) {
-	// splitOutPut = lstitr.next().toString().split(",");
-	// mystring = splitOutPut;
-	// }
-	// final JList jList1 = new JList(mystring);
-	// jButton1.addActionListener(new java.awt.event.ActionListener() {
-	// @Override
-	// public void actionPerformed(ActionEvent e) {
-	// Object contents = jList1.getSelectedValue();
-	// System.out.println(contents);
-	// dbName = contents.toString();
-	//
-	// }
-	// });
-	// frame.add(jList1, "Center");
-	// frame.add(jButton1, "South");
-	//
-	// frame.setVisible(true);
-	// }
-
+	/* Get database name */
 	public String getServerDatabaseServiceName() {
-
 		List<String> lstdb = new ArrayList<String>();
 
 		String output = "";
@@ -1406,7 +1214,6 @@ public class LimsReadGeneiousFieldsValues {
 				String st[] = dbsvc.split("name=");
 				Map<String, Integer> mp = new TreeMap<String, Integer>();
 				for (int i = 0; i < st.length; i++) {
-
 					Integer count = mp.get(st[i]);
 					if (count == null) {
 						count = 0;
@@ -1419,9 +1226,7 @@ public class LimsReadGeneiousFieldsValues {
 						output = strGeneious.substring(0, indexEnd);
 						lstdb.add(output);
 					}
-
 				}
-
 			}
 		}
 
@@ -1429,61 +1234,7 @@ public class LimsReadGeneiousFieldsValues {
 		while (lstitr.hasNext()) {
 			dbResult = lstitr.next().toString();
 		}
-
-		//
-		// String databaseService = PluginUtilities
-		// .getWritableDatabaseServiceRoots().get(3).toString();
-		//
-		// // Dialogs.showMessageDialog("DatabaseService: " + databaseService);
-		//
-		// if (databaseService.contains("=")) {
-		// databaseName = StringUtils.split(databaseService, "=");
-		// } else {
-		// throw new IllegalArgumentException("String " + databaseService
-		// + " cannot be split. ");
-		// }
-		// databaseName = StringUtils.split(databaseName[1], ",");
 		return dbResult; // databaseName[0];
-	}
-
-	public static void listAllAttributes(Element element) {
-		System.out
-				.println("List attributes for node: " + element.getNodeName());
-		// get a map containing the attributes of this node
-		NamedNodeMap attributes = element.getAttributes();
-		// get the number of nodes in this map
-		int numAttrs = attributes.getLength();
-		for (int i = 0; i < numAttrs; i++) {
-			Attr attr = (Attr) attributes.item(i);
-			String attrName = attr.getNodeName();
-			String attrValue = attr.getNodeValue();
-			// if (attrValue.equals("databaseName")) {
-			// Dialogs.showMessageDialog("Found attribute: " + attrName
-			// + " with value: " + attrValue);
-			// System.out.println("Value: " + attr);}
-			System.out.println("Found attribute: " + attrName + " with value: "
-					+ attrValue);
-		}
-	}
-
-	public void getDatabaseEntry() throws ParserConfigurationException,
-			FileNotFoundException, SAXException, IOException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		dbf.setValidating(false);
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		Document doc = db.parse(new FileInputStream(new File(
-				"C:\\Geneious 8.1 Data\\user_preferences.xml")));
-
-		NodeList entries = doc.getElementsByTagName("entry");
-
-		int num = entries.getLength();
-
-		for (int i = 0; i < num; i++) {
-			Element node = (Element) entries.item(i);
-			listAllAttributes(node);
-		}
-
 	}
 
 }
