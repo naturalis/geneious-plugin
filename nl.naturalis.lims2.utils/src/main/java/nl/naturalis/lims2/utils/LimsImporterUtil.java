@@ -226,42 +226,45 @@ public class LimsImporterUtil {
 		return result;
 	}
 
+	private Properties dbProps;
+
 	public String getDatabasePropValues(String propertyType) throws IOException
 	{
-		try {
-			Properties prop = new Properties();
-			String propFileName = "limsdatabase.properties";
-			String workingDatadirectory = System.getProperty("user.dir");
+		if (dbProps == null) {
+			try {
+				Properties dbProps = new Properties();
+				String propFileName = "limsdatabase.properties";
+				String workingDatadirectory = System.getProperty("user.dir");
 
-			String absoluteFilePath = null;
+				String absoluteFilePath = null;
 
-			if (workingDatadirectory != null) {
-				absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+				if (workingDatadirectory != null) {
+					absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+				}
+
+				inputStream = new FileInputStream(absoluteFilePath);
+				if (inputStream != null) {
+					dbProps.load(inputStream);
+				}
+				else {
+					// Zo log je dezelfde message twee keer, want de 
+					// FileNotFoundException wordt binnen deze method
+					// opgevangen, en het catch block logt de fout
+					// opnieuw (zie beneden)
+					logger.info("property file '" + propFileName + "' not found in the classpath");
+					throw new FileNotFoundException("property file '" + propFileName
+							+ "' not found in the classpath");
+				}
 			}
-
-			inputStream = new FileInputStream(absoluteFilePath);
-			if (inputStream != null) {
-				prop.load(inputStream);
+			catch (Exception e) {
+				logger.info("Exception: " + e);
 			}
-			else {
-				// Zo log je dezelfde message twee keer, want de 
-				// FileNotFoundException wordt binnen deze method
-				// opgevangen, en het catch block logt de fout
-				// opnieuw (zie beneden)
-				logger.info("property file '" + propFileName + "' not found in the classpath");
-				throw new FileNotFoundException("property file '" + propFileName
-						+ "' not found in the classpath");
+			finally {
+				inputStream.close();
 			}
-
-			// get the property value and print it out
-			result = prop.getProperty(propertyType);
 		}
-		catch (Exception e) {
-			logger.info("Exception: " + e);
-		}
-		finally {
-			inputStream.close();
-		}
+		// get the property value and print it out
+		result = dbProps.getProperty(propertyType);
 		return result;
 	}
 
