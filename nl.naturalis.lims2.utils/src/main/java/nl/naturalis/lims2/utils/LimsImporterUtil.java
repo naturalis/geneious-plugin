@@ -232,7 +232,7 @@ public class LimsImporterUtil {
 	{
 		if (dbProps == null) {
 			try {
-				Properties dbProps = new Properties();
+				dbProps = new Properties();
 				String propFileName = "limsdatabase.properties";
 				String workingDatadirectory = System.getProperty("user.dir");
 
