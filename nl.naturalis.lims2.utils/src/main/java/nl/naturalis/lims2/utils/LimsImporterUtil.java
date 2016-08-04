@@ -228,6 +228,10 @@ public class LimsImporterUtil {
 			if (inputStream != null) {
 				prop.load(inputStream);
 			} else {
+				// Zo log je dezelfde message twee keer, want de 
+				// FileNotFoundException wordt binnen deze method
+				// opgevangen, en het catch block logt de fout
+				// opnieuw (zie beneden)
 				logger.info("property file '" + propFileName
 						+ "' not found in the classpath");
 				throw new FileNotFoundException("property file '"

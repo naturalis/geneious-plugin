@@ -28,4 +28,14 @@ public class TestUtils {
 		}
 	}
 
+	public static void deleteFile(Path p)
+	{
+		try {
+			Files.deleteIfExists(p);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
