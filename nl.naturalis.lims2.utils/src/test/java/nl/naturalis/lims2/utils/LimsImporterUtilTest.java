@@ -48,4 +48,17 @@ public class LimsImporterUtilTest {
 		assertNull("01", value);
 	}
 
+	@Test
+	public void testExtractNumber_01()
+	{
+		assertEquals("01", "", LimsImporterUtil.extractNumber(null));
+		assertEquals("02", "", LimsImporterUtil.extractNumber(""));
+		assertEquals("03", "", LimsImporterUtil.extractNumber("    "));
+		assertEquals("04", "", LimsImporterUtil.extractNumber("a"));
+		assertEquals("05", "7", LimsImporterUtil.extractNumber("7"));
+		assertEquals("06", "57", LimsImporterUtil.extractNumber("57"));
+		assertEquals("07", "57 ", LimsImporterUtil.extractNumber("57"));
+		assertEquals("07", "57a", LimsImporterUtil.extractNumber("57"));
+	}
+
 }
