@@ -12,7 +12,6 @@ import java.util.List;
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
@@ -165,8 +164,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				/* Set version number */
 				setVersionNumber();
 
-				/* Set notes for AB1 document */
-				setAB1DummyFilesNotes(documentAnnotatedPlugin, extractid);
+				/*
+				 * When Dummy file exists and the AB1 imported document match
+				 * the Dummy filename then the dummy notes will be replaced with
+				 * the AB1 notes. After all the matching dummy document will be
+				 * deleted from the Geneious Folder/Database. Most of the notes
+				 * from the Dummy documents will be inherited and add to the AB1
+				 * files
+				 */
+				replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
+						extractid);
 
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
@@ -181,11 +188,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					public void run() {
 						if (dummyFilename.equals(ab1FileName[0] + ".dum")) {
 							try {
-								/* Get Databasename */
 								/*
-								 * ReadGeneiousFieldsValues.activeDB =
-								 * ReadGeneiousFieldsValues
-								 * .getServerDatabaseServiceName();
+								 * Delete dummy records after it match with the
+								 * AB1 filename. Most of the notes from the
+								 * Dummy documents will be inherited and add to
+								 * the AB1 files
 								 */
 								ReadGeneiousFieldsValues
 										.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
@@ -212,14 +219,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			return AutoDetectStatus.ACCEPT_FILE;
 		}
 
-	}
-
-	@SuppressWarnings("unused")
-	private void createLogFile(String fileName, List<String> list) {
-		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
-				+ limsImporterUtil.getLogFilename();
-		LimsLogger limsLogger = new LimsLogger(logFileName);
-		limsLogger.logToFile(logFileName, list.toString());
 	}
 
 	/**
@@ -281,9 +280,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	/**
-	 * Import AB1 with Naturalis Plugin Set notes for AB1 file
+	 * Import Replace dummy documents notes with AB1 notes
 	 * */
-	private void setAB1DummyFilesNotes(
+	private void replaceDummyNotesWithAB1Notes(
 			AnnotatedPluginDocument documentAnnotated, String extractID) {
 
 		if (limsAB1Fields.getExtractID().equals(extractID)) {
