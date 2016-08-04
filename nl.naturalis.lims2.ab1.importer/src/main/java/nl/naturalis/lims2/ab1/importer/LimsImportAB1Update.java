@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
+import com.biomatters.geneious.publicapi.documents.sequence.SequenceDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -35,8 +35,8 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
  */
 public class LimsImportAB1Update extends DocumentAction {
 
-	PluginDocument documentFileName = null;
-	LimsNotes limsNotes = new LimsNotes();
+	private SequenceDocument documentFileName = null;
+	private LimsNotes limsNotes = new LimsNotes();
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private static final Logger logger = LoggerFactory
@@ -45,8 +45,8 @@ public class LimsImportAB1Update extends DocumentAction {
 	private List<String> msgList = new ArrayList<String>();
 	private int versienummer = 0;
 	private boolean isVersionnumberOne = false;
-	LimsFileSelector fcd = new LimsFileSelector();
-	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
+	private LimsFileSelector fcd = new LimsFileSelector();
+	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private String extractAb1FastaFileName = "";
 	private boolean fastaFileExists = false;
@@ -110,8 +110,8 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * documentFileName
 				 */
 				try {
-					documentFileName = DocumentUtilities.getSelectedDocuments()
-							.get(cnt).getDocument();
+					documentFileName = (SequenceDocument) DocumentUtilities
+							.getSelectedDocuments().get(cnt).getDocument();
 				} catch (DocumentOperationException e3) {
 					e3.printStackTrace();
 				}
@@ -160,7 +160,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 				/* if file exists in the database */
 				if (fileExists) {
-					if (!(documentFileName.getName().toString().contains("ab1") || !documentFileName
+					if (!(documentFileName.getName().toString().contains("ab1") || documentFileName
 							.getName().toString().contains("dum"))) {
 
 						/* Get the filename from the Fasta content */
