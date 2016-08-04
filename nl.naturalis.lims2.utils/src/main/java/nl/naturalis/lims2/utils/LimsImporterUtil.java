@@ -8,9 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.rmi.server.ExportException;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -22,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LimsImporterUtil {
 
-	private final Properties config = null;
+//	private final Properties config = null;
 	private String result = "";
 	private InputStream inputStream;
 	private Properties prop = new Properties();
@@ -33,20 +30,20 @@ public class LimsImporterUtil {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImporterUtil.class);
 
-	private String required(String property) throws Exception {
-		if (config.containsKey(property)) {
-			String s = $(property);
-			if (s.trim().isEmpty()) {
-				throw new Exception(property);
-			}
-			return s;
-		}
-		throw new Exception(property);
-	}
-
-	private String $(String property) {
-		return config.getProperty(property);
-	}
+//	private String required(String property) throws Exception {
+//		if (config.containsKey(property)) {
+//			String s = $(property);
+//			if (s.trim().isEmpty()) {
+//				throw new Exception(property);
+//			}
+//			return s;
+//		}
+//		throw new Exception(property);
+//	}
+//
+//	private String $(String property) {
+//		return config.getProperty(property);
+//	}
 
 	/**
 	 * Get the logname from the property file logname=Lims2-Import.log
@@ -104,38 +101,38 @@ public class LimsImporterUtil {
 		return logPath;
 	}
 
-	/**
-	 * Get the import file path from the property file.
-	 * */
-	public File getLimsImportDir() throws ExportException {
-		String outputRoot = null;
-		try {
-			outputRoot = required("lims.import.input.cs_dir");
-
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		/* Set default data directory */
-		Path path = FileSystems.getDefault().getPath(outputRoot, "data");
-		File exportDir = path.toFile();
-		if (exportDir.isDirectory()) {
-			if (!exportDir.canWrite()) {
-				throw new ExportException(String.format(
-						"Directory not writable: \"%s\"", path));
-			}
-		} else {
-			logger.info(String
-					.format("No such directory (lims.import.input.cs_dir): \"%s\". Will attempt to create it",
-							path));
-			try {
-				java.nio.file.Files.createDirectories(path);
-			} catch (IOException e) {
-				throw new ExportException(String.format(
-						"Failed to create directory \"%s\"", path), e);
-			}
-		}
-		return exportDir;
-	}
+//	/**
+//	 * Get the import file path from the property file.
+//	 * */
+//	public File getLimsImportDir() throws ExportException {
+//		String outputRoot = null;
+//		try {
+//			outputRoot = required("lims.import.input.cs_dir");
+//
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
+//		/* Set default data directory */
+//		Path path = FileSystems.getDefault().getPath(outputRoot, "data");
+//		File exportDir = path.toFile();
+//		if (exportDir.isDirectory()) {
+//			if (!exportDir.canWrite()) {
+//				throw new ExportException(String.format(
+//						"Directory not writable: \"%s\"", path));
+//			}
+//		} else {
+//			logger.info(String
+//					.format("No such directory (lims.import.input.cs_dir): \"%s\". Will attempt to create it",
+//							path));
+//			try {
+//				java.nio.file.Files.createDirectories(path);
+//			} catch (IOException e) {
+//				throw new ExportException(String.format(
+//						"Failed to create directory \"%s\"", path), e);
+//			}
+//		}
+//		return exportDir;
+//	}
 
 	public String getPropValues(String propertyType) throws IOException {
 		try {
