@@ -158,8 +158,8 @@ public class LimsFileSelector {
 	 * Method use in LimsImportAB1 class. Get the fasta filename from the
 	 * content
 	 */
-	public String readFastaContent(File file, String fastafileName)
-			throws FileNotFoundException {
+	public String readFastaContent(File file) throws FileNotFoundException {
+		String resultFastaFileName = "";
 		/* Load content in buffer */
 		BufferedReader in = new BufferedReader(new FileReader(file));
 		String line;
@@ -168,7 +168,7 @@ public class LimsFileSelector {
 			line = in.readLine();
 			if (line.startsWith(">")) {
 				/* Get the filename. >e30233392_Lon_rub_RL030_COI */
-				fastafileName = line.substring(1);
+				resultFastaFileName = line.substring(1);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -178,6 +178,6 @@ public class LimsFileSelector {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return fastafileName;
+		return resultFastaFileName;
 	}
 }
