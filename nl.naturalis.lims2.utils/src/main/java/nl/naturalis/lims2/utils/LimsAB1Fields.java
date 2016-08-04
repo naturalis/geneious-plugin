@@ -4,6 +4,8 @@
 package nl.naturalis.lims2.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Reinier.Kartowikromo
@@ -11,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class LimsAB1Fields {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsAB1Fields.class);
 	private String extractID;
 	private String pcrPlaatID;
 	private String marker;
@@ -99,9 +103,21 @@ public class LimsAB1Fields {
 			setMarker(underscore[4].substring(0, underscore[4].indexOf("-")));
 		} else {
 			String[] underscore = StringUtils.split(ab1FileName, "_");
-			setExtractID(underscore[0]);
-			setPcrPlaatID(underscore[3]);
-			setMarker(underscore[4]);
+			if (underscore[0] != null) {
+				setExtractID(underscore[0]);
+			} else {
+				logger.info("Geen Fasta ExtractID aanwezig? ");
+			}
+			if (underscore[3] != null) {
+				setPcrPlaatID(underscore[3]);
+			} else {
+				logger.info("Geen Fasta PcrPlaatID aanwezig? ");
+			}
+			if (underscore[4] != null) {
+				setMarker(underscore[4]);
+			} else {
+				logger.info("Geen Fasta Marker aanwezig? ");
+			}
 		}
 
 	}

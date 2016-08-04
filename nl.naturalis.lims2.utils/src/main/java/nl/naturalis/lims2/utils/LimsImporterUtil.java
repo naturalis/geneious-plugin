@@ -33,7 +33,7 @@ public class LimsImporterUtil {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImporterUtil.class);
 
-	public String required(String property) throws Exception {
+	private String required(String property) throws Exception {
 		if (config.containsKey(property)) {
 			String s = $(property);
 			if (s.trim().isEmpty()) {
@@ -48,6 +48,9 @@ public class LimsImporterUtil {
 		return config.getProperty(property);
 	}
 
+	/**
+	 * Get the logname from the property file logname=Lims2-Import.log
+	 */
 	public String getLogFilename() {
 		String logFileName = "";
 
@@ -73,6 +76,9 @@ public class LimsImporterUtil {
 		return logFileName;
 	}
 
+	/**
+	 * Get the logpath from the property file. logpath=C:/Temp/Uitvallijst/
+	 * */
 	public String getLogPath() {
 		String logPath = "";
 
@@ -98,6 +104,9 @@ public class LimsImporterUtil {
 		return logPath;
 	}
 
+	/**
+	 * Get the import file path from the property file.
+	 * */
 	public File getLimsImportDir() throws ExportException {
 		String outputRoot = null;
 		try {
@@ -106,6 +115,7 @@ public class LimsImporterUtil {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		/* Set default data directory */
 		Path path = FileSystems.getDefault().getPath(outputRoot, "data");
 		File exportDir = path.toFile();
 		if (exportDir.isDirectory()) {
@@ -237,6 +247,9 @@ public class LimsImporterUtil {
 		return result;
 	}
 
+	/**
+	 * Used in LimsImportSamples Extract numbers from a string
+	 * */
 	public static String extractNumber(final String str) {
 
 		if (str == null || str.isEmpty())
@@ -258,6 +271,9 @@ public class LimsImporterUtil {
 		return sb.toString();
 	}
 
+	/**
+	 * Check for Letters character in "ID" (String)
+	 **/
 	public boolean isAlpha(String name) {
 		return name.matches("[a-zA-Z]+");
 	}
