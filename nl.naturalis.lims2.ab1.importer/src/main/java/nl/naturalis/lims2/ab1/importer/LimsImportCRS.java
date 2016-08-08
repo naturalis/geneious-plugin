@@ -1,5 +1,5 @@
 /**
- * 
+ * <h1>Lims CRS Plugin</h1> 
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -38,7 +38,12 @@ import com.opencsv.CSVReader;
 
 /**
  * @author Reinier.Kartowikromo
- *
+ * @category Lims Import CRS plugin
+ * @version: 1.0
+ * @Date 08 august 2016
+ * @Company Naturalis Biodiversity Center
+ * @City Leiden
+ * @Country Netherlands
  */
 public class LimsImportCRS extends DocumentAction {
 
@@ -67,8 +72,8 @@ public class LimsImportCRS extends DocumentAction {
 	private String logCrsFileName = "";
 	private Object fasDocument = "";
 	private LimsLogger limsLogger = null;
-	private List<String> UitvalList = new ArrayList<String>();
-	private List<String> verwerkList = new ArrayList<String>();
+	private List<String> failureList = new ArrayList<String>();
+	private List<String> processedList = new ArrayList<String>();
 	private List<String> MatchList = new ArrayList<String>();
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> lackCRSList = new ArrayList<String>();
@@ -101,6 +106,7 @@ public class LimsImportCRS extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
+	/** Select AB1 or Fasta documents to add notes to the documents */
 	private void readDataFromCRSFrom_File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
@@ -152,11 +158,11 @@ public class LimsImportCRS extends DocumentAction {
 				logger.info("-------------------------- S T A R T --------------------------");
 				logger.info("Start Reading data from a CRS file.");
 
-				UitvalList.clear();
-				UitvalList.add("Filename: " + fileSelected + "\n");
-				UitvalList.add("Username: " + System.getProperty("user.name")
+				failureList.clear();
+				failureList.add("Filename: " + fileSelected + "\n");
+				failureList.add("Username: " + System.getProperty("user.name")
 						+ "\n");
-				UitvalList.add("Type action: Import CRS data " + "\n");
+				failureList.add("Type action: Import CRS data " + "\n");
 
 				/*
 				 * Begintijd opstarten tijdens het proces van verwerken van de
@@ -178,7 +184,7 @@ public class LimsImportCRS extends DocumentAction {
 					/* add the selected document into the list. */
 					listDocuments = DocumentUtilities.getSelectedDocuments();
 
-					/* Opvragen aantal in te lezen records uit de Bold file. */
+					/* Opvragen aantal in te lezen records uit de CRS file. */
 					if (crsTotaalRecords == 0) {
 						try {
 							csvReader = new CSVReader(new FileReader(
@@ -195,6 +201,7 @@ public class LimsImportCRS extends DocumentAction {
 					logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
 					lackCRSList.clear();
+					/* Start processing the CRS CVS records */
 					while ((line = bufReader.readLine()) != null) {
 						if (line.length() == 1 && line.isEmpty()) {
 							continue;
@@ -211,11 +218,17 @@ public class LimsImportCRS extends DocumentAction {
 								&& registrationNumber.length() > 0) {
 
 							int cnt = 0;
+							/* Looping thru the selected documents to add Notes */
 							for (AnnotatedPluginDocument list : listDocuments) {
 
 								isRMNHNumber = false;
+								/* Get the filename */
 								documentFileName = list.getName();
 
+								/*
+								 * Check if file has the notes "ImportedFrom",
+								 * dummies file do not have that
+								 */
 								if ((documentFileName.toString()
 										.contains("ab1"))
 										|| (list.toString().contains("fas"))
@@ -245,6 +258,10 @@ public class LimsImportCRS extends DocumentAction {
 									}
 								}
 
+								/*
+								 * check if document contain a registration
+								 * number
+								 */
 								isRMNHNumber = list.toString().contains(
 										"RegistrationNumberCode_Samples");
 
@@ -256,6 +273,7 @@ public class LimsImportCRS extends DocumentAction {
 												+ list.getName());
 									}
 								} else {
+									/* Get registration number from the document */
 									resultRegNum = (list
 											.getDocumentNotes(true)
 											.getNote(
@@ -264,12 +282,19 @@ public class LimsImportCRS extends DocumentAction {
 								}
 
 								if (isRMNHNumber) {
+									/*
+									 * If the Registration number from the CSV
+									 * record match with the registration number
+									 * from the selected document then start
+									 * processing
+									 */
 									if (resultRegNum.equals(registrationNumber)) {
 
+										/* Start time of the process */
 										startBeginTime = System.nanoTime();
 
 										recordCount++;
-
+										/* Show progressbar GUI */
 										limsFrameProgress
 												.showProgress("Match : "
 														+ registrationNumber
@@ -282,20 +307,42 @@ public class LimsImportCRS extends DocumentAction {
 
 										crsRecordVerwerkt++;
 
+										/* Clear fields variables */
 										clearFieldValues();
 
+										/*
+										 * TODO: Anders aanpakken middels
+										 * CSVReader functionaliteit. Misschien
+										 * wordt de preformance wat beter.
+										 */
+										/*
+										 * Looping thru a row set from the CSV
+										 * file
+										 */
 										for (int i = 0, n = row.length; i < n; i++) {
+											/* Set Registration number */
 											LimsCRSFields
 													.setRegistratienummer(row[0]);
+											/*
+											 * Set Rank or classification and
+											 * Name
+											 */
 											extractRankOrClassification(row[1],
 													row[2]);
+											/* Set Genus or monomial */
 											LimsCRSFields.setGenus(row[3]);
+											/* Full scientific name */
 											LimsCRSFields.setTaxon(row[4]);
+											/* Identifier */
 											LimsCRSFields
 													.setDeterminator(row[5]);
+											/* Sex */
 											LimsCRSFields.setSex(row[6]);
+											/* Phase or stage */
 											LimsCRSFields.setStadium(row[7]);
+											/* Agent */
 											LimsCRSFields.setLegavit(row[8]);
+											/* Collecting start date */
 											if (row[9].length() > 0) {
 												LimsCRSFields
 														.setCollectingDate(row[9]);
@@ -303,42 +350,49 @@ public class LimsImportCRS extends DocumentAction {
 												LimsCRSFields
 														.setCollectingDate("10000101L");
 											}
+											/* Country */
 											LimsCRSFields.setCountry(row[10]);
+											/* State/province */
 											if (i == 11) {
 												LimsCRSFields
 														.setBioRegion(row[i]);
 											}
-
+											/* Locality */
 											if (i == 12) {
 												LimsCRSFields
 														.setLocality(row[i]);
 											}
-
+											/* Latitude */
 											if (i == 13) {
 												LimsCRSFields
 														.setLatitudeDecimal(row[i]);
 											}
-
+											/* Longitude */
 											if (i == 14) {
 												LimsCRSFields
 														.setLongitudeDecimal(row[i]);
 											}
+											/* Altitude */
 											if (i == 15) {
 												LimsCRSFields.setHeight(row[i]);
 											}
 										}
 
-										/* Add notes */
+										/* Add notes to the selected document */
 										setCRSNotes(annotatedPluginDocuments,
 												cnt);
 										logger.info("Done with adding notes to the document: "
 												+ documentFileName);
 
-										if (!verwerkList.contains(resultRegNum)) {
-											verwerkList.add(resultRegNum
+										if (!processedList
+												.contains(resultRegNum)) {
+											processedList.add(resultRegNum
 													.toString());
 										}
-
+										/*
+										 * End duration of the processing of
+										 * notes
+										 */
 										long endTime = System.nanoTime();
 										long elapsedTime = endTime
 												- startBeginTime;
@@ -355,14 +409,15 @@ public class LimsImportCRS extends DocumentAction {
 							} // end For Selected
 						} // end if registration contain only numbers
 
-						if (!verwerkList.toString()
-								.contains(registrationNumber)
+						/* Add data(total records) to the failure list */
+						if (!processedList.toString().contains(
+								registrationNumber)
 								&& registrationNumber.matches(".*\\d+.*")) {
 							recordCount++;
-							UitvalList
+							failureList
 									.add("No document(s) match found for Registrationnumber: "
 											+ registrationNumber + "\n");
-
+							/* Show failure records on the dialog screen */
 							limsFrameProgress.showProgress("No match : "
 									+ registrationNumber + "\n"
 									+ "  Recordcount: " + recordCount);
@@ -382,8 +437,8 @@ public class LimsImportCRS extends DocumentAction {
 						MatchList.add("No document(s) match found for : "
 								+ documentFileName);
 
-						UitvalList.add("Total records not matched: "
-								+ Integer.toString(UitvalList.size() - 3)
+						failureList.add("Total records not matched: "
+								+ Integer.toString(failureList.size() - 3)
 								+ "\n");
 					}
 					/** Calculating the Duration of the import **/
@@ -409,14 +464,14 @@ public class LimsImportCRS extends DocumentAction {
 
 						@Override
 						public void run() {
-							crsRecordUitval = UitvalList.size() - 4;
+							crsRecordUitval = failureList.size() - 4;
 
 							Dialogs.showMessageDialog(Integer
 									.toString(crsTotaalRecords)
 									+ " records have been read of which: "
 									+ "\n"
 									+ "[1] "
-									+ verwerkList.size()
+									+ processedList.size()
 									+ " records are imported and linked to "
 									+ Integer.toString(crsRecordVerwerkt)
 									+ " existing documents (of "
@@ -441,7 +496,7 @@ public class LimsImportCRS extends DocumentAction {
 									+ Integer.toString(lackCRSList.size())
 									+ " selected document lacks Registr-nmbr (Sample).");
 
-							logger.info(verwerkList.size()
+							logger.info(processedList.size()
 									+ " records are imported and linked to "
 									+ Integer.toString(crsRecordVerwerkt)
 									+ " existing documents (of "
@@ -452,11 +507,11 @@ public class LimsImportCRS extends DocumentAction {
 									+ " records are ignored.");
 
 							limsLogger.logToFile(logCrsFileName,
-									UitvalList.toString());
+									failureList.toString());
 
 							msgList.clear();
-							UitvalList.clear();
-							verwerkList.clear();
+							failureList.clear();
+							processedList.clear();
 							limsFrameProgress.hideFrame();
 							crsRecordUitval = 0;
 							crsRecordVerwerkt = 0;
@@ -470,6 +525,9 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
+	/**
+	 * Set notes to the documents
+	 * */
 	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
 		/** set note for Phylum: FieldValue, Label, NoteType, */
@@ -567,6 +625,10 @@ public class LimsImportCRS extends DocumentAction {
 				"CRS (CRS)", "CRS (CRS)", true, cnt);
 	}
 
+	/**
+	 * Split the Rank or classification values. Example: order / family /
+	 * subfamily / tribe Coleoptera / Leiodidae / Cholevinae / Cholevini Catops
+	 * */
 	private void extractRankOrClassification(String rankOrClassificationValue,
 			String nameValue) {
 
@@ -599,6 +661,7 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
+	/** Clear fields variables */
 	private void clearFieldValues() {
 		LimsCRSFields.setRegistratienummer("");
 		LimsCRSFields.setPhylum("");

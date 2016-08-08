@@ -1,5 +1,5 @@
 /**
- * 
+ * <h1>Lims All Naturalis files Plugin</h1> 
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -28,7 +28,12 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
  * @author Reinier.Kartowikromo
- *
+ * @category Lims Import All Naturalis files plugin
+ * @version: 1.0
+ * @Date 08 august 2016
+ * @Company Naturalis Biodiversity Center
+ * @City Leiden
+ * @Country Netherlands
  */
 public class LimsImportAB1 extends DocumentFileImporter {
 

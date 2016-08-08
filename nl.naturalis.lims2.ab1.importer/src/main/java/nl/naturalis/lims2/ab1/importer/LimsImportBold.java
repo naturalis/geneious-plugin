@@ -1,5 +1,5 @@
 /**
- * 
+ * <h1>Bold Plugin</h1> 
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -36,7 +36,12 @@ import com.opencsv.CSVReader;
 
 /**
  * @author Reinier.Kartowikromo
- *
+ * @category Lims Import BOLD plugin
+ * @version: 1.0
+ * @Date 08 august 2016
+ * @Company Naturalis Biodiversity Center
+ * @City Leiden
+ * @Country Netherlands
  */
 public class LimsImportBold extends DocumentAction {
 
@@ -51,8 +56,8 @@ public class LimsImportBold extends DocumentAction {
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 
 	private List<String> msgList = new ArrayList<String>();
-	private List<String> msgUitvalList = new ArrayList<String>();
-	private List<String> verwerkList = new ArrayList<String>();
+	private List<String> failureList = new ArrayList<String>();
+	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackBoldList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
@@ -65,7 +70,6 @@ public class LimsImportBold extends DocumentAction {
 	private String boldFile;
 	private String extractIDfileName;
 
-	// private boolean result = false;
 	private boolean isRMNHNumber = false;
 	private boolean isOverrideCacheName = false;
 
@@ -77,6 +81,7 @@ public class LimsImportBold extends DocumentAction {
 	private long startTime;
 	private long lEndTime = 0;
 	private long difference = 0;
+	private long startBeginTime = 0;
 
 	private DefaultAlignmentDocument defaultAlignmentDocument = null;
 	private DefaultNucleotideSequence defaultNucleotideSequence = null;
@@ -106,9 +111,8 @@ public class LimsImportBold extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
+	/** Select documents and read data from the BOLD cvs file */
 	private void readDataFromBold(AnnotatedPluginDocument[] annotatedDocument) {
-
-		long startBeginTime = 0;
 
 		/* Get Databasename */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
@@ -159,12 +163,12 @@ public class LimsImportBold extends DocumentAction {
 				logger.info("------------------------------S T A R T -----------------------------------");
 				logger.info("Start reading from Bold File(s)");
 
-				msgUitvalList.clear();
-				msgUitvalList.add("Bold filename: " + boldFileSelected + "\n");
+				failureList.clear();
+				failureList.add("Bold filename: " + boldFileSelected + "\n");
 
 				String[] headerCOI = null;
 
-				/* Opvragen aantal in te lezen records uit de Bold file. */
+				/* Get the total records from the BOLD file */
 				if (BoldTotaalRecords == 0) {
 					try {
 						CSVReader csvReadertot = new CSVReader(new FileReader(
@@ -180,7 +184,7 @@ public class LimsImportBold extends DocumentAction {
 
 				logger.info("Totaal records Bold file: " + BoldTotaalRecords);
 
-				/* Begintijd opstarten tijdens het proces van verwerken. */
+				/* Start time of processing the notes . */
 				startTime = new Date().getTime();
 
 				/* Create CSv object to read the Csv file. */
@@ -195,24 +199,26 @@ public class LimsImportBold extends DocumentAction {
 
 						while ((record = csvReader.readNext()) != null) {
 							/*
-							 * Doorgaan indien er lege regels aanwezig zijn in
-							 * het bestand dat wordt ingelezen.
+							 * Continue if record is empty
 							 */
 							if (record.length == 1 && record[0].isEmpty()) {
 								continue;
 							}
 
-							/* Get the registrationnumber from the CSV file. */
+							/*
+							 * Get the registration number from the CSV file.
+							 * Sample ID
+							 */
 							String regNumber = record[2];
 
 							/*
-							 * Get the selected document from Geneious which
-							 * metadata will be added.
+							 * Add selected document to a List.
 							 */
 							listDocuments = DocumentUtilities
 									.getSelectedDocuments();
 
 							int cnt = 0;
+							/* Looping thru the selected documents to add notes. */
 							for (AnnotatedPluginDocument list : listDocuments) {
 
 								resultRegNum = null;
@@ -237,8 +243,7 @@ public class LimsImportBold extends DocumentAction {
 
 									if (isOverrideCacheName) {
 										/*
-										 * Kopie van Fas document wordt
-										 * opgeslagen als
+										 * Copy of AB1 document is saved as
 										 * DefaultNucleotideSequence
 										 */
 										if (documentFileName.toString()
@@ -251,8 +256,7 @@ public class LimsImportBold extends DocumentAction {
 													.getName();
 										}
 										/*
-										 * Kopie van AB1 document wordt
-										 * opgeslagen als
+										 * Copy of AB1 document is saved as
 										 * DefaultNucleotideGraphSequence
 										 */
 										else if ((documentFileName.toString()
@@ -305,7 +309,7 @@ public class LimsImportBold extends DocumentAction {
 														.get(cnt).getName());
 									}
 								} else {
-									/**
+									/*
 									 * Get value from
 									 * "RegistrationnumberCode_Samples"
 									 */
@@ -362,14 +366,13 @@ public class LimsImportBold extends DocumentAction {
 									 * Add the registration number to the
 									 * document which has been processed.
 									 */
-									if (!verwerkList.toString().contains(
+									if (!processedList.toString().contains(
 											regNumber)) {
-										verwerkList.add(regNumber);
+										processedList.add(regNumber);
 										VerwerktReg++;
 									}
 									/*
-									 * Get the end time to see the duration from
-									 * adding notes.
+									 * Duration time of adding notes.
 									 */
 									long endTime = System.nanoTime();
 									long elapsedTime = endTime - startBeginTime;
@@ -415,9 +418,9 @@ public class LimsImportBold extends DocumentAction {
 									 * Add the registration number to the
 									 * document which has been processed.
 									 */
-									if (!verwerkList.toString().contains(
+									if (!processedList.toString().contains(
 											regNumber)) {
-										verwerkList.add(regNumber);
+										processedList.add(regNumber);
 										VerwerktRegMarker++;
 									}
 
@@ -440,11 +443,12 @@ public class LimsImportBold extends DocumentAction {
 								 * Log the total of records that not has been
 								 * processed/skip
 								 */
-								if (!verwerkList.toString().contains(regNumber)
+								if (!processedList.toString().contains(
+										regNumber)
 										&& regNumber.matches(".*\\d+.*")) {
-									if (!msgUitvalList.toString().contains(
+									if (!failureList.toString().contains(
 											regNumber)) {
-										msgUitvalList
+										failureList
 												.add("No document(s) match found for Registrationnumber: "
 														+ regNumber + "\n");
 										limsFrameProgress
@@ -458,7 +462,7 @@ public class LimsImportBold extends DocumentAction {
 						} // end While
 
 						logger.info("Total of document(s) updated: "
-								+ verwerkList.size());
+								+ processedList.size());
 						logger.info("------------------------------E N D -----------------------------------");
 						logger.info("Done with reading bold file. ");
 
@@ -467,8 +471,8 @@ public class LimsImportBold extends DocumentAction {
 						 * match).
 						 */
 						if (documentFileName != null) {
-							msgUitvalList.add("Total records: "
-									+ Integer.toString(msgUitvalList.size())
+							failureList.add("Total records: "
+									+ Integer.toString(failureList.size())
 									+ "\n");
 						}
 
@@ -487,7 +491,7 @@ public class LimsImportBold extends DocumentAction {
 								+ TimeUnit.MILLISECONDS.toMinutes(difference)
 								+ " minutes.'");
 
-						/* Show information after the import of data. */
+						/* Show result information after the import of data. */
 						EventQueue.invokeLater(new Runnable() {
 
 							@Override
@@ -499,7 +503,7 @@ public class LimsImportBold extends DocumentAction {
 										+ " records have been read of which: "
 										+ "\n"
 										+ "[1] "
-										+ verwerkList.size()
+										+ processedList.size()
 										+ " records are imported and linked to "
 										+ Integer.toString(totaalVerwerkt)
 										+ " existing documents (of "
@@ -512,7 +516,7 @@ public class LimsImportBold extends DocumentAction {
 										+ " selected documents: "
 										+ "\n"
 										+ "[2] "
-										+ Integer.toString(msgUitvalList.size() - 2)
+										+ Integer.toString(failureList.size() - 2)
 										+ " records are ignored."
 										+ "\n"
 										+ "\n"
@@ -522,15 +526,15 @@ public class LimsImportBold extends DocumentAction {
 										+ " selected document lacks Registr-nmbr (Sample).");
 
 								logger.info("Bold: Total of document(s) updated: "
-										+ verwerkList.size() + "\n");
+										+ processedList.size() + "\n");
 
 								/* Save the logfile */
 								limsLogger.logToFile(logBoldFileName,
-										msgUitvalList.toString());
+										failureList.toString());
 
 								msgList.clear();
-								msgUitvalList.clear();
-								verwerkList.clear();
+								failureList.clear();
+								processedList.clear();
 								/* Hide the progressbar */
 								limsFrameProgress.hideFrame();
 							}
@@ -552,7 +556,7 @@ public class LimsImportBold extends DocumentAction {
 		}
 	}
 
-	/* Set value to Notes */
+	/** Set value to documents notes if match on Registration and Marker */
 	private void setNotesToBoldDocumentsRegistrationMarker(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		/** set note for TraceFile Presence */
@@ -587,7 +591,7 @@ public class LimsImportBold extends DocumentAction {
 		logger.info(" ");
 	}
 
-	/* Set value to Notes */
+	/** Set value to documents notes if match only on registration number */
 	private void setNotesToBoldDocumentsRegistration(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		/** set note for BOLD-ID */
@@ -623,7 +627,7 @@ public class LimsImportBold extends DocumentAction {
 		logger.info("Done with adding notes to the document");
 	}
 
-	/* Set value to variable */
+	/** Set value to variable */
 	private void setNotesThatMatchRegistrationNumber(String boldID,
 			String numberOfImagesBold, String boldProjectID, String fieldID,
 			String boldBIN, String boldURI) {

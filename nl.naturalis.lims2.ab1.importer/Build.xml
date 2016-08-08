@@ -59,7 +59,7 @@
     </target>
 	
     <target name="compile" depends="prepare">
-        <javac target="1.6" source="1.6" destdir="${classes}" includeantruntime="true" debug="true">
+        <javac target="1.8" source="1.8" destdir="${classes}" includeantruntime="true" debug="true">
             <classpath refid="classpath"/>
             <src path="${src/main/java}"/>
         	<src path="${utilities.dir}"/>

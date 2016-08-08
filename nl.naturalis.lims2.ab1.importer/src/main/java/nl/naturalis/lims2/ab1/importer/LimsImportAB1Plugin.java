@@ -1,5 +1,5 @@
 /**
- * 
+ * <h1>Lims AB1, Fasta Plugin</h1> 
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -10,7 +10,12 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
  * @author Reinier.Kartowikromo
- *
+ * @category Lims Import AB1 Fasta plugin
+ * @version: 1.0
+ * @Date 08 august 2016
+ * @Company Naturalis Biodiversity Center
+ * @City Leiden
+ * @Country Netherlands
  */
 public class LimsImportAB1Plugin extends GeneiousPlugin {
 
@@ -23,7 +28,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getDescription() {
-		return "Import AB1 files";
+		return "Import AB1/Fasta files";
 	}
 
 	@Override
@@ -43,12 +48,12 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public String getName() {
-		return "Naturalis AB1 file plugin";
+		return "Naturalis AB1/Fasta file plugin";
 	}
 
 	@Override
 	public String getVersion() {
-		return "0.70";
+		return "0.71";
 	}
 
 	public DocumentFileImporter[] getDocumentFileImporters() {
