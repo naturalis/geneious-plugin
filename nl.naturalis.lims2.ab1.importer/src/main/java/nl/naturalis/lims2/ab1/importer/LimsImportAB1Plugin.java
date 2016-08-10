@@ -1,5 +1,15 @@
 /**
  * <h1>Lims AB1, Fasta Plugin</h1> 
+ * <table>
+ * <tr>
+ * <td>
+ * Date 08 august 2016
+ * Company Naturalis Biodiversity Center City
+ * Leiden Country Netherlands
+ * </td>
+ * </tr>
+ * </table>
+ * <p>category Lims Import AB1 Fasta plugin</p>
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -10,12 +20,8 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
  * @author Reinier.Kartowikromo
- * @category Lims Import AB1 Fasta plugin
  * @version: 1.0
- * @Date 08 august 2016
- * @Company Naturalis Biodiversity Center
- * @City Leiden
- * @Country Netherlands
+ * 
  */
 public class LimsImportAB1Plugin extends GeneiousPlugin {
 

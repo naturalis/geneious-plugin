@@ -30,13 +30,9 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 /**
- * @author Reinier.Kartowikromo
- * @category Lims Import Split Name plugin
- * @version: 1.0
- * @Date 08 august 2016
- * @Company Naturalis Biodiversity Center
- * @City Leiden
- * @Country Netherlands
+ * @author Reinier.Kartowikromo category Lims Import Split Name plugin
+ * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
+ *           Leiden Country Netherlands
  */
 public class LimsImportAB1Update extends DocumentAction {
 
@@ -87,6 +83,22 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			Object documentFileImportPath = "";
 
+			try {
+				String url = limsImporterUtil.getDatabasePropValues("url");
+
+				int beginIndex = url.indexOf("//") + 2;
+				int endIndex = url.length() - 1;
+
+				String resultUrl = url.substring(beginIndex, endIndex);
+
+				/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
+				String localOrServer = ReadGeneiousFieldsValues
+						.checkIfLocalOrServerDatabase(resultUrl);
+
+				System.out.println("URL: " + localOrServer);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			/* Get Databasename */
 			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
@@ -151,10 +163,14 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * Get the import path from the selected document
 				 * "C:\Git\Data\Fasta files"
 				 */
-				documentFileImportPath = DocumentUtilities
-						.getSelectedDocuments().get(cnt).getDocumentNotes(true)
-						.getNote("importedFrom").getFieldValue("path");
-
+				if (documentFileName.getName().contains("dum")) {
+					continue;
+				} else {
+					documentFileImportPath = DocumentUtilities
+							.getSelectedDocuments().get(cnt)
+							.getDocumentNotes(true).getNote("importedFrom")
+							.getFieldValue("path");
+				}
 				/*
 				 * If there is no Version number in the document(Database) set
 				 * version value to "1".
@@ -246,66 +262,8 @@ public class LimsImportAB1Update extends DocumentAction {
 						limsAB1Fields.setVersieNummer(versienummer);
 					}
 
-					logger.info("Extract ID: " + limsAB1Fields.getExtractID());
-					logger.info("PCR plaat ID: "
-							+ limsAB1Fields.getPcrPlaatID());
-					logger.info("Marker: " + limsAB1Fields.getMarker());
-					logger.info("Versienummer: "
-							+ limsAB1Fields.getVersieNummer());
-
-					/** set note for Extract-ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"ExtractIDCode_Seq", "Extract ID (Seq)",
-							"Extract ID (Seq)", limsAB1Fields.getExtractID(),
-							cnt);
-
-					/** set note for PCR Plate ID */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
-							"PCR plate ID (Seq)",
-							limsAB1Fields.getPcrPlaatID(), cnt);
-
-					/** set note for Marker */
-					limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-							"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
-							limsAB1Fields.getMarker(), cnt);
-
-					/** set note for Document version */
-					if (fileExists && !extractValue) {
-						limsNotes.setNoteToAB1FileName(
-								annotatedPluginDocuments,
-								"DocumentVersionCode_Seq", "Document version",
-								"Document version",
-								Integer.toString(versienummer), cnt);
-					}
-
-					/* set note for SequencingStaffCode_FixedValue_Seq */
-					try {
-						limsNotes
-								.setNoteToAB1FileName(
-										annotatedPluginDocuments,
-										"SequencingStaffCode_FixedValue_Seq",
-										"Seq-staff (Seq)",
-										"Seq-staff (Seq)",
-										limsImporterUtil
-												.getPropValues("seqsequencestaff"),
-										cnt);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					/** Set note ConsensusSeqPassCode_Seq */
-					limsNotes.setNoteDropdownFieldToFileName(
-							annotatedPluginDocuments,
-							limsNotes.ConsensusSeqPass,
-							"ConsensusSeqPassCode_Seq", "Pass (Seq)",
-							"Pass (Seq)", null, cnt);
-
-					/** Show processing dialog */
-					limsFrameProgress.showProgress("Processing: "
-							+ DocumentUtilities.getSelectedDocuments().get(cnt)
-									.getName());
-					logger.info("Done with adding notes to the document");
+					/* Processing the notes */
+					setSplitDocumentsNotes(annotatedPluginDocuments, cnt);
 				}
 
 			}
@@ -323,26 +281,79 @@ public class LimsImportAB1Update extends DocumentAction {
 
 				@Override
 				public void run() {
-					String filename = "";
-					if ((documentFileName.getName().toString().contains("ab1") || documentFileName
-							.getName().toString().contains("dum"))) {
-						filename = "AB1";
-					} else {
-						filename = "FAS";
-					}
-					Dialogs.showMessageDialog(filename + "-Update: "
+
+					Dialogs.showMessageDialog(getSplitFileName(documentFileName)
+							+ "_Update: "
 							+ Integer.toString(msgList.size())
-							+ " documents are update." + "\n"
-							+ msgList.toString());
-					logger.info(filename
+							+ " documents are updated.");
+
+					logger.info(getSplitFileName(documentFileName)
 							+ "-Update: Total imported document(s): "
 							+ msgList.toString());
 
 					msgList.clear();
 					limsFrameProgress.hideFrame();
 				}
+
+				private String getSplitFileName(SequenceDocument document) {
+					if ((document.getName().contains("ab1") || document
+							.getName().contains("dum")))
+						return "AB1";
+					return "Fasta";
+
+				}
 			});
 		}
+	}
+
+	private void setSplitDocumentsNotes(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		logger.info("Extract ID: " + limsAB1Fields.getExtractID());
+		logger.info("PCR plaat ID: " + limsAB1Fields.getPcrPlaatID());
+		logger.info("Marker: " + limsAB1Fields.getMarker());
+		logger.info("Versienummer: " + limsAB1Fields.getVersieNummer());
+
+		/** set note for Extract-ID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
+				limsAB1Fields.getExtractID(), cnt);
+
+		/** set note for PCR Plate ID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
+				"PCR plate ID (Seq)", limsAB1Fields.getPcrPlaatID(), cnt);
+
+		/** set note for Marker */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
+				limsAB1Fields.getMarker(), cnt);
+
+		/** set note for Document version */
+		if (fileExists && !extractValue) {
+			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					"DocumentVersionCode_Seq", "Document version",
+					"Document version", Integer.toString(versienummer), cnt);
+		}
+
+		/* set note for SequencingStaffCode_FixedValue_Seq */
+		try {
+			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					"SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
+					"Seq-staff (Seq)",
+					limsImporterUtil.getPropValues("seqsequencestaff"), cnt);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		/** Set note ConsensusSeqPassCode_Seq */
+		limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
+				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
+				"Pass (Seq)", "Pass (Seq)", null, cnt);
+
+		/** Show processing dialog */
+		limsFrameProgress.showProgress("Processing: "
+				+ DocumentUtilities.getSelectedDocuments().get(cnt).getName());
+		logger.info("Done with adding notes to the document");
 	}
 
 	@Override

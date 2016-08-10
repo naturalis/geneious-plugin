@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LimsImporterUtil {
 
-	//	private final Properties config = null;
+	// private final Properties config = null;
 	private String result = "";
 	private InputStream inputStream;
 	private Properties prop = new Properties();
@@ -27,38 +27,25 @@ public class LimsImporterUtil {
 	private static String workingDatadirectory = System.getProperty("user.dir");
 	private static String absoluteFilePath = null;
 
-	private static final Logger logger = LoggerFactory.getLogger(LimsImporterUtil.class);
-
-	//	private String required(String property) throws Exception {
-	//		if (config.containsKey(property)) {
-	//			String s = $(property);
-	//			if (s.trim().isEmpty()) {
-	//				throw new Exception(property);
-	//			}
-	//			return s;
-	//		}
-	//		throw new Exception(property);
-	//	}
-	//
-	//	private String $(String property) {
-	//		return config.getProperty(property);
-	//	}
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsImporterUtil.class);
 
 	/**
 	 * Get the logname from the property file logname=Lims2-Import.log
+	 * 
+	 * @return logFileName;
 	 */
-	public String getLogFilename()
-	{
+	public String getLogFilename() {
 		String logFileName = "";
 
 		if (workingDatadirectory != null) {
-			absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+			absoluteFilePath = workingDatadirectory + File.separator
+					+ propFileName;
 		}
 
 		try {
 			inputStream = new FileInputStream(absoluteFilePath);
-		}
-		catch (FileNotFoundException e1) {
+		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
 
@@ -66,8 +53,7 @@ public class LimsImporterUtil {
 			try {
 				prop.load(inputStream);
 				logFileName = prop.getProperty("logname");
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -76,19 +62,20 @@ public class LimsImporterUtil {
 
 	/**
 	 * Get the logpath from the property file. logpath=C:/Temp/Uitvallijst/
+	 * 
+	 * @return logPath;
 	 * */
-	public String getLogPath()
-	{
+	public String getLogPath() {
 		String logPath = "";
 
 		if (workingDatadirectory != null) {
-			absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+			absoluteFilePath = workingDatadirectory + File.separator
+					+ propFileName;
 		}
 
 		try {
 			inputStream = new FileInputStream(absoluteFilePath);
-		}
-		catch (FileNotFoundException e1) {
+		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
 
@@ -96,51 +83,16 @@ public class LimsImporterUtil {
 			try {
 				prop.load(inputStream);
 				logPath = prop.getProperty("logpath");
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return logPath;
 	}
 
-	//	/**
-	//	 * Get the import file path from the property file.
-	//	 * */
-	//	public File getLimsImportDir() throws ExportException {
-	//		String outputRoot = null;
-	//		try {
-	//			outputRoot = required("lims.import.input.cs_dir");
-	//
-	//		} catch (Exception e1) {
-	//			e1.printStackTrace();
-	//		}
-	//		/* Set default data directory */
-	//		Path path = FileSystems.getDefault().getPath(outputRoot, "data");
-	//		File exportDir = path.toFile();
-	//		if (exportDir.isDirectory()) {
-	//			if (!exportDir.canWrite()) {
-	//				throw new ExportException(String.format(
-	//						"Directory not writable: \"%s\"", path));
-	//			}
-	//		} else {
-	//			logger.info(String
-	//					.format("No such directory (lims.import.input.cs_dir): \"%s\". Will attempt to create it",
-	//							path));
-	//			try {
-	//				java.nio.file.Files.createDirectories(path);
-	//			} catch (IOException e) {
-	//				throw new ExportException(String.format(
-	//						"Failed to create directory \"%s\"", path), e);
-	//			}
-	//		}
-	//		return exportDir;
-	//	}
-
 	private Properties importProps;
 
-	public String getPropValues(String propertyType) throws IOException
-	{
+	public String getPropValues(String propertyType) throws IOException {
 		if (importProps == null) {
 			try {
 				importProps = new Properties();
@@ -150,27 +102,27 @@ public class LimsImporterUtil {
 				String absoluteFilePath = null;
 
 				if (workingDatadirectory != null) {
-					absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+					absoluteFilePath = workingDatadirectory + File.separator
+							+ propFileName;
 				}
 
 				inputStream = new FileInputStream(absoluteFilePath);
 				if (inputStream != null) {
 					importProps.load(inputStream);
-				}
-				else {
+				} else {
+					/* TODO */
 					// Ayco: deze message gaat dubbel gelogd worden, want
 					// de FileNotFoundException wordt in het catch block
 					// beneden opgevangen en daar wordt de message weer
 					// gelogd.
-					logger.info("property file '" + propFileName + "' not found in the classpath");
-					throw new FileNotFoundException("property file '" + propFileName
+					logger.info("property file '" + propFileName
 							+ "' not found in the classpath");
+					throw new FileNotFoundException("property file '"
+							+ propFileName + "' not found in the classpath");
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logger.info("Exception: " + e);
-			}
-			finally {
+			} finally {
 				inputStream.close();
 			}
 		}
@@ -180,8 +132,7 @@ public class LimsImporterUtil {
 	}
 
 	// Ayco: deze method wordt nergens aangeroepen
-	public String getFileFromPropertieFile(String fileType) throws IOException
-	{
+	public String getFileFromPropertieFile(String fileType) throws IOException {
 		try {
 			Properties prop = new Properties();
 
@@ -191,17 +142,18 @@ public class LimsImporterUtil {
 			String absoluteFilePath = null;
 
 			if (workingDatadirectory != null) {
-				absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+				absoluteFilePath = workingDatadirectory + File.separator
+						+ propFileName;
 			}
 
 			inputStream = new FileInputStream(absoluteFilePath);
 			if (inputStream != null) {
 				prop.load(inputStream);
-			}
-			else {
-				logger.info("property file '" + propFileName + "' not found in the classpath");
-				throw new FileNotFoundException("property file '" + propFileName
+			} else {
+				logger.info("property file '" + propFileName
 						+ "' not found in the classpath");
+				throw new FileNotFoundException("property file '"
+						+ propFileName + "' not found in the classpath");
 			}
 
 			String csvFileName = "";
@@ -214,12 +166,10 @@ public class LimsImporterUtil {
 			}
 
 			result = csvFileName;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.info("Exception: " + e);
 			System.out.println("Exception: " + e);
-		}
-		finally {
+		} finally {
 			if (inputStream != null)
 				inputStream.close();
 		}
@@ -228,8 +178,7 @@ public class LimsImporterUtil {
 
 	private Properties dbProps;
 
-	public String getDatabasePropValues(String propertyType) throws IOException
-	{
+	public String getDatabasePropValues(String propertyType) throws IOException {
 		if (dbProps == null) {
 			try {
 				dbProps = new Properties();
@@ -239,27 +188,26 @@ public class LimsImporterUtil {
 				String absoluteFilePath = null;
 
 				if (workingDatadirectory != null) {
-					absoluteFilePath = workingDatadirectory + File.separator + propFileName;
+					absoluteFilePath = workingDatadirectory + File.separator
+							+ propFileName;
 				}
 
 				inputStream = new FileInputStream(absoluteFilePath);
 				if (inputStream != null) {
 					dbProps.load(inputStream);
-				}
-				else {
-					// Zo log je dezelfde message twee keer, want de 
+				} else {
+					// Zo log je dezelfde message twee keer, want de
 					// FileNotFoundException wordt binnen deze method
 					// opgevangen, en het catch block logt de fout
 					// opnieuw (zie beneden)
-					logger.info("property file '" + propFileName + "' not found in the classpath");
-					throw new FileNotFoundException("property file '" + propFileName
+					logger.info("property file '" + propFileName
 							+ "' not found in the classpath");
+					throw new FileNotFoundException("property file '"
+							+ propFileName + "' not found in the classpath");
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logger.info("Exception: " + e);
-			}
-			finally {
+			} finally {
 				inputStream.close();
 			}
 		}
@@ -270,9 +218,11 @@ public class LimsImporterUtil {
 
 	/**
 	 * Used in LimsImportSamples Extract numbers from a string
+	 * 
+	 * @param str
+	 * @return sb.toString();
 	 * */
-	public static String extractNumber(final String str)
-	{
+	public static String extractNumber(final String str) {
 
 		if (str == null || str.isEmpty())
 			return "";
@@ -283,8 +233,7 @@ public class LimsImporterUtil {
 			if (Character.isDigit(c)) {
 				sb.append(c);
 				found = true;
-			}
-			else if (found) {
+			} else if (found) {
 				// If we already found a digit before and this char is not a
 				// digit, stop looping
 				break;
@@ -296,9 +245,12 @@ public class LimsImporterUtil {
 
 	/**
 	 * Check for Letters character in "ID" (String)
+	 * 
+	 * @param
+	 * @return name
+	 * 
 	 **/
-	public boolean isAlpha(String name)
-	{
+	public boolean isAlpha(String name) {
 		return name.matches("[a-zA-Z]+");
 	}
 }

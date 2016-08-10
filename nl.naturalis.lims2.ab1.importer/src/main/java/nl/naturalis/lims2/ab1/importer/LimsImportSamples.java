@@ -1,5 +1,9 @@
 /**
  * <h1>Lims Samples Plugin</h1> 
+ * category Lims Import Samples plugin
+ * Date 08 august 2016 
+ * Company Naturalis Biodiversity Center City
+ * Leiden Country Netherlands
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -36,12 +40,7 @@ import com.opencsv.CSVReader;
 
 /**
  * @author Reinier.Kartowikromo
- * @category Lims Import Samples plugin
  * @version: 1.0
- * @Date 08 august 2016
- * @Company Naturalis Biodiversity Center
- * @City Leiden
- * @Country Netherlands
  */
 public class LimsImportSamples extends DocumentAction {
 
@@ -75,7 +74,7 @@ public class LimsImportSamples extends DocumentAction {
 
 	private boolean isExtractIDSeqExists = false;
 	private boolean match = false;
-	private boolean isSampleDoc = false;
+	// private boolean isSampleDoc = false;
 
 	private int sampleRecordVerwerkt = 0;
 	private Object version = 0;
@@ -88,6 +87,8 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleRecordFailure = 0;
 	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
+
+	// private int failrecords = 0;
 
 	@Override
 	public void actionPerformed(
@@ -115,6 +116,12 @@ public class LimsImportSamples extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
+	private String getLackMessage(Boolean missing) {
+		if (missing)
+			return "[4] At least one selected document lacks ExtractID(Seq)";
+		return "";
+	}
+
 	private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
 
 		/* Get Database name */
@@ -132,17 +139,6 @@ public class LimsImportSamples extends DocumentAction {
 			/* If OK Selected */
 			if (n == 0) {
 				/** Check if document(s) has been selected **/
-				if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-					EventQueue.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-
-							Dialogs.showMessageDialog("Select at least one document");
-							return;
-						}
-					});
-				}
-
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
 					/* Get uitvallijst logfile name */
@@ -160,20 +156,8 @@ public class LimsImportSamples extends DocumentAction {
 						return;
 					}
 
-					/* Opvragen aantal in te lezen records uit de samples file. */
-					if (sampleTotaalRecords == 0) {
-						CSVReader reader;
-						try {
-							reader = new CSVReader(
-									new FileReader(fileSelected), '\t', '\'', 0);
-							sampleTotaalRecords = reader.readAll().size();
-							reader.close();
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
+					/* Get the total of records of the Sample CSV file */
+					setSampleTotalrecords();
 
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
@@ -184,9 +168,6 @@ public class LimsImportSamples extends DocumentAction {
 					logger.info("CSV file: " + fileSelected);
 
 					failureList.clear();
-					failureList.add("Filename: " + fileSelected + "\n");
-					failureList.add("------------------------------------"
-							+ "\n");
 
 					/* Start reading data from csv file */
 					try {
@@ -214,201 +195,8 @@ public class LimsImportSamples extends DocumentAction {
 							/* Get the ID from CSV file */
 							ID = "e" + record[3];
 
-							Object resultExists = null;
-							int cnt = 0;
-							/* Loop thru the selected documents */
-							for (AnnotatedPluginDocument list : listDocuments) {
-
-								resultExists = null;
-								/* Check if "ExtractIDCode_Seq" note exists */
-								if (list.toString()
-										.contains(
-												"DocumentNoteUtilities-Extract ID (Seq)")) {
-									resultExists = list
-											.getDocumentNotes(true)
-											.getNote(
-													"DocumentNoteUtilities-Extract ID (Seq)")
-											.getFieldValue("ExtractIDCode_Seq");
-
-									if (resultExists != null) {
-										isExtractIDSeqExists = true;
-									} else {
-										isExtractIDSeqExists = false;
-									}
-								}
-
-								/* Read the cache_name from the document */
-								if (list.toString().contains("cache_name")) {
-									documentFileName = (String) list
-											.getFieldValue("cache_name");
-								} else {
-									/*
-									 * Read the override_cache_name from the
-									 * document
-									 */
-									readAssembyContigFileName = (String) list
-											.getFieldValue("override_cache_name");
-								}
-
-								/*
-								 * Compare the cache_name with the name of the
-								 * document
-								 */
-								if (documentFileName.equals(list.getName())) {
-									/*
-									 * if selected document is a
-									 * "De Novo Assemble continue the process "
-									 */
-									if (list.toString().contains(
-											"Reads Assembly Contig")) {
-										continue;
-									}
-									/*
-									 * if "ExtractIDCode_Seq" note exists get
-									 * the version number
-									 */
-									if (isExtractIDSeqExists)
-										version = Integer
-												.parseInt((String) readGeneiousFieldsValues
-														.getVersionValueFromAnnotatedPluginDocument(
-																documents,
-																"DocumentNoteUtilities-Document version",
-																"DocumentVersionCode_Seq",
-																cnt));
-								}
-
-								/* Check if name is from a Contig file */
-								if ((readAssembyContigFileName != null)
-										&& readAssembyContigFileName
-												.toString()
-												.contains(
-														"Reads Assembly Contig")) {
-									documentFileName = list.getName();
-								} /*
-								 * Check if name is from a Consensus document
-								 */
-								else if (list.getName().toString()
-										.contains("consensus sequence")) {
-									documentFileName = list.getName();
-								} /*
-								 * Check if name is from a dummy document
-								 */
-								else if (list.getName().toString()
-										.contains("dum")) {
-									documentFileName = list.getName();
-								} /* from a imported file */
-								else if (!list.toString().contains(
-										"Reads Assembly Contig")) {
-									/* Contig don't have imported filename. */
-									documentFileName = (String) list
-											.getDocumentNotes(true)
-											.getNote("importedFrom")
-											.getFieldValue("filename");
-								}
-
-								/*
-								 * if filename contain "Fas" or "AB1" or "dum"
-								 * get the filename from the document else from
-								 * the "De Novo Assemble""
-								 */
-								if ((documentFileName.toString()
-										.contains("fas"))
-										|| (documentFileName.toString()
-												.contains("ab1"))
-										|| (documentFileName.toString()
-												.contains("dum"))) {
-									extractIDfileName = getExtractIDFromAB1FileName(list
-											.getName());
-								} else if (list.getName().toString()
-										.contains("consensus sequence")
-										|| list.getName().toString()
-												.contains("Contig")) {
-									extractIDfileName = list.getName();
-								}
-
-								/* Check if note exists for the dummy file */
-								isSampleDoc = list.toString().contains(
-										"ExtractIDCode_Seq");
-
-								/*
-								 * Check if record(PlateNumber) contain "-"
-								 */
-								if (record[2].length() > 0
-										&& record[2].contains("-")) {
-									plateNumber = record[2].substring(0,
-											record[2].indexOf("-"));
-								}
-
-								/*
-								 * ID (ID = record[0]) match extractid from the
-								 * filename
-								 */
-								if (ID.equals(extractIDfileName)
-										&& isExtractIDSeqExists) {
-
-									/*
-									 * Start time for processing the notes to
-									 * the documents
-									 */
-									startTime = new Date().getTime();
-
-									match = true;
-									sampleRecordVerwerkt++;
-
-									msgList.add(extractIDfileName + "\n");
-
-									recordCount++;
-									/* Show the progress bar */
-									limsFrameProgress
-											.showProgress("Filename match : "
-													+ extractIDfileName + "\n"
-													+ "  Recordcount: "
-													+ recordCount);
-
-									/*
-									 * Set values to the variables [0] :
-									 * Projectplaatnr [1] : Plaatpositie [2] :
-									 * ExtractPlaatnr [3] : ExtractID [4] :
-									 * RegistrationNumber [5] : TaxonNaam [] :
-									 * Version [6] : Sample Method
-									 */
-									setFieldsValues(record[0], record[1],
-											plateNumber, ID, record[4],
-											record[5], version, record[6]);
-
-									logger.info("Document Filename: "
-											+ documentFileName);
-
-									logger.info("Start with adding notes to the document");
-									/* Set the notes to the documents */
-									setSamplesNotes(documents, cnt);
-									logger.info("Done with adding notes to the document");
-
-									/*
-									 * Add ID of records that has been process
-									 * to the list.
-									 */
-									if (!processedList.contains(ID)) {
-										processedList.add(ID);
-									}
-
-									/*
-									 * Duration of processing the notes to a
-									 * document
-									 */
-									long endTime = System.nanoTime();
-									long elapsedTime = endTime - startBeginTime;
-									logger.info("Took: "
-											+ (TimeUnit.SECONDS.convert(
-													elapsedTime,
-													TimeUnit.NANOSECONDS))
-											+ " second(s)");
-									elapsedTime = 0;
-									match = false;
-
-								} // end IF
-								cnt++;
-							} // end For
+							int cnt = processSampleDocuments(documents, record,
+									startBeginTime);
 
 							/*
 							 * Add documents that did not match to the
@@ -438,7 +226,7 @@ public class LimsImportSamples extends DocumentAction {
 								+ listDocuments.size());
 
 						/* Set for creating dummy files */
-						if (isSampleDoc) {
+						if (!ID.equals(extractIDfileName)) {
 							/* Create progressbar GUI */
 							limsFrameProgress.createProgressGUI();
 							/* Create dummy files for samples */
@@ -458,22 +246,8 @@ public class LimsImportSamples extends DocumentAction {
 									+ "\n");
 						}
 
-						/* Duration of all selected documents */
-						lEndTime = new Date().getTime();
-						difference = lEndTime - startTime;
-						String hms = String.format("%02d:%02d:%02d",
-								TimeUnit.MILLISECONDS.toHours(difference),
-								TimeUnit.MILLISECONDS.toMinutes(difference)
-										% TimeUnit.HOURS.toMinutes(1),
-								TimeUnit.MILLISECONDS.toSeconds(difference)
-										% TimeUnit.MINUTES.toSeconds(1));
-						logger.info("Import records in : '" + hms
-								+ " hour(s)/minute(s)/second(s).'");
-						logger.info("Import records in : '"
-								+ TimeUnit.MILLISECONDS.toMinutes(difference)
-								+ " minutes.'");
-						logger.info("Totaal records verwerkt: "
-								+ processedList.size());
+						/* Show duration time of the process */
+						showProcessingDuration();
 
 						/*
 						 * Show a dialog with the results after processing the
@@ -483,51 +257,21 @@ public class LimsImportSamples extends DocumentAction {
 
 							@Override
 							public void run() {
-								sampleRecordFailure = failureList.size() - 1;
-								sampleExactRecordsVerwerkt = processedList
-										.size();
-
-								Dialogs.showMessageDialog(Integer
-										.toString(sampleTotaalRecords)
-										+ " sample records have been read of which: "
-										+ "\n"
-										+ "[1] "
-										+ Integer
-												.toString(sampleExactRecordsVerwerkt)
-										+ " samples are imported and linked to "
-										+ Integer
-												.toString(sampleRecordVerwerkt)
-										+ " existing documents (of "
-										+ importCounter
-										+ " selected) \n"
-										+ "[2] "
-										+ Integer
-												.toString(dummyRecordsVerwerkt)
-										+ " sample are imported as dummy"
-										+ "\n"
-										+ "\n"
-										+ "List of "
-										+ Integer.toString(importCounter)
-										+ " selected documents: "
-										+ "\n"
-										// + msgList.toString()
-										// + "\n"
-										+ "\n"
-										+ "[3] "
-										+ Integer.toString(sampleRecordFailure)
-										+ " sample records are ignored."
-										+ "\n"
-										+ "\n"
-										+ "[4] "
-										+ dummyRecordsVerwerkt
-										+ " (zero). dummy samples are ignored.");
+								showFinishedDialogMessageOK();
 
 								logger.info("Sample-method: Total imported document(s): "
 										+ msgList.toString());
 
+								failureList.add("Filename: " + fileSelected
+										+ "\n");
 								limsLogger.logToFile(logSamplesFileName,
 										failureList.toString());
 
+								clearSamplesVariablesAndList();
+								limsFrameProgress.hideFrame();
+							}
+
+							private void clearSamplesVariablesAndList() {
 								msgList.clear();
 								failureList.clear();
 								processedList.clear();
@@ -536,7 +280,6 @@ public class LimsImportSamples extends DocumentAction {
 								sampleRecordVerwerkt = 0;
 								dummyRecordsVerwerkt = 0;
 								recordCount = 0;
-								limsFrameProgress.hideFrame();
 							}
 						});
 					} catch (IOException e) {
@@ -547,24 +290,241 @@ public class LimsImportSamples extends DocumentAction {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+				} else {
+					showSelectedDocumentsMessage();
 				}
 				/*
 				 * Choose "No" only samples documents will be processed and no
 				 * dummy documents will be created.
 				 */
 			} else if (n == 1) {
-				/* Create progressbar GUI */
-				limsFrameProgress.createProgressGUI();
-				/* Load the Sample CSV file that will be processed */
-				fileSelected = fcd.loadSelectedFile();
-				/* Add notes to the documents */
-				setExtractIDMatchSamplesSheetRecords(fileSelected, documents);
-				/* Hide the progressbar GUI */
-				limsFrameProgress.hideFrame();
+				/** Check if document(s) has been selected **/
+				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+					/* Load the Sample CSV file that will be processed */
+					fileSelected = fcd.loadSelectedFile();
+
+					/* Create progressbar GUI */
+					limsFrameProgress.createProgressGUI();
+
+					/* Add notes to the documents */
+					setExtractIDMatchSamplesSheetRecords(fileSelected,
+							documents);
+					/* Hide the progressbar GUI */
+					limsFrameProgress.hideFrame();
+				} else {
+					showSelectedDocumentsMessage();
+				}
 			} else if (n == 2) {
 				return;
 			}
 		}
+	}
+
+	private void showProcessingDuration() {
+		/* Duration of all selected documents */
+		lEndTime = new Date().getTime();
+		difference = lEndTime - startTime;
+		String hms = String.format(
+				"%02d:%02d:%02d",
+				TimeUnit.MILLISECONDS.toHours(difference),
+				TimeUnit.MILLISECONDS.toMinutes(difference)
+						% TimeUnit.HOURS.toMinutes(1),
+				TimeUnit.MILLISECONDS.toSeconds(difference)
+						% TimeUnit.MINUTES.toSeconds(1));
+		logger.info("Import records in : '" + hms
+				+ " hour(s)/minute(s)/second(s).'");
+		logger.info("Import records in : '"
+				+ TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
+		logger.info("Totaal records verwerkt: " + processedList.size());
+	}
+
+	private void showSelectedDocumentsMessage() {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+
+				Dialogs.showMessageDialog("Select at least one document");
+				return;
+			}
+		});
+	}
+
+	private void setSampleTotalrecords() {
+		/* Opvragen aantal in te lezen records uit de samples file. */
+		if (sampleTotaalRecords == 0) {
+			CSVReader reader;
+			try {
+				reader = new CSVReader(new FileReader(fileSelected), '\t',
+						'\'', 1);
+				sampleTotaalRecords = reader.readAll().size();
+				reader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private int processSampleDocuments(AnnotatedPluginDocument[] documents,
+			String[] record, long startBeginTime) {
+		int cnt = 0;
+		Object resultExists;
+		for (AnnotatedPluginDocument list : listDocuments) {
+
+			resultExists = null;
+			/* Check if "ExtractIDCode_Seq" note exists */
+			if (list.toString().contains(
+					"DocumentNoteUtilities-Extract ID (Seq)")) {
+				resultExists = list.getDocumentNotes(true)
+						.getNote("DocumentNoteUtilities-Extract ID (Seq)")
+						.getFieldValue("ExtractIDCode_Seq");
+
+			}
+
+			if (resultExists != null) {
+				isExtractIDSeqExists = true;
+			} else {
+				isExtractIDSeqExists = false;
+			}
+
+			/* Read the cache_name from the document */
+			if (list.toString().contains("cache_name")) {
+				documentFileName = (String) list.getFieldValue("cache_name");
+			} else {
+				/*
+				 * Read the override_cache_name from the document
+				 */
+				readAssembyContigFileName = (String) list
+						.getFieldValue("override_cache_name");
+			}
+
+			/*
+			 * Compare the cache_name with the name of the document
+			 */
+			if (documentFileName.equals(list.getName())) {
+				/*
+				 * if selected document is a
+				 * "De Novo Assemble continue the process "
+				 */
+				if (list.toString().contains("Reads Assembly Contig")) {
+					continue;
+				}
+
+				/*
+				 * if "ExtractIDCode_Seq" note exists get the version number
+				 */
+
+				if (isExtractIDSeqExists)
+					version = Integer
+							.parseInt((String) readGeneiousFieldsValues
+									.getVersionValueFromAnnotatedPluginDocument(
+											documents,
+											"DocumentNoteUtilities-Document version",
+											"DocumentVersionCode_Seq", cnt));
+			}
+
+			/* Check if name is from a Contig file */
+			if ((readAssembyContigFileName != null)
+					&& readAssembyContigFileName.toString().contains(
+							"Reads Assembly Contig")) {
+				documentFileName = list.getName();
+			} /*
+			 * Check if name is from a Consensus document
+			 */
+			else if (list.getName().toString().contains("consensus sequence")) {
+				documentFileName = list.getName();
+			} /*
+			 * Check if name is from a dummy document
+			 */
+			else if (list.getName().toString().contains("dum")) {
+				documentFileName = list.getName();
+			} /* from a imported file */
+			else if (!list.toString().contains("Reads Assembly Contig")) {
+				/* Contig don't have imported filename. */
+				documentFileName = (String) list.getDocumentNotes(true)
+						.getNote("importedFrom").getFieldValue("filename");
+			}
+
+			/*
+			 * if filename contain "Fas" or "AB1" or "dum" get the filename from
+			 * the document else from the "De Novo Assemble""
+			 */
+			if ((documentFileName.toString().contains("fas"))
+					|| (documentFileName.toString().contains("ab1"))
+					|| (documentFileName.toString().contains("dum"))) {
+				extractIDfileName = getExtractIDFromAB1FileName(list.getName());
+			} else if (list.getName().toString().contains("consensus sequence")
+					|| list.getName().toString().contains("Contig")) {
+				extractIDfileName = list.getName();
+			}
+
+			/*
+			 * Check if record(PlateNumber) contain "-"
+			 */
+			if (record[2].length() > 0 && record[2].contains("-")) {
+				plateNumber = record[2].substring(0, record[2].indexOf("-"));
+			}
+
+			/*
+			 * ID (ID = record[0]) match extractid from the filename
+			 */
+			if (ID.equals(extractIDfileName) && isExtractIDSeqExists) {
+
+				/*
+				 * Start time for processing the notes to the documents
+				 */
+				startTime = new Date().getTime();
+
+				match = true;
+				sampleRecordVerwerkt++;
+
+				msgList.add(extractIDfileName + "\n");
+
+				recordCount++;
+				/* Show the progress bar */
+				limsFrameProgress.showProgress("Filename match : "
+						+ extractIDfileName + "\n" + "  Recordcount: "
+						+ recordCount);
+
+				/*
+				 * Set values to the variables [0] : Projectplaatnr [1] :
+				 * Plaatpositie [2] : ExtractPlaatnr [3] : ExtractID [4] :
+				 * RegistrationNumber [5] : TaxonNaam [] : Version [6] : Sample
+				 * Method
+				 */
+				setFieldsValues(record[0], record[1], plateNumber, ID,
+						record[4], record[5], version, record[6]);
+
+				logger.info("Document Filename: " + documentFileName);
+
+				logger.info("Start with adding notes to the document");
+				/* Set the notes to the documents */
+				setSamplesNotes(documents, cnt);
+				logger.info("Done with adding notes to the document");
+
+				/*
+				 * Add ID of records that has been process to the list.
+				 */
+				if (!processedList.contains(ID)) {
+					processedList.add(ID);
+				}
+
+				/*
+				 * Duration of processing the notes to a document
+				 */
+				long endTime = System.nanoTime();
+				long elapsedTime = endTime - startBeginTime;
+				logger.info("Took: "
+						+ (TimeUnit.SECONDS.convert(elapsedTime,
+								TimeUnit.NANOSECONDS)) + " second(s)");
+				elapsedTime = 0;
+				match = false;
+
+			} // end IF
+			cnt++;
+		} // end For
+		return cnt;
 	}
 
 	/** Clear the fields variables */
@@ -648,6 +608,9 @@ public class LimsImportSamples extends DocumentAction {
 	/**
 	 * Create dummy files for samples when there is no match with records in the
 	 * database
+	 * 
+	 * @param fileName
+	 *            , extractFileID
 	 */
 	private void setExtractIDFromSamplesSheet(String fileName,
 			String extractFileID) {
@@ -702,11 +665,6 @@ public class LimsImportSamples extends DocumentAction {
 						}
 					} // end While
 
-					/*
-					 * if (dummyRecordsVerwerkt == 0) {
-					 * Dialogs.showMessageDialog("[3] " + dummyRecordsVerwerkt +
-					 * "(zero). dummy samples are ignored."); }
-					 */
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -793,6 +751,9 @@ public class LimsImportSamples extends DocumentAction {
 	/**
 	 * When user choose "No". Processing the samples CSV record to the selected
 	 * documents. No Dummy documents are created.
+	 * 
+	 * @param fileName
+	 *            , docsSamples
 	 */
 	private void setExtractIDMatchSamplesSheetRecords(String fileName,
 			AnnotatedPluginDocument[] docsSamples) {
@@ -940,29 +901,12 @@ public class LimsImportSamples extends DocumentAction {
 					} // end While
 
 					/* Show result dialog after processing the documents */
-					if (exactProcessedList.size() > 0 || !isExtractIDSeqExists) {
-						Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
-								+ " sample records have been read of which: "
-								+ "\n"
-								+ "\n"
-								+ "[1] "
-								+ Integer.toString(exactProcessedList.size())
-								+ " samples are imported and linked to "
-								+ Integer.toString(listDocuments.size())
-								+ " existing documents (of "
-								+ listDocuments.size()
-								+ " selected)"
-								+ "\n"
-								+ "\n"
-								+ "[2] "
-								+ Integer.toString(failureList.size())
-								+ " samples records are ignored."
-								+ "\n"
-								+ "\n"
-								+ "[3] "
-								+ "At least one or "
-								+ Integer.toString(lackList.size())
-								+ " selected document lacks Extract ID (Seq).");
+					if (lackList.size() > 0) {
+						if (exactProcessedList.size() > 0
+								|| !isExtractIDSeqExists) {
+							showFinishedDialogMessageNo(fileName, failureList,
+									exactProcessedList);
+						}
 
 						failureList.add("Total records not matched: "
 								+ Integer.toString(failureList.size()) + "\n");
@@ -987,7 +931,33 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
-	/** Get the total of records from the samples csv file */
+	/**
+	 * Show dialog message after processed the notes when choose "No"
+	 * 
+	 * @param fileName
+	 *            , failureList, exactProcessedList
+	 * */
+	private void showFinishedDialogMessageNo(String fileName,
+			List<String> failureList, List<String> exactProcessedList) {
+		Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
+				+ " sample records have been read of which: " + "\n" + "\n"
+				+ "[1] " + Integer.toString(exactProcessedList.size())
+				+ " samples are imported and linked to "
+				+ Integer.toString(listDocuments.size())
+				+ " existing documents (of " + listDocuments.size()
+				+ " selected)" + "\n" + "\n" + "[2] "
+				+ "0 samples are imported as dummy." + "\n" + "\n" + "[3] "
+				+ Integer.toString(failureList.size())
+				+ " samples records are ignored." + "\n" + "\n"
+				+ getLackMessage(!isExtractIDSeqExists));
+	}
+
+	/**
+	 * Get the total of records from the samples csv file
+	 * 
+	 * @param fileName
+	 * @return
+	 * */
 	private int readTotalRecordsOfFileSelected(String fileName) {
 		int result = 0;
 		if (result == 0) {
@@ -1003,6 +973,29 @@ public class LimsImportSamples extends DocumentAction {
 			csvReader = null;
 		}
 		return result;
+	}
+
+	/**
+	 * Show dialog message after processed the notes when Choose "OK"
+	 * 
+	 * @param fileName
+	 *            , failureList, exactProcessedList
+	 * */
+	private void showFinishedDialogMessageOK() {
+		sampleRecordFailure = failureList.size() - 1;
+		sampleExactRecordsVerwerkt = processedList.size();
+
+		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
+				+ " sample records have been read of which: " + "\n" + "\n"
+				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
+				+ " samples are imported and linked to "
+				+ Integer.toString(sampleRecordVerwerkt)
+				+ " existing documents (of " + importCounter + " selected)"
+				+ "\n" + "\n" + "[2] " + Integer.toString(dummyRecordsVerwerkt)
+				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
+				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
+				+ " sample records are ignored." + "\n" + "\n"
+				+ getLackMessage(!isExtractIDSeqExists));
 	}
 
 }

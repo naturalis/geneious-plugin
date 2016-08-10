@@ -35,13 +35,9 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
 
 /**
- * @author Reinier.Kartowikromo
- * @category Lims Import BOLD plugin
- * @version: 1.0
- * @Date 08 august 2016
- * @Company Naturalis Biodiversity Center
- * @City Leiden
- * @Country Netherlands
+ * @author Reinier.Kartowikromo category Lims Import BOLD plugin
+ * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
+ *           Leiden Country Netherlands
  */
 public class LimsImportBold extends DocumentAction {
 

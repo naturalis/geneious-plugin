@@ -27,13 +27,9 @@ import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
- * @author Reinier.Kartowikromo
- * @category Lims Import All Naturalis files plugin
- * @version: 1.0
- * @Date 08 august 2016
- * @Company Naturalis Biodiversity Center
- * @City Leiden
- * @Country Netherlands
+ * @author Reinier.Kartowikromo category Lims Import All Naturalis files plugin
+ * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
+ *           Leiden Country Netherlands
  */
 public class LimsImportAB1 extends DocumentFileImporter {
 
@@ -135,7 +131,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				versienummer = ReadGeneiousFieldsValues
 						.getLastVersionFromDocument(extractAb1FastaFileName);
 			}
-			progressListener.setMessage("Importing sequence data");
+			progressListener
+					.setMessage("Importing sequence data"
+							+ "\n"
+							+ "\n"
+							+ "Warning:"
+							+ "\n"
+							+ "Geneious is currently processing the selected file(s)."
+							+ "\n"
+							+ "Please wait for the import process to finish."
+							+ "\n"
+							+ "You should preferably not start another action or change maps.");
 
 			docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);

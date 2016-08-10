@@ -34,6 +34,8 @@ public class LimsFileSelector {
 
 	/**
 	 * File selection for CRS, Bold, Samples
+	 * 
+	 * @return fileSelected;
 	 * */
 	public String loadSelectedFile() {
 		String csvPath = "";
@@ -84,6 +86,14 @@ public class LimsFileSelector {
 
 	/**
 	 * Load a fasta file in memory and get the filename inside the file.
+	 * 
+	 *
+	 * @param fileName
+	 *            , fastaImportFilePath
+	 * @return
+	 * 
+	 * @throws FileNotFoundException
+	 * 
 	 * */
 	public String loadFastaFile(String fileName, String fastaImportFilePath)
 			throws FileNotFoundException {
@@ -157,6 +167,10 @@ public class LimsFileSelector {
 	/**
 	 * Method use in LimsImportAB1 class. Get the fasta filename from the
 	 * content
+	 * 
+	 * @param
+	 * @return resultFastaFileName
+	 * @throws FileNotFoundException
 	 */
 	public String readFastaContent(File file) throws FileNotFoundException {
 		String resultFastaFileName = "";
