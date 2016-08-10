@@ -11,15 +11,16 @@ import java.nio.file.Path;
 import org.junit.Test;
 
 public class LimsImporterUtilTest {
-	
-	public void testGetLogFileName() {
+
+	public void testGetLogFileName()
+	{
 		String tmpUserDir = System.getProperty("java.io.tmpdir");
 		System.setProperty("user.dir", tmpUserDir);
 		Path p = FileSystems.getDefault().getPath(tmpUserDir, "lims-import.properties");
 		writeFile(p, "logname=foo.log");
 		LimsImporterUtil liu = new LimsImporterUtil();
 		String value = liu.getLogFilename();
-		assertEquals("01", "foo.log", value);		
+		assertEquals("01", "foo.log", value);
 	}
 
 	@Test
