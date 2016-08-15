@@ -71,7 +71,7 @@ public class LimsImportCRS extends DocumentAction {
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> MatchList = new ArrayList<String>();
-	private List<String> msgList = new ArrayList<String>();
+	// private List<String> msgList = new ArrayList<String>();
 	private List<String> lackCRSList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
@@ -83,8 +83,8 @@ public class LimsImportCRS extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("6 CRS New", "CRS Import")
-				.setToolbarName("6 CRS New").setInPopupMenu(true)
+		return new GeneiousActionOptions("3 CRS", "CRS Import")
+				.setToolbarName("3 CRS").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
@@ -181,18 +181,7 @@ public class LimsImportCRS extends DocumentAction {
 					listDocuments = DocumentUtilities.getSelectedDocuments();
 
 					/* Opvragen aantal in te lezen records uit de CRS file. */
-					if (crsTotaalRecords == 0) {
-						try {
-							csvReader = new CSVReader(new FileReader(
-									fileSelected), '\t', '\'', 1);
-							crsTotaalRecords = csvReader.readAll().size();
-							csvReader.close();
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
+					setCrsTotalCSVRecords();
 
 					logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
@@ -225,34 +214,10 @@ public class LimsImportCRS extends DocumentAction {
 								 * Check if file has the notes "ImportedFrom",
 								 * dummies file do not have that
 								 */
-								if ((documentFileName.toString()
-										.contains("ab1"))
-										|| (list.toString().contains("fas"))
-										&& (!list.toString().contains("dum"))) {
-									fasDocument = list.getDocumentNotes(true)
-											.getNote("importedFrom")
-											.getFieldValue("filename");
-								}
-
-								/* Add sequence name for the dialog screen */
-								if (DocumentUtilities.getSelectedDocuments()
-										.listIterator().hasNext()) {
-									msgList.add(documentFileName + "\n");
-								}
+								getFastDocumentName(list);
 
 								/* Check of the filename contain "FAS" extension */
-								if (fasDocument.toString().contains("fas")
-										&& fasDocument != null) {
-									documentFileName = list.getName();
-								} else {
-									/* get AB1 filename */
-									if (!list.toString().contains(
-											"consensus sequence")
-											|| !list.toString().contains(
-													"Contig")) {
-										documentFileName = list.getName();
-									}
-								}
+								setDocumentFileName(list);
 
 								/*
 								 * check if document contain a registration
@@ -261,20 +226,18 @@ public class LimsImportCRS extends DocumentAction {
 								isRMNHNumber = list.toString().contains(
 										"RegistrationNumberCode_Samples");
 
-								if (!isRMNHNumber) {
-									if (!lackCRSList.toString().contains(
-											list.getName())) {
-										lackCRSList.add(list.getName());
-										logger.info("At least one selected document lacks Registr-nmbr (Sample)."
-												+ list.getName());
-									}
-								} else {
+								if (isRMNHNumber) {
 									/* Get registration number from the document */
 									resultRegNum = (list
 											.getDocumentNotes(true)
 											.getNote(
 													"DocumentNoteUtilities-Registr-nmbr (Samples)")
 											.getFieldValue("RegistrationNumberCode_Samples"));
+								}
+
+								if (!resultRegNum.equals(registrationNumber)) {
+									cnt++;
+									continue;
 								}
 
 								if (isRMNHNumber) {
@@ -380,6 +343,10 @@ public class LimsImportCRS extends DocumentAction {
 										logger.info("Done with adding notes to the document: "
 												+ documentFileName);
 
+										/*
+										 * Add registrationnumber to a
+										 * processlist
+										 */
 										if (!processedList
 												.contains(resultRegNum)) {
 											processedList.add(resultRegNum
@@ -389,16 +356,7 @@ public class LimsImportCRS extends DocumentAction {
 										 * End duration of the processing of
 										 * notes
 										 */
-										long endTime = System.nanoTime();
-										long elapsedTime = endTime
-												- startBeginTime;
-										logger.info("Took: "
-												+ (TimeUnit.SECONDS.convert(
-														elapsedTime,
-														TimeUnit.NANOSECONDS))
-												+ " second(s)");
-										elapsedTime = 0;
-										endTime = 0;
+										calculateTimeForAddingNotes(startBeginTime);
 									} // end IF
 								}
 								cnt++;
@@ -406,19 +364,7 @@ public class LimsImportCRS extends DocumentAction {
 						} // end if registration contain only numbers
 
 						/* Add data(total records) to the failure list */
-						if (!processedList.toString().contains(
-								registrationNumber)
-								&& registrationNumber.matches(".*\\d+.*")) {
-							recordCount++;
-							failureList
-									.add("No document(s) match found for Registrationnumber: "
-											+ registrationNumber + "\n");
-							/* Show failure records on the dialog screen */
-							limsFrameProgress.showProgress("No match : "
-									+ registrationNumber + "\n"
-									+ "  Recordcount: " + recordCount);
-							continue;
-						}
+						recordCount = addDocumentsToFailureList(recordCount);
 					} // end While
 					bufReader.close();
 					in.close();
@@ -438,19 +384,7 @@ public class LimsImportCRS extends DocumentAction {
 								+ "\n");
 					}
 					/** Calculating the Duration of the import **/
-					lEndTime = new Date().getTime();
-					difference = lEndTime - startTime;
-					String hms = String.format("%02d:%02d:%02d",
-							TimeUnit.MILLISECONDS.toHours(difference),
-							TimeUnit.MILLISECONDS.toMinutes(difference)
-									% TimeUnit.HOURS.toMinutes(1),
-							TimeUnit.MILLISECONDS.toSeconds(difference)
-									% TimeUnit.MINUTES.toSeconds(1));
-					logger.info("Import records in : '" + hms
-							+ " hour(s)/minute(s)/second(s).'");
-					logger.info("Import records in : '"
-							+ TimeUnit.MILLISECONDS.toMinutes(difference)
-							+ " minutes.'");
+					setDurationEndTimeProcessing();
 
 					/**
 					 * Show message with the info from the total of records
@@ -462,35 +396,11 @@ public class LimsImportCRS extends DocumentAction {
 						public void run() {
 							crsRecordUitval = failureList.size() - 4;
 
-							Dialogs.showMessageDialog(Integer
-									.toString(crsTotaalRecords)
-									+ " records have been read of which: "
-									+ "\n"
-									+ "[1] "
-									+ processedList.size()
-									+ " records are imported and linked to "
-									+ Integer.toString(crsRecordVerwerkt)
-									+ " existing documents (of "
-									+ importCounter
-									+ " selected)"
-									+ "\n"
-									+ "\n"
-									+ "List of "
-									+ Integer.toString(importCounter)
-									+ " selected documents: "
-									+ "\n"
-									/*
-									 * + msgList.toString() + "\n" + "\n"
-									 */
-									+ "[2] "
-									+ Integer.toString(crsRecordUitval)
-									+ " records are ignored."
-									+ "\n"
-									+ "\n"
-									+ "[3] "
-									+ "At least one or "
-									+ Integer.toString(lackCRSList.size())
-									+ " selected document lacks Registr-nmbr (Sample).");
+							/*
+							 * Show a message at the end of processing the
+							 * document(s)
+							 */
+							showMessageDialogEndOfProcessing();
 
 							logger.info(processedList.size()
 									+ " records are imported and linked to "
@@ -505,12 +415,37 @@ public class LimsImportCRS extends DocumentAction {
 							limsLogger.logToFile(logCrsFileName,
 									failureList.toString());
 
-							msgList.clear();
 							failureList.clear();
 							processedList.clear();
 							limsFrameProgress.hideFrame();
 							crsRecordUitval = 0;
 							crsRecordVerwerkt = 0;
+						}
+
+						/**
+						 * Show dialog message at the end of processing the
+						 * document(s)
+						 */
+						private void showMessageDialogEndOfProcessing() {
+							Dialogs.showMessageDialog(Integer
+									.toString(crsTotaalRecords)
+									+ " records have been read of which: "
+									+ "\n"
+									+ "[1] "
+									+ processedList.size()
+									+ " records are imported and linked to "
+									+ Integer.toString(crsRecordVerwerkt)
+									+ " existing documents (of "
+									+ importCounter
+									+ " selected)"
+									+ "\n"
+									+ "\n"
+									+ "[2] "
+									+ Integer.toString(crsRecordUitval)
+									+ " records are ignored."
+									+ "\n"
+									+ "\n"
+									+ getLackMessage(isRMNHNumber));
 						}
 					});
 				} catch (IOException e) {
@@ -519,6 +454,102 @@ public class LimsImportCRS extends DocumentAction {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private void setCrsTotalCSVRecords() {
+		if (crsTotaalRecords == 0) {
+			try {
+				csvReader = new CSVReader(new FileReader(
+						fileSelected), '\t', '\'', 1);
+				crsTotaalRecords = csvReader.readAll().size();
+				csvReader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * @param list
+	 */
+	private void setDocumentFileName(AnnotatedPluginDocument list) {
+		if (fasDocument.toString().contains("fas") && fasDocument != null) {
+			documentFileName = list.getName();
+		} else {
+			/* get AB1 filename */
+			if (!list.toString().contains("consensus sequence")
+					|| !list.toString().contains("Contig")) {
+				documentFileName = list.getName();
+			}
+		}
+	}
+
+	/**
+	 * @param list
+	 */
+	private void getFastDocumentName(AnnotatedPluginDocument list) {
+		if ((documentFileName.toString().contains("ab1"))
+				|| (list.toString().contains("fas"))
+				&& (!list.toString().contains("dum"))) {
+			fasDocument = list.getDocumentNotes(true).getNote("importedFrom")
+					.getFieldValue("filename");
+		}
+	}
+
+	/**
+	 * @param startBeginTime
+	 */
+	private void calculateTimeForAddingNotes(long startBeginTime) {
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		endTime = 0;
+	}
+
+	/**
+	 * @param recordCount
+	 * @return
+	 */
+	private int addDocumentsToFailureList(int recordCount) {
+		if (!processedList.toString().contains(registrationNumber)
+				&& registrationNumber.matches(".*\\d+.*")) {
+			recordCount++;
+			failureList
+					.add("No document(s) match found for Registrationnumber: "
+							+ registrationNumber + "\n");
+			/* Show failure records on the dialog screen */
+			limsFrameProgress.showProgress("No match : " + registrationNumber
+					+ "\n" + "  Recordcount: " + recordCount);
+			return recordCount;
+		}
+		return recordCount;
+	}
+
+	/**
+	 * Calculating the Duration of the import (end time)
+	 */
+	private void setDurationEndTimeProcessing() {
+		lEndTime = new Date().getTime();
+		difference = lEndTime - startTime;
+		String hms = String.format(
+				"%02d:%02d:%02d",
+				TimeUnit.MILLISECONDS.toHours(difference),
+				TimeUnit.MILLISECONDS.toMinutes(difference)
+						% TimeUnit.HOURS.toMinutes(1),
+				TimeUnit.MILLISECONDS.toSeconds(difference)
+						% TimeUnit.MINUTES.toSeconds(1));
+		logger.info("Import records in : '" + hms
+				+ " hour(s)/minute(s)/second(s).'");
+		logger.info("Import records in : '"
+				+ TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
 	}
 
 	/**
@@ -655,6 +686,18 @@ public class LimsImportCRS extends DocumentAction {
 				LimsCRSFields.setTribe(name[i]);
 			}
 		}
+	}
+
+	/**
+	 * Show lacks message of documents that not has been processed
+	 * 
+	 * @param missing
+	 * @return
+	 * */
+	private String getLackMessage(Boolean missing) {
+		if (missing)
+			return "[3] At least one selected document lacks ExtractID(Seq)";
+		return "";
 	}
 
 	/** Clear fields variables */

@@ -1,5 +1,11 @@
 /**
  * <h1>Lims Split name Plugin</h1> 
+ * <p>
+ *  category Lims Import Split Name plugin</br>
+ *  Date 08 august 2016</br> 
+ *  Company Naturalis Biodiversity Center City</br>
+ *  Leiden Country Netherlands
+ * </p>
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -30,9 +36,8 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 /**
- * @author Reinier.Kartowikromo category Lims Import Split Name plugin
- * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
- *           Leiden Country Netherlands
+ * @author Reinier.Kartowikromo
+ * @version: 1.0
  */
 public class LimsImportAB1Update extends DocumentAction {
 
@@ -57,7 +62,9 @@ public class LimsImportAB1Update extends DocumentAction {
 
 	/**
 	 * ActionPerformed start the process of the selected documents and read the
-	 * data from the files selected "Samples, CRs and BOLD"
+	 * data from the files selected "Samples, CRS and BOLD"
+	 * 
+	 * @param annotatedPluginDocuments
 	 * 
 	 * */
 	@Override
@@ -83,22 +90,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			Object documentFileImportPath = "";
 
-			try {
-				String url = limsImporterUtil.getDatabasePropValues("url");
+			// getDatabaseURL();
 
-				int beginIndex = url.indexOf("//") + 2;
-				int endIndex = url.length() - 1;
-
-				String resultUrl = url.substring(beginIndex, endIndex);
-
-				/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
-				String localOrServer = ReadGeneiousFieldsValues
-						.checkIfLocalOrServerDatabase(resultUrl);
-
-				System.out.println("URL: " + localOrServer);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 			/* Get Databasename */
 			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
@@ -126,12 +119,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * Set selected document content to variable PluginDocument
 				 * documentFileName
 				 */
-				try {
-					documentFileName = (SequenceDocument) DocumentUtilities
-							.getSelectedDocuments().get(cnt).getDocument();
-				} catch (DocumentOperationException e3) {
-					e3.printStackTrace();
-				}
+				setDocumentFileName(cnt);
 
 				/* Check if the file exists in the database */
 				fileExists = ReadGeneiousFieldsValues
@@ -221,52 +209,9 @@ public class LimsImportAB1Update extends DocumentAction {
 				}
 
 				/* AB1 File extracten */
-				if (documentFileName.getName() != null
-						&& documentFileName.getName().toString().contains("_")) {
-					logger.info("Start extracting value from file: "
-							+ documentFileName.getName());
-					msgList.add(documentFileName.getName());
+				extractAB1File(annotatedPluginDocuments, cnt);
 
-					if (documentFileName.getName().contains("ab1")) {
-						/* Extract values from the AB1 filename */
-						limsAB1Fields
-								.setFieldValuesFromAB1FileName(documentFileName
-										.getName());
-						/*
-						 * if file exists and is not extravalue
-						 * "ExtractIDCode_Seq" increase Version number.
-						 */
-						if (fileExists && !extractValue) {
-							versienummer++;
-						}
-
-					} else if (extractAb1FastaFileName.trim() != null) {
-						logger.info("Fasta file to extract : "
-								+ extractAb1FastaFileName);
-						/* Extract values from the Fasta filename */
-						limsAB1Fields
-								.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
-						/*
-						 * if file exists and is not extravalue
-						 * "ExtractIDCode_Seq" increase Version number.
-						 */
-						if (fastaFileExists && !extractValue) {
-							versienummer++;
-						}
-					}
-
-					/* Set version number Fasta file and AB1 */
-					if (fastaFileExists && !extractValue) {
-						limsAB1Fields.setVersieNummer(versienummer);
-					} else if (fileExists && !extractValue) {
-						limsAB1Fields.setVersieNummer(versienummer);
-					}
-
-					/* Processing the notes */
-					setSplitDocumentsNotes(annotatedPluginDocuments, cnt);
-				}
-
-			}
+			} // end for loop
 
 			logger.info("Total of document(s) updated: "
 					+ DocumentUtilities.getSelectedDocuments().size());
@@ -303,6 +248,91 @@ public class LimsImportAB1Update extends DocumentAction {
 
 				}
 			});
+		}
+	}
+
+	/**
+	 * @param cnt
+	 */
+	private void setDocumentFileName(int cnt) {
+		try {
+			documentFileName = (SequenceDocument) DocumentUtilities
+					.getSelectedDocuments().get(cnt).getDocument();
+		} catch (DocumentOperationException e3) {
+			e3.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private String getDatabaseURL() {
+		String localOrServer = "";
+		try {
+			String url = limsImporterUtil.getDatabasePropValues("url");
+
+			int beginIndex = url.indexOf("//") + 2;
+			int endIndex = url.length() - 1;
+
+			String resultUrl = url.substring(beginIndex, endIndex);
+
+			/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
+			localOrServer = ReadGeneiousFieldsValues
+					.checkIfLocalOrServerDatabase(resultUrl);
+
+			if (localOrServer != null) {
+				System.out.println("URL: " + localOrServer);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return localOrServer;
+	}
+
+	private void extractAB1File(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		if (documentFileName.getName() != null
+				&& documentFileName.getName().toString().contains("_")) {
+			logger.info("Start extracting value from file: "
+					+ documentFileName.getName());
+			msgList.add(documentFileName.getName());
+
+			if (documentFileName.getName().contains("ab1")) {
+				/* Extract values from the AB1 filename */
+				limsAB1Fields.setFieldValuesFromAB1FileName(documentFileName
+						.getName());
+				/*
+				 * if file exists and is not extravalue "ExtractIDCode_Seq"
+				 * increase Version number.
+				 */
+				if (fileExists && !extractValue) {
+					versienummer++;
+				}
+
+			} else if (extractAb1FastaFileName.trim() != null) {
+				logger.info("Fasta file to extract : "
+						+ extractAb1FastaFileName);
+				/* Extract values from the Fasta filename */
+				limsAB1Fields
+						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+				/*
+				 * if file exists and is not extravalue "ExtractIDCode_Seq"
+				 * increase Version number.
+				 */
+				if (fastaFileExists && !extractValue) {
+					versienummer++;
+				}
+			}
+
+			/* Set version number Fasta file and AB1 */
+			if (fastaFileExists && !extractValue) {
+				limsAB1Fields.setVersieNummer(versienummer);
+			} else if (fileExists && !extractValue) {
+				limsAB1Fields.setVersieNummer(versienummer);
+			}
+
+			/* Processing the notes */
+			setSplitDocumentsNotes(annotatedPluginDocuments, cnt);
 		}
 	}
 

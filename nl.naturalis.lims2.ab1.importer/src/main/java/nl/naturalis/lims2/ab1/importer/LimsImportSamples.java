@@ -99,7 +99,7 @@ public class LimsImportSamples extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("8 Samples new").setInPopupMenu(true)
+		return new GeneiousActionOptions("1 of 2 Samples").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 1.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
@@ -901,22 +901,20 @@ public class LimsImportSamples extends DocumentAction {
 					} // end While
 
 					/* Show result dialog after processing the documents */
-					if (lackList.size() > 0) {
-						if (exactProcessedList.size() > 0
-								|| !isExtractIDSeqExists) {
-							showFinishedDialogMessageNo(fileName, failureList,
-									exactProcessedList);
-						}
-
-						failureList.add("Total records not matched: "
-								+ Integer.toString(failureList.size()) + "\n");
-
-						limsLogger.logToFile(logSamplesFileName,
-								failureList.toString());
-						failureList.clear();
-						exactProcessedList.clear();
-						lackList.clear();
+					if (exactProcessedList.size() > 0 || !isExtractIDSeqExists) {
+						showFinishedDialogMessageNo(fileName, failureList,
+								exactProcessedList);
 					}
+
+					failureList.add("Total records not matched: "
+							+ Integer.toString(failureList.size()) + "\n");
+
+					limsLogger.logToFile(logSamplesFileName,
+							failureList.toString());
+					failureList.clear();
+					exactProcessedList.clear();
+					lackList.clear();
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

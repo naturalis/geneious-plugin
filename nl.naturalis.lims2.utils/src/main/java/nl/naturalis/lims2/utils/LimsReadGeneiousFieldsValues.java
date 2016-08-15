@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,10 +20,13 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.domainobject.util.debug.BeanPrinter;
+import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
@@ -1119,6 +1123,16 @@ public class LimsReadGeneiousFieldsValues {
 		return dbResult; // databaseName[0];
 	}
 
+	public static <T> List<T> searchIn(List<T> list, Matcher<T> m) {
+		List<T> r = new ArrayList<T>();
+		for (T t : list) {
+			if (m.matches(t)) {
+				r.add(t);
+			}
+		}
+		return r;
+	}
+
 	/**
 	 * Get database name
 	 * 
@@ -1130,29 +1144,29 @@ public class LimsReadGeneiousFieldsValues {
 		String output = "";
 		String urlResult = "";
 
-		ListIterator<?> itr = PluginUtilities.getGeneiousServices() // .getWritableDatabaseServiceRoots()
-				.listIterator();
+		ListIterator<WritableDatabaseService> itr = PluginUtilities
+				.getWritableDatabaseServiceRoots().listIterator();
 
 		while (itr.hasNext()) {
-			String dbsvc = itr.next().toString();
-			if (dbsvc.contains(databaseURL)) {
-				String st[] = dbsvc.split("@");
-				Map<String, Integer> mp = new TreeMap<String, Integer>();
-				for (int i = 0; i < st.length; i++) {
-					Integer count = mp.get(st[i]);
-					if (count == null) {
-						count = 0;
-					}
-					mp.put(st[i], ++count);
-					String strGeneious = st[i];
+			WritableDatabaseService dbsvc = itr.next().getDatabaseRoot();
+			BeanPrinter bp = new BeanPrinter("C:/temp/bp.txt");
+			bp.dump(dbsvc);
 
-					if (strGeneious.contains(databaseURL)) {
-						int indexEnd = strGeneious.indexOf("@");
-						output = strGeneious.substring(0, indexEnd);
-						lstdb.add(output);
-					}
-				}
-			}
+			System.out.println("Item: " + (dbsvc instanceof Collection));
+			break;
+			/*
+			 * itr.nextIndex(); if (dbsvc.toString().contains(databaseURL)) {
+			 * String st[] = dbsvc.toString().split("@"); Map<String, Integer>
+			 * mp = new TreeMap<String, Integer>(); for (int i = 0; i <
+			 * st.length; i++) { Integer count = mp.get(st[i]); if (count ==
+			 * null) { count = 0; } mp.put(st[i], ++count); String strGeneious =
+			 * st[i];
+			 * 
+			 * if (strGeneious.contains(databaseURL)) { int indexEnd =
+			 * strGeneious.indexOf("@"); output = strGeneious.substring(0,
+			 * indexEnd); lstdb.add(output); } } }
+			 */
+
 		}
 
 		Iterator<String> lstitr = lstdb.listIterator();
@@ -1161,5 +1175,4 @@ public class LimsReadGeneiousFieldsValues {
 		}
 		return urlResult; // URL[0];
 	}
-
 }
