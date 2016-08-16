@@ -178,7 +178,7 @@ public class LimsImporterUtil {
 
 	private Properties dbProps;
 
-	public String getDatabasePropValues(String propertyType) throws IOException {
+	public String getDatabasePropValues(String propertyType) {
 		if (dbProps == null) {
 			try {
 				dbProps = new Properties();
@@ -208,7 +208,11 @@ public class LimsImporterUtil {
 			} catch (Exception e) {
 				logger.info("Exception: " + e);
 			} finally {
-				inputStream.close();
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		// get the property value and print it out

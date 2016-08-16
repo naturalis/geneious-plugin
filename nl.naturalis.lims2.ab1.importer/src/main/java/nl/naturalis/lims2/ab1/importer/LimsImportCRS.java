@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -108,6 +109,10 @@ public class LimsImportCRS extends DocumentAction {
 
 		long startBeginTime = 0;
 
+		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+		if (!dbchk.checkDBName()) {
+			return;
+		}
 		/* Get the active database name */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();

@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -124,6 +125,10 @@ public class LimsImportSamples extends DocumentAction {
 
 	private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
 
+		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+		if (!dbchk.checkDBName()) {
+			return;
+		}
 		/* Get Database name */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 				.getServerDatabaseServiceName();

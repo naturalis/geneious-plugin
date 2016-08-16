@@ -249,14 +249,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -335,14 +331,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -419,14 +411,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 
@@ -776,14 +764,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		int result = 0;
 
@@ -852,14 +836,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		int result = 0;
 
@@ -988,14 +968,10 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		try {
-			ssl = limsImporterUtil.getDatabasePropValues("ssl");
-			url = limsImporterUtil.getDatabasePropValues("url");
-			user = limsImporterUtil.getDatabasePropValues("user");
-			password = limsImporterUtil.getDatabasePropValues("password");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ssl = limsImporterUtil.getDatabasePropValues("ssl");
+		url = limsImporterUtil.getDatabasePropValues("url");
+		user = limsImporterUtil.getDatabasePropValues("user");
+		password = limsImporterUtil.getDatabasePropValues("password");
 
 		String result = "";
 

@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
@@ -129,6 +130,11 @@ public class LimsImportBold extends DocumentAction {
 	 * @param annotatedDocument
 	 * */
 	private void readDataFromBold(AnnotatedPluginDocument[] annotatedDocument) {
+
+		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+		if (!dbchk.checkDBName()) {
+			return;
+		}
 
 		/* Get Databasename */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues

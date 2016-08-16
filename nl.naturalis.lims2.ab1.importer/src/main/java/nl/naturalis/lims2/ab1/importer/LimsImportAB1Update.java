@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
@@ -91,6 +92,11 @@ public class LimsImportAB1Update extends DocumentAction {
 			Object documentFileImportPath = "";
 
 			// getDatabaseURL();
+
+			LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+			if (!dbchk.checkDBName()) {
+				return;
+			}
 
 			/* Get Databasename */
 			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
@@ -268,23 +274,19 @@ public class LimsImportAB1Update extends DocumentAction {
 	 */
 	private String getDatabaseURL() {
 		String localOrServer = "";
-		try {
-			String url = limsImporterUtil.getDatabasePropValues("url");
+		String url = limsImporterUtil.getDatabasePropValues("url");
 
-			int beginIndex = url.indexOf("//") + 2;
-			int endIndex = url.length() - 1;
+		int beginIndex = url.indexOf("//") + 2;
+		int endIndex = url.length() - 1;
 
-			String resultUrl = url.substring(beginIndex, endIndex);
+		String resultUrl = url.substring(beginIndex, endIndex);
 
-			/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
-			localOrServer = ReadGeneiousFieldsValues
-					.checkIfLocalOrServerDatabase(resultUrl);
+		/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
+		localOrServer = ReadGeneiousFieldsValues
+				.checkIfLocalOrServerDatabase(resultUrl);
 
-			if (localOrServer != null) {
-				System.out.println("URL: " + localOrServer);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (localOrServer != null) {
+			System.out.println("URL: " + localOrServer);
 		}
 		return localOrServer;
 	}
