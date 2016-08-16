@@ -292,7 +292,7 @@ public class LimsReadDataFromBold extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("4 Bold").setInPopupMenu(true)
+		return new GeneiousActionOptions("6 Bold Old").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 3.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);

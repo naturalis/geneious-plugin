@@ -1,17 +1,9 @@
-/**
- * <h1>Lims CRS Plugin</h1> 
- */
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,17 +28,11 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
 
-/**
- * @author Reinier.Kartowikromo category Lims Import CRS plugin
- * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
- *           Leiden Country Netherlands
- */
-public class LimsImportCRS extends DocumentAction {
-
+public class LimsCRSSpeed extends DocumentAction {
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-	private LimsCRSFields LimsCRSFields = new LimsCRSFields();
+	private LimsCRSFields limsCRSFields = new LimsCRSFields();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsNotes limsNotes = new LimsNotes();
 	private static final Logger logger = LoggerFactory
@@ -61,6 +47,7 @@ public class LimsImportCRS extends DocumentAction {
 	private int crsRecordUitval = 0;
 	private int crsTotaalRecords = 0;
 	private Object resultRegNum = null;
+	private long startBeginTime = 0;
 	private long startTime;
 	private long lEndTime = 0;
 	private long difference = 0;
@@ -71,8 +58,6 @@ public class LimsImportCRS extends DocumentAction {
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> MatchList = new ArrayList<String>();
-	// private List<String> msgList = new ArrayList<String>();
-	private List<String> lackCRSList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
 	@Override
@@ -83,8 +68,8 @@ public class LimsImportCRS extends DocumentAction {
 
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("3 CRS", "CRS Import")
-				.setToolbarName("3 CRS").setInPopupMenu(true)
+		return new GeneiousActionOptions("6 CRS Speed", "CRS Import")
+				.setToolbarName("6 CRS Speed").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
@@ -105,8 +90,6 @@ public class LimsImportCRS extends DocumentAction {
 	/** Select AB1 or Fasta documents to add notes to the documents */
 	private void readDataFromCRSFrom_File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-
-		long startBeginTime = 0;
 
 		/* Get the active database name */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
@@ -166,296 +149,248 @@ public class LimsImportCRS extends DocumentAction {
 				 */
 				startTime = new Date().getTime();
 
-				String line = "";
-				String cvsSplitBy = "\t";
 				int recordCount = 0;
+				importCounter = DocumentUtilities.getSelectedDocuments().size();
+				/* add the selected document into the list. */
+				listDocuments = DocumentUtilities.getSelectedDocuments();
+
+				/* Opvragen aantal in te lezen records uit de CRS file. */
+				setCrsTotalCSVRecords();
+
+				logger.info("Aantal te lezen records: " + crsTotaalRecords);
+
 				try {
-					/* read the file in memory */
-					InputStream in = new FileInputStream(new File(fileSelected));
-					BufferedReader bufReader = new BufferedReader(
-							new InputStreamReader(in));
 
-					importCounter = DocumentUtilities.getSelectedDocuments()
-							.size();
-					/* add the selected document into the list. */
-					listDocuments = DocumentUtilities.getSelectedDocuments();
+					csvReader = new CSVReader(new FileReader(fileSelected),
+							'\t', '\'', 1);
+					String[] rowLine;
+					while ((rowLine = csvReader.readNext()) != null) {
 
-					/* Opvragen aantal in te lezen records uit de CRS file. */
-					setCrsTotalCSVRecords();
-
-					logger.info("Aantal te lezen records: " + crsTotaalRecords);
-
-					lackCRSList.clear();
-					/* Start processing the CRS CVS records */
-					while ((line = bufReader.readLine()) != null) {
-						if (line.length() == 1 && line.isEmpty()) {
-							continue;
-						}
-
-						/* Splitting the data */
-						String[] row = line.split(cvsSplitBy);
-
-						/* get the registration number. */
-						registrationNumber = row[0];
+						registrationNumber = rowLine[0];
 
 						/* if registration string contains number */
 						if (registrationNumber.matches(".*\\d+.*")
 								&& registrationNumber.length() > 0) {
+							recordCount = readCsvFile(annotatedPluginDocuments,
+									recordCount, rowLine);
 
-							int cnt = 0;
-							/* Looping thru the selected documents to add Notes */
-							for (AnnotatedPluginDocument list : listDocuments) {
-
-								isRMNHNumber = false;
-								/* Get the filename */
-								documentFileName = list.getName();
-
-								/*
-								 * Check if file has the notes "ImportedFrom",
-								 * dummies file do not have that
-								 */
-								getFastDocumentName(list);
-
-								/* Check of the filename contain "FAS" extension */
-								setDocumentFileName(list);
-
-								/*
-								 * check if document contain a registration
-								 * number
-								 */
-								isRMNHNumber = list.toString().contains(
-										"RegistrationNumberCode_Samples");
-
-								if (isRMNHNumber) {
-									/* Get registration number from the document */
-									resultRegNum = (list
-											.getDocumentNotes(true)
-											.getNote(
-													"DocumentNoteUtilities-Registr-nmbr (Samples)")
-											.getFieldValue("RegistrationNumberCode_Samples"));
-								}
-
-								if ((resultRegNum == null)
-										|| (!resultRegNum
-												.equals(registrationNumber))) {
-									cnt++;
-									continue;
-								}
-
-								if (isRMNHNumber) {
-									/*
-									 * If the Registration number from the CSV
-									 * record match with the registration number
-									 * from the selected document then start
-									 * processing
-									 */
-									if (resultRegNum.equals(registrationNumber)) {
-
-										/* Start time of the process */
-										startBeginTime = System.nanoTime();
-
-										recordCount++;
-										/* Show progressbar GUI */
-										limsFrameProgress
-												.showProgress("Match : "
-														+ registrationNumber
-														+ "\n"
-														+ "  Recordcount: "
-														+ recordCount);
-
-										logger.info("Registration number matched: "
-												+ registrationNumber);
-
-										crsRecordVerwerkt++;
-
-										/* Clear fields variables */
-										clearFieldValues();
-
-										/*
-										 * TODO: Anders aanpakken middels
-										 * CSVReader functionaliteit. Misschien
-										 * wordt de preformance wat beter.
-										 */
-										/*
-										 * Looping thru a row set from the CSV
-										 * file
-										 */
-										for (int i = 0, n = row.length; i < n; i++) {
-											/* Set Registration number */
-											LimsCRSFields
-													.setRegistratienummer(row[0]);
-											/*
-											 * Set Rank or classification and
-											 * Name
-											 */
-											extractRankOrClassification(row[1],
-													row[2]);
-											/* Set Genus or monomial */
-											LimsCRSFields.setGenus(row[3]);
-											/* Full scientific name */
-											LimsCRSFields.setTaxon(row[4]);
-											/* Identifier */
-											LimsCRSFields
-													.setDeterminator(row[5]);
-											/* Sex */
-											LimsCRSFields.setSex(row[6]);
-											/* Phase or stage */
-											LimsCRSFields.setStadium(row[7]);
-											/* Agent */
-											LimsCRSFields.setLegavit(row[8]);
-											/* Collecting start date */
-											if (row[9].length() > 0) {
-												LimsCRSFields
-														.setCollectingDate(row[9]);
-											} else {
-												LimsCRSFields
-														.setCollectingDate("10000101L");
-											}
-											/* Country */
-											LimsCRSFields.setCountry(row[10]);
-											/* State/province */
-											if (i == 11) {
-												LimsCRSFields
-														.setBioRegion(row[i]);
-											}
-											/* Locality */
-											if (i == 12) {
-												LimsCRSFields
-														.setLocality(row[i]);
-											}
-											/* Latitude */
-											if (i == 13) {
-												LimsCRSFields
-														.setLatitudeDecimal(row[i]);
-											}
-											/* Longitude */
-											if (i == 14) {
-												LimsCRSFields
-														.setLongitudeDecimal(row[i]);
-											}
-											/* Altitude */
-											if (i == 15) {
-												LimsCRSFields.setHeight(row[i]);
-											}
-										}
-
-										/* Add notes to the selected document */
-										setCRSNotes(annotatedPluginDocuments,
-												cnt);
-										logger.info("Done with adding notes to the document: "
-												+ documentFileName);
-
-										/*
-										 * Add registrationnumber to a
-										 * processlist
-										 */
-										if (!processedList
-												.contains(resultRegNum)) {
-											processedList.add(resultRegNum
-													.toString());
-										}
-										/*
-										 * End duration of the processing of
-										 * notes
-										 */
-										calculateTimeForAddingNotes(startBeginTime);
-									} // end IF
-								}
-								cnt++;
-							} // end For Selected
-						} // end if registration contain only numbers
-
-						/* Add data(total records) to the failure list */
-						recordCount = addDocumentsToFailureList(recordCount);
-					} // end While
-					bufReader.close();
-					in.close();
-
-					logger.info("--------------------------------------------------------");
-					logger.info("Total of document(s) updated: "
-							+ importCounter);
-					logger.info("-------------------------- E N D --------------------------");
-					logger.info("Done with updating the selected document(s). ");
-
-					if (documentFileName != null) {
-						MatchList.add("No document(s) match found for : "
-								+ documentFileName);
-
-						failureList.add("Total records not matched: "
-								+ Integer.toString(failureList.size() - 3)
-								+ "\n");
-					}
-					/** Calculating the Duration of the import **/
-					setDurationEndTimeProcessing();
-
-					/**
-					 * Show message with the info from the total of records
-					 * which has been import to Geneious
-					 **/
-					EventQueue.invokeLater(new Runnable() {
-
-						@Override
-						public void run() {
-							crsRecordUitval = failureList.size() - 4;
-
-							/*
-							 * Show a message at the end of processing the
-							 * document(s)
-							 */
-							showMessageDialogEndOfProcessing();
-
-							logger.info(processedList.size()
-									+ " records are imported and linked to "
-									+ Integer.toString(crsRecordVerwerkt)
-									+ " existing documents (of "
-									+ importCounter + " selected)" + "\n"
-									+ "\n" + "List of "
-									+ Integer.toString(importCounter));
-							logger.info(Integer.toString(crsRecordUitval)
-									+ " records are ignored.");
-
-							limsLogger.logToFile(logCrsFileName,
-									failureList.toString());
-
-							failureList.clear();
-							processedList.clear();
-							limsFrameProgress.hideFrame();
-							crsRecordUitval = 0;
-							crsRecordVerwerkt = 0;
-						}
-
-						/**
-						 * Show dialog message at the end of processing the
-						 * document(s)
-						 */
-						private void showMessageDialogEndOfProcessing() {
-							Dialogs.showMessageDialog(Integer
-									.toString(crsTotaalRecords)
-									+ " records have been read of which: "
-									+ "\n"
-									+ "[1] "
-									+ processedList.size()
-									+ " records are imported and linked to "
-									+ Integer.toString(crsRecordVerwerkt)
-									+ " existing documents (of "
-									+ importCounter
-									+ " selected)"
-									+ "\n"
-									+ "\n"
-									+ "[2] "
-									+ Integer.toString(crsRecordUitval)
-									+ " records are ignored."
-									+ "\n"
-									+ "\n"
-									+ getLackMessage(isRMNHNumber));
-						}
-					});
+							/* Add data(total records) to the failure list */
+							recordCount = addDocumentsToFailureList(recordCount);
+						} // end if
+					} // end while
 				} catch (IOException e) {
-
 					e.printStackTrace();
 				}
+				logger.info("--------------------------------------------------------");
+				logger.info("Total of document(s) updated: " + importCounter);
+				logger.info("-------------------------- E N D --------------------------");
+				logger.info("Done with updating the selected document(s). ");
+
+				if (documentFileName != null) {
+					MatchList.add("No document(s) match found for : "
+							+ documentFileName);
+
+					failureList.add("Total records not matched: "
+							+ Integer.toString(failureList.size() - 3) + "\n");
+				}
+				/** Calculating the Duration of the import **/
+				setDurationEndTimeProcessing();
+
+				/**
+				 * Show message with the info from the total of records which
+				 * has been import to Geneious
+				 **/
+				EventQueue.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						crsRecordUitval = failureList.size() - 4;
+
+						/*
+						 * Show a message at the end of processing the
+						 * document(s)
+						 */
+						showMessageDialogEndOfProcessing();
+
+						logger.info(processedList.size()
+								+ " records are imported and linked to "
+								+ Integer.toString(crsRecordVerwerkt)
+								+ " existing documents (of " + importCounter
+								+ " selected)" + "\n" + "\n" + "List of "
+								+ Integer.toString(importCounter));
+						logger.info(Integer.toString(crsRecordUitval)
+								+ " records are ignored.");
+
+						limsLogger.logToFile(logCrsFileName,
+								failureList.toString());
+
+						failureList.clear();
+						processedList.clear();
+						limsFrameProgress.hideFrame();
+						crsRecordUitval = 0;
+						crsRecordVerwerkt = 0;
+					}
+
+					/**
+					 * Show dialog message at the end of processing the
+					 * document(s)
+					 */
+					private void showMessageDialogEndOfProcessing() {
+						Dialogs.showMessageDialog(Integer
+								.toString(crsTotaalRecords)
+								+ " records have been read of which: "
+								+ "\n"
+								+ "[1] "
+								+ processedList.size()
+								+ " records are imported and linked to "
+								+ Integer.toString(crsRecordVerwerkt)
+								+ " existing documents (of "
+								+ importCounter
+								+ " selected)"
+								+ "\n"
+								+ "\n"
+								+ "[2] "
+								+ Integer.toString(crsRecordUitval)
+								+ " records are ignored."
+								+ "\n"
+								+ "\n"
+								+ getLackMessage(isRMNHNumber));
+					}
+				});
 			}
 		}
+	}
+
+	/**
+	 * @param annotatedPluginDocuments
+	 * @param recordCount
+	 * @param rowLine
+	 * @param cnt
+	 * @return
+	 */
+	private int readCsvFile(AnnotatedPluginDocument[] annotatedPluginDocuments,
+			int recordCount, String[] rowLine) {
+		int cnt = 0;
+		for (AnnotatedPluginDocument list : listDocuments) {
+
+			isRMNHNumber = false;
+			/* Get the filename */
+			documentFileName = list.getName();
+
+			/*
+			 * Check if file has the notes "ImportedFrom", dummies file do not
+			 * have that
+			 */
+			getFastDocumentName(list);
+
+			/*
+			 * Check of the filename contain "FAS" extension
+			 */
+			setDocumentFileName(list);
+
+			/*
+			 * check if document contain a registration number
+			 */
+			isRMNHNumber = list.toString().contains(
+					"RegistrationNumberCode_Samples");
+
+			if (isRMNHNumber) {
+				/*
+				 * Get registration number from the document
+				 */
+				resultRegNum = (list.getDocumentNotes(true).getNote(
+						"DocumentNoteUtilities-Registr-nmbr (Samples)")
+						.getFieldValue("RegistrationNumberCode_Samples"));
+			}
+
+			if (!resultRegNum.equals(registrationNumber)) {
+				cnt++;
+				continue;
+			}
+
+			if (isRMNHNumber) {
+				/*
+				 * If the Registration number from the CSV record match with the
+				 * registration number from the selected document then start
+				 * processing
+				 */
+				if (resultRegNum.equals(registrationNumber)) {
+
+					/* Start time of the process */
+					startBeginTime = System.nanoTime();
+
+					recordCount++;
+					/* Show progressbar GUI */
+					limsFrameProgress.showProgress("Match : "
+							+ registrationNumber + "\n" + "  Recordcount: "
+							+ recordCount);
+
+					logger.info("Registration number matched: "
+							+ registrationNumber);
+
+					crsRecordVerwerkt++;
+
+					/* Clear fields variables */
+					// clearFieldValues();
+
+					/* Set Registration number */
+					limsCRSFields.setRegistratienummer(rowLine[0]);
+					/*
+					 * Set Rank or classification and Name
+					 */
+					extractRankOrClassification(rowLine[1], rowLine[2]);
+					/* Set Genus or monomial */
+					limsCRSFields.setGenus(rowLine[3]);
+					/* Full scientific name */
+					limsCRSFields.setTaxon(rowLine[4]);
+					/* Identifier */
+					limsCRSFields.setDeterminator(rowLine[5]);
+					/* Sex */
+					limsCRSFields.setSex(rowLine[6]);
+					/* Phase or stage */
+					limsCRSFields.setStadium(rowLine[7]);
+					/* Agent */
+					limsCRSFields.setLegavit(rowLine[8]);
+					/* Collecting start date */
+					if (rowLine[9].length() > 0) {
+						limsCRSFields.setCollectingDate(rowLine[9]);
+					} else {
+						limsCRSFields.setCollectingDate("10000101L");
+					}
+					/* Country */
+					limsCRSFields.setCountry(rowLine[10]);
+					/* State/province */
+					limsCRSFields.setBioRegion(rowLine[11]);
+					/* Locality */
+					limsCRSFields.setLocality(rowLine[12]);
+					/* Latitude */
+					limsCRSFields.setLatitudeDecimal(rowLine[13]);
+					/* Longitude */
+					limsCRSFields.setLongitudeDecimal(rowLine[14]);
+					/* Altitude */
+					limsCRSFields.setHeight(rowLine[15]);
+
+					/* Add notes to the document(s) */
+					setCRSNotes(annotatedPluginDocuments, cnt);
+
+					logger.info("Done with adding notes to the document: "
+							+ documentFileName);
+
+					/*
+					 * Add registrationnumber to a processlist
+					 */
+					if (!processedList.contains(resultRegNum)) {
+						processedList.add(resultRegNum.toString());
+					}
+					/*
+					 * End duration of the processing of notes
+					 */
+					calculateTimeForAddingNotes(startBeginTime);
+				} // end IF
+			}
+			cnt++;
+		} // end for
+		return recordCount;
 	}
 
 	/**
@@ -561,93 +496,93 @@ public class LimsImportCRS extends DocumentAction {
 
 		/** set note for Phylum: FieldValue, Label, NoteType, */
 		limsNotes.setNoteToAB1FileName(documents, "PhylumCode_CRS",
-				"Phylum (CRS)", "Phylum (CRS)", LimsCRSFields.getPhylum()
+				"Phylum (CRS)", "Phylum (CRS)", limsCRSFields.getPhylum()
 						.trim(), cnt);
 
 		/** Set note for Class */
 		limsNotes.setNoteToAB1FileName(documents, "ClassCode_CRS",
-				"Class (CRS)", "Class (CRS)", LimsCRSFields.getKlasse().trim(),
+				"Class (CRS)", "Class (CRS)", limsCRSFields.getKlasse().trim(),
 				cnt);
 
 		/** set note for Order */
 		limsNotes.setNoteToAB1FileName(documents, "OrderCode_CRS",
-				"Order (CRS)", "Order (CRS)", LimsCRSFields.getOrder().trim(),
+				"Order (CRS)", "Order (CRS)", limsCRSFields.getOrder().trim(),
 				cnt);
 
 		/* set note for Family */
 		limsNotes.setNoteToAB1FileName(documents, "FamilyCode_CRS",
-				"Family (CRS)", "Family (CRS)", LimsCRSFields.getFamily()
+				"Family (CRS)", "Family (CRS)", limsCRSFields.getFamily()
 						.trim(), cnt);
 
 		/** set note for SubFamily */
 		limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
-				"Subfamily (CRS)", "Subfamily (CRS)", LimsCRSFields
+				"Subfamily (CRS)", "Subfamily (CRS)", limsCRSFields
 						.getSubFamily().trim(), cnt);
 
 		/** set note for Genus */
 		limsNotes.setNoteToAB1FileName(documents, "GenusCode_CRS",
-				"Genus (CRS)", "Genus (CRS)", LimsCRSFields.getGenus().trim(),
+				"Genus (CRS)", "Genus (CRS)", limsCRSFields.getGenus().trim(),
 				cnt);
 
 		/** set note for TaxonName */
 		limsNotes.setNoteToAB1FileName(documents, "TaxonName1Code_CRS",
-				"Scientific name (CRS)", "Scientific name (CRS)", LimsCRSFields
+				"Scientific name (CRS)", "Scientific name (CRS)", limsCRSFields
 						.getTaxon().trim(), cnt);
 
 		/** set note for Identifier */
 		limsNotes.setNoteToAB1FileName(documents, "IdentifierCode_CRS",
-				"Identifier (CRS)", "Identifier (CRS)", LimsCRSFields
+				"Identifier (CRS)", "Identifier (CRS)", limsCRSFields
 						.getDeterminator().trim(), cnt);
 
 		/** set note for Sex */
 		limsNotes.setNoteToAB1FileName(documents, "SexCode_CRS", "Sex (CRS)",
-				"Sex (CRS)", LimsCRSFields.getSex().trim(), cnt);
+				"Sex (CRS)", limsCRSFields.getSex().trim(), cnt);
 
 		/** set note for Phase Or Stage */
 		limsNotes.setNoteToAB1FileName(documents, "PhaseOrStageCode_CRS",
 				"Stage (CRS)", "Stage (CRS)",
-				LimsCRSFields.getStadium().trim(), cnt);
+				limsCRSFields.getStadium().trim(), cnt);
 
 		/** set note for Collector */
 		limsNotes.setNoteToAB1FileName(documents, "CollectorCode_CRS",
-				"Leg (CRS)", "Leg (CRS)", LimsCRSFields.getLegavit().trim(),
+				"Leg (CRS)", "Leg (CRS)", limsCRSFields.getLegavit().trim(),
 				cnt);
 
 		/** set note for Collecting date */
-		if (LimsCRSFields.getCollectingDate().length() > 0) {
+		if (limsCRSFields.getCollectingDate().length() > 0) {
 			limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
 					"Date (CRS)", "Date (CRS)",
-					LimsCRSFields.getCollectingDate(), cnt);
+					limsCRSFields.getCollectingDate(), cnt);
 		}
 
 		/** set note for Country */
 		limsNotes.setNoteToAB1FileName(documents, "CountryCode_CRS",
-				"Country (CRS)", "Country (CRS)", LimsCRSFields.getCountry()
+				"Country (CRS)", "Country (CRS)", limsCRSFields.getCountry()
 						.trim(), cnt);
 
 		/** set note for BioRegion */
 		limsNotes.setNoteToAB1FileName(documents,
 				"StateOrProvinceBioRegionCode_CRS", "Region (CRS)",
-				"Region (CRS)", LimsCRSFields.getBioRegion().trim(), cnt);
+				"Region (CRS)", limsCRSFields.getBioRegion().trim(), cnt);
 
 		/** set note for Locality */
 		limsNotes.setNoteToAB1FileName(documents, "LocalityCode_CRS",
-				"Locality (CRS)", "Locality (CRS)", LimsCRSFields.getLocality()
+				"Locality (CRS)", "Locality (CRS)", limsCRSFields.getLocality()
 						.trim(), cnt);
 
 		/** set note for Latitude */
 		limsNotes.setNoteToAB1FileName(documents, "LatitudeDecimalCode_CRS",
-				"Lat (CRS)", "Lat (CRS)", LimsCRSFields.getLatitudeDecimal(),
+				"Lat (CRS)", "Lat (CRS)", limsCRSFields.getLatitudeDecimal(),
 				cnt);
 
 		/** set note for Longitude */
 		limsNotes.setNoteToAB1FileName(documents, "LongitudeDecimalCode_CRS",
 				"Long (CRS)", "Long (CRS)",
-				LimsCRSFields.getLongitudeDecimal(), cnt);
+				limsCRSFields.getLongitudeDecimal(), cnt);
 
 		/** set note for Height */
 		limsNotes.setNoteToAB1FileName(documents, "HeightCode_CRS",
-				"Altitude (CRS)", "Altitude (CRS)", LimsCRSFields.getHeight(),
+				"Altitude (CRS)", "Altitude (CRS)", limsCRSFields.getHeight(),
 				cnt);
 
 		limsNotes.setImportTrueFalseNotes(documents, "CRSCode_CRS",
@@ -669,23 +604,23 @@ public class LimsImportCRS extends DocumentAction {
 			String[] name = StringUtils.split(nameValue, "/");
 
 			if (forwardSlash[i].trim().equals("phylum")) {
-				LimsCRSFields.setPhylum(name[i]);
+				limsCRSFields.setPhylum(name[i]);
 			} else if (forwardSlash[i].trim().equals("subclass")) {
-				LimsCRSFields.setSubclass(name[i]);
+				limsCRSFields.setSubclass(name[i]);
 			} else if (forwardSlash[i].trim().equals("class")) {
-				LimsCRSFields.setKlasse(name[i]);
+				limsCRSFields.setKlasse(name[i]);
 			} else if (forwardSlash[i].trim().equals("suborder")) {
-				LimsCRSFields.setSuborder(name[i]);
+				limsCRSFields.setSuborder(name[i]);
 			} else if (forwardSlash[i].trim().equals("order")) {
-				LimsCRSFields.setOrder(name[i]);
+				limsCRSFields.setOrder(name[i]);
 			} else if (forwardSlash[i].trim().equals("family")) {
-				LimsCRSFields.setFamily(name[i]);
+				limsCRSFields.setFamily(name[i]);
 			} else if (forwardSlash[i].trim().equals("superfamily")) {
-				LimsCRSFields.setSuperFamily(name[i]);
+				limsCRSFields.setSuperFamily(name[i]);
 			} else if (forwardSlash[i].trim().equals("subfamily")) {
-				LimsCRSFields.setSubFamily(name[i]);
+				limsCRSFields.setSubFamily(name[i]);
 			} else if (forwardSlash[i].trim().equals("tribe")) {
-				LimsCRSFields.setTribe(name[i]);
+				limsCRSFields.setTribe(name[i]);
 			}
 		}
 	}
@@ -704,25 +639,25 @@ public class LimsImportCRS extends DocumentAction {
 
 	/** Clear fields variables */
 	private void clearFieldValues() {
-		LimsCRSFields.setRegistratienummer("");
-		LimsCRSFields.setPhylum("");
-		LimsCRSFields.setKlasse("");
-		LimsCRSFields.setOrder("");
-		LimsCRSFields.setFamily("");
-		LimsCRSFields.setSubFamily("");
-		LimsCRSFields.setGenus("");
-		LimsCRSFields.setTaxon("");
-		LimsCRSFields.setDeterminator("");
-		LimsCRSFields.setSex("");
-		LimsCRSFields.setStadium("");
-		LimsCRSFields.setLegavit("");
-		LimsCRSFields.setCollectingDate("");
-		LimsCRSFields.setCountry("");
-		LimsCRSFields.setBioRegion("");
-		LimsCRSFields.setLocality("");
-		LimsCRSFields.setLatitudeDecimal("");
-		LimsCRSFields.setLongitudeDecimal("");
-		LimsCRSFields.setHeight("");
+		limsCRSFields.setRegistratienummer("");
+		limsCRSFields.setPhylum("");
+		limsCRSFields.setKlasse("");
+		limsCRSFields.setOrder("");
+		limsCRSFields.setFamily("");
+		limsCRSFields.setSubFamily("");
+		limsCRSFields.setGenus("");
+		limsCRSFields.setTaxon("");
+		limsCRSFields.setDeterminator("");
+		limsCRSFields.setSex("");
+		limsCRSFields.setStadium("");
+		limsCRSFields.setLegavit("");
+		limsCRSFields.setCollectingDate("");
+		limsCRSFields.setCountry("");
+		limsCRSFields.setBioRegion("");
+		limsCRSFields.setLocality("");
+		limsCRSFields.setLatitudeDecimal("");
+		limsCRSFields.setLongitudeDecimal("");
+		limsCRSFields.setHeight("");
 	}
 
 }

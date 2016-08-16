@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.domainobject.util.debug.BeanPrinter;
 import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1149,11 +1147,6 @@ public class LimsReadGeneiousFieldsValues {
 
 		while (itr.hasNext()) {
 			WritableDatabaseService dbsvc = itr.next().getDatabaseRoot();
-			BeanPrinter bp = new BeanPrinter("C:/temp/bp.txt");
-			bp.dump(dbsvc);
-
-			System.out.println("Item: " + (dbsvc instanceof Collection));
-			break;
 			/*
 			 * itr.nextIndex(); if (dbsvc.toString().contains(databaseURL)) {
 			 * String st[] = dbsvc.toString().split("@"); Map<String, Integer>
