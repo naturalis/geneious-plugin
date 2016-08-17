@@ -10,7 +10,6 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class LimsImportBold extends DocumentAction {
 	public int importCounter;
 	private int VerwerktReg = 0;
 	private int VerwerktRegMarker = 0;
-	private int BoldTotaalRecords = 0;
+	private int boldTotaalRecords = 0;
 
 	private long startTime;
 	private long lEndTime = 0;
@@ -185,9 +184,10 @@ public class LimsImportBold extends DocumentAction {
 				String[] headerCOI = null;
 
 				/* Get the total records from the BOLD file */
-				setBoldTotalRecord();
+				boldTotaalRecords = limsImporterUtil
+						.countRecordsCSV(boldFileSelected);
 
-				logger.info("Totaal records Bold file: " + BoldTotaalRecords);
+				logger.info("Totaal records Bold file: " + boldTotaalRecords);
 
 				/* Start time of processing the notes . */
 				startTime = new Date().getTime();
@@ -262,10 +262,11 @@ public class LimsImportBold extends DocumentAction {
 								 * if not Match on registration number go to the
 								 * next record
 								 */
-								if (!regNumber.trim().equals(resultRegNum)
-										&& !DocumentUtilities
+								if ((resultRegNum == null)
+										|| (!regNumber.trim().equals(
+												resultRegNum) && !DocumentUtilities
 												.getSelectedDocuments()
-												.isEmpty()) {
+												.isEmpty())) {
 									cnt++;
 									continue;
 								}
@@ -340,7 +341,7 @@ public class LimsImportBold extends DocumentAction {
 							private void showDialogMessageBoldEndProcess(
 									int totaalVerwerkt) {
 								Dialogs.showMessageDialog(Integer
-										.toString(BoldTotaalRecords)
+										.toString(boldTotaalRecords)
 										+ " records have been read of which: "
 										+ "\n"
 										+ "[1] "
@@ -588,24 +589,6 @@ public class LimsImportBold extends DocumentAction {
 					+ (TimeUnit.SECONDS.convert(elapsedTime,
 							TimeUnit.NANOSECONDS)) + " second(s)");
 			elapsedTime = 0;
-		}
-	}
-
-	/**
-	 * Get the total of records from the Bold CSV file
-	 */
-	private void setBoldTotalRecord() {
-		if (BoldTotaalRecords == 0) {
-			try {
-				CSVReader csvReadertot = new CSVReader(new FileReader(
-						boldFileSelected), '\t', '\'', 1);
-				BoldTotaalRecords = csvReadertot.readAll().size();
-				csvReadertot.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

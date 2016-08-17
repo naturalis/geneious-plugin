@@ -27,7 +27,7 @@ public class LimsFileSelector {
 	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsImportAB1Update.class);
+			.getLogger(LimsFileSelector.class);
 
 	private String fileSelected = "";
 	private String line;

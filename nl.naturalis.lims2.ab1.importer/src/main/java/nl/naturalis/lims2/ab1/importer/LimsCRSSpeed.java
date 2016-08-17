@@ -1,7 +1,6 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -155,7 +154,8 @@ public class LimsCRSSpeed extends DocumentAction {
 				listDocuments = DocumentUtilities.getSelectedDocuments();
 
 				/* Opvragen aantal in te lezen records uit de CRS file. */
-				setCrsTotalCSVRecords();
+				crsTotaalRecords = limsImporterUtil
+						.countRecordsCSV(fileSelected);
 
 				logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
@@ -394,24 +394,6 @@ public class LimsCRSSpeed extends DocumentAction {
 	}
 
 	/**
-	 * 
-	 */
-	private void setCrsTotalCSVRecords() {
-		if (crsTotaalRecords == 0) {
-			try {
-				csvReader = new CSVReader(new FileReader(fileSelected), '\t',
-						'\'', 1);
-				crsTotaalRecords = csvReader.readAll().size();
-				csvReader.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
 	 * @param list
 	 */
 	private void setDocumentFileName(AnnotatedPluginDocument list) {
@@ -515,9 +497,12 @@ public class LimsCRSSpeed extends DocumentAction {
 						.trim(), cnt);
 
 		/** set note for SubFamily */
-		limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
-				"Subfamily (CRS)", "Subfamily (CRS)", limsCRSFields
-						.getSubFamily().trim(), cnt);
+		if (limsCRSFields.getSubFamily() != null) {
+			System.out.println(limsCRSFields.getSubFamily());
+			limsNotes.setNoteToAB1FileName(documents, "SubFamilyCode_CRS",
+					"Subfamily (CRS)", "Subfamily (CRS)", limsCRSFields
+							.getSubFamily().trim(), cnt);
+		}
 
 		/** set note for Genus */
 		limsNotes.setNoteToAB1FileName(documents, "GenusCode_CRS",

@@ -162,7 +162,8 @@ public class LimsImportSamples extends DocumentAction {
 					}
 
 					/* Get the total of records of the Sample CSV file */
-					setSampleTotalrecords();
+					sampleTotaalRecords = limsImporterUtil
+							.countRecordsCSV(fileSelected);
 
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
@@ -352,23 +353,6 @@ public class LimsImportSamples extends DocumentAction {
 				return;
 			}
 		});
-	}
-
-	private void setSampleTotalrecords() {
-		/* Opvragen aantal in te lezen records uit de samples file. */
-		if (sampleTotaalRecords == 0) {
-			CSVReader reader;
-			try {
-				reader = new CSVReader(new FileReader(fileSelected), '\t',
-						'\'', 1);
-				sampleTotaalRecords = reader.readAll().size();
-				reader.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private int processSampleDocuments(AnnotatedPluginDocument[] documents,
