@@ -78,7 +78,7 @@ public class LimsImportSamples extends DocumentAction {
 	private boolean match = false;
 
 	private int sampleRecordVerwerkt = 0;
-	private Object version = 0;
+	private int version = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private long startTime;
 	private long lEndTime = 0;
@@ -425,12 +425,11 @@ public class LimsImportSamples extends DocumentAction {
 				 */
 
 				if (isExtractIDSeqExists)
-					version = Integer
-							.parseInt((String) readGeneiousFieldsValues
-									.getVersionValueFromAnnotatedPluginDocument(
-											documents,
-											"DocumentNoteUtilities-Document version",
-											"DocumentVersionCode_Seq", cnt));
+					version = Integer.parseInt(readGeneiousFieldsValues
+							.getVersionValueFromAnnotatedPluginDocument(
+									documents,
+									"DocumentNoteUtilities-Document version",
+									"DocumentVersionCode_Seq", cnt));
 			}
 
 			/* Check if name is from a Contig file */
@@ -852,13 +851,16 @@ public class LimsImportSamples extends DocumentAction {
 								 */
 							} else if (isExtractIDSeqExists) {
 								version = Integer
-										.parseInt((String) readGeneiousFieldsValues
+										.parseInt(readGeneiousFieldsValues
 												.getVersionValueFromAnnotatedPluginDocument(
 														docsSamples,
 														"DocumentNoteUtilities-Document version",
 														"DocumentVersionCode_Seq",
 														cnt));
 							}
+
+							if (version == 0)
+								version = 1;
 							/*
 							 * if extract filename match the ID from the samples
 							 * Csv record start processing the notes.

@@ -137,13 +137,13 @@ public class LimsReadGeneiousFieldsValues {
 	 *            , noteCode, fieldName, i
 	 * @return
 	 */
-	public Object getVersionValueFromAnnotatedPluginDocument(
+	public String getVersionValueFromAnnotatedPluginDocument(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
-			String noteCode, Object fieldName, int i) {
+			String noteCode, String fieldName, int i) {
 
 		/** noteCode = "DocumentNoteUtilities-Registration number"; */
 		DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteCode);
-		Object fieldValue = null;
+		String fieldValue = null;
 
 		if (noteType != null) {
 			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocuments[i]
@@ -152,11 +152,12 @@ public class LimsReadGeneiousFieldsValues {
 			DocumentNote bos = documentNotes.getNote(noteCode);
 			/** example: FieldName = "BasisOfRecordCode" */
 			if (bos != null) {
-				fieldValue = bos.getFieldValue((String) fieldName);
+				fieldValue = (String) bos.getFieldValue(fieldName);
 			} else {
-				fieldValue = null;
+				fieldValue = "0";
 			}
 		}
+
 		return fieldValue;
 	}
 
