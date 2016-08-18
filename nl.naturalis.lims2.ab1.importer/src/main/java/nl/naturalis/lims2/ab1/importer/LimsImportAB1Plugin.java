@@ -84,7 +84,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public DocumentType[] getDocumentTypes() {
-		return null;
+		return new DocumentType[] { new DocumentType<LimsSamplesFields>(
+				"Samples document", LimsSamplesFields.class, null) };
 
 	}
 }
