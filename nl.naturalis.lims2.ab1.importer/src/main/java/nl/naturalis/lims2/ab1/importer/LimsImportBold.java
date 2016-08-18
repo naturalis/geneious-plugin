@@ -753,26 +753,56 @@ public class LimsImportBold extends DocumentAction {
 		}
 	}
 
+	/**
+	 * Get Path for the Bold CSV file
+	 * 
+	 * @return
+	 * */
 	public String getBoldFilePath() {
 		return boldFilePath;
 	}
 
+	/**
+	 * Set Path for the Bold CSV file
+	 * 
+	 * @param boldFilePath
+	 * */
 	public void setBoldFilePath(String boldFilePath) {
 		this.boldFilePath = boldFilePath;
 	}
 
+	/**
+	 * Get bold file
+	 * 
+	 * @return
+	 * */
 	public String getBoldFile() {
 		return boldFile;
 	}
 
+	/**
+	 * Set bold file
+	 * 
+	 * @param boldFile
+	 * */
 	public void setBoldFile(String boldFile) {
 		this.boldFile = boldFile;
 	}
 
+	/**
+	 * Get extract filename
+	 * 
+	 * @return
+	 **/
 	public String getExtractIDfileName() {
 		return extractIDfileName;
 	}
 
+	/**
+	 * Set extract filename
+	 * 
+	 * @param extractIDfileName
+	 * */
 	public void setExtractIDfileName(String extractIDfileName) {
 		this.extractIDfileName = extractIDfileName;
 	}

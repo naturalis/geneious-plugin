@@ -37,7 +37,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	private LimsCRSFields LimsCRSFields = new LimsCRSFields();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private AnnotatedPluginDocument documentAnnotatedPlugin;
 	private int count = 0;
@@ -46,7 +45,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	public static List<DocumentField> displayFields;
 	public static QueryField[] searchFields;
-	private String logFileName = "";
 	private boolean fastaFileExists = false;
 	private int versienummer = 0;
 	private boolean isDeleted = false;
@@ -56,7 +54,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private String dummyFilename = "";
 	private String annotatedDocumentID = "";
 	private boolean ab1fileExists = false;
-	private int cnt = 0;
 	private int selectedTotal = 1;
 	private List<AnnotatedPluginDocument> docs = null;
 

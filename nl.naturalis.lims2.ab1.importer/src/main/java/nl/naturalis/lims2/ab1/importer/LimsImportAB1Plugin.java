@@ -66,6 +66,11 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return new DocumentFileImporter[] { new LimsImportAB1() };
 	}
 
+	/**
+	 * Get Document Actions
+	 * 
+	 * @return
+	 * */
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsImportAB1Update(),
 				new LimsImportCRS(), new LimsImportBold(),
@@ -79,17 +84,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	@Override
 	public DocumentType[] getDocumentTypes() {
-		return new DocumentType[] { new DocumentType<LimsSamplesFields>(
-				"Samples document", LimsSamplesFields.class, null),
-		// new DocumentType<LimsReadDataFromBold>("Bold document",
-		// LimsReadDataFromBold.class, null),
-		// new DocumentType<LimsCRSImporter>("CRS Document",
-		// LimsCRSImporter.class, null)
-		};
+		return null;
+
 	}
-
-	// public DocumentOperation[] getDocumentOperations() {
-	// return new DocumentOperation[] { new LimsDummySequence() };
-	// }
-
 }

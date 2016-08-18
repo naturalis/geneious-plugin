@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
-import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
@@ -545,6 +544,10 @@ public class LimsReadGeneiousFieldsValues {
 	 * Get Cache name from XML field document_xml table annotated_document
 	 * //document/hiddenFields/override_cache_name Used in LimsImportAB1 and
 	 * LimsReadDataFromBold
+	 * 
+	 * @param filename
+	 *            , xmlNotesName
+	 * @return
 	 * */
 	public String getCacheNameFromGeneiousDatabase(Object filename,
 			String xmlNotesName) throws IOException {
@@ -757,6 +760,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Used in LimsImportAB1Update Get Version for FAsta and AB1 files
 	 * 
 	 * @param fileName
+	 * @return
 	 * */
 	public int getLastVersion_For_AB1_Fasta(String fileName) {
 
@@ -895,73 +899,159 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	/**
+	 * Get Dummy PCR Plate ID Sequence
+	 * 
+	 * @return
+	 * */
 	public String getDummyPcrPlateIdSeqValue() {
 		return dummyPcrPlateIdSeqValue;
 	}
 
+	/**
+	 * Set Dummy PCR Plate ID Sequence
+	 * 
+	 * @param dummyPcrPlateIdSeqValue
+	 * */
 	public void setDummyPcrPlateIdSeqValue(String dummyPcrPlateIdSeqValue) {
 		this.dummyPcrPlateIdSeqValue = dummyPcrPlateIdSeqValue;
 	}
 
+	/**
+	 * Get Dummy Marker Sequence
+	 * 
+	 * @return
+	 * */
 	public String getDummyMarkerSeqValue() {
 		return dummyMarkerSeqValue;
 	}
 
+	/**
+	 * Set Dummy Marker Sequence
+	 * 
+	 * @param dummyMarkerSeqValue
+	 * */
 	public void setDummyMarkerSeqValue(String dummyMarkerSeqValue) {
 		this.dummyMarkerSeqValue = dummyMarkerSeqValue;
 	}
 
+	/**
+	 * Get Dummy Registration number for samples
+	 * 
+	 * @return
+	 * */
 	public String getDummyRegistrNmbrSamplesValue() {
 		return dummyRegistrNmbrSamplesValue;
 	}
 
+	/**
+	 * Set Dummy Registration number for samples
+	 * 
+	 * @param dummyRegistrNmbrSamplesValue
+	 * */
 	public void setDummyRegistrNmbrSamplesValue(
 			String dummyRegistrNmbrSamplesValue) {
 		this.dummyRegistrNmbrSamplesValue = dummyRegistrNmbrSamplesValue;
 	}
 
+	/**
+	 * Get Dummy ScientificName for Samples
+	 * 
+	 * @return
+	 * */
 	public String getDummyScientificNameSamplesValue() {
 		return dummyScientificNameSamplesValue;
 	}
 
+	/**
+	 * Set Dummy ScientificName for Samples
+	 * 
+	 * @param dummyScientificNameSamplesValue
+	 * */
 	public void setDummyScientificNameSamplesValue(
 			String dummyScientificNameSamplesValue) {
 		this.dummyScientificNameSamplesValue = dummyScientificNameSamplesValue;
 	}
 
+	/**
+	 * Get Dummy Plate ID for Samples
+	 * 
+	 * @return
+	 * */
 	public String getDummySamplePlateIdSamplesValue() {
 		return dummySamplePlateIdSamplesValue;
 	}
 
+	/**
+	 * Set Dummy Plate ID for Samples
+	 * 
+	 * @param dummySamplePlateIdSamplesValue
+	 **/
 	public void setDummySamplePlateIdSamplesValue(
 			String dummySamplePlateIdSamplesValue) {
 		this.dummySamplePlateIdSamplesValue = dummySamplePlateIdSamplesValue;
 	}
 
+	/**
+	 * Get Dummy Position for samples
+	 * 
+	 * @return
+	 * */
 	public String getDummyPositionSamplesValue() {
 		return dummyPositionSamplesValue;
 	}
 
+	/**
+	 * Set Dummy Position for samples
+	 * 
+	 * @param dummyPositionSamplesValue
+	 */
 	public void setDummyPositionSamplesValue(String dummyPositionSamplesValue) {
 		this.dummyPositionSamplesValue = dummyPositionSamplesValue;
 	}
 
+	/**
+	 * Get Dummy Extract ID for Samples
+	 * 
+	 * @return
+	 * */
 	public String getDummyExtractIDSamplesValue() {
 		return dummyExtractIDSamplesValue;
 	}
 
+	/**
+	 * Set Dummy Extract ID for Samples
+	 * 
+	 * @param dummyExtractIDSamplesValue
+	 * */
 	public void setDummyExtractIDSamplesValue(String dummyExtractIDSamplesValue) {
 		this.dummyExtractIDSamplesValue = dummyExtractIDSamplesValue;
 	}
 
+	/**
+	 * Get Dummy Sequence Staff for Samples
+	 * 
+	 * @return
+	 * */
 	public String getDummySeqStaffSamplesValue() {
 		return dummySeqStaffSamplesValue;
 	}
 
+	/**
+	 * Set Dummy Sequence Staff for Samples
+	 * 
+	 * @param dummySeqStaffSamplesValue
+	 * */
 	public void setDummySeqStaffSamplesValue(String dummySeqStaffSamplesValue) {
 		this.dummySeqStaffSamplesValue = dummySeqStaffSamplesValue;
 	}
 
+	/**
+	 * Get Dummy Samples Values from the Database
+	 * 
+	 * @param filename
+	 * @return
+	 * */
 	public List<String> getDummySamplesValues(Object filename) {
 
 		Connection con = null;
@@ -1095,43 +1185,5 @@ public class LimsReadGeneiousFieldsValues {
 			dbResult = lstitr.next().toString();
 		}
 		return dbResult; // databaseName[0];
-	}
-
-	/**
-	 * Get database name
-	 * 
-	 * @return
-	 * */
-	public String checkIfLocalOrServerDatabase(String databaseURL) {
-		List<String> lstdb = new ArrayList<String>();
-
-		String output = "";
-		String urlResult = "";
-
-		ListIterator<WritableDatabaseService> itr = PluginUtilities
-				.getWritableDatabaseServiceRoots().listIterator();
-
-		while (itr.hasNext()) {
-			WritableDatabaseService dbsvc = itr.next().getDatabaseRoot();
-			/*
-			 * itr.nextIndex(); if (dbsvc.toString().contains(databaseURL)) {
-			 * String st[] = dbsvc.toString().split("@"); Map<String, Integer>
-			 * mp = new TreeMap<String, Integer>(); for (int i = 0; i <
-			 * st.length; i++) { Integer count = mp.get(st[i]); if (count ==
-			 * null) { count = 0; } mp.put(st[i], ++count); String strGeneious =
-			 * st[i];
-			 * 
-			 * if (strGeneious.contains(databaseURL)) { int indexEnd =
-			 * strGeneious.indexOf("@"); output = strGeneious.substring(0,
-			 * indexEnd); lstdb.add(output); } } }
-			 */
-
-		}
-
-		Iterator<String> lstitr = lstdb.listIterator();
-		while (lstitr.hasNext()) {
-			urlResult = lstitr.next().toString();
-		}
-		return urlResult; // URL[0];
 	}
 }

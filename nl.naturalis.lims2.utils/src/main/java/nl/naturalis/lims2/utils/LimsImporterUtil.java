@@ -251,8 +251,8 @@ public class LimsImporterUtil {
 	/**
 	 * Check for Letters character in "ID" (String)
 	 * 
-	 * @param
-	 * @return name
+	 * @param name
+	 * @return
 	 * 
 	 **/
 	public boolean isAlpha(String name) {

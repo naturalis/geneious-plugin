@@ -258,6 +258,8 @@ public class LimsImportAB1Update extends DocumentAction {
 	}
 
 	/**
+	 * Get the Document content
+	 * 
 	 * @param cnt
 	 */
 	private void setDocumentFileName(int cnt) {
@@ -270,27 +272,11 @@ public class LimsImportAB1Update extends DocumentAction {
 	}
 
 	/**
+	 * Extract AB1 document(s)
 	 * 
-	 */
-	private String getDatabaseURL() {
-		String localOrServer = "";
-		String url = limsImporterUtil.getDatabasePropValues("url");
-
-		int beginIndex = url.indexOf("//") + 2;
-		int endIndex = url.length() - 1;
-
-		String resultUrl = url.substring(beginIndex, endIndex);
-
-		/* Reinier@jdbc:mysql:__localhost:3306_geneioustest */
-		localOrServer = ReadGeneiousFieldsValues
-				.checkIfLocalOrServerDatabase(resultUrl);
-
-		if (localOrServer != null) {
-			System.out.println("URL: " + localOrServer);
-		}
-		return localOrServer;
-	}
-
+	 * @param annotatedPluginDocuments
+	 *            , int
+	 * */
 	private void extractAB1File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		if (documentFileName.getName() != null
@@ -338,6 +324,12 @@ public class LimsImportAB1Update extends DocumentAction {
 		}
 	}
 
+	/**
+	 * Add notes for the Split plugin
+	 * 
+	 * @param annotatedPluginDocuments
+	 *            , int
+	 * */
 	private void setSplitDocumentsNotes(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
 		logger.info("Extract ID: " + limsAB1Fields.getExtractID());

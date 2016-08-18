@@ -98,7 +98,11 @@ public class LimsImportCRS extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	/** Select AB1 or Fasta documents to add notes to the documents */
+	/**
+	 * Select AB1 or Fasta documents to add notes to the documents
+	 * 
+	 * @param annotatedPluginDocuments
+	 * */
 	private void readDataFromCRSFrom_File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
@@ -458,6 +462,8 @@ public class LimsImportCRS extends DocumentAction {
 	}
 
 	/**
+	 * Get document filename
+	 * 
 	 * @param list
 	 */
 	private void setDocumentFileName(AnnotatedPluginDocument list) {
@@ -473,6 +479,8 @@ public class LimsImportCRS extends DocumentAction {
 	}
 
 	/**
+	 * Check if document contain notes "importedFrom"
+	 * 
 	 * @param list
 	 */
 	private void getFastDocumentName(AnnotatedPluginDocument list) {
@@ -485,6 +493,8 @@ public class LimsImportCRS extends DocumentAction {
 	}
 
 	/**
+	 * Calculate the end time of the process adding notes.
+	 * 
 	 * @param startBeginTime
 	 */
 	private void calculateTimeForAddingNotes(long startBeginTime) {
@@ -498,6 +508,8 @@ public class LimsImportCRS extends DocumentAction {
 	}
 
 	/**
+	 * Add document(s) that not matched to the failure list.
+	 * 
 	 * @param recordCount
 	 * @return
 	 */
@@ -537,6 +549,9 @@ public class LimsImportCRS extends DocumentAction {
 
 	/**
 	 * Set notes to the documents
+	 * 
+	 * @param documents
+	 *            , cnt
 	 * */
 	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
@@ -638,6 +653,9 @@ public class LimsImportCRS extends DocumentAction {
 	/**
 	 * Split the Rank or classification values. Example: order / family /
 	 * subfamily / tribe Coleoptera / Leiodidae / Cholevinae / Cholevini Catops
+	 * 
+	 * @param rankOrClassificationValue
+	 *            , nameValue
 	 * */
 	private void extractRankOrClassification(String rankOrClassificationValue,
 			String nameValue) {
