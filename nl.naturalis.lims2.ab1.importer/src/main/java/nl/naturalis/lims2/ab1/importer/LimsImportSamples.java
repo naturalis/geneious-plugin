@@ -60,6 +60,7 @@ public class LimsImportSamples extends DocumentAction {
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
+	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
 	private CSVReader csvReader = null;
@@ -75,7 +76,6 @@ public class LimsImportSamples extends DocumentAction {
 
 	private boolean isExtractIDSeqExists = false;
 	private boolean match = false;
-	// private boolean isSampleDoc = false;
 
 	private int sampleRecordVerwerkt = 0;
 	private Object version = 0;
@@ -88,8 +88,6 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleRecordFailure = 0;
 	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
-
-	// private int failrecords = 0;
 
 	@Override
 	public void actionPerformed(
@@ -117,6 +115,23 @@ public class LimsImportSamples extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
+	/**
+	 * Check of there are document(s) without registration number (Samples)
+	 * 
+	 * @return
+	 */
+	private boolean isLackListNotEmpty() {
+		if (lackList.size() > 0)
+			return true;
+		return false;
+	}
+
+	/**
+	 * Get lack message of document(s) without registrationnumber (Samples)
+	 * 
+	 * @param missing
+	 * @return
+	 * */
 	private String getLackMessage(Boolean missing) {
 		if (missing)
 			return "[4] At least one selected document lacks ExtractID(Seq)";
@@ -281,6 +296,7 @@ public class LimsImportSamples extends DocumentAction {
 								msgList.clear();
 								failureList.clear();
 								processedList.clear();
+								lackList.clear();
 								sampleExactRecordsVerwerkt = 0;
 								sampleRecordFailure = 0;
 								sampleRecordVerwerkt = 0;
@@ -313,8 +329,7 @@ public class LimsImportSamples extends DocumentAction {
 					limsFrameProgress.createProgressGUI();
 
 					/* Add notes to the documents */
-					setExtractIDMatchSamplesSheetRecords(fileSelected,
-							documents);
+					extractSamplesRecord_Message_No(fileSelected, documents);
 					/* Hide the progressbar GUI */
 					limsFrameProgress.hideFrame();
 				} else {
@@ -363,12 +378,17 @@ public class LimsImportSamples extends DocumentAction {
 
 			resultExists = null;
 			/* Check if "ExtractIDCode_Seq" note exists */
-			if (list.toString().contains(
-					"DocumentNoteUtilities-Extract ID (Seq)")) {
+			if (list.toString().contains("ExtractIDCode_Seq")) {
 				resultExists = list.getDocumentNotes(true)
 						.getNote("DocumentNoteUtilities-Extract ID (Seq)")
 						.getFieldValue("ExtractIDCode_Seq");
 
+			} else {
+				if (!lackList.toString().contains(list.getName())) {
+					lackList.add(list.getName());
+					logger.info("At least one selected document lacks Extract ID (Seq)."
+							+ list.getName());
+				}
 			}
 
 			if (resultExists != null) {
@@ -744,12 +764,11 @@ public class LimsImportSamples extends DocumentAction {
 	 * @param fileName
 	 *            , docsSamples
 	 */
-	private void setExtractIDMatchSamplesSheetRecords(String fileName,
+	private void extractSamplesRecord_Message_No(String fileName,
 			AnnotatedPluginDocument[] docsSamples) {
 
 		List<String> failureList = new ArrayList<String>();
 		List<String> exactProcessedList = new ArrayList<String>();
-		List<String> lackList = new ArrayList<String>();
 		String[] record = null;
 		try {
 			if (fileName != null) {
@@ -813,7 +832,7 @@ public class LimsImportSamples extends DocumentAction {
 
 							/* Check if note exists */
 							isExtractIDSeqExists = list.toString().contains(
-									"MarkerCode_Seq");
+									"ExtractIDCode_Seq");
 
 							/*
 							 * if not exists processed it to the
@@ -823,9 +842,6 @@ public class LimsImportSamples extends DocumentAction {
 								if (!lackList.contains(DocumentUtilities
 										.getSelectedDocuments().get(cnt)
 										.getName())) {
-									limsFrameProgress
-											.showProgress("At least one selected document lacks Extract ID (Seq)."
-													+ "\n" + list.getName());
 									logger.info("At least one selected document lacks Extract ID (Seq)."
 											+ list.getName());
 									lackList.add(list.getName());
@@ -890,7 +906,7 @@ public class LimsImportSamples extends DocumentAction {
 					} // end While
 
 					/* Show result dialog after processing the documents */
-					if (exactProcessedList.size() > 0 || !isExtractIDSeqExists) {
+					if (exactProcessedList.size() > 0) {
 						showFinishedDialogMessageNo(fileName, failureList,
 								exactProcessedList);
 					}
@@ -936,7 +952,7 @@ public class LimsImportSamples extends DocumentAction {
 				+ "0 samples are imported as dummy." + "\n" + "\n" + "[3] "
 				+ Integer.toString(failureList.size())
 				+ " samples records are ignored." + "\n" + "\n"
-				+ getLackMessage(!isExtractIDSeqExists));
+				+ getLackMessage(isLackListNotEmpty()));
 	}
 
 	/**
@@ -982,7 +998,7 @@ public class LimsImportSamples extends DocumentAction {
 				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
 				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
 				+ " sample records are ignored." + "\n" + "\n"
-				+ getLackMessage(!isExtractIDSeqExists));
+				+ getLackMessage(isLackListNotEmpty()));
 	}
 
 }

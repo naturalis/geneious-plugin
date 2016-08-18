@@ -51,7 +51,6 @@ public class LimsImportCRS extends DocumentAction {
 			.getLogger(LimsImportCRS.class);
 
 	private boolean isRMNHNumber = false;
-	private boolean isLacked = false;
 	private String fileSelected = null;
 	private Object documentFileName = "";
 	private String registrationNumber = "";
@@ -178,6 +177,7 @@ public class LimsImportCRS extends DocumentAction {
 
 					importCounter = DocumentUtilities.getSelectedDocuments()
 							.size();
+
 					/* add the selected document into the list. */
 					listDocuments = DocumentUtilities.getSelectedDocuments();
 
@@ -235,9 +235,13 @@ public class LimsImportCRS extends DocumentAction {
 											.getNote(
 													"DocumentNoteUtilities-Registr-nmbr (Samples)")
 											.getFieldValue("RegistrationNumberCode_Samples"));
-									isLacked = true;
 								} else {
-									isLacked = false;
+									if (!lackList.toString().contains(
+											list.getName())) {
+										lackList.add(list.getName());
+										logger.info("At least one selected document lacks Registr-nmbr (Sample)."
+												+ list.getName());
+									}
 								}
 
 								if ((resultRegNum == null)
@@ -439,7 +443,18 @@ public class LimsImportCRS extends DocumentAction {
 				+ " existing documents (of " + importCounter + " selected)"
 				+ "\n" + "\n" + "[2] " + Integer.toString(crsRecordUitval)
 				+ " records are ignored." + "\n" + "\n"
-				+ getLackMessage(!isLacked));
+				+ getLackMessage(isLackListNotEmpty()));
+	}
+
+	/**
+	 * Check of there are document(s) without registration number (Samples)
+	 * 
+	 * @return
+	 */
+	private boolean isLackListNotEmpty() {
+		if (lackList.size() > 0)
+			return true;
+		return false;
 	}
 
 	/**

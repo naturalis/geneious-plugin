@@ -58,6 +58,7 @@ public class LimsImportBold extends DocumentAction {
 
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
+	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
 	private String resultRegNum = null;
@@ -256,6 +257,13 @@ public class LimsImportBold extends DocumentAction {
 											.getNote(
 													"DocumentNoteUtilities-Registr-nmbr (Samples)")
 											.getFieldValue("RegistrationNumberCode_Samples"));
+								} else {
+									if (!lackList.toString().contains(
+											list.getName())) {
+										lackList.add(list.getName());
+										logger.info("At least one selected document lacks Registr-nmbr (Sample)."
+												+ list.getName());
+									}
 								}
 
 								/*
@@ -332,6 +340,7 @@ public class LimsImportBold extends DocumentAction {
 
 								// failureList.clear();
 								processedList.clear();
+								lackList.clear();
 
 							}
 
@@ -358,7 +367,7 @@ public class LimsImportBold extends DocumentAction {
 										+ " records are ignored."
 										+ "\n"
 										+ "\n"
-										+ getLackMessage(!isRMNHNumber));
+										+ getLackMessage(isLackListNotEmpty()));
 							}
 						});
 
@@ -376,6 +385,17 @@ public class LimsImportBold extends DocumentAction {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check of there are document(s) without registration number (Samples)
+	 * 
+	 * @return
+	 */
+	private boolean isLackListNotEmpty() {
+		if (lackList.size() > 0)
+			return true;
+		return false;
 	}
 
 	/**

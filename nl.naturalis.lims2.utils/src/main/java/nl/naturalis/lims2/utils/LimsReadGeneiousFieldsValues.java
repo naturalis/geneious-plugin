@@ -19,7 +19,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1095,16 +1094,6 @@ public class LimsReadGeneiousFieldsValues {
 			dbResult = lstitr.next().toString();
 		}
 		return dbResult; // databaseName[0];
-	}
-
-	public static <T> List<T> searchIn(List<T> list, Matcher<T> m) {
-		List<T> r = new ArrayList<T>();
-		for (T t : list) {
-			if (m.matches(t)) {
-				r.add(t);
-			}
-		}
-		return r;
 	}
 
 	/**
