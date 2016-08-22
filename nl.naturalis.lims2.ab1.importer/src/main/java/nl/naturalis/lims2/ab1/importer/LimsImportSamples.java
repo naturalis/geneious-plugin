@@ -909,10 +909,10 @@ public class LimsImportSamples extends DocumentAction {
 					} // end While
 
 					/* Show result dialog after processing the documents */
-					if (exactProcessedList.size() > 0) {
-						showFinishedDialogMessageNo(fileName, failureList,
-								exactProcessedList);
-					}
+					// if (exactProcessedList.size() > 0) {
+					showFinishedDialogMessageNo(fileName, failureList,
+							exactProcessedList);
+					// }
 
 					failureList.add("Total records not matched: "
 							+ Integer.toString(failureList.size()) + "\n");
