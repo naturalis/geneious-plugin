@@ -632,7 +632,7 @@ public class LimsImportSamples extends DocumentAction {
 				String[] record = null;
 				try {
 					while ((record = csvReader.readNext()) != null) {
-						if (record.length == 0) {
+						if (record.length == 1 && record[0].isEmpty()) {
 							continue;
 						}
 
