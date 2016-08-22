@@ -73,6 +73,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		return new String[] { "" };
 	}
 
+	/** Close Geneious and restart Geneious */
 	private void restartGeneious() {
 		File f2 = new File("geneious.bat");
 		String batchPath = f2.getAbsolutePath();
