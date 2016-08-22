@@ -100,10 +100,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
+		String msg = "Geneious will (unfortunately) shutdown and immediately restart after you have clicked the OK button. "
+				+ "\n \n"
+				+ "Make sure that Geneious is only connected to the database server"
+				+ "\n"
+				+ " with database name: ["
+				+ limsImporterUtil.getDatabasePropValues("databasename")
+				+ "]"
+				+ "\n"
+				+ "when trying to import ab1 or fasta files with the All Naturalis Files plugin.";
 		if (!dbchk.checkDBName()) {
-			Dialogs.showMessageDialog("Geneious will be shutdown. "
-					+ "\n"
-					+ "Geneious wil restarted? Disconnect a shared database connection");
+			Dialogs.showMessageDialog(msg);
 			restartGeneious();
 
 		}
