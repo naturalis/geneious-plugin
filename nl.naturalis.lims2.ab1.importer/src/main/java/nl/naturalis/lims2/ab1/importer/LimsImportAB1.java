@@ -11,6 +11,7 @@ import java.util.List;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
+import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.databaseservice.QueryField;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
@@ -71,6 +73,23 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		return new String[] { "" };
 	}
 
+	private void restartGeneious() {
+		File f2 = new File("geneious.bat");
+		String batchPath = f2.getAbsolutePath();
+		String path = "cmd /c start " + batchPath;
+		try {
+			Process rn = Runtime.getRuntime().exec(path);
+			System.exit(0);
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * Import AB1 and fasta files
 	 * */
@@ -78,6 +97,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public void importDocuments(File file, ImportCallback importCallback,
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
+
+		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+
+		if (!dbchk.checkDBName()) {
+			Dialogs.showMessageDialog("Geneious will be shutdown. "
+					+ "\n"
+					+ "Geneious wil restarted? Disconnect a shared database connection");
+			restartGeneious();
+
+		}
 
 		/* Get Databasename */
 		ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
@@ -88,22 +117,25 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ab1FileName = StringUtils.split(file.getName(), "_");
 
 			/* Check if Dummy file exists in the database */
-			dummyFilename = ReadGeneiousFieldsValues
-					.getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
-							"//document/hiddenFields/cache_name");
+			if (file.getName().contains("ab1")
+					|| file.getName().contains("dum")) {
+				dummyFilename = ReadGeneiousFieldsValues
+						.getCacheNameFromGeneiousDatabase(ab1FileName[0]
+								+ ".dum", "//document/hiddenFields/cache_name");
 
-			/* if exists then get the ID from the dummy file */
-			annotatedDocumentID = ReadGeneiousFieldsValues
-					.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
-							"//document/hiddenFields/cache_name");
+				/* if exists then get the ID from the dummy file */
+				annotatedDocumentID = ReadGeneiousFieldsValues
+						.getIDFromTableAnnotatedDocument(ab1FileName[0]
+								+ ".dum", "//document/hiddenFields/cache_name");
 
-			list.clear();
-			list.addAll(ReadGeneiousFieldsValues
-					.getDummySamplesValues(dummyFilename));
+				list.clear();
+				list.addAll(ReadGeneiousFieldsValues
+						.getDummySamplesValues(dummyFilename));
 
-			/* Check if file exists in the database */
-			ab1fileExists = ReadGeneiousFieldsValues
-					.fileNameExistsInGeneiousDatabase(file.getName());
+				/* Check if file exists in the database */
+				ab1fileExists = ReadGeneiousFieldsValues
+						.fileNameExistsInGeneiousDatabase(file.getName());
+			}
 
 			extractAb1FastaFileName = file.getName();
 

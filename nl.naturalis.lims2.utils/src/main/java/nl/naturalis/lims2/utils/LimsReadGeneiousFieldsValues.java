@@ -165,6 +165,11 @@ public class LimsReadGeneiousFieldsValues {
 					+ xmlnotes + " ')) AS name " + " FROM annotated_document"
 					+ " ) AS a " + " WHERE a.name =?";
 
+			try {
+				Class.forName("com.mysql.jdbc.Driver");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
@@ -394,11 +399,11 @@ public class LimsReadGeneiousFieldsValues {
 			try {
 				con = DriverManager.getConnection(url + activeDB + ssl, user,
 						password);
-				// con.clearWarnings();
+				con.clearWarnings();
 			} catch (SQLException e) {
-				throw new IllegalStateException("Cannot connect the database!",
-						e);
+				logger.warn("Cannot connect the database!", e);
 			}
+
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();

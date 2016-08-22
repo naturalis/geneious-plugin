@@ -216,7 +216,8 @@ public class LimsImportSamples extends DocumentAction {
 							/* Get the ID from CSV file */
 							ID = "e" + record[3];
 
-							int cnt = processSampleDocuments(documents, record,
+							// int cnt =
+							processSampleDocuments(documents, record,
 									startBeginTime);
 
 							/*
@@ -370,7 +371,7 @@ public class LimsImportSamples extends DocumentAction {
 		});
 	}
 
-	private int processSampleDocuments(AnnotatedPluginDocument[] documents,
+	private void processSampleDocuments(AnnotatedPluginDocument[] documents,
 			String[] record, long startBeginTime) {
 		int cnt = 0;
 		Object resultExists;
@@ -532,7 +533,7 @@ public class LimsImportSamples extends DocumentAction {
 			} // end IF
 			cnt++;
 		} // end For
-		return cnt;
+			// return cnt;
 	}
 
 	/** Clear the fields variables */
