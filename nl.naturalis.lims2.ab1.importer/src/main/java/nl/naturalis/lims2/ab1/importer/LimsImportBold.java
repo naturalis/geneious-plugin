@@ -75,8 +75,8 @@ public class LimsImportBold extends DocumentAction {
 	private boolean isOverrideCacheName = false;
 
 	public int importCounter;
-	private int VerwerktReg = 0;
-	private int VerwerktRegMarker = 0;
+	private int VerwerktReg;
+	private int VerwerktRegMarker;
 	private int boldTotaalRecords = 0;
 
 	private long startTime;
@@ -180,8 +180,6 @@ public class LimsImportBold extends DocumentAction {
 				logger.info("------------------------------S T A R T -----------------------------------");
 				logger.info("Start reading from Bold File(s)");
 
-				failureList.clear();
-
 				String[] headerCOI = null;
 
 				/* Get the total records from the BOLD file */
@@ -279,16 +277,35 @@ public class LimsImportBold extends DocumentAction {
 									continue;
 								}
 
-								/* Match only on registration number */
-								addBoldNotesToDocuments(annotatedDocument,
-										regNumber, cnt);
+								if (regNumber.equals(resultRegNum)
+										&& isRMNHNumber) {
+									/* Match only on registration number */
+									addBoldNotesToDocuments(annotatedDocument,
+											regNumber, cnt);
 
-								/*
-								 * Match only on registration number and Marker
-								 */
-								addBoldNotesMatchRegistrationAndMarker(
-										annotatedDocument, headerCOI,
-										regNumber, cnt);
+									/*
+									 * Match only on registration number and
+									 * Marker
+									 */
+									if (headerCOI[6]
+											.equals("COI-5P Seq. Length")) {
+										addBoldNotesMatchRegistrationAndMarker(
+												annotatedDocument, headerCOI,
+												regNumber, cnt);
+									}
+
+									/*
+									 * Add the registration number to the
+									 * document which has been processed.
+									 */
+									if (!processedList.toString().contains(
+											regNumber)) {
+										processedList.add(regNumber);
+										// VerwerktRegMarker++;
+									}
+
+									setVerwerktReg(getVerwerktReg() + 1);
+								}
 
 								cnt++;
 							} // end for
@@ -323,10 +340,11 @@ public class LimsImportBold extends DocumentAction {
 							@Override
 							public void run() {
 
+								int totaalVerwerkt = 0;
 								/* Hide the progressbar */
 								limsFrameProgress.hideFrame();
-								int totaalVerwerkt = VerwerktReg
-										+ VerwerktRegMarker;
+								totaalVerwerkt = VerwerktReg;
+								// + VerwerktRegMarker;
 								showDialogMessageBoldEndProcess(totaalVerwerkt);
 
 								logger.info("Bold: Total of document(s) updated: "
@@ -338,9 +356,11 @@ public class LimsImportBold extends DocumentAction {
 								limsLogger.logToFile(logBoldFileName,
 										failureList.toString());
 
-								// failureList.clear();
+								failureList.clear();
 								processedList.clear();
 								lackList.clear();
+								setVerwerktReg(0);
+								setVerwerktRegMarker(0);
 
 							}
 
@@ -463,7 +483,7 @@ public class LimsImportBold extends DocumentAction {
 
 			if (isOverrideCacheName) {
 				/*
-				 * Copy of AB1 document is saved as DefaultNucleotideSequence
+				 * Copy of FAS document is saved as DefaultNucleotideSequence
 				 */
 				if (documentFileName.toString().contains("Copy")
 						|| documentFileName.toString().contains("kopie")) {
@@ -475,13 +495,17 @@ public class LimsImportBold extends DocumentAction {
 				 * Copy of AB1 document is saved as
 				 * DefaultNucleotideGraphSequence
 				 */
-				else if ((documentFileName.toString().contains("Copy") || documentFileName
-						.toString().contains("kopie"))
-						&& documentFileName.toString().contains(".ab1")) {
+				else if ((documentFileName.toString().contains("Copy")
+						|| documentFileName.toString().contains("kopie") || isOverrideCacheName)
+						&& documentFileName.toString().contains(".ab1")
+						&& !list.toString().contains("Reads Assembly Contig")) {
+
+					System.out.println(list.getName());
 					defaultNucleotideSequence = (DefaultNucleotideGraphSequence) list
 							.getDocument();
 					documentFileName = defaultNucleotideSequence.getName();
-				} else {
+				} else if (documentFileName.toString().contains(".ab1")
+						&& !isOverrideCacheName) {
 					defaultAlignmentDocument = (DefaultAlignmentDocument) list
 							.getDocument();
 					documentFileName = defaultAlignmentDocument.getName();
@@ -505,46 +529,42 @@ public class LimsImportBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedDocument, String[] headerCOI,
 			String regNumber, int cnt) {
 
-		if (regNumber.equals(resultRegNum)
-				&& headerCOI[6].equals("COI-5P Seq. Length") && isRMNHNumber) {
+		/*
+		 * if (regNumber.equals(resultRegNum) &&
+		 * headerCOI[6].equals("COI-5P Seq. Length") && isRMNHNumber) {
+		 */
 
-			/* Get the start time of processing */
-			startBeginTime = System.nanoTime();
+		/* Get the start time of processing */
+		startBeginTime = System.nanoTime();
 
-			/*
-			 * Start the progressbar and show some information.
-			 */
-			limsFrameProgress.showProgress("Match: " + documentFileName + "\n");
-			/*
-			 * Set value from the file to the variables
-			 * 
-			 * record[6] = COI-5P Seq. Length, record[7] = COI-5P Trace Count,
-			 * record[8] = COI-5P Accession
-			 */
-			setNotesThatMatchRegistrationNumberAndMarker(record[6], record[7],
-					record[8]);
+		/*
+		 * Start the progressbar and show some information.
+		 */
+		limsFrameProgress.showProgress("Match: " + documentFileName + "\n");
+		/*
+		 * Set value from the file to the variables
+		 * 
+		 * record[6] = COI-5P Seq. Length, record[7] = COI-5P Trace Count,
+		 * record[8] = COI-5P Accession
+		 */
+		setNotesThatMatchRegistrationNumberAndMarker(record[6], record[7],
+				record[8]);
 
-			/* Set the notes. */
-			setNotesToBoldDocumentsRegistrationMarker(annotatedDocument, cnt);
-			/*
-			 * Add the registration number to the document which has been
-			 * processed.
-			 */
-			if (!processedList.toString().contains(regNumber)) {
-				processedList.add(regNumber);
-				VerwerktRegMarker++;
-			}
+		/* Set the notes. */
+		setNotesToBoldDocumentsRegistrationMarker(annotatedDocument, cnt);
 
-			/*
-			 * Get the end time to see the duration from processing the notes.
-			 */
-			long endTime = System.nanoTime();
-			long elapsedTime = endTime - startBeginTime;
-			logger.info("Took: "
-					+ (TimeUnit.SECONDS.convert(elapsedTime,
-							TimeUnit.NANOSECONDS)) + " second(s)");
-			elapsedTime = 0;
-		}
+		// setVerwerktRegMarker(getVerwerktRegMarker() + 1);
+
+		/*
+		 * Get the end time to see the duration from processing the notes.
+		 */
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		// }
 	}
 
 	/**
@@ -559,57 +579,55 @@ public class LimsImportBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedDocument, String regNumber,
 			int cnt) throws IOException {
 
-		if (regNumber.equals(resultRegNum) && isRMNHNumber) {
-			// isMatchedRegNr = true;
-			/*
-			 * Start the processing time for the notes adding to the document.
-			 */
-			startBeginTime = System.nanoTime();
+		// if (regNumber.equals(resultRegNum) && isRMNHNumber) {
+		/*
+		 * Start the processing time for the notes adding to the document.
+		 */
+		startBeginTime = System.nanoTime();
 
-			/* Show the progressbar with information */
-			limsFrameProgress.showProgress("Match: " + documentFileName + "\n");
+		/* Show the progressbar with information */
+		limsFrameProgress.showProgress("Match: " + documentFileName + "\n");
 
-			/* get the Process ID = NLCOA778-12 */
-			String processID = record[1];
-			String boldURI = "";
-			/*
-			 * get the URI from the propertie file lims-import.properties and
-			 * concatenating the Process ID
-			 */
-			if (processID != null) {
-				boldURI = limsImporterUtil.getPropValues("bolduri") + record[1];
-			}
-
-			/*
-			 * Set value from the variables and logfile BoldID = 1,
-			 * NumberofImagesBold = 9, BoldProjectID = 0, FieldID = 3, BoldBIN =
-			 * 4, BoldURI = uit LimsProperties File
-			 */
-			setNotesThatMatchRegistrationNumber(record[1], record[9],
-					record[0], record[3], record[4], boldURI);
-
-			/* Set the notes. */
-			setNotesToBoldDocumentsRegistration(annotatedDocument, cnt);
-
-			/*
-			 * Add the registration number to the document which has been
-			 * processed.
-			 */
-			if (!processedList.toString().contains(regNumber)) {
-				processedList.add(regNumber);
-				VerwerktReg++;
-
-			}
-			/*
-			 * Duration time of adding notes.
-			 */
-			long endTime = System.nanoTime();
-			long elapsedTime = endTime - startBeginTime;
-			logger.info("Took: "
-					+ (TimeUnit.SECONDS.convert(elapsedTime,
-							TimeUnit.NANOSECONDS)) + " second(s)");
-			elapsedTime = 0;
+		/* get the Process ID = NLCOA778-12 */
+		String processID = record[1];
+		String boldURI = "";
+		/*
+		 * get the URI from the propertie file lims-import.properties and
+		 * concatenating the Process ID
+		 */
+		if (processID != null) {
+			boldURI = limsImporterUtil.getPropValues("bolduri") + record[1];
 		}
+
+		/*
+		 * Set value from the variables and logfile BoldID = 1,
+		 * NumberofImagesBold = 9, BoldProjectID = 0, FieldID = 3, BoldBIN = 4,
+		 * BoldURI = uit LimsProperties File
+		 */
+		setNotesThatMatchRegistrationNumber(record[1], record[9], record[0],
+				record[3], record[4], boldURI);
+
+		/* Set the notes. */
+		setNotesToBoldDocumentsRegistration(annotatedDocument, cnt);
+
+		/*
+		 * Add the registration number to the document which has been processed.
+		 */
+		/*
+		 * if (!processedList.toString().contains(regNumber)) {
+		 * processedList.add(regNumber); }
+		 */
+
+		/*
+		 * Duration time of adding notes.
+		 */
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		// }
 	}
 
 	/**
@@ -805,6 +823,22 @@ public class LimsImportBold extends DocumentAction {
 	 * */
 	public void setExtractIDfileName(String extractIDfileName) {
 		this.extractIDfileName = extractIDfileName;
+	}
+
+	public int getVerwerktReg() {
+		return VerwerktReg;
+	}
+
+	public void setVerwerktReg(int verwerktReg) {
+		VerwerktReg = verwerktReg;
+	}
+
+	public int getVerwerktRegMarker() {
+		return VerwerktRegMarker;
+	}
+
+	public void setVerwerktRegMarker(int verwerktRegMarker) {
+		VerwerktRegMarker = verwerktRegMarker;
 	}
 
 }

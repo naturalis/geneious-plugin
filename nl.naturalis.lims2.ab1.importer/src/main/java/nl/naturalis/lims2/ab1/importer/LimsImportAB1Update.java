@@ -157,7 +157,8 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * Get the import path from the selected document
 				 * "C:\Git\Data\Fasta files"
 				 */
-				if (documentFileName.getName().contains("dum")) {
+				if (documentFileName.getName().contains("dum")
+						|| documentFileName.getName().contains("ab1")) {
 					continue;
 				} else {
 					documentFileImportPath = DocumentUtilities
