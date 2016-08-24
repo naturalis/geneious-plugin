@@ -1,5 +1,7 @@
 package nl.naturalis.lims2.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +15,17 @@ import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 public class LimsDatabaseChecker {
+
+	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+	public String msg = "Geneious will (unfortunately) shutdown and immediately restart after you have clicked the OK button. "
+			+ "\n \n"
+			+ "Make sure that Geneious is only connected to the database server"
+			+ "\n"
+			+ " with database name: ["
+			+ limsImporterUtil.getDatabasePropValues("databasename")
+			+ "]"
+			+ "\n"
+			+ "when trying to import ab1 or fasta files with the All Naturalis Files plugin.";
 
 	public boolean checkDBName() {
 
@@ -75,6 +88,28 @@ public class LimsDatabaseChecker {
 			names.add(lstitr.next().toString());
 		}
 		return names; // databaseName[0];
+	}
+
+	public void restartGeneious() {
+		File f2 = new File("geneious.bat");
+		String batchPath = f2.getAbsolutePath();
+		String path = "cmd /c start " + batchPath;
+		try {
+			Process rn = Runtime.getRuntime().exec(path);
+			try {
+				Runtime.getRuntime().exec("taskkill /f /im cmd.exe");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.exit(0);
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

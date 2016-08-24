@@ -143,7 +143,8 @@ public class LimsImportCRS extends DocumentAction {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 		if (!dbchk.checkDBName()) {
-			return;
+			Dialogs.showMessageDialog(dbchk.msg);
+			dbchk.restartGeneious();
 		}
 		/* Get the active database name */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues

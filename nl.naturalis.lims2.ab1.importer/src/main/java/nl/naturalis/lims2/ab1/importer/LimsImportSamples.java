@@ -142,7 +142,8 @@ public class LimsImportSamples extends DocumentAction {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 		if (!dbchk.checkDBName()) {
-			return;
+			Dialogs.showMessageDialog(dbchk.msg);
+			dbchk.restartGeneious();
 		}
 		/* Get Database name */
 		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues

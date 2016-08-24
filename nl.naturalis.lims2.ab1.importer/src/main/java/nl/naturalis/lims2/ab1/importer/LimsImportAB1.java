@@ -103,23 +103,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	/** Close Geneious and restart Geneious */
-	private void restartGeneious() {
-		File f2 = new File("geneious.bat");
-		String batchPath = f2.getAbsolutePath();
-		String path = "cmd /c start " + batchPath;
-		try {
-			Process rn = Runtime.getRuntime().exec(path);
-			System.exit(0);
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-			}
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
+	/*
+	 * private void restartGeneious() { File f2 = new File("geneious.bat");
+	 * String batchPath = f2.getAbsolutePath(); String path = "cmd /c start " +
+	 * batchPath; try { Process rn = Runtime.getRuntime().exec(path); try {
+	 * Runtime.getRuntime().exec("taskkill /f /im cmd.exe"); } catch (Exception
+	 * e) { e.printStackTrace(); } System.exit(0); try { Thread.sleep(1000); }
+	 * catch (Exception e) { }
+	 * 
+	 * } catch (IOException e) { throw new RuntimeException(e); } }
+	 */
 	/**
 	 * Import AB1 and fasta files
 	 * */
@@ -130,19 +123,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
-		String msg = "Geneious will (unfortunately) shutdown and immediately restart after you have clicked the OK button. "
-				+ "\n \n"
-				+ "Make sure that Geneious is only connected to the database server"
-				+ "\n"
-				+ " with database name: ["
-				+ limsImporterUtil.getDatabasePropValues("databasename")
-				+ "]"
-				+ "\n"
-				+ "when trying to import ab1 or fasta files with the All Naturalis Files plugin.";
 		if (!dbchk.checkDBName()) {
-			Dialogs.showMessageDialog(msg);
-			restartGeneious();
-
+			Dialogs.showMessageDialog(dbchk.msg);
+			dbchk.restartGeneious();
 		}
 
 		/* Get Databasename */

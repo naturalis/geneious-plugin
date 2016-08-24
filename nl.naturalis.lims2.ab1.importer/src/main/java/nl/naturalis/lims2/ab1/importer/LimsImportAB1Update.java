@@ -95,7 +95,8 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 			if (!dbchk.checkDBName()) {
-				return;
+				Dialogs.showMessageDialog(dbchk.msg);
+				dbchk.restartGeneious();
 			}
 
 			/* Get Databasename */
@@ -157,8 +158,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * Get the import path from the selected document
 				 * "C:\Git\Data\Fasta files"
 				 */
-				if (documentFileName.getName().contains("dum")
-						|| documentFileName.getName().contains("ab1")) {
+				if (documentFileName.getName().contains("dum")) {
 					continue;
 				} else {
 					documentFileImportPath = DocumentUtilities

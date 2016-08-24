@@ -133,7 +133,8 @@ public class LimsImportBold extends DocumentAction {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 		if (!dbchk.checkDBName()) {
-			return;
+			Dialogs.showMessageDialog(dbchk.msg);
+			dbchk.restartGeneious();
 		}
 
 		/* Get Databasename */
