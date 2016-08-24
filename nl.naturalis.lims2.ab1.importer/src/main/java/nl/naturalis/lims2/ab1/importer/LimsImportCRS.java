@@ -35,9 +35,42 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 /**
- * @author Reinier.Kartowikromo category Lims Import CRS plugin
- * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
- *           Leiden Country Netherlands
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Select one or more AB1/Fasta document(s) in a Geneious folder. <br>
+ * Press button "3 CRS".<br>
+ * A dialog screen is displayed. <br>
+ * Browse to the CSV files<br>
+ * Select on of the AB1 or Fasta Csv file. The import process is started. <br>
+ * If there is a match between a registration number from the csv file with the
+ * Samples registration number in the one of the selected document(s),<br>
+ * the notes will be added to the selected document(s) in Geneious.<br>
+ * A processing log(matching a registration number) and failure log(not matching
+ * a registration number) is created.</td>
+ * </tr>
+ * </table>
+ * 
+ * @author Reinier.Kartowikromo
+ * @version: 1.0
+ * 
  */
 public class LimsImportCRS extends DocumentAction {
 

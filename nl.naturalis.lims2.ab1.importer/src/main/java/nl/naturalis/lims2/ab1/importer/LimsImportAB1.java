@@ -29,9 +29,38 @@ import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
- * @author Reinier.Kartowikromo category Lims Import All Naturalis files plugin
- * @version: 1.0 Date 08 august 2016 Company Naturalis Biodiversity Center City
- *           Leiden Country Netherlands
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Start Geneious.<br>
+ * Click on the "Import" button. <br>
+ * Go to the AB1/Fasta files you want to import. <br>
+ * Choose "All Naturalis files" from the dropdown menu of "Files of Type" in the
+ * dialog screen and press "Import". <br>
+ * Import process is started. <br>
+ * A dialog window appears with a progress bar with a message.</td>
+ * </tr>
+ * </table>
+ * 
+ * @author Reinier.Kartowikromo
+ * @version: 1.0
  */
 public class LimsImportAB1 extends DocumentFileImporter {
 
