@@ -95,8 +95,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 			if (!dbchk.checkDBName()) {
-				Dialogs.showMessageDialog(dbchk.msg);
-				dbchk.restartGeneious();
+				return;
 			}
 
 			/* Get Databasename */
