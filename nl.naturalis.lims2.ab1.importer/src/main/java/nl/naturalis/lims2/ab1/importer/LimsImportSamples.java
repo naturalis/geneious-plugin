@@ -40,6 +40,40 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Samples plugin: Select one or more documents and click on the
+ * "1 of 2 Samples button".<br>
+ * A dialog screen is displayed. <br>
+ * Browse to the CSV files<br>
+ * Select a Sample(s) Csv file. The import process is started. <br>
+ * If there is a match between the ID from the csv file with the Extract
+ * filename (e4010125015) of the AB1 or Fasta ID in the one of the selected
+ * document(s),<br>
+ * the notes will be added to the selected document(s) in Geneious.<br>
+ * A processing log(matching a registration number) and failure log(not matching
+ * a ExtractID) is created.</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  * @version: 1.0
  */
@@ -89,6 +123,9 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
 
+	/**
+	 * Read the values from the CSV files of Samples
+	 * */
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocument) {
@@ -96,6 +133,11 @@ public class LimsImportSamples extends DocumentAction {
 
 	}
 
+	/**
+	 * Set name for the plugin
+	 * 
+	 * @return
+	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
 		return new GeneiousActionOptions("1 of 2 Samples").setInPopupMenu(true)
@@ -115,7 +157,7 @@ public class LimsImportSamples extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	/**
+	/*
 	 * Check of there are document(s) without registration number (Samples)
 	 * 
 	 * @return
@@ -126,18 +168,20 @@ public class LimsImportSamples extends DocumentAction {
 		return false;
 	}
 
-	/**
+	/*
 	 * Get lack message of document(s) without registrationnumber (Samples)
 	 * 
 	 * @param missing
+	 * 
 	 * @return
-	 * */
+	 */
 	private String getLackMessage(Boolean missing) {
 		if (missing)
 			return "[4] At least one selected document lacks ExtractID(Seq)";
 		return "";
 	}
 
+	/* Read data from the csv file and add the notes */
 	private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
@@ -321,7 +365,7 @@ public class LimsImportSamples extends DocumentAction {
 				 * dummy documents will be created.
 				 */
 			} else if (n == 1) {
-				/** Check if document(s) has been selected **/
+				/* Check if document(s) has been selected * */
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					/* Load the Sample CSV file that will be processed */
 					fileSelected = fcd.loadSelectedFile();
@@ -371,6 +415,7 @@ public class LimsImportSamples extends DocumentAction {
 		});
 	}
 
+	/* Process the documents */
 	private void processSampleDocuments(AnnotatedPluginDocument[] documents,
 			String[] record, long startBeginTime) {
 		int cnt = 0;
@@ -536,7 +581,7 @@ public class LimsImportSamples extends DocumentAction {
 			// return cnt;
 	}
 
-	/** Clear the fields variables */
+	/* Clear the fields variables */
 	private void clearVariables() {
 		limsExcelFields.setProjectPlaatNummer("");
 		limsExcelFields.setPlaatPositie("");
@@ -546,7 +591,7 @@ public class LimsImportSamples extends DocumentAction {
 		limsExcelFields.setTaxonNaam("");
 	}
 
-	/** Adding notes to the documents */
+	/* Adding notes to the documents */
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
 		/** set note for Registration number */
@@ -614,12 +659,11 @@ public class LimsImportSamples extends DocumentAction {
 				limsExcelFields.getRegNumberScientificName(), cnt);
 	}
 
-	/**
+	/*
 	 * Create dummy files for samples when there is no match with records in the
 	 * database
 	 * 
-	 * @param fileName
-	 *            , extractFileID
+	 * @param fileName , extractFileID
 	 */
 	private void setExtractIDFromSamplesSheet(String fileName,
 			String extractFileID) {
@@ -688,11 +732,11 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Extract the ID from the filename
 	 * 
-	 * @param annotatedPluginDocuments
-	 *            set the param
+	 * @param annotatedPluginDocuments set the param
+	 * 
 	 * @return
 	 */
 	private String getExtractIDFromAB1FileName(String fileName) {
@@ -713,7 +757,7 @@ public class LimsImportSamples extends DocumentAction {
 		return underscore[0];
 	}
 
-	/** Add the values to the fields variables */
+	/* Add the values to the fields variables */
 	private void setFieldsValues(String projectPlaatNr, String plaatPositie,
 			String extractPlaatNr, String extractID, String registrationNumber,
 			String taxonNaam, Object versieNummer, String sampleMethod) {
@@ -757,12 +801,11 @@ public class LimsImportSamples extends DocumentAction {
 		limsExcelFields.setVersieNummer(versieNummer);
 	}
 
-	/**
+	/*
 	 * When user choose "No". Processing the samples CSV record to the selected
 	 * documents. No Dummy documents are created.
 	 * 
-	 * @param fileName
-	 *            , docsSamples
+	 * @param fileName , docsSamples
 	 */
 	private void extractSamplesRecord_Message_No(String fileName,
 			AnnotatedPluginDocument[] docsSamples) {
@@ -937,12 +980,11 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Show dialog message after processed the notes when choose "No"
 	 * 
-	 * @param fileName
-	 *            , failureList, exactProcessedList
-	 * */
+	 * @param fileName , failureList, exactProcessedList
+	 */
 	private void showFinishedDialogMessageNo(String fileName,
 			List<String> failureList, List<String> exactProcessedList) {
 		Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
@@ -958,12 +1000,13 @@ public class LimsImportSamples extends DocumentAction {
 				+ getLackMessage(isLackListNotEmpty()));
 	}
 
-	/**
+	/*
 	 * Get the total of records from the samples csv file
 	 * 
 	 * @param fileName
+	 * 
 	 * @return
-	 * */
+	 */
 	private int readTotalRecordsOfFileSelected(String fileName) {
 		int result = 0;
 		if (result == 0) {
@@ -981,12 +1024,11 @@ public class LimsImportSamples extends DocumentAction {
 		return result;
 	}
 
-	/**
+	/*
 	 * Show dialog message after processed the notes when Choose "OK"
 	 * 
-	 * @param fileName
-	 *            , failureList, exactProcessedList
-	 * */
+	 * @param fileName , failureList, exactProcessedList
+	 */
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();

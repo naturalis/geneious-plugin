@@ -131,11 +131,11 @@ public class LimsImportCRS extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	/**
+	/*
 	 * Select AB1 or Fasta documents to add notes to the documents
 	 * 
 	 * @param annotatedPluginDocuments
-	 * */
+	 */
 	private void readDataFromCRSFrom_File(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
@@ -469,7 +469,7 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Show dialog message at the end of processing the document(s)
 	 */
 	private void showMessageDialogEndOfProcessing() {
@@ -483,7 +483,7 @@ public class LimsImportCRS extends DocumentAction {
 				+ getLackMessage(isLackListNotEmpty()));
 	}
 
-	/**
+	/*
 	 * Check of there are document(s) without registration number (Samples)
 	 * 
 	 * @return
@@ -494,7 +494,7 @@ public class LimsImportCRS extends DocumentAction {
 		return false;
 	}
 
-	/**
+	/*
 	 * Get document filename
 	 * 
 	 * @param list
@@ -511,7 +511,7 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Check if document contain notes "importedFrom"
 	 * 
 	 * @param list
@@ -525,7 +525,7 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Calculate the end time of the process adding notes.
 	 * 
 	 * @param startBeginTime
@@ -540,10 +540,11 @@ public class LimsImportCRS extends DocumentAction {
 		endTime = 0;
 	}
 
-	/**
+	/*
 	 * Add document(s) that not matched to the failure list.
 	 * 
 	 * @param recordCount
+	 * 
 	 * @return
 	 */
 	private int addDocumentsToFailureList(int recordCount) {
@@ -561,7 +562,7 @@ public class LimsImportCRS extends DocumentAction {
 		return recordCount;
 	}
 
-	/**
+	/*
 	 * Calculating the Duration of the import (end time)
 	 */
 	private void setDurationEndTimeProcessing() {
@@ -580,12 +581,11 @@ public class LimsImportCRS extends DocumentAction {
 				+ TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
 	}
 
-	/**
+	/*
 	 * Set notes to the documents
 	 * 
-	 * @param documents
-	 *            , cnt
-	 * */
+	 * @param documents , cnt
+	 */
 	private void setCRSNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
 		/* set note for Phylum: FieldValue, Label, NoteType, */
@@ -683,13 +683,12 @@ public class LimsImportCRS extends DocumentAction {
 				"CRS (CRS)", "CRS (CRS)", true, cnt);
 	}
 
-	/**
+	/*
 	 * Split the Rank or classification values. Example: order / family /
 	 * subfamily / tribe Coleoptera / Leiodidae / Cholevinae / Cholevini Catops
 	 * 
-	 * @param rankOrClassificationValue
-	 *            , nameValue
-	 * */
+	 * @param rankOrClassificationValue , nameValue
+	 */
 	private void extractRankOrClassification(String rankOrClassificationValue,
 			String nameValue) {
 
@@ -722,19 +721,20 @@ public class LimsImportCRS extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Show lacks message of documents that not has been processed
 	 * 
 	 * @param missing
+	 * 
 	 * @return
-	 * */
+	 */
 	private String getLackMessage(Boolean missing) {
 		if (missing)
 			return "[3] At least one selected document lacks ExtractID(Seq)";
 		return "";
 	}
 
-	/** Clear fields variables */
+	/* Clear fields variables */
 	private void clearFieldValues() {
 		LimsCRSFields.setRegistratienummer("");
 		LimsCRSFields.setPhylum("");

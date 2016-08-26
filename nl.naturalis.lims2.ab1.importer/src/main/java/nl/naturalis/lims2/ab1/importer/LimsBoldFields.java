@@ -4,6 +4,30 @@
 package nl.naturalis.lims2.ab1.importer;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Fields for Bold notes</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -22,34 +46,98 @@ public class LimsBoldFields {
 	private String boldURI;
 	private String coi5PAccession;
 
+	/**
+	 * get the url value to add to the bold note.<br>
+	 * Used in LimsImportBold<br>
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)", "BOLD URI (Bold)",
+	 * limsBoldFields.getBoldURI(), cnt);
+	 * 
+	 * @return
+	 * */
 	public String getBoldURI() {
 		return boldURI;
 	}
 
+	/**
+	 * Set the value from the Bold Csv record.<br>
+	 * Used in LimsImportBold<br>
+	 * limsBoldFields.setBoldURI(boldURI);
+	 * 
+	 * @param boldURI
+	 * */
 	public void setBoldURI(String boldURI) {
 		this.boldURI = boldURI;
 	}
 
+	/**
+	 * Get value boldProjectID.<br>
+	 * Used in LimsImportBold<br>
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)", "BOLD proj-ID (Bold)",
+	 * limsBoldFields.getBoldProjectID(), cnt);
+	 * 
+	 * @return
+	 * */
 	public String getBoldProjectID() {
 		return boldProjectID;
 	}
 
+	/**
+	 * Set the boldProjectID value.<br>
+	 * Used in LimsImportBold.<br>
+	 * limsBoldFields.setBoldProjectID(boldProjectID);
+	 * 
+	 * @param boldProjectID
+	 * */
 	public void setBoldProjectID(String boldProjectID) {
 		this.boldProjectID = boldProjectID;
 	}
 
+	/**
+	 * get the fieldID value.<br>
+	 * Used in LimsImportBold<br>
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
+	 * limsBoldFields.getFieldID(), cnt);
+	 * 
+	 * @return
+	 * */
 	public String getFieldID() {
 		return fieldID;
 	}
 
+	/**
+	 * Set fieldID value.<br>
+	 * Used in LimsImportBold<br>
+	 * limsBoldFields.setFieldID(fieldID);
+	 * 
+	 * @param fieldID
+	 * */
 	public void setFieldID(String fieldID) {
 		this.fieldID = fieldID;
 	}
 
+	/**
+	 * Get the boldBIN value.<br>
+	 * Used in LimsImportBold<br>
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
+	 * limsBoldFields.getBoldBIN(), cnt);
+	 * 
+	 * @return
+	 * */
 	public String getBoldBIN() {
 		return boldBIN;
 	}
 
+	/**
+	 * Set the boldBIN value.<br>
+	 * Used in LimsImportBold<br>
+	 * limsBoldFields.setBoldBIN(boldBIN);
+	 * 
+	 * @param boldBIN
+	 * */
 	public void setBoldBIN(String boldBIN) {
 		this.boldBIN = boldBIN;
 	}

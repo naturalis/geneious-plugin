@@ -92,29 +92,27 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	}
 
+	/**
+	 * Set file type for the import plugin
+	 * */
 	@Override
 	public String getFileTypeDescription() {
 		return "All Naturalis Files";
 	}
 
+	/**
+	 * Empty extension to show all files in the Open dialog screen
+	 * */
 	@Override
 	public String[] getPermissibleExtensions() {
 		return new String[] { "" };
 	}
 
-	/** Close Geneious and restart Geneious */
-	/*
-	 * private void restartGeneious() { File f2 = new File("geneious.bat");
-	 * String batchPath = f2.getAbsolutePath(); String path = "cmd /c start " +
-	 * batchPath; try { Process rn = Runtime.getRuntime().exec(path); try {
-	 * Runtime.getRuntime().exec("taskkill /f /im cmd.exe"); } catch (Exception
-	 * e) { e.printStackTrace(); } System.exit(0); try { Thread.sleep(1000); }
-	 * catch (Exception e) { }
-	 * 
-	 * } catch (IOException e) { throw new RuntimeException(e); } }
-	 */
 	/**
 	 * Import AB1 and fasta files
+	 * 
+	 * @param file
+	 *            , importCallback, progessListener
 	 * */
 	@Override
 	public void importDocuments(File file, ImportCallback importCallback,
@@ -270,6 +268,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 	}
 
+	/**
+	 * Search for a character in a Fasta file
+	 * 
+	 * @param file
+	 *            , fileContentsStart
+	 * */
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,
 			String fileContentsStart) {
@@ -281,9 +285,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	}
 
-	/**
+	/*
 	 * Import Fasta with Naturalis Plugin Set notes for fasta file
-	 * */
+	 */
 	private void setFastaFilesNotes(AnnotatedPluginDocument documentAnnotated,
 			String fileName) {
 		logger.info("----------------------------S T A R T ---------------------------------");
@@ -339,9 +343,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				"Pass (Seq)", "Pass (Seq)", null);
 	}
 
-	/**
+	/*
 	 * Import Replace dummy documents notes with AB1 notes
-	 * */
+	 */
 	private void replaceDummyNotesWithAB1Notes(
 			AnnotatedPluginDocument documentAnnotated, String extractID) {
 
@@ -374,37 +378,37 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ex.printStackTrace();
 			}
 
-			/** set note for Extract-ID */
+			/* set note for Extract-ID */
 			limsNotes.setImportNotes(documentAnnotated,
 					"ExtractIDCode_Samples", "Extract ID (Samples)",
 					"Extract ID (Samples)",
 					ReadGeneiousFieldsValues.extractidSamplesFromDummy);
 
-			/** set note for Project Plate number */
+			/* set note for Project Plate number */
 			limsNotes.setImportNotes(documentAnnotated,
 					"ProjectPlateNumberCode_Samples",
 					"Sample plate ID (Samples)", "Sample plate ID (Samples)",
 					ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
 
-			/** set note for Taxon name */
+			/* set note for Taxon name */
 			limsNotes.setImportNotes(documentAnnotated,
 					"TaxonName2Code_Samples", "[Scientific name] (Samples)",
 					"[Scientific name] (Samples)",
 					ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
 
-			/** set note for Registration number */
+			/* set note for Registration number */
 			limsNotes.setImportNotes(documentAnnotated,
 					"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
 					"Registr-nmbr (Samples)",
 					ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
 
-			/** set note for Plate position */
+			/* set note for Plate position */
 			limsNotes.setImportNotes(documentAnnotated,
 					"PlatePositionCode_Samples", "Position (Samples)",
 					"Position (Samples)",
 					ReadGeneiousFieldsValues.positionSamplesFromDummy);
 
-			/** SequencingStaffCode_FixedValue_Seq */
+			/* SequencingStaffCode_FixedValue_Seq */
 			try {
 				limsNotes.setImportNotes(documentAnnotated,
 						"SequencingStaffCode_FixedValue_Seq",
@@ -414,7 +418,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				e.printStackTrace();
 			}
 
-			/** AmplicificationStaffCode_FixedValue_Samples */
+			/* AmplicificationStaffCode_FixedValue_Samples */
 			try {
 				limsNotes.setImportNotes(documentAnnotated,
 						"AmplicificationStaffCode_FixedValue_Samples",
@@ -425,19 +429,19 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				e.printStackTrace();
 			}
 
-			/** set note for Extract Plate ID Samples */
+			/* set note for Extract Plate ID Samples */
 			limsNotes.setImportNotes(documentAnnotated,
 					"ExtractPlateNumberCode_Samples",
 					"Extract plate ID (Samples)", "Extract plate ID (Samples)",
 					ReadGeneiousFieldsValues.extractPlateIDSamples);
 
-			/** set note for Extract Method */
+			/* set note for Extract Method */
 			limsNotes.setImportNotes(documentAnnotated,
 					"SampleMethodCode_Samples", "Extraction method (Samples)",
 					"Extraction method (Samples)",
 					ReadGeneiousFieldsValues.extractionMethodSamples);
 
-			/**
+			/*
 			 * set note for RegistrationNumberCode_TaxonName2Code_Samples
 			 */
 			limsNotes.setImportNotes(documentAnnotated,

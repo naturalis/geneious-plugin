@@ -1,5 +1,5 @@
 /**
- * 
+ * <h1> Dummy Sequence</h>
  */
 package nl.naturalis.lims2.ab1.importer;
 
@@ -20,6 +20,10 @@ import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDo
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
 /**
+ * Class to create a dummy sequence with some values. See the parameters
+ * filename, extractID, projectPlaatnummer, extractPlaatnummer, taxonName,
+ * registrationNumber, plaatPositie, extractMethod
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -30,6 +34,13 @@ public class LimsDummySeq {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsDummySeq.class);
 
+	/**
+	 * Method to create a dummy sequence document
+	 * 
+	 * @param filename
+	 *            , extractID, projectPlaatnummer, extractPlaatnummer,
+	 *            taxonName, registrationNumber, plaatPositie, extractMethod
+	 * */
 	public void createDummySampleSequence(String filename, String extractID,
 			String projectPlaatnummer, String extractPlaatnummer,
 			String taxonName, String registrationNumber, String plaatPositie,
@@ -37,48 +48,51 @@ public class LimsDummySeq {
 
 		ArrayList<AnnotatedPluginDocument> sequenceList = new ArrayList<AnnotatedPluginDocument>();
 
+		/* Define the values for the dummy document */
 		NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
 				filename + ".dum", "A new dummy Sequence Samples",
 				"NNNNNNNNNN", new Date(), URN.generateUniqueLocalURN("Dummy"));
 
+		/* Add seqeunce document */
 		sequenceList.add(DocumentUtilities
 				.createAnnotatedPluginDocument(sequence));
 
-		/** set note for Extract-ID */
+		/* set note for Extract-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractIDCode_Samples", "Extract ID (Samples)",
 				"Extract ID (Samples)", extractID);
 
-		/** set note for Project Plate number */
+		/* set note for Project Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
 				"Sample plate ID (Samples)", projectPlaatnummer);
 
-		/** Set note for Extract Plate number */
+		/* Set note for Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
 				"Extract plate ID (Samples)", extractPlaatnummer);
 
-		/** set note for Taxon name */
+		/* set note for Taxon name */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"TaxonName2Code_Samples", "[Scientific name] (Samples)",
 				"[Scientific name] (Samples)", taxonName);
 
-		/** set note for Registration number */
+		/* set note for Registration number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
 				"Registr-nmbr (Samples)", registrationNumber);
 
-		/** set note for Plate position */
+		/* set note for Plate position */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"PlatePositionCode_Samples", "Position (Samples)",
 				"Position (Samples)", plaatPositie);
 
-		/** set note for Sample method */
+		/* set note for Sample method */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"SampleMethodCode_Samples", "Extraction method (Samples)",
 				"Extraction method (Samples)", extractMethod);
 
+		/* Set note Version */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"DocumentVersionCode_Seq", "Document version",
 				"Document version", "0");
@@ -92,7 +106,7 @@ public class LimsDummySeq {
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)", "Dum");
 
-		/** SequencingStaffCode_FixedValue */
+		/* SequencingStaffCode_FixedValue */
 		try {
 			limsNotes.setImportNotes(sequenceList.iterator().next(),
 					"SequencingStaffCode_FixedValue_Samples",
@@ -102,7 +116,7 @@ public class LimsDummySeq {
 			e.printStackTrace();
 		}
 
-		/** AmplicificationStaffCode_FixedValue_Samples */
+		/* AmplicificationStaffCode_FixedValue_Samples */
 		try {
 			limsNotes.setImportNotes(sequenceList.iterator().next(),
 					"AmplicificationStaffCode_FixedValue_Samples",
@@ -116,6 +130,8 @@ public class LimsDummySeq {
 		 * Lims-190:Sample import maak of update extra veld veldnaam -
 		 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
 		 * RegistrationNumberCode_TaxonName2Code_Samples
+		 * 
+		 * combine Registration number with scientificname
 		 */
 
 		String regScientificname = "";
@@ -127,6 +143,7 @@ public class LimsDummySeq {
 			regScientificname = taxonName;
 		}
 
+		/* Set note Registration with scientificname */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"RegistrationNumberCode_TaxonName2Code_Samples",
 				"Registr-nmbr_[Scientific name] (Samples)",
@@ -136,70 +153,4 @@ public class LimsDummySeq {
 		logger.info("New Dummy: " + filename + " file added.");
 		DocumentUtilities.addGeneratedDocuments(sequenceList, false);
 	}
-	/*
-	 * public List<AnnotatedPluginDocument> performOperation(
-	 * AnnotatedPluginDocument[] docs, ProgressListener progress, Options
-	 * options) {
-	 * 
-	 * ArrayList<AnnotatedPluginDocument> sequenceList = new
-	 * ArrayList<AnnotatedPluginDocument>();
-	 * 
-	 * String residues = "NNNNNNNNNN";
-	 * 
-	 * NucleotideSequenceDocument sequence = new DefaultNucleotideSequence(
-	 * "New Sequence", "A new dummy Sequence", residues, new Date(),
-	 * URN.generateUniqueLocalURN("Dummy"));
-	 * 
-	 * sequenceList.add(DocumentUtilities
-	 * .createAnnotatedPluginDocument(sequence));
-	 * 
-	 * set note for Extract-ID try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(), "ExtractIdCode",
-	 * "Extract ID", "Extract-ID", limsExcelFields.getExtractID()); } catch
-	 * (Exception ex) { ex.printStackTrace(); }
-	 * 
-	 * set note for Project Plaatnummer try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "ProjectPlaatnummerCode", "Project Plaatnummer", "Project Plaatnummer",
-	 * limsExcelFields.getProjectPlaatNummer()); } catch (Exception ex) {
-	 * ex.printStackTrace(); }
-	 * 
-	 * set note for Extract Plaatnummer try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "ExtractPlaatNummerCode", "Extract Plaatnummer", "Extract Plaatnummer",
-	 * limsExcelFields.getExtractPlaatNummer()); } catch (Exception ex) {
-	 * ex.printStackTrace(); }
-	 * 
-	 * set note for Taxonnaam try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(), "TaxonNaamCode",
-	 * "Taxon naam", "Taxon naam", limsExcelFields.getTaxonNaam()); } catch
-	 * (Exception ex) { ex.printStackTrace(); }
-	 * 
-	 * set note for Registrationnumber try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "BasisOfRecordCode", "Registrationnumber", "Registrationnumber",
-	 * limsExcelFields.getRegistrationNumber()); } catch (Exception ex) {
-	 * ex.printStackTrace(); }
-	 * 
-	 * set note for Plaat positie try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "PlaatpositieCode", "Plaat positie", "Plaat positie",
-	 * limsExcelFields.getPlaatPositie()); } catch (Exception ex) {
-	 * ex.printStackTrace(); }
-	 * 
-	 * set note for Sample method try {
-	 * limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "SampleMethodCode", "Sample method", "Sample method",
-	 * limsExcelFields.getSubSample()); } catch (Exception ex) {
-	 * ex.printStackTrace(); }
-	 * 
-	 * try { limsNotes.setImportNotes(sequenceList.iterator().next(),
-	 * "VersieCode", "Version number", "Version number", "0"); } catch
-	 * (Exception ex) { ex.printStackTrace(); }
-	 * 
-	 * (progress).setProgress(1.0);
-	 * 
-	 * return sequenceList; }
-	 */
-
 }

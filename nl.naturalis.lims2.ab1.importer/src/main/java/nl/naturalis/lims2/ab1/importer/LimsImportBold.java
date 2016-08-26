@@ -41,6 +41,40 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Bold plugin: Select one or more documents and click on the "4 Bold button".<br>
+ * A dialog screen is displayed. <br>
+ * Browse to the CSV files<br>
+ * Select a Bold Csv file. The import process is started. <br>
+ * If there is a match between the Registration number or combination
+ * Registration number and Marker (COI-5P Seq) from the csv file with the
+ * Registration number of the AB1 or Fasta ID in the one of the selected
+ * document(s),<br>
+ * the notes will be added to the selected document(s) in Geneious.<br>
+ * A processing log(matching a registration number) and failure log(not matching
+ * a Registration number) is created.</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  * @version: 1.0
  */
@@ -87,12 +121,21 @@ public class LimsImportBold extends DocumentAction {
 	private DefaultAlignmentDocument defaultAlignmentDocument = null;
 	private DefaultNucleotideSequence defaultNucleotideSequence = null;
 
+	/**
+	 * Start the process of import the Bold CSV file and adding notes to the
+	 * document(s)
+	 * */
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] DocumentsSelected) {
 		readDataFromBold(DocumentsSelected);
 
 	}
 
+	/**
+	 * Set the plugin name "4 Bold"
+	 * 
+	 * @return
+	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
 		return new GeneiousActionOptions("4 Bold").setInPopupMenu(true)
@@ -101,6 +144,11 @@ public class LimsImportBold extends DocumentAction {
 				.setAvailableToWorkflows(true);
 	}
 
+	/**
+	 * No help files
+	 * 
+	 * @return
+	 * */
 	@Override
 	public String getHelp() {
 		return null;
@@ -112,23 +160,23 @@ public class LimsImportBold extends DocumentAction {
 				PluginDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	/**
+	/*
 	 * Check if document has an ExtractID(Seq)
 	 * 
-	 * @param missing
-	 * **/
+	 * @param missing *
+	 */
 	private String getLackMessage(Boolean missing) {
 		if (missing)
 			return "[3] At least one selected document lacks ExtractID(Seq)";
 		return "";
 	}
 
-	/**
+	/*
 	 * Select one- or more documents and read data from the BOLD cvs file to add
 	 * notes to the document(s).
 	 * 
 	 * @param annotatedDocument
-	 * */
+	 */
 	private void readDataFromBold(AnnotatedPluginDocument[] annotatedDocument) {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
@@ -331,7 +379,7 @@ public class LimsImportBold extends DocumentAction {
 									+ "\n");
 						}
 
-						/** Calculating the Duration of the import **/
+						/* Calculating the Duration of the import * */
 						setProcessingDurationTime();
 
 						/* Show result information after the import of data. */
@@ -364,7 +412,7 @@ public class LimsImportBold extends DocumentAction {
 
 							}
 
-							/**
+							/*
 							 * @param totaalVerwerkt
 							 */
 							private void showDialogMessageBoldEndProcess(
@@ -407,7 +455,7 @@ public class LimsImportBold extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Check of there are document(s) without registration number (Samples)
 	 * 
 	 * @return
@@ -418,7 +466,7 @@ public class LimsImportBold extends DocumentAction {
 		return false;
 	}
 
-	/**
+	/*
 	 * Get logfilename from the properties file
 	 */
 	private void setBoldLogFileName() {
@@ -426,10 +474,11 @@ public class LimsImportBold extends DocumentAction {
 				+ limsImporterUtil.getLogFilename();
 	}
 
-	/**
+	/*
 	 * Add registration number to failure list
 	 * 
 	 * @param regNumber
+	 * 
 	 * @return
 	 */
 	private void addRegistrationNumberToFailureList(String regNumber) {
@@ -447,7 +496,7 @@ public class LimsImportBold extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Set the duration time of processing the documents.
 	 */
 	private void setProcessingDurationTime() {
@@ -466,7 +515,7 @@ public class LimsImportBold extends DocumentAction {
 				+ TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
 	}
 
-	/**
+	/*
 	 * Check if document(s) contais "override_cache_name"
 	 * 
 	 * @param list
@@ -516,13 +565,16 @@ public class LimsImportBold extends DocumentAction {
 		}
 	}
 
-	/**
+	/*
 	 * Add Notes to the selected documents match only on Registration number and
 	 * Marker
 	 * 
 	 * @param annotatedDocument
+	 * 
 	 * @param headerCOI
+	 * 
 	 * @param regNumber
+	 * 
 	 * @param cnt
 	 */
 	private void addBoldNotesMatchRegistrationAndMarker(
@@ -567,12 +619,15 @@ public class LimsImportBold extends DocumentAction {
 		// }
 	}
 
-	/**
+	/*
 	 * Add Notes to the selected documents match only on Registration number
 	 * 
 	 * @param annotatedDocument
+	 * 
 	 * @param regNumber
+	 * 
 	 * @param cnt
+	 * 
 	 * @throws IOException
 	 */
 	private void addBoldNotesToDocuments(
@@ -630,32 +685,31 @@ public class LimsImportBold extends DocumentAction {
 		// }
 	}
 
-	/**
+	/*
 	 * Set value to documents notes if match on Registration and Marker
 	 * 
-	 * @param annotatedPluginDocuments
-	 *            , cnt
-	 * */
+	 * @param annotatedPluginDocuments , cnt
+	 */
 	private void setNotesToBoldDocumentsRegistrationMarker(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
-		/** set note for TraceFile Presence */
+		/* set note for TraceFile Presence */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"TraceFilePresenceCode_Bold", "N traces (Bold)",
 				"N traces (Bold)", limsBoldFields.getTraceFilePresence(), cnt);
 
-		/** set note for Nucleotide Length */
+		/* set note for Nucleotide Length */
 		limsNotes
 				.setNoteToAB1FileName(annotatedPluginDocuments,
 						"NucleotideLengthCode_Bold", "Nucl-length (Bold)",
 						"Nucl-length (Bold)",
 						limsBoldFields.getNucleotideLength(), cnt);
 
-		/** set note for GenBankID */
+		/* set note for GenBankID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"GenBankIDCode_Bold", "GenBank ID (Bold)", "GenBank ID (Bold)",
 				limsBoldFields.getGenBankID(), cnt);
 
-		/** set note for GenBank URI */
+		/* set note for GenBank URI */
 		try {
 			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 					"GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)",
@@ -670,40 +724,39 @@ public class LimsImportBold extends DocumentAction {
 		logger.info(" ");
 	}
 
-	/**
+	/*
 	 * Set value to documents notes if match only on registration number
 	 * 
-	 * @param annotatedPluginDocuments
-	 *            , cnt
-	 * */
+	 * @param annotatedPluginDocuments , cnt
+	 */
 	private void setNotesToBoldDocumentsRegistration(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
-		/** set note for BOLD-ID */
+		/* set note for BOLD-ID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"BOLDIDCode_Bold", "BOLD ID (Bold)", "BOLD ID (Bold)",
 				limsBoldFields.getBoldID(), cnt);
 
-		/** set note for Number of Images */
+		/* set note for Number of Images */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"NumberOfImagesCode_Bold", "N images (Bold)",
 				"N images (Bold)", limsBoldFields.getNumberOfImagesBold(), cnt);
 
-		/** set note for BoldProjectID */
+		/* set note for BoldProjectID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)",
 				"BOLD proj-ID (Bold)", limsBoldFields.getBoldProjectID(), cnt);
 
-		/** set note for FieldID */
+		/* set note for FieldID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
 				limsBoldFields.getFieldID(), cnt);
 
-		/** set note for BOLD BIN Code */
+		/* set note for BOLD BIN Code */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
 				limsBoldFields.getBoldBIN(), cnt);
 
-		/** set note for BOLD URI */
+		/* set note for BOLD URI */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 				"BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)",
 				"BOLD URI (Bold)", limsBoldFields.getBoldURI(), cnt);
@@ -711,12 +764,12 @@ public class LimsImportBold extends DocumentAction {
 		logger.info("Done with adding notes to the document");
 	}
 
-	/**
+	/*
 	 * Set value to variable
 	 * 
-	 * @param boldID
-	 *            , numberOfImagesBold, boldProjectID, fieldID, boldBIN, boldURI
-	 * */
+	 * @param boldID , numberOfImagesBold, boldProjectID, fieldID, boldBIN,
+	 * boldURI
+	 */
 	private void setNotesThatMatchRegistrationNumber(String boldID,
 			String numberOfImagesBold, String boldProjectID, String fieldID,
 			String boldBIN, String boldURI) {
@@ -740,12 +793,11 @@ public class LimsImportBold extends DocumentAction {
 
 	}
 
-	/**
+	/*
 	 * Set value to variable
 	 * 
-	 * @param nucleotideLength
-	 *            , tracebestandPresence, coi5pAccession
-	 * */
+	 * @param nucleotideLength , tracebestandPresence, coi5pAccession
+	 */
 	private void setNotesThatMatchRegistrationNumberAndMarker(
 			String nucleotideLength, String tracebestandPresence,
 			String coi5pAccession) {

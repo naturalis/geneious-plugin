@@ -21,6 +21,33 @@ import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * A Class of Methods to set notes to one or more documents.<br>
+ * Used in following Class: - LimsImportAB1Update "Plugin Split name" -
+ * LimsImportBold "Plugin Bold" - LimsImportCRS "Plugin CRS" - LimsImporSamples
+ * "Plugin Samples"</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -34,10 +61,17 @@ public class LimsNotes {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsNotes.class);
 
+	/**
+	 * Notes values for Consensus Sequence(ComboBox control)
+	 * */
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
 			"contamination", "endo-contamination", "exo-contamination" };
 
 	/**
+	 * Set notes to a document(s) Used in following Class: - LimsImportAB1Update
+	 * "Plugin Split name" - LimsImportBold "Plugin Bold" - LimsImportCRS
+	 * "Plugin CRS" - LimsImporSamples "Plugin Samples"
+	 * 
 	 * Package for Setting notes in a selected sequence document.
 	 * 
 	 * @param annotatedPluginDocuments
@@ -62,7 +96,7 @@ public class LimsNotes {
 		/** "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+		this.description = "Naturalis file " + noteTypeCode + " note";
 
 		/**
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
@@ -128,6 +162,19 @@ public class LimsNotes {
 
 	}
 
+	/**
+	 * Set notes for AB1 and Dummy document(s). Used in Plugin:
+	 * "All Naturalis files"
+	 * 
+	 * Used in LimsImportAB1 and LimsDummySeq Class
+	 * setFastaFilesNotes(AnnotatedPluginDocument documentAnnotated, String
+	 * fileName) createDummySampleSequence(String filename, String extractID,
+	 * String projectPlaatnummer, String extractPlaatnummer, String taxonName,
+	 * String registrationNumber, String plaatPositie, String extractMethod)
+	 * 
+	 * @param document
+	 *            , fieldCode, textNoteField, noteTypeCode, fieldValue
+	 * */
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue) {
@@ -137,7 +184,7 @@ public class LimsNotes {
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+		this.description = "Naturalis file " + noteTypeCode + " note";
 
 		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
@@ -185,6 +232,17 @@ public class LimsNotes {
 				+ " added succesful");
 	}
 
+	/**
+	 * Set Consensus notes value to the document(s). See import plugin:
+	 * "All Naturalis files"
+	 * limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
+	 * "Pass (Seq)", null);
+	 * 
+	 * @param document
+	 *            , multipleValues, fieldCode, textNoteField, noteTypeCode,
+	 *            fieldValue
+	 * */
 	public void setImportConsensusSeqPassNotes(
 			AnnotatedPluginDocument document, String[] multipleValues,
 			String fieldCode, String textNoteField, String noteTypeCode,
@@ -195,7 +253,7 @@ public class LimsNotes {
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+		this.description = "Naturalis file " + noteTypeCode + " note";
 
 		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
@@ -234,6 +292,17 @@ public class LimsNotes {
 				+ " added succesful");
 	}
 
+	/**
+	 * Set notes value for a combobox control in the document(s). See plugin:
+	 * "Split name"
+	 * limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
+	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
+	 * "Pass (Seq)", null, cnt);
+	 * 
+	 * @param annotatedPluginDocuments
+	 *            , multipleValues, fieldCode, textNoteField, noteTypeCode,
+	 *            fieldValue, count
+	 * */
 	public void setNoteDropdownFieldToFileName(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
 			String[] multipleValues, String fieldCode, String textNoteField,
@@ -288,59 +357,58 @@ public class LimsNotes {
 		listNotes.clear();
 	}
 
-	public void setNoteTrueFalseFieldToFileName(
-			AnnotatedPluginDocument[] annotatedPluginDocuments,
-			String fieldCode, String textNoteField, String noteTypeCode,
-			boolean fieldValue, int count) {
+	/*
+	 * public void setNoteTrueFalseFieldToFileName( AnnotatedPluginDocument[]
+	 * annotatedPluginDocuments, String fieldCode, String textNoteField, String
+	 * noteTypeCode, boolean fieldValue, int count) {
+	 * 
+	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+	 * 
+	 * "ExtractPlaatNummerCode" this.fieldCode = fieldCode; Parameter example
+	 * noteTypeCode = "Extract-Plaatnummer" this.description =
+	 * "Naturalis Consensus Seq Pass file " + noteTypeCode + " note";
+	 * 
+	 * 
+	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
+	 * fieldcode
+	 * 
+	 * 
+	 * listNotes.add(DocumentNoteField.createBooleanNoteField(textNoteField,
+	 * this.description, this.fieldCode, true));
+	 * 
+	 * Check if note type exists Parameter noteTypeCode get value ""
+	 * this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
+	 * DocumentNoteType documentNoteType = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCode);
+	 *//** Extract-ID note */
+	/*
+	 * if (documentNoteType == null) { documentNoteType =
+	 * DocumentNoteUtilities.createNewNoteType( noteTypeCode, this.noteTypeCode,
+	 * this.description, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteType);
+	 * logger.info("NoteType " + noteTypeCode + " created succesful"); }
+	 * 
+	 * Create note for Extract-ID DocumentNote documentNote =
+	 * documentNoteType.createDocumentNote();
+	 * documentNote.setFieldValue(this.fieldCode, fieldValue);
+	 * 
+	 * AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes)
+	 * annotatedPluginDocuments[count] .getDocumentNotes(true);
+	 * 
+	 * Set note documentNotes.setNote(documentNote); Save the selected sequence
+	 * document documentNotes.saveNotes();
+	 * 
+	 * logger.info("Note value " + noteTypeCode + ": " + fieldValue +
+	 * " added succesful"); listNotes.clear(); }
+	 */
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-
-		/** "ExtractPlaatNummerCode" */
-		this.fieldCode = fieldCode;
-		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis Consensus Seq Pass file " + noteTypeCode
-				+ " note";
-
-		/**
-		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
-		 * fieldcode
-		 */
-
-		listNotes.add(DocumentNoteField.createBooleanNoteField(textNoteField,
-				this.description, this.fieldCode, true));
-
-		/** Check if note type exists */
-		/** Parameter noteTypeCode get value "" */
-		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
-		DocumentNoteType documentNoteType = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCode);
-
-		/** Extract-ID note */
-		if (documentNoteType == null) {
-			documentNoteType = DocumentNoteUtilities.createNewNoteType(
-					noteTypeCode, this.noteTypeCode, this.description,
-					listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteType);
-			logger.info("NoteType " + noteTypeCode + " created succesful");
-		}
-
-		/* Create note for Extract-ID */
-		DocumentNote documentNote = documentNoteType.createDocumentNote();
-		documentNote.setFieldValue(this.fieldCode, fieldValue);
-
-		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) annotatedPluginDocuments[count]
-				.getDocumentNotes(true);
-
-		/* Set note */
-		documentNotes.setNote(documentNote);
-		/* Save the selected sequence document */
-		documentNotes.saveNotes();
-
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
-				+ " added succesful");
-		listNotes.clear();
-	}
-
+	/**
+	 * Set boolean value for notes limsNotes.setImportTrueFalseNotes(documents,
+	 * "CRSCode_CRS", "CRS (CRS)", "CRS (CRS)", true, cnt);
+	 * 
+	 * @param document
+	 *            , fieldCode, textNoteField, noteTypeCode, fieldValue, count
+	 * */
 	public void setImportTrueFalseNotes(AnnotatedPluginDocument[] document,
 			String fieldCode, String textNoteField, String noteTypeCode,
 			boolean fieldValue, int count) {
@@ -350,7 +418,7 @@ public class LimsNotes {
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis AB1 file " + noteTypeCode + " note";
+		this.description = "Naturalis file " + noteTypeCode + " note";
 
 		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
@@ -388,85 +456,4 @@ public class LimsNotes {
 				+ " added succesful");
 	}
 
-	/*
-	 * public void setAB1Notes(AnnotatedPluginDocument annotatedPluginDocuments,
-	 * String fieldCode, String textNoteField, String noteTypeCode, String
-	 * fieldValue) {
-	 * 
-	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-	 *//** "ExtractPlaatNummerCode" */
-	/*
-	 * 
-	 * this.fieldCode = fieldCode;
-	 *//**
-	 * Parameter example noteTypeCode = "Extract-Plaatnummer"
-	 * this.description = "Naturalis AB1 file " + noteTypeCode + " note";
-	 */
-	/*
-		*//**
-	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
-	 * fieldcode
-	 */
-	/*
-	 * 
-	 * listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-	 * this.description, this.fieldCode, Collections.<Constraint> emptyList(),
-	 * false));
-	 *//** Check if note type exists */
-	/*
-
-		*//** Parameter noteTypeCode get value "" */
-	/*
-	 * 
-	 * this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
-	 * DocumentNoteType documentNoteType = DocumentNoteUtilities
-	 * .getNoteType(this.noteTypeCode);
-	 *//** Extract-ID note */
-	/*
-	 * 
-	 * if (documentNoteType == null) { documentNoteType =
-	 * DocumentNoteUtilities.createNewNoteType( noteTypeCode, this.noteTypeCode,
-	 * this.description, listNotes, false);
-	 * DocumentNoteUtilities.setNoteType(documentNoteType);
-	 * logger.info("NoteType " + noteTypeCode + " created succesful"); }
-	 * 
-	 * if (documentNoteType.getName().equals("Extraction method (Samples)") ||
-	 * documentNoteType.getName().equals( "Extract plate ID (Samples)") ||
-	 * documentNoteType.getName().equals("Region (CRS)") ||
-	 * documentNoteType.getName().equals("Lat (CRS)") ||
-	 * documentNoteType.getName().equals("Long (CRS)") ||
-	 * documentNoteType.getName().equals("Altitude (CRS)") ||
-	 * documentNoteType.getName().equals("Phylum (CRS)") ||
-	 * documentNoteType.getName().equals("Class (CRS)") ||
-	 * documentNoteType.getName().equals("Family (CRS)") ||
-	 * documentNoteType.getName().equals("Subfamily (CRS)") ||
-	 * documentNoteType.getName().equals("Genus (CRS)") ||
-	 * documentNoteType.getName().equals("BOLD proj-ID (Bold)") ||
-	 * documentNoteType.getName().equals("Field ID (Bold)") ||
-	 * documentNoteType.getName().equals("BOLD BIN (Bold)") ||
-	 * documentNoteType.getName() .equals("Nucleotide length (Bold)") ||
-	 * documentNoteType.getName().equals("GenBank ID (Bold)")) {
-	 * documentNoteType.setDefaultVisibleInTable(false); }
-	 * 
-	 * 
-	 * Create note for Extract-ID
-	 * 
-	 * DocumentNote documentNote = documentNoteType.createDocumentNote();
-	 * documentNote.setFieldValue(this.fieldCode, fieldValue);
-	 * 
-	 * AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes)
-	 * annotatedPluginDocuments .getDocumentNotes(true);
-	 *//**
-	 * Set note documentNotes.setNote(documentNote); Save the selected
-	 * sequence document
-	 */
-	/*
-	 * documentNotes.saveNotes();
-	 * 
-	 * logger.info("Note value " + noteTypeCode + ": " + fieldValue +
-	 * " added succesful"); // geneiousPlugin.getDocumentTypes();
-	 * listNotes.clear();
-	 * 
-	 * }
-	 */
 }

@@ -19,6 +19,33 @@ import com.biomatters.geneious.publicapi.plugin.DocumentType;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * A Class to create the plugins for Naturalis Genious.<br>
+ * Classes: - LimsImportAB1Update "Plugin Split name" - LimsImportBold
+ * "Plugin Bold" - LimsImportCRS "Plugin CRS" - LimsImporSamples
+ * "Plugin Samples"</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  * @version: 1.0
  * 
@@ -62,12 +89,17 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return "0.80";
 	}
 
+	/**
+	 * Create Plugin "All Naturalis files" to import AB1 and Fasta files
+	 * 
+	 * @return
+	 * */
 	public DocumentFileImporter[] getDocumentFileImporters() {
 		return new DocumentFileImporter[] { new LimsImportAB1() };
 	}
 
 	/**
-	 * Get Document Actions
+	 * Create plugins for "Samples, CRS, BOld and Split name"
 	 * 
 	 * @return
 	 * */
@@ -75,11 +107,6 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 		return new DocumentAction[] { new LimsImportAB1Update(),
 				new LimsImportCRS(), new LimsImportBold(),
 				new LimsImportSamples() };
-		/* Depricated classes */
-		/*
-		 * new LimsReadDataFromSamples(), new LimsReadDataFromBold(), new
-		 * LimsCRSImporter(),
-		 */
 	}
 
 	@Override
