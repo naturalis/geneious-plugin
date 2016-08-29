@@ -111,7 +111,6 @@ public class LimsImportSamples extends DocumentAction {
 	private boolean isExtractIDSeqExists = false;
 	private boolean match = false;
 
-	private int sampleRecordVerwerkt = 0;
 	private int version = 0;
 	private int dummyRecordsVerwerkt = 0;
 	private long startTime;
@@ -122,6 +121,7 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleRecordFailure = 0;
 	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
+	private int cntRec = 0;
 
 	/**
 	 * Read the values from the CSV files of Samples
@@ -344,7 +344,6 @@ public class LimsImportSamples extends DocumentAction {
 								lackList.clear();
 								sampleExactRecordsVerwerkt = 0;
 								sampleRecordFailure = 0;
-								sampleRecordVerwerkt = 0;
 								dummyRecordsVerwerkt = 0;
 								recordCount = 0;
 							}
@@ -374,7 +373,7 @@ public class LimsImportSamples extends DocumentAction {
 					limsFrameProgress.createProgressGUI();
 
 					/* Add notes to the documents */
-					extractSamplesRecord_Message_No(fileSelected, documents);
+					extractSamplesRecord_Choose_No(fileSelected, documents);
 					/* Hide the progressbar GUI */
 					limsFrameProgress.hideFrame();
 				} else {
@@ -531,15 +530,18 @@ public class LimsImportSamples extends DocumentAction {
 				startTime = new Date().getTime();
 
 				match = true;
-				sampleRecordVerwerkt++;
 
 				msgList.add(extractIDfileName + "\n");
 
 				recordCount++;
+				cntRec++;
 				/* Show the progress bar */
 				limsFrameProgress.showProgress("Filename match : "
 						+ extractIDfileName + "\n" + "  Recordcount: "
 						+ recordCount);
+
+				System.out.println("ID: " + extractIDfileName + " Seq Exists: "
+						+ isExtractIDSeqExists);
 
 				/*
 				 * Set values to the variables [0] : Projectplaatnr [1] :
@@ -807,7 +809,7 @@ public class LimsImportSamples extends DocumentAction {
 	 * 
 	 * @param fileName , docsSamples
 	 */
-	private void extractSamplesRecord_Message_No(String fileName,
+	private void extractSamplesRecord_Choose_No(String fileName,
 			AnnotatedPluginDocument[] docsSamples) {
 
 		List<String> failureList = new ArrayList<String>();
@@ -909,13 +911,14 @@ public class LimsImportSamples extends DocumentAction {
 							 * if extract filename match the ID from the samples
 							 * Csv record start processing the notes.
 							 */
-							if (extractIDfileName.equals(ID)
+							if (ID.equals(extractIDfileName)
 									&& isExtractIDSeqExists) {
 								isMatched = true;
 								/* if match add to processed List */
 								if (!exactProcessedList.contains(ID)) {
 									exactProcessedList.add(ID);
 								}
+								recordCount++;
 								/* Show progressbar GUI */
 								limsFrameProgress
 										.showProgress("Document match: " + ID);
@@ -965,6 +968,7 @@ public class LimsImportSamples extends DocumentAction {
 					failureList.clear();
 					exactProcessedList.clear();
 					lackList.clear();
+					recordCount = 0;
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -991,9 +995,8 @@ public class LimsImportSamples extends DocumentAction {
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(exactProcessedList.size())
 				+ " samples are imported and linked to "
-				+ Integer.toString(listDocuments.size())
-				+ " existing documents (of " + listDocuments.size()
-				+ " selected)" + "\n" + "\n" + "[2] "
+				+ Integer.toString(recordCount) + " existing documents (of "
+				+ listDocuments.size() + " selected)" + "\n" + "\n" + "[2] "
 				+ "0 samples are imported as dummy." + "\n" + "\n" + "[3] "
 				+ Integer.toString(failureList.size())
 				+ " samples records are ignored." + "\n" + "\n"
@@ -1037,9 +1040,9 @@ public class LimsImportSamples extends DocumentAction {
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
 				+ " samples are imported and linked to "
-				+ Integer.toString(sampleRecordVerwerkt)
-				+ " existing documents (of " + importCounter + " selected)"
-				+ "\n" + "\n" + "[2] " + Integer.toString(dummyRecordsVerwerkt)
+				+ Integer.toString(cntRec) + " existing documents (of "
+				+ importCounter + " selected)" + "\n" + "\n" + "[2] "
+				+ Integer.toString(dummyRecordsVerwerkt)
 				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
 				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
 				+ " sample records are ignored." + "\n" + "\n"

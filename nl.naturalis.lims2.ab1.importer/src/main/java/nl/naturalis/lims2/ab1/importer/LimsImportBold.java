@@ -167,7 +167,7 @@ public class LimsImportBold extends DocumentAction {
 	 */
 	private String getLackMessage(Boolean missing) {
 		if (missing)
-			return "[3] At least one selected document lacks ExtractID(Seq)";
+			return "[3] At least one selected document lacks registr-nmbr (Samples)";
 		return "";
 	}
 
