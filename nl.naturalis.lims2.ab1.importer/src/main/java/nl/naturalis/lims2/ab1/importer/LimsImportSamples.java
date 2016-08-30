@@ -123,6 +123,14 @@ public class LimsImportSamples extends DocumentAction {
 	private int recordCount = 0;
 	private int cntRec = 0;
 
+	/*
+	 * private final String documentClassAB1 = "ABIPluginDocument"; private
+	 * final String documentClassFasta = "DefaultNucleotideSequence"; private
+	 * final String documentClassDummy = "DefaultNucleotideSequence";
+	 */
+	private final String documentTypeNovoAssembly = "NucleotideSequenceDocument";
+	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
+
 	/**
 	 * Read the values from the CSV files of Samples
 	 * */
@@ -376,6 +384,7 @@ public class LimsImportSamples extends DocumentAction {
 					extractSamplesRecord_Choose_No(fileSelected, documents);
 					/* Hide the progressbar GUI */
 					limsFrameProgress.hideFrame();
+
 				} else {
 					showSelectedDocumentsMessage();
 				}
@@ -383,6 +392,16 @@ public class LimsImportSamples extends DocumentAction {
 				return;
 			}
 		}
+	}
+
+	private void calculateTimeForAddingNotes(long startBeginTime) {
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		endTime = 0;
 	}
 
 	private void showProcessingDuration() {
@@ -400,7 +419,7 @@ public class LimsImportSamples extends DocumentAction {
 				+ " hour(s)/minute(s)/second(s).'");
 		logger.info("Import records in : '"
 				+ TimeUnit.MILLISECONDS.toMinutes(difference) + " minutes.'");
-		logger.info("Totaal records verwerkt: " + processedList.size());
+		logger.info("Totaal records verwerkt: " + recordCount);
 	}
 
 	private void showSelectedDocumentsMessage() {
@@ -461,7 +480,9 @@ public class LimsImportSamples extends DocumentAction {
 				 * if selected document is a
 				 * "De Novo Assemble continue the process "
 				 */
-				if (list.toString().contains("Reads Assembly Contig")) {
+				if (list.toString().contains(documentTypeNovoAssembly)
+						|| list.toString().contains(
+								documentTypeConsensusSequence)) {
 					continue;
 				}
 
@@ -493,7 +514,8 @@ public class LimsImportSamples extends DocumentAction {
 			else if (list.getName().toString().contains("dum")) {
 				documentFileName = list.getName();
 			} /* from a imported file */
-			else if (!list.toString().contains("Reads Assembly Contig")) {
+			else if (!(list.toString().contains(documentTypeNovoAssembly) || list
+					.toString().contains(documentTypeConsensusSequence))) {
 				/* Contig don't have imported filename. */
 				documentFileName = (String) list.getDocumentNotes(true)
 						.getNote("importedFrom").getFieldValue("filename");
@@ -540,8 +562,10 @@ public class LimsImportSamples extends DocumentAction {
 						+ extractIDfileName + "\n" + "  Recordcount: "
 						+ recordCount);
 
-				System.out.println("ID: " + extractIDfileName + " Seq Exists: "
-						+ isExtractIDSeqExists);
+				/*
+				 * System.out.println("ID: " + extractIDfileName +
+				 * " Seq Exists: " + isExtractIDSeqExists);
+				 */
 
 				/*
 				 * Set values to the variables [0] : Projectplaatnr [1] :
@@ -569,12 +593,9 @@ public class LimsImportSamples extends DocumentAction {
 				/*
 				 * Duration of processing the notes to a document
 				 */
-				long endTime = System.nanoTime();
-				long elapsedTime = endTime - startBeginTime;
-				logger.info("Took: "
-						+ (TimeUnit.SECONDS.convert(elapsedTime,
-								TimeUnit.NANOSECONDS)) + " second(s)");
-				elapsedTime = 0;
+				calculateTimeForAddingNotes(startBeginTime);
+
+				logger.info("=====================================");
 				match = false;
 
 			} // end IF
@@ -862,8 +883,11 @@ public class LimsImportSamples extends DocumentAction {
 							 * Check if name is from a Contig file De Novo
 							 * Assemble
 							 */
+							long startBeginTime = System.nanoTime();
 							if (list.toString().contains(
-									"Reads Assembly Contig")) {
+									documentTypeNovoAssembly)
+									|| list.toString().contains(
+											documentTypeConsensusSequence)) {
 								continue;
 							}
 
@@ -913,6 +937,8 @@ public class LimsImportSamples extends DocumentAction {
 							 */
 							if (ID.equals(extractIDfileName)
 									&& isExtractIDSeqExists) {
+
+								startTime = new Date().getTime();
 								isMatched = true;
 								/* if match add to processed List */
 								if (!exactProcessedList.contains(ID)) {
@@ -935,7 +961,12 @@ public class LimsImportSamples extends DocumentAction {
 								logger.info("Start with adding notes to the document");
 								/* Add notes to the selected documents */
 								setSamplesNotes(docsSamples, cnt);
+
 								logger.info("Done with adding notes to the document");
+
+								calculateTimeForAddingNotes(startBeginTime);
+
+								logger.info("=====================================");
 							}
 							cnt++;
 						} // For
@@ -953,6 +984,9 @@ public class LimsImportSamples extends DocumentAction {
 						}
 						isMatched = false;
 					} // end While
+
+					/* Show duration time of the process */
+					showProcessingDuration();
 
 					/* Show result dialog after processing the documents */
 					// if (exactProcessedList.size() > 0) {

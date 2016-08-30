@@ -135,7 +135,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ab1FileName = StringUtils.split(file.getName(), "_");
 
 			/* Check if Dummy file exists in the database */
-			if (file.getName().contains("ab1")
+			if (file.getName().contains(".ab1")
 					|| file.getName().contains("dum")) {
 				dummyFilename = ReadGeneiousFieldsValues
 						.getCacheNameFromGeneiousDatabase(ab1FileName[0]
@@ -158,7 +158,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			extractAb1FastaFileName = file.getName();
 
 			/* FAS check */
-			if (extractAb1FastaFileName.contains("fas")) {
+			if (extractAb1FastaFileName.contains(".fas")) {
+				// && !extractAb1FastaFileName.contains("ab1")) {
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
 

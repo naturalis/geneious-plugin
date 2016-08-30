@@ -96,12 +96,13 @@ public class LimsAB1Fields {
 		/*
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
 		 */
-		if (ab1FileName.contains("_") && ab1FileName.contains("ab1")) {
+		if (ab1FileName.contains("_") && ab1FileName.contains(".ab1")) {
 			String[] underscore = StringUtils.split(ab1FileName, "_");
 			setExtractID(underscore[0]);
 			setPcrPlaatID(underscore[3]);
 			setMarker(underscore[4].substring(0, underscore[4].indexOf("-")));
-		} else {
+		} else if (!ab1FileName.contains(".ab1")) {
+
 			String[] underscore = StringUtils.split(ab1FileName, "_");
 			if (underscore[0] != null) {
 				setExtractID(underscore[0]);
@@ -119,7 +120,6 @@ public class LimsAB1Fields {
 				logger.info("Geen Fasta Marker aanwezig? ");
 			}
 		}
-
 	}
 
 	public int getVersieNummer() {
