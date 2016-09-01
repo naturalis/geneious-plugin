@@ -18,9 +18,35 @@ import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Create a progressbar to show in the dialog screen during the import of CSV
+ * data</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
+@SuppressWarnings("serial")
 public class LimsProgressBar extends JPanel implements ActionListener,
 		PropertyChangeListener {
 
@@ -68,6 +94,9 @@ public class LimsProgressBar extends JPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * Create the progressbar
+	 * */
 	public LimsProgressBar() {
 		pbar = new JProgressBar();
 		pbar.setMinimum(MY_MINIMUM);
@@ -76,6 +105,12 @@ public class LimsProgressBar extends JPanel implements ActionListener,
 
 	}
 
+	/**
+	 * Set the Percentage value
+	 * 
+	 * @param newValue
+	 *            Integer value
+	 * */
 	public void updateBar(int newValue) {
 		pbar.setValue(newValue);
 	}

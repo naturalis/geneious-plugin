@@ -15,8 +15,32 @@ import com.biomatters.geneious.publicapi.documents.XMLSerializationException;
 import com.biomatters.geneious.publicapi.documents.XMLSerializer;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Getter and Setters fields for the LimsImportSamples
+ * 
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
- *
  */
 public class LimsSamplesFields implements PluginDocument,
 		LimsSamplesDocumentFields {
@@ -44,68 +68,186 @@ public class LimsSamplesFields implements PluginDocument,
 		fromXML(e);
 	}
 
+	/**
+	 * Get the value of ExtractID
+	 * 
+	 * @return Return extractID value
+	 * @see LimsSamplesFields
+	 * */
 	public String getExtractID() {
 		return extractID;
 	}
 
+	/**
+	 * Set the value for ExtractID
+	 * 
+	 * @param extractID
+	 *            Set param extractID
+	 * */
 	public void setExtractID(String extractID) {
 		this.extractID = extractID;
 	}
 
+	/**
+	 * Get the value of ProjectPlaatNummer
+	 * 
+	 * @return Return projectPlaatNummer value
+	 * @see LimsSamplesFields
+	 * */
 	public String getProjectPlaatNummer() {
 		return projectPlaatNummer;
 	}
 
+	/**
+	 * Set the value for ProjectPlaatNummer
+	 * 
+	 * @param projectPlaatNummer
+	 *            Set param projectPlaatNummer
+	 * */
 	public void setProjectPlaatNummer(String projectPlaatNummer) {
 		this.projectPlaatNummer = projectPlaatNummer;
 	}
 
+	/**
+	 * Get the value of ExtractPlaatNummer
+	 * 
+	 * @return Return extractPlaatNummer value
+	 * @see LimsSamplesFields
+	 * */
 	public String getExtractPlaatNummer() {
 		return extractPlaatNummer;
 	}
 
+	/**
+	 * Set the value for ExtractPlaatNummer
+	 * 
+	 * @param extractPlaatNummer
+	 *            Set param extractPlaatNummer
+	 * */
 	public void setExtractPlaatNummer(String extractPlaatNummer) {
 		this.extractPlaatNummer = extractPlaatNummer;
 	}
 
+	/**
+	 * Get the value for PlaatPositie
+	 * 
+	 * @return Return plaatPositie value
+	 * @see LimsSamplesFields
+	 * */
 	public String getPlaatPositie() {
 		return plaatPositie;
 	}
 
+	/**
+	 * Set the value for PlaatPositie
+	 * 
+	 * @param plaatPositie
+	 *            Set param plaatPositie
+	 * */
 	public void setPlaatPositie(String plaatPositie) {
 		this.plaatPositie = plaatPositie;
 	}
 
+	/**
+	 * Get the value of TaxonNaam
+	 * 
+	 * @return Return taxonNaam value
+	 * @see LimsSamplesFields
+	 * */
 	public String getTaxonNaam() {
 		return taxonNaam;
 	}
 
+	/**
+	 * Set the value for TaxonNaam
+	 * 
+	 * @param taxonNaam
+	 *            Set param taxonNaam
+	 * */
 	public void setTaxonNaam(String taxonNaam) {
 		this.taxonNaam = taxonNaam;
 	}
 
+	/**
+	 * Get the value of RegistrationNumber
+	 * 
+	 * @return Return registrationNumber value
+	 * @see LimsSamplesFields
+	 * */
 	public String getRegistrationNumber() {
 		return registrationNumber;
 	}
 
+	/**
+	 * Set the value for RegistrationNumber
+	 * 
+	 * @param registrationNumber
+	 *            set Param registrationNumber
+	 * */
 	public void setRegistrationNumber(String registrationNumber) {
 		this.registrationNumber = registrationNumber;
 	}
 
+	/**
+	 * Get the value of SubSample
+	 * 
+	 * @return Return subSample value
+	 * @see LimsSamplesFields
+	 * */
 	public String getSubSample() {
 		return subSample;
 	}
 
+	/**
+	 * Set the value for SubSample
+	 * 
+	 * @param subSample
+	 *            Set param subSample
+	 * */
 	public void setSubSample(String subSample) {
 		this.subSample = subSample;
 	}
 
+	/**
+	 * Get the value of VersieNummer
+	 * 
+	 * @return Return versieNummer value
+	 * @see LimsSamplesFields
+	 * */
 	public Object getVersieNummer() {
 		return versieNummer;
 	}
 
+	/**
+	 * Set the value for VersieNummer
+	 * 
+	 * @param versieNummer
+	 *            Set param versieNummer
+	 * 
+	 * */
 	public void setVersieNummer(Object versieNummer) {
 		this.versieNummer = versieNummer;
+	}
+
+	/**
+	 * Get the value of RegNumberScientificName
+	 * 
+	 * @return Return regNumberScientificName value
+	 * @see LimsSamplesFields
+	 * */
+	public String getRegNumberScientificName() {
+		return regNumberScientificName;
+	}
+
+	/**
+	 * Set the value for RegNumberScientificName
+	 * 
+	 * @param regNumberScientificName
+	 *            Set param regNumberScientificName
+	 * 
+	 */
+	public void setRegNumberScientificName(String regNumberScientificName) {
+		this.regNumberScientificName = regNumberScientificName;
 	}
 
 	@Override
@@ -230,14 +372,6 @@ public class LimsSamplesFields implements PluginDocument,
 		}
 		htmlBuilder.append("</table>\n");
 		return htmlBuilder.toString();
-	}
-
-	public String getRegNumberScientificName() {
-		return regNumberScientificName;
-	}
-
-	public void setRegNumberScientificName(String regNumberScientificName) {
-		this.regNumberScientificName = regNumberScientificName;
 	}
 
 }

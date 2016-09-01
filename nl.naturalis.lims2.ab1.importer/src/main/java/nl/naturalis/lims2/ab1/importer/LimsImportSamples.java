@@ -132,19 +132,23 @@ public class LimsImportSamples extends DocumentAction {
 	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
 
 	/**
-	 * Read the values from the CSV files of Samples
+	 * Read the values from the CSV files of Samples to start adding notes to
+	 * the document(s)
+	 * 
+	 * @param annotatedPluginDocument
+	 *            Set param annotatedPluginDocument
 	 * */
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocument) {
-		readDataFromExcel(annotatedPluginDocument);
-
+		readSamplesDataFromCSVFile(annotatedPluginDocument);
 	}
 
 	/**
-	 * Set name for the plugin
+	 * Add the name for the Samples plugin to the Menu
 	 * 
-	 * @return
+	 * @return Set the name of the plugin to the menubar
+	 * @see LimsImportSamples
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
@@ -154,11 +158,24 @@ public class LimsImportSamples extends DocumentAction {
 				.setAvailableToWorkflows(true);
 	}
 
+	/**
+	 * Not yet implemented
+	 * 
+	 * @return Not yet implemented
+	 * @see LimsImportSamples
+	 * */
 	@Override
 	public String getHelp() {
 		return null;
 	}
 
+	/**
+	 * Add the max value of selected document(s)<br>
+	 * public static final int MAX_VALUE = 2147483647;
+	 * 
+	 * @return Return the max value of the documents that has import.
+	 * @see LimsImportSamples
+	 * */
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
@@ -190,7 +207,7 @@ public class LimsImportSamples extends DocumentAction {
 	}
 
 	/* Read data from the csv file and add the notes */
-	private void readDataFromExcel(AnnotatedPluginDocument[] documents) {
+	private void readSamplesDataFromCSVFile(AnnotatedPluginDocument[] documents) {
 
 		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 		if (!dbchk.checkDBName()) {
@@ -210,7 +227,7 @@ public class LimsImportSamples extends DocumentAction {
 
 			/* If OK Selected */
 			if (n == 0) {
-				/** Check if document(s) has been selected **/
+				/* Check if document(s) has been selected * */
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
 					/* Get uitvallijst logfile name */
@@ -223,7 +240,7 @@ public class LimsImportSamples extends DocumentAction {
 					logger.info("Start updating selected document(s).");
 					fileSelected = fcd.loadSelectedFile();
 
-					/** Add selected documents to a list. */
+					/* Add selected documents to a list. */
 					if (fileSelected == null) {
 						return;
 					}
@@ -235,7 +252,7 @@ public class LimsImportSamples extends DocumentAction {
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
 
-					/** Start reading data from the file selected */
+					/* Start reading data from the file selected */
 					logger.info("-------------------------- S T A R T --------------------------");
 					logger.info("Start Reading data from a samples file.");
 					logger.info("CSV file: " + fileSelected);
@@ -268,7 +285,6 @@ public class LimsImportSamples extends DocumentAction {
 							/* Get the ID from CSV file */
 							ID = "e" + record[3];
 
-							// int cnt =
 							processSampleDocuments(documents, record,
 									startBeginTime);
 
@@ -329,6 +345,10 @@ public class LimsImportSamples extends DocumentAction {
 						 */
 						EventQueue.invokeLater(new Runnable() {
 
+							/**
+							 * Show Message dialog with information after
+							 * finished adding notes to the document
+							 */
 							@Override
 							public void run() {
 								showFinishedDialogMessageOK();
@@ -394,6 +414,7 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
+	/* Calculate processing time of the notes */
 	private void calculateTimeForAddingNotes(long startBeginTime) {
 		long endTime = System.nanoTime();
 		long elapsedTime = endTime - startBeginTime;
@@ -404,8 +425,8 @@ public class LimsImportSamples extends DocumentAction {
 		endTime = 0;
 	}
 
+	/* Duration process of all selected documents */
 	private void showProcessingDuration() {
-		/* Duration of all selected documents */
 		lEndTime = new Date().getTime();
 		difference = lEndTime - startTime;
 		String hms = String.format(
@@ -422,6 +443,7 @@ public class LimsImportSamples extends DocumentAction {
 		logger.info("Totaal records verwerkt: " + recordCount);
 	}
 
+	/* Show message to select at least one document in Geneious */
 	private void showSelectedDocumentsMessage() {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -563,11 +585,6 @@ public class LimsImportSamples extends DocumentAction {
 						+ recordCount);
 
 				/*
-				 * System.out.println("ID: " + extractIDfileName +
-				 * " Seq Exists: " + isExtractIDSeqExists);
-				 */
-
-				/*
 				 * Set values to the variables [0] : Projectplaatnr [1] :
 				 * Plaatpositie [2] : ExtractPlaatnr [3] : ExtractID [4] :
 				 * RegistrationNumber [5] : TaxonNaam [] : Version [6] : Sample
@@ -579,8 +596,10 @@ public class LimsImportSamples extends DocumentAction {
 				logger.info("Document Filename: " + documentFileName);
 
 				logger.info("Start with adding notes to the document");
+
 				/* Set the notes to the documents */
 				setSamplesNotes(documents, cnt);
+
 				logger.info("Done with adding notes to the document");
 
 				/*
@@ -601,7 +620,6 @@ public class LimsImportSamples extends DocumentAction {
 			} // end IF
 			cnt++;
 		} // end For
-			// return cnt;
 	}
 
 	/* Clear the fields variables */
@@ -617,49 +635,51 @@ public class LimsImportSamples extends DocumentAction {
 	/* Adding notes to the documents */
 	private void setSamplesNotes(AnnotatedPluginDocument[] documents, int cnt) {
 
-		/** set note for Registration number */
+		/* set note for Registration number */
 		limsNotes.setNoteToAB1FileName(documents,
 				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
 				"Registr-nmbr (Samples)",
 				limsExcelFields.getRegistrationNumber(), cnt);
 
-		/** set note for Taxonname */
+		/* set note for Taxonname */
 		limsNotes.setNoteToAB1FileName(documents, "TaxonName2Code_Samples",
 				"[Scientific name] (Samples)", "[Scientific name] (Samples)",
 				limsExcelFields.getTaxonNaam(), cnt);
 
-		/** set note for Project Plate number */
+		/* set note for Project Plate number */
 		limsNotes.setNoteToAB1FileName(documents,
 				"ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
 				"Sample plate ID (Samples)",
 				limsExcelFields.getProjectPlaatNummer(), cnt);
 
-		/** Set note for Extract plate number */
+		/* Set note for Extract plate number */
 		limsNotes.setNoteToAB1FileName(documents,
 				"ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
 				"Extract plate ID (Samples)",
 				limsExcelFields.getExtractPlaatNummer(), cnt);
 
-		/** set note for Plate position */
+		/* set note for Plate position */
 		limsNotes.setNoteToAB1FileName(documents, "PlatePositionCode_Samples",
 				"Position (Samples)", "Position (Samples)",
 				limsExcelFields.getPlaatPositie(), cnt);
 
-		/** set note for Extract-ID */
+		/* set note for Extract-ID */
 		limsNotes.setNoteToAB1FileName(documents, "ExtractIDCode_Samples",
 				"Extract ID (Samples)", "Extract ID (Samples)",
 				limsExcelFields.getExtractID(), cnt);
 
-		/** set note for Sample method */
+		/* set note for Sample method */
 		limsNotes.setNoteToAB1FileName(documents, "SampleMethodCode_Samples",
 				"Extraction method (Samples)", "Extraction method (Samples)",
 				limsExcelFields.getSubSample(), cnt);
 
+		/* Set note for the document version */
 		limsNotes.setNoteToAB1FileName(documents, "DocumentVersionCode_Seq",
 				"Document version", "Document version",
 				String.valueOf(limsExcelFields.getVersieNummer()), cnt);
 
-		/** AmplicificationStaffCode_FixedValue_Samples */
+		/* AmplicificationStaffCode_FixedValue_Samples */
+
 		try {
 			limsNotes.setNoteToAB1FileName(documents,
 					"AmplicificationStaffCode_FixedValue_Samples",
@@ -667,7 +687,7 @@ public class LimsImportSamples extends DocumentAction {
 					limsImporterUtil.getPropValues("samplesamplicification"),
 					cnt);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		/*
@@ -729,6 +749,7 @@ public class LimsImportSamples extends DocumentAction {
 											.isEmpty()) {
 								logger.info("Record is empty: " + ID);
 							} else {
+								/* Create dummy sequence */
 								limsDummySeq.createDummySampleSequence(ID, ID,
 										record[0], plateNumber, record[5],
 										record[4], record[1], record[6]);
@@ -742,16 +763,16 @@ public class LimsImportSamples extends DocumentAction {
 					} // end While
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 				try {
 					csvReader.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -785,17 +806,30 @@ public class LimsImportSamples extends DocumentAction {
 			String extractPlaatNr, String extractID, String registrationNumber,
 			String taxonNaam, Object versieNummer, String sampleMethod) {
 
-		limsExcelFields.setProjectPlaatNummer(projectPlaatNr); // record[0]
-		limsExcelFields.setPlaatPositie(plaatPositie); // record[1]
+		// record[0]
+		limsExcelFields.setProjectPlaatNummer(projectPlaatNr);
+
+		// record[1]
+		limsExcelFields.setPlaatPositie(plaatPositie);
+
+		// record[2]
 		limsExcelFields.setExtractPlaatNummer(extractPlaatNr);
+
+		// record[3]
 		if (extractID != null) {
 			limsExcelFields.setExtractID(extractID);
 		} else {
 			limsExcelFields.setExtractID("");
 		}
-		limsExcelFields.setRegistrationNumber(registrationNumber); // record[4]
-		limsExcelFields.setTaxonNaam(taxonNaam); // record[5]
-		limsExcelFields.setSubSample(sampleMethod); // record[6]
+
+		// record[4]
+		limsExcelFields.setRegistrationNumber(registrationNumber);
+
+		// record[5]
+		limsExcelFields.setTaxonNaam(taxonNaam);
+
+		// record[6]
+		limsExcelFields.setSubSample(sampleMethod);
 
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
@@ -806,7 +840,16 @@ public class LimsImportSamples extends DocumentAction {
 			regScientificname = taxonNaam;
 		}
 
+		/*
+		 * Set a combination of registrationnumber with scientificname or only
+		 * scientificname
+		 */
 		limsExcelFields.setRegNumberScientificName(regScientificname);
+
+		/*
+		 * Set the version number
+		 */
+		limsExcelFields.setVersieNummer(versieNummer);
 
 		logger.info("Extract-ID: " + limsExcelFields.getExtractID());
 		logger.info("Project plaatnummer: "
@@ -820,8 +863,6 @@ public class LimsImportSamples extends DocumentAction {
 		logger.info("Sample method: " + limsExcelFields.getSubSample());
 		logger.info("Registr-nmbr_[Scientific name] (Samples): "
 				+ limsExcelFields.getRegNumberScientificName());
-
-		limsExcelFields.setVersieNummer(versieNummer);
 	}
 
 	/*
@@ -964,6 +1005,7 @@ public class LimsImportSamples extends DocumentAction {
 
 								logger.info("Done with adding notes to the document");
 
+								/* Calculate processing time of the notes */
 								calculateTimeForAddingNotes(startBeginTime);
 
 								logger.info("=====================================");
@@ -989,14 +1031,13 @@ public class LimsImportSamples extends DocumentAction {
 					showProcessingDuration();
 
 					/* Show result dialog after processing the documents */
-					// if (exactProcessedList.size() > 0) {
 					showFinishedDialogMessageNo(fileName, failureList,
 							exactProcessedList);
-					// }
 
 					failureList.add("Total records not matched: "
 							+ Integer.toString(failureList.size()) + "\n");
 
+					/* Create failure log file */
 					limsLogger.logToFile(logSamplesFileName,
 							failureList.toString());
 					failureList.clear();
@@ -1005,16 +1046,16 @@ public class LimsImportSamples extends DocumentAction {
 					recordCount = 0;
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 				try {
 					csvReader.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 

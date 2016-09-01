@@ -8,6 +8,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Depricated<br>
+ * </td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */

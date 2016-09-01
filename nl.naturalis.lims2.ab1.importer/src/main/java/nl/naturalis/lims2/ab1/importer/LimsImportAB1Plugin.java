@@ -54,36 +54,78 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 
 	static final String HELP = "Naturalis imported ab1 file with Chromatogram and DNA sequence(s)";
 
+	/**
+	 * Get the author name
+	 * 
+	 * @return Return author name
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getAuthors() {
 		return "Naturalis Reinier.Kartowikromo";
 	}
 
+	/**
+	 * Get the description of the plugin
+	 * 
+	 * @return Return Description value
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getDescription() {
 		return "Import AB1/Fasta files";
 	}
 
+	/**
+	 * Get Help documentation
+	 * 
+	 * @return Help documentation
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getHelp() {
 		return HELP;
 	}
 
+	/**
+	 * Get maximum Api version
+	 * 
+	 * @return Return the maximun version of the API
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public int getMaximumApiVersion() {
 		return 4;
 	}
 
+	/**
+	 * Get the minimum api version
+	 * 
+	 * @return Return the minimum version of the API
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getMinimumApiVersion() {
 		return "4.1";
 	}
 
+	/**
+	 * Get the name of the plugin
+	 * 
+	 * @return Return the name of plugins
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getName() {
 		return "Naturalis AB1/Fasta file plugin";
 	}
 
+	/**
+	 * Get the plugin version
+	 * 
+	 * @return Return the version of the plugins
+	 * @see LimsImportAB1Plugin
+	 * */
 	@Override
 	public String getVersion() {
 		return "0.90";
@@ -92,7 +134,9 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	/**
 	 * Create Plugin "All Naturalis files" to import AB1 and Fasta files
 	 * 
-	 * @return
+	 * @return Return "All naturalis files" in the dialog screen tos elect a Csv
+	 *         file
+	 * @see LimsImportAB1Plugin
 	 * */
 	public DocumentFileImporter[] getDocumentFileImporters() {
 		return new DocumentFileImporter[] { new LimsImportAB1() };
@@ -101,7 +145,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	/**
 	 * Create plugins for "Samples, CRS, BOld and Split name"
 	 * 
-	 * @return
+	 * @return Add the plugins to the menubar
+	 * @see LimsImportAB1Plugin
 	 * */
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsImportAB1Update(),

@@ -103,8 +103,15 @@ public class LimsReadGeneiousFieldsValues {
 	 * Used in LimsImportSamples and (Depricated)LimsReaddataFromSamples
 	 * 
 	 * @param annotatedPluginDocuments
-	 *            , noteCode, fieldName, i
-	 * @return
+	 *            Documents
+	 * @param noteCode
+	 *            Add Field Code
+	 * @param fieldName
+	 *            add field name
+	 * @param i
+	 *            Document count
+	 * @return Return a string value
+	 * @see String
 	 */
 	public String getVersionValueFromAnnotatedPluginDocument(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
@@ -137,8 +144,13 @@ public class LimsReadGeneiousFieldsValues {
 	 * LimsImportAB1Update
 	 * 
 	 * @param fileName
-	 *            , fieldName, xnlnotes
-	 * @return
+	 *            Set a filename
+	 * @param fieldName
+	 *            Set the field name
+	 * @param xmlnotes
+	 *            Set the xml string
+	 * @return Return boolean value true or false
+	 * @see boolean
 	 * */
 	public boolean checkOfFastaOrAB1Exists(String fileName, String fieldName,
 			String xmlnotes) {
@@ -227,7 +239,9 @@ public class LimsReadGeneiousFieldsValues {
 	 * LimsImportAB1Update
 	 * 
 	 * @param filename
-	 * @return
+	 *            Set parameter fielname
+	 * @return Return boolean value true or false
+	 * @see boolean
 	 * */
 	public boolean fileNameExistsInGeneiousDatabase(String filename) {
 
@@ -308,7 +322,11 @@ public class LimsReadGeneiousFieldsValues {
 	 * LimsReadDataFromSamples
 	 * 
 	 * @param extractid
-	 * @return
+	 *            Set parameter ExtractID
+	 * @return Return String value
+	 * @throws IOException
+	 *             Throws a exception message
+	 * @see String
 	 * */
 	public String getFastaIDForSamples_GeneiousDB(String extractid)
 			throws IOException {
@@ -372,8 +390,13 @@ public class LimsReadGeneiousFieldsValues {
 	 * LimsReadDataFromBold
 	 * 
 	 * @param filename
-	 *            , xmlNotesName
-	 * @return
+	 *            Set param Filename
+	 * @param xmlNotesName
+	 *            Set the xml note tag
+	 * @return Return cachename
+	 * @throws IOException
+	 *             Throws a exception message
+	 * @see String
 	 * */
 	public String getCacheNameFromGeneiousDatabase(Object filename,
 			String xmlNotesName) throws IOException {
@@ -451,8 +474,13 @@ public class LimsReadGeneiousFieldsValues {
 	 * in LimsImportAB1
 	 * 
 	 * @param filename
-	 *            , xmlNotesName
-	 * @return
+	 *            Set parameter filename
+	 * @param xmlNotesName
+	 *            Set String XmlNotes Tag
+	 * @return Return ID value from the database
+	 * @throws IOException
+	 *             Throws a exception message
+	 * @see String
 	 * */
 	public String getIDFromTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
@@ -523,7 +551,9 @@ public class LimsReadGeneiousFieldsValues {
 	 * LimsImportAB1
 	 * 
 	 * @param ID
+	 *            Set parameter ID
 	 * @throws IOException
+	 *             Throw a exception message
 	 * */
 	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
 			throws IOException {
@@ -586,7 +616,9 @@ public class LimsReadGeneiousFieldsValues {
 	 * Used in LimsImportAB1Update Get Version for FAsta and AB1 files
 	 * 
 	 * @param fileName
-	 * @return
+	 *            Set parameter filename
+	 * @return Return integer value (Version number)
+	 * @see int
 	 * */
 	public int getLastVersion_For_AB1_Fasta(String fileName) {
 
@@ -658,7 +690,9 @@ public class LimsReadGeneiousFieldsValues {
 	 * Used in LimsImportAB1Update
 	 * 
 	 * @param fileName
-	 * @return result
+	 *            Set param filename
+	 * @return Return result value
+	 * @see int
 	 */
 	public int getLastVersionFromDocument(String fileName) {
 
@@ -728,7 +762,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy PCR Plate ID Sequence
 	 * 
-	 * @return
+	 * @return Return a PCR plate Sequence value
+	 * @see String
 	 * */
 	public String getDummyPcrPlateIdSeqValue() {
 		return dummyPcrPlateIdSeqValue;
@@ -738,6 +773,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy PCR Plate ID Sequence
 	 * 
 	 * @param dummyPcrPlateIdSeqValue
+	 *            Set parameter PCRPlate Sequence Value
 	 * */
 	public void setDummyPcrPlateIdSeqValue(String dummyPcrPlateIdSeqValue) {
 		this.dummyPcrPlateIdSeqValue = dummyPcrPlateIdSeqValue;
@@ -746,7 +782,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Marker Sequence
 	 * 
-	 * @return
+	 * @return Return Marker sequence value
+	 * @see String
 	 * */
 	public String getDummyMarkerSeqValue() {
 		return dummyMarkerSeqValue;
@@ -756,6 +793,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Marker Sequence
 	 * 
 	 * @param dummyMarkerSeqValue
+	 *            Set param dummyMarkerSeqValue
 	 * */
 	public void setDummyMarkerSeqValue(String dummyMarkerSeqValue) {
 		this.dummyMarkerSeqValue = dummyMarkerSeqValue;
@@ -764,7 +802,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Registration number for samples
 	 * 
-	 * @return
+	 * @return Return String value
+	 * @see String
 	 * */
 	public String getDummyRegistrNmbrSamplesValue() {
 		return dummyRegistrNmbrSamplesValue;
@@ -774,6 +813,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Registration number for samples
 	 * 
 	 * @param dummyRegistrNmbrSamplesValue
+	 *            Set param dummyRegistrNmbrSamplesValue
 	 * */
 	public void setDummyRegistrNmbrSamplesValue(
 			String dummyRegistrNmbrSamplesValue) {
@@ -783,7 +823,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy ScientificName for Samples
 	 * 
-	 * @return
+	 * @return Return Dummy ScientificName Samples Value
+	 * @see String
 	 * */
 	public String getDummyScientificNameSamplesValue() {
 		return dummyScientificNameSamplesValue;
@@ -793,6 +834,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy ScientificName for Samples
 	 * 
 	 * @param dummyScientificNameSamplesValue
+	 *            Set param
 	 * */
 	public void setDummyScientificNameSamplesValue(
 			String dummyScientificNameSamplesValue) {
@@ -802,7 +844,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Plate ID for Samples
 	 * 
-	 * @return
+	 * @return Return dummy Sample PlateId Value
+	 * @see String
 	 * */
 	public String getDummySamplePlateIdSamplesValue() {
 		return dummySamplePlateIdSamplesValue;
@@ -812,6 +855,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Plate ID for Samples
 	 * 
 	 * @param dummySamplePlateIdSamplesValue
+	 *            Set param dummySamplePlateIdSamplesValue
 	 **/
 	public void setDummySamplePlateIdSamplesValue(
 			String dummySamplePlateIdSamplesValue) {
@@ -821,7 +865,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Position for samples
 	 * 
-	 * @return
+	 * @return Return dummy Position Samples value
+	 * @see String
 	 * */
 	public String getDummyPositionSamplesValue() {
 		return dummyPositionSamplesValue;
@@ -831,6 +876,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Position for samples
 	 * 
 	 * @param dummyPositionSamplesValue
+	 *            Set param dummyPositionSamplesValue
 	 */
 	public void setDummyPositionSamplesValue(String dummyPositionSamplesValue) {
 		this.dummyPositionSamplesValue = dummyPositionSamplesValue;
@@ -839,7 +885,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Extract ID for Samples
 	 * 
-	 * @return
+	 * @return Return dummy ExtractID Samples value
+	 * @see String
 	 * */
 	public String getDummyExtractIDSamplesValue() {
 		return dummyExtractIDSamplesValue;
@@ -849,6 +896,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Extract ID for Samples
 	 * 
 	 * @param dummyExtractIDSamplesValue
+	 *            Set param dummyExtractIDSamplesValue
 	 * */
 	public void setDummyExtractIDSamplesValue(String dummyExtractIDSamplesValue) {
 		this.dummyExtractIDSamplesValue = dummyExtractIDSamplesValue;
@@ -857,7 +905,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get Dummy Sequence Staff for Samples
 	 * 
-	 * @return
+	 * @return Return dummy SeqStaff Samples value
+	 * @see String
 	 * */
 	public String getDummySeqStaffSamplesValue() {
 		return dummySeqStaffSamplesValue;
@@ -867,6 +916,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * Set Dummy Sequence Staff for Samples
 	 * 
 	 * @param dummySeqStaffSamplesValue
+	 *            Set param dummySeqStaffSamplesValue
 	 * */
 	public void setDummySeqStaffSamplesValue(String dummySeqStaffSamplesValue) {
 		this.dummySeqStaffSamplesValue = dummySeqStaffSamplesValue;
@@ -876,7 +926,9 @@ public class LimsReadGeneiousFieldsValues {
 	 * Get Dummy Samples Values from the Database
 	 * 
 	 * @param filename
-	 * @return
+	 *            Set param Filename
+	 * @return Return list Dummy values
+	 * @see LimsReadGeneiousFieldsValues
 	 * */
 	public List<String> getDummySamplesValues(Object filename) {
 
@@ -973,7 +1025,8 @@ public class LimsReadGeneiousFieldsValues {
 	/**
 	 * Get database name
 	 * 
-	 * @return
+	 * @return Return names of the database
+	 * @see LimsReadGeneiousFieldsValues
 	 * */
 	public String getServerDatabaseServiceName() {
 		List<String> lstdb = new ArrayList<String>();

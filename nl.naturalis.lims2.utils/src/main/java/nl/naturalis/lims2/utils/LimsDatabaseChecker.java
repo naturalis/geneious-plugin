@@ -14,9 +14,48 @@ import java.util.TreeMap;
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
+/**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Verify how many schema Database are active.<br>
+ * There is a property in the lims-import.properties file
+ * "Example: databasename=geneioustest" Only the schema that is mention in the
+ * property must be active.<br>
+ * If one or more schema is/are active,<br>
+ * a message will be shown to disconnect the other schema. <br>
+ * </td>
+ * </tr>
+ * </table>
+ * 
+ * @author Reinier.Kartowikromo
+ * @version: 1.0
+ */
+
 public class LimsDatabaseChecker {
 
-	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+
+	/**
+	 * Get the message that will be shown
+	 * */
 	public String msg = "Geneious will (unfortunately) shutdown and immediately restart after you have clicked the OK button. "
 			+ "\n \n"
 			+ "Make sure that Geneious is only connected to the database server"
@@ -27,8 +66,12 @@ public class LimsDatabaseChecker {
 			+ "\n"
 			+ "when trying to import ab1 or fasta files with the All Naturalis Files plugin.";
 
+	/**
+	 * Check how many schema database is/are active.
+	 * 
+	 * @return Return the true or false with a message
+	 * */
 	public boolean checkDBName() {
-
 		LimsImporterUtil util = new LimsImporterUtil();
 		String result = util.getDatabasePropValues("databasename");
 		Set<String> names = getActiveDatabases();
@@ -90,6 +133,10 @@ public class LimsDatabaseChecker {
 		return names; // databaseName[0];
 	}
 
+	/**
+	 * After the message is shown that one or more schema database is/are
+	 * active, Geneious will be restarted.
+	 * */
 	public void restartGeneious() {
 		File f2 = new File("geneious.bat");
 		String batchPath = f2.getAbsolutePath();

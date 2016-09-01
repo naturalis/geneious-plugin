@@ -11,6 +11,32 @@ import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Class to show a dialog screen during the import process of CSV data
+ * 
+ * </td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -29,6 +55,9 @@ public class LimsFrameProgress {
 	static final int MY_MAXIMUM = 100;
 	JFrame frame = new JFrame("Reading records from files");
 
+	/**
+	 * Create the dialog screen
+	 * */
 	public void createProgressGUI() {
 		frame.isAlwaysOnTop();
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -49,6 +78,13 @@ public class LimsFrameProgress {
 		frame.setVisible(true);
 	}
 
+	/**
+	 * Show the Dilaog screen with a progressbar and messages
+	 * 
+	 * @param fileName
+	 *            Set param filename value
+	 * 
+	 * */
 	public void showProgress(final String fileName) {
 		for (int i = MY_MINIMUM; i <= MY_MAXIMUM; i++) {
 			final int percent = i;
@@ -60,9 +96,12 @@ public class LimsFrameProgress {
 						jlFilename.setText(fileName);
 						jlMsgEmpty
 								.setText("                                                  ");
-						jlMsg.setText("Warning:                                               ");
-						jlMsg0.setText("Geneious is currently processing the selected file(s).");
-						jlbMsg1.setText("Please wait for the import process to finish.");
+						jlMsg.setText("Warning:                                               "
+								+ "\n");
+						jlMsg0.setText("Geneious is currently processing the selected file(s)."
+								+ "\n");
+						jlbMsg1.setText("Please wait for the import process to finish."
+								+ "\n");
 						jlbMsg2.setText("You should preferably not start another action or change maps.");
 					}
 				});
@@ -73,6 +112,9 @@ public class LimsFrameProgress {
 		}
 	}
 
+	/**
+	 * Hide the dialog screen
+	 * */
 	public void hideFrame() {
 		frame.setVisible(false);
 	}

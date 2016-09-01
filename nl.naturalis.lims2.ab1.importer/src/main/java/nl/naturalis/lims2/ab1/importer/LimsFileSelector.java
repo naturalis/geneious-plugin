@@ -19,6 +19,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * File selection for CRS, Bold, Samples CSV(Samples, CRS and Bold) file(s)
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -89,9 +113,13 @@ public class LimsFileSelector {
 	 * 
 	 *
 	 * @param fileName
-	 *            , fastaImportFilePath
-	 * @return
+	 *            Set param filename
+	 * @param fastaImportFilePath
+	 *            Set param filepath for the import
+	 * @return Return Filename
 	 * @throws FileNotFoundException
+	 * @see String
+	 * 
 	 * */
 	public String loadFastaFile(String fileName, String fastaImportFilePath)
 			throws FileNotFoundException {
@@ -167,8 +195,11 @@ public class LimsFileSelector {
 	 * content
 	 * 
 	 * @param file
-	 * @return
+	 *            Set param File
+	 * @return Return Fasta filename from the content
 	 * @throws FileNotFoundException
+	 * @see String
+	 * 
 	 */
 	public String readFastaContent(File file) throws FileNotFoundException {
 		String resultFastaFileName = "";

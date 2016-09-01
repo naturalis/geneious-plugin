@@ -18,6 +18,30 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Open a dialog screen to choose a file
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */

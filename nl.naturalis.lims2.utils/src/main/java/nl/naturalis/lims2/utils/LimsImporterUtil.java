@@ -15,12 +15,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Class with methods to read values from the lims-import.properties and
+ * limsdatabase.properties file(s)</td>
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
 public class LimsImporterUtil {
 
-	// private final Properties config = null;
 	private String result = "";
 	private InputStream inputStream;
 	private Properties prop = new Properties();
@@ -55,7 +79,7 @@ public class LimsImporterUtil {
 				prop.load(inputStream);
 				logFileName = prop.getProperty("logname");
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 		return logFileName;
@@ -85,7 +109,7 @@ public class LimsImporterUtil {
 				prop.load(inputStream);
 				logPath = prop.getProperty("logpath");
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 		return logPath;
@@ -93,11 +117,21 @@ public class LimsImporterUtil {
 
 	private Properties importProps;
 
+	/**
+	 * Get the values from lims-import.properties file
+	 * 
+	 * @param propertyType
+	 *            Set param PropertyType value
+	 * @return Return value Property type
+	 * @throws IOException
+	 *             Throw a exception message
+	 * 
+	 * @see String
+	 * */
 	public String getPropValues(String propertyType) throws IOException {
 		if (importProps == null) {
 			try {
 				importProps = new Properties();
-				String propFileName = "lims-import.properties";
 				String workingDatadirectory = System.getProperty("user.dir");
 
 				String absoluteFilePath = null;
@@ -132,53 +166,16 @@ public class LimsImporterUtil {
 		return result;
 	}
 
-	// Ayco: deze method wordt nergens aangeroepen
-	public String getFileFromPropertieFile(String fileType) throws IOException {
-		try {
-			Properties prop = new Properties();
-
-			String propFileName = "lims-import.properties";
-			String workingDatadirectory = System.getProperty("user.dir");
-
-			String absoluteFilePath = null;
-
-			if (workingDatadirectory != null) {
-				absoluteFilePath = workingDatadirectory + File.separator
-						+ propFileName;
-			}
-
-			inputStream = new FileInputStream(absoluteFilePath);
-			if (inputStream != null) {
-				prop.load(inputStream);
-			} else {
-				logger.info("property file '" + propFileName
-						+ "' not found in the classpath");
-				throw new FileNotFoundException("property file '"
-						+ propFileName + "' not found in the classpath");
-			}
-
-			String csvFileName = "";
-			// get the property value and print it out
-			if (fileType.equals("excel")) {
-				csvFileName = prop.getProperty("excelfile");
-			}
-			if (fileType.equals("bold")) {
-				csvFileName = prop.getProperty("boldfile");
-			}
-
-			result = csvFileName;
-		} catch (Exception e) {
-			logger.info("Exception: " + e);
-			System.out.println("Exception: " + e);
-		} finally {
-			if (inputStream != null)
-				inputStream.close();
-		}
-		return result;
-	}
-
 	private Properties dbProps;
 
+	/**
+	 * Get teh values from limsdatabase.properties
+	 * 
+	 * @param propertyType
+	 *            A property name
+	 * @return Return PropertyType
+	 * @see String
+	 * */
 	public String getDatabasePropValues(String propertyType) {
 		if (dbProps == null) {
 			try {
@@ -225,7 +222,10 @@ public class LimsImporterUtil {
 	 * Used in LimsImportSamples Extract numbers from a string
 	 * 
 	 * @param str
+	 *            Give a string value to check if it contains numbers
 	 * @return sb.toString();
+	 * 
+	 * @see String
 	 * */
 	public static String extractNumber(final String str) {
 
@@ -252,13 +252,23 @@ public class LimsImporterUtil {
 	 * Check for Letters character in "ID" (String)
 	 * 
 	 * @param name
-	 * @return
+	 *            Set parameter value name
+	 * @return true or false
+	 * @see boolean
 	 * 
 	 **/
 	public boolean isAlpha(String name) {
 		return name.matches("[a-zA-Z]+");
 	}
 
+	/**
+	 * Get the total records in a csv file
+	 * 
+	 * @param filename
+	 *            Set parameter filename value
+	 * @return Return an integer Total of records in a CSV file
+	 * @see int
+	 * */
 	public int countRecordsCSV(String filename) {
 		try {
 			InputStream is = new BufferedInputStream(new FileInputStream(

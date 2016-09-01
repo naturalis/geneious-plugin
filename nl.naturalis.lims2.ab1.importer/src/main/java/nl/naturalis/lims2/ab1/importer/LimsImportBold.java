@@ -61,7 +61,9 @@ import com.opencsv.CSVReader;
  * <tr>
  * <td>
  * Description:<br>
- * Bold plugin: Select one or more documents and click on the "4 Bold button".<br>
+ * Bold plugin: Select one or more AB1/Fasta/Dummy document(s) in a Geneious
+ * folder. <br>
+ * Press button "4 BOLD".<br>
  * A dialog screen is displayed. <br>
  * Browse to the CSV files<br>
  * Select a Bold Csv file. The import process is started. <br>
@@ -124,6 +126,9 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * Start the process of import the Bold CSV file and adding notes to the
 	 * document(s)
+	 * 
+	 * @param DocumentsSelected
+	 *            Set Annotated plugin document param DocumentsSelected
 	 * */
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] DocumentsSelected) {
@@ -134,7 +139,8 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * Set the plugin name "4 Bold"
 	 * 
-	 * @return
+	 * @return Add the button to the menubar
+	 * @see LimsImportBold
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
@@ -147,13 +153,21 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * No help files
 	 * 
-	 * @return
+	 * @return No help files
+	 * @see LimsImportBold
 	 * */
 	@Override
 	public String getHelp() {
 		return null;
 	}
 
+	/**
+	 * Add the max value of selected document(s)<br>
+	 * public static final int MAX_VALUE = 2147483647;
+	 * 
+	 * @return Return the count value of the imported documents
+	 * @see LimsImportBold
+	 * */
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
@@ -440,16 +454,16 @@ public class LimsImportBold extends DocumentAction {
 						});
 
 					} catch (IOException e) {
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}
 					try {
 						csvReader.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -634,7 +648,6 @@ public class LimsImportBold extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedDocument, String regNumber,
 			int cnt) throws IOException {
 
-		// if (regNumber.equals(resultRegNum) && isRMNHNumber) {
 		/*
 		 * Start the processing time for the notes adding to the document.
 		 */
@@ -666,14 +679,6 @@ public class LimsImportBold extends DocumentAction {
 		setNotesToBoldDocumentsRegistration(annotatedDocument, cnt);
 
 		/*
-		 * Add the registration number to the document which has been processed.
-		 */
-		/*
-		 * if (!processedList.toString().contains(regNumber)) {
-		 * processedList.add(regNumber); }
-		 */
-
-		/*
 		 * Duration time of adding notes.
 		 */
 		long endTime = System.nanoTime();
@@ -682,7 +687,6 @@ public class LimsImportBold extends DocumentAction {
 				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
 				+ " second(s)");
 		elapsedTime = 0;
-		// }
 	}
 
 	/*
@@ -826,7 +830,8 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * Get Path for the Bold CSV file
 	 * 
-	 * @return
+	 * @return return BoldFile path value
+	 * @see LimsImportBold
 	 * */
 	public String getBoldFilePath() {
 		return boldFilePath;
@@ -836,6 +841,7 @@ public class LimsImportBold extends DocumentAction {
 	 * Set Path for the Bold CSV file
 	 * 
 	 * @param boldFilePath
+	 *            Set string param boldFilePath
 	 * */
 	public void setBoldFilePath(String boldFilePath) {
 		this.boldFilePath = boldFilePath;
@@ -844,7 +850,8 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * Get bold file
 	 * 
-	 * @return
+	 * @return Return boldFile value
+	 * @see LimsImportBold
 	 * */
 	public String getBoldFile() {
 		return boldFile;
@@ -854,6 +861,7 @@ public class LimsImportBold extends DocumentAction {
 	 * Set bold file
 	 * 
 	 * @param boldFile
+	 *            Set string param boldFile
 	 * */
 	public void setBoldFile(String boldFile) {
 		this.boldFile = boldFile;
@@ -862,33 +870,59 @@ public class LimsImportBold extends DocumentAction {
 	/**
 	 * Get extract filename
 	 * 
-	 * @return
+	 * @return Return extractIDfileName value
+	 * @see LimsImportBold
 	 **/
 	public String getExtractIDfileName() {
 		return extractIDfileName;
 	}
 
 	/**
-	 * Set extract filename
+	 * Set extract filename Set string param extractIDfileName
 	 * 
 	 * @param extractIDfileName
+	 *            Set param extractIDfileName
 	 * */
 	public void setExtractIDfileName(String extractIDfileName) {
 		this.extractIDfileName = extractIDfileName;
 	}
 
+	/**
+	 * Get the count of processed document(s)
+	 * 
+	 * @return return the count of processed document(s)
+	 * @see LimsImportBold
+	 * */
 	public int getVerwerktReg() {
 		return VerwerktReg;
 	}
 
+	/**
+	 * Set the count value<br>
+	 * 
+	 * @param verwerktReg
+	 *            Set integer param verwerktReg
+	 * */
 	public void setVerwerktReg(int verwerktReg) {
 		VerwerktReg = verwerktReg;
 	}
 
+	/**
+	 * Get the count of marker that has been processed.
+	 * 
+	 * @return Return the count of marker that has been processed.
+	 * @see LimsImportBold
+	 * */
 	public int getVerwerktRegMarker() {
 		return VerwerktRegMarker;
 	}
 
+	/**
+	 * Set the count value of marker
+	 * 
+	 * @param verwerktRegMarker
+	 *            Set integer param verwerktRegMarker
+	 * */
 	public void setVerwerktRegMarker(int verwerktRegMarker) {
 		VerwerktRegMarker = verwerktRegMarker;
 	}

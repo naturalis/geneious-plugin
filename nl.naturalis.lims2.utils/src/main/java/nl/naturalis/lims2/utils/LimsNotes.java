@@ -84,6 +84,8 @@ public class LimsNotes {
 	 *            set NotetTypeCode Label
 	 * @param fieldValue
 	 *            Set the Value for the Note
+	 * @param count
+	 *            Set count of the documents
 	 */
 
 	public void setNoteToAB1FileName(
@@ -93,12 +95,12 @@ public class LimsNotes {
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
-		/** "ExtractPlaatNummerCode" */
+		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
 		this.description = "Naturalis file " + noteTypeCode + " note";
 
-		/**
+		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 		 * fieldcode
 		 */
@@ -106,13 +108,13 @@ public class LimsNotes {
 				this.description, this.fieldCode,
 				Collections.<Constraint> emptyList(), false));
 
-		/** Check if note type exists */
-		/** Parameter noteTypeCode get value "" */
+		/* Check if note type exists */
+		/* Parameter noteTypeCode get value "" */
 		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCode);
 
-		/** Extract-ID note */
+		/* Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
 					noteTypeCode, this.noteTypeCode, this.description,
@@ -173,7 +175,15 @@ public class LimsNotes {
 	 * String registrationNumber, String plaatPositie, String extractMethod)
 	 * 
 	 * @param document
-	 *            , fieldCode, textNoteField, noteTypeCode, fieldValue
+	 *            Document
+	 * @param fieldCode
+	 *            set fieldcode param
+	 * @param textNoteField
+	 *            field of the Note
+	 * @param noteTypeCode
+	 *            Fieldcode of the note
+	 * @param fieldValue
+	 *            The field value
 	 * */
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String fieldCode, String textNoteField, String noteTypeCode,
@@ -240,8 +250,17 @@ public class LimsNotes {
 	 * "Pass (Seq)", null);
 	 * 
 	 * @param document
-	 *            , multipleValues, fieldCode, textNoteField, noteTypeCode,
-	 *            fieldValue
+	 *            Document
+	 * @param multipleValues
+	 *            Set more than one values
+	 * @param fieldCode
+	 *            The field code of the note
+	 * @param textNoteField
+	 *            Text of the field
+	 * @param noteTypeCode
+	 *            Typecode of note
+	 * @param fieldValue
+	 *            The field value
 	 * */
 	public void setImportConsensusSeqPassNotes(
 			AnnotatedPluginDocument document, String[] multipleValues,
@@ -300,8 +319,19 @@ public class LimsNotes {
 	 * "Pass (Seq)", null, cnt);
 	 * 
 	 * @param annotatedPluginDocuments
-	 *            , multipleValues, fieldCode, textNoteField, noteTypeCode,
-	 *            fieldValue, count
+	 *            Documents
+	 * @param multipleValues
+	 *            Add more than one value
+	 * @param fieldCode
+	 *            set field code
+	 * @param textNoteField
+	 *            Add text for the fieldcode
+	 * @param noteTypeCode
+	 *            The type of the field,
+	 * @param fieldValue
+	 *            the field value
+	 * @param count
+	 *            document count
 	 * */
 	public void setNoteDropdownFieldToFileName(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
@@ -310,13 +340,13 @@ public class LimsNotes {
 
 		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
-		/** "ExtractPlaatNummerCode" */
+		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
 		this.description = "Naturalis Consensus Seq Pass file " + noteTypeCode
 				+ " note";
 
-		/**
+		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 		 * fieldcode
 		 */
@@ -325,13 +355,13 @@ public class LimsNotes {
 				multipleValues, textNoteField, this.description,
 				this.fieldCode, false));
 
-		/** Check if note type exists */
-		/** Parameter noteTypeCode get value "" */
+		/* Check if note type exists */
+		/* Parameter noteTypeCode get value "" */
 		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCode);
 
-		/** Extract-ID note */
+		/* Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
 					noteTypeCode, this.noteTypeCode, this.description,
@@ -357,57 +387,22 @@ public class LimsNotes {
 		listNotes.clear();
 	}
 
-	/*
-	 * public void setNoteTrueFalseFieldToFileName( AnnotatedPluginDocument[]
-	 * annotatedPluginDocuments, String fieldCode, String textNoteField, String
-	 * noteTypeCode, boolean fieldValue, int count) {
-	 * 
-	 * List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-	 * 
-	 * "ExtractPlaatNummerCode" this.fieldCode = fieldCode; Parameter example
-	 * noteTypeCode = "Extract-Plaatnummer" this.description =
-	 * "Naturalis Consensus Seq Pass file " + noteTypeCode + " note";
-	 * 
-	 * 
-	 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
-	 * fieldcode
-	 * 
-	 * 
-	 * listNotes.add(DocumentNoteField.createBooleanNoteField(textNoteField,
-	 * this.description, this.fieldCode, true));
-	 * 
-	 * Check if note type exists Parameter noteTypeCode get value ""
-	 * this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
-	 * DocumentNoteType documentNoteType = DocumentNoteUtilities
-	 * .getNoteType(this.noteTypeCode);
-	 *//** Extract-ID note */
-	/*
-	 * if (documentNoteType == null) { documentNoteType =
-	 * DocumentNoteUtilities.createNewNoteType( noteTypeCode, this.noteTypeCode,
-	 * this.description, listNotes, false);
-	 * DocumentNoteUtilities.setNoteType(documentNoteType);
-	 * logger.info("NoteType " + noteTypeCode + " created succesful"); }
-	 * 
-	 * Create note for Extract-ID DocumentNote documentNote =
-	 * documentNoteType.createDocumentNote();
-	 * documentNote.setFieldValue(this.fieldCode, fieldValue);
-	 * 
-	 * AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes)
-	 * annotatedPluginDocuments[count] .getDocumentNotes(true);
-	 * 
-	 * Set note documentNotes.setNote(documentNote); Save the selected sequence
-	 * document documentNotes.saveNotes();
-	 * 
-	 * logger.info("Note value " + noteTypeCode + ": " + fieldValue +
-	 * " added succesful"); listNotes.clear(); }
-	 */
-
 	/**
 	 * Set boolean value for notes limsNotes.setImportTrueFalseNotes(documents,
 	 * "CRSCode_CRS", "CRS (CRS)", "CRS (CRS)", true, cnt);
 	 * 
 	 * @param document
-	 *            , fieldCode, textNoteField, noteTypeCode, fieldValue, count
+	 *            Documents
+	 * @param fieldCode
+	 *            Set the fieldcode
+	 * @param textNoteField
+	 *            Add text to the field
+	 * @param noteTypeCode
+	 *            Type of Code
+	 * @param fieldValue
+	 *            Set the field value
+	 * @param count
+	 *            Documents count
 	 * */
 	public void setImportTrueFalseNotes(AnnotatedPluginDocument[] document,
 			String fieldCode, String textNoteField, String noteTypeCode,

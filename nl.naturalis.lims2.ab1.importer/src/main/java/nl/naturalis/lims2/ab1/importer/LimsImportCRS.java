@@ -104,12 +104,25 @@ public class LimsImportCRS extends DocumentAction {
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 
+	/**
+	 * Read the CRS CSV data from the file to start adding notes to the selected
+	 * document(s)
+	 * 
+	 * @param documentsSelected
+	 *            Set param documentsSelected
+	 * */
 	@Override
 	public void actionPerformed(AnnotatedPluginDocument[] documentsSelected) {
-		readDataFromCRSFrom_File(documentsSelected);
+		readCRSDataFromCSVFile(documentsSelected);
 
 	}
 
+	/**
+	 * Add the button for CRS to the menu
+	 * 
+	 * @return Add the button to the menubar
+	 * @see LimsImportCRS
+	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
 		return new GeneiousActionOptions("3 CRS", "CRS Import")
@@ -120,11 +133,24 @@ public class LimsImportCRS extends DocumentAction {
 
 	}
 
+	/**
+	 * Help file will be implemented later on
+	 * 
+	 * @return No Help files
+	 * @see LimsImportCRS
+	 * */
 	@Override
 	public String getHelp() {
 		return null;
 	}
 
+	/**
+	 * Add the max value of selected document(s)<br>
+	 * public static final int MAX_VALUE = 2147483647;
+	 * 
+	 * @return Return the count value of imported documents
+	 * @see LimsImportCRS
+	 * */
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
@@ -136,7 +162,7 @@ public class LimsImportCRS extends DocumentAction {
 	 * 
 	 * @param annotatedPluginDocuments
 	 */
-	private void readDataFromCRSFrom_File(
+	private void readCRSDataFromCSVFile(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
 		long startBeginTime = 0;
@@ -642,7 +668,7 @@ public class LimsImportCRS extends DocumentAction {
 				"Leg (CRS)", "Leg (CRS)", LimsCRSFields.getLegavit().trim(),
 				cnt);
 
-		/** set note for Collecting date */
+		/* set note for Collecting date */
 		if (LimsCRSFields.getCollectingDate().length() > 0) {
 			limsNotes.setNoteToAB1FileName(documents, "CollectingDateCode_CRS",
 					"Date (CRS)", "Date (CRS)",
@@ -679,6 +705,7 @@ public class LimsImportCRS extends DocumentAction {
 				"Altitude (CRS)", "Altitude (CRS)", LimsCRSFields.getHeight(),
 				cnt);
 
+		/* Set true/false note value to the document(s) */
 		limsNotes.setImportTrueFalseNotes(documents, "CRSCode_CRS",
 				"CRS (CRS)", "CRS (CRS)", true, cnt);
 	}

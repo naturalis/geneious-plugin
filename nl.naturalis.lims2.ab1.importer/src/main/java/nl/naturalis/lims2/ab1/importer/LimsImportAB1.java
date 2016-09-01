@@ -93,7 +93,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	/**
-	 * Set file type for the import plugin
+	 * Return the file type for the import plugin
+	 * 
+	 * @return Return File Type Description
+	 * @see String
 	 * */
 	@Override
 	public String getFileTypeDescription() {
@@ -102,6 +105,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	/**
 	 * Empty extension to show all files in the Open dialog screen
+	 * 
+	 * @return Return no extension
+	 * @see String
 	 * */
 	@Override
 	public String[] getPermissibleExtensions() {
@@ -243,6 +249,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			if (selectedTotal == 0) {
 				EventQueue.invokeLater(new Runnable() {
 
+					/** Delete a dummy file */
 					@Override
 					public void run() {
 						if (dummyFilename.equals(ab1FileName[0] + ".dum")) {

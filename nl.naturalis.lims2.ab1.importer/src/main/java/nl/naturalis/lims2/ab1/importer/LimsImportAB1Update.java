@@ -92,6 +92,7 @@ public class LimsImportAB1Update extends DocumentAction {
 	 * data from the files selected "Samples, CRS and BOLD"
 	 * 
 	 * @param annotatedPluginDocuments
+	 *            Set param annotatedPluginDocuments
 	 * 
 	 * */
 	@Override
@@ -256,6 +257,10 @@ public class LimsImportAB1Update extends DocumentAction {
 			}
 			EventQueue.invokeLater(new Runnable() {
 
+				/**
+				 * Show message dialog screen with processed infoof the
+				 * document(s)
+				 * */
 				@Override
 				public void run() {
 
@@ -405,9 +410,10 @@ public class LimsImportAB1Update extends DocumentAction {
 	}
 
 	/**
-	 * Set name for the plugin
+	 * Add plugin 5 Split name to the menubar
 	 * 
-	 * @return
+	 * @return Add the button to the menubar
+	 * @see LimsImportAB1Update
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
@@ -422,6 +428,13 @@ public class LimsImportAB1Update extends DocumentAction {
 		return null;
 	}
 
+	/**
+	 * Add the max value of selected document(s)<br>
+	 * public static final int MAX_VALUE = 2147483647;
+	 * 
+	 * @return Return the count value of imported documents
+	 * @see LimsImportAB1Update
+	 * */
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(

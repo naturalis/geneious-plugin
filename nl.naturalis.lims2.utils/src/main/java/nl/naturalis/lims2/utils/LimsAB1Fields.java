@@ -8,6 +8,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Getters and Setters fields for the class LimsImportAB1, LimsImportAB1Update<br>
+ * Used in method importDocuments(), setSplitDocumentsNotes()<br>
+ * setFieldValuesFromAB1FileName()
+ * 
+ * </tr>
+ * </table>
+ * 
  * @author Reinier.Kartowikromo
  *
  */
@@ -19,79 +46,71 @@ public class LimsAB1Fields {
 	private String pcrPlaatID;
 	private String marker;
 	private int versieNummer = 1;
-	private String extractidSamplesFromDummy;
-	private String samplePlateIdSamplesFromDummy;
-	private String scientificNameSamplesFromDummy;
-	private String registrnmbrSamplesFromDummy;
-	private String positionSamplesFromDummy;
 
-	public String getExtractidSamplesFromDummy() {
-		return extractidSamplesFromDummy;
-	}
-
-	public void setExtractidSamplesFromDummy(String extractidSamplesFromDummy) {
-		this.extractidSamplesFromDummy = extractidSamplesFromDummy;
-	}
-
-	public String getSamplePlateIdSamplesFromDummy() {
-		return samplePlateIdSamplesFromDummy;
-	}
-
-	public void setSamplePlateIdSamplesFromDummy(
-			String samplePlateIdSamplesFromDummy) {
-		this.samplePlateIdSamplesFromDummy = samplePlateIdSamplesFromDummy;
-	}
-
-	public String getScientificNameSamplesFromDummy() {
-		return scientificNameSamplesFromDummy;
-	}
-
-	public void setScientificNameSamplesFromDummy(
-			String scientificNameSamplesFromDummy) {
-		this.scientificNameSamplesFromDummy = scientificNameSamplesFromDummy;
-	}
-
-	public String getRegistrnmbrSamplesFromDummy() {
-		return registrnmbrSamplesFromDummy;
-	}
-
-	public void setRegistrnmbrSamplesFromDummy(
-			String registrnmbrSamplesFromDummy) {
-		this.registrnmbrSamplesFromDummy = registrnmbrSamplesFromDummy;
-	}
-
-	public String getPositionSamplesFromDummy() {
-		return positionSamplesFromDummy;
-	}
-
-	public void setPositionSamplesFromDummy(String positionSamplesFromDummy) {
-		this.positionSamplesFromDummy = positionSamplesFromDummy;
-	}
-
+	/**
+	 * Get the value of ExtractID
+	 * 
+	 * @return the value of ExtractID
+	 * */
 	public String getExtractID() {
 		return extractID;
 	}
 
+	/**
+	 * Set the value for ExtractID
+	 * 
+	 * @param extractID
+	 *            set the param
+	 * */
 	public void setExtractID(String extractID) {
 		this.extractID = extractID;
 	}
 
+	/**
+	 * Get the value of PCRPlaatdID
+	 * 
+	 * @return the value of PcrPlaatID
+	 * 
+	 * */
 	public String getPcrPlaatID() {
 		return pcrPlaatID;
 	}
 
+	/**
+	 * Set the value for PCRPlaatdID
+	 * 
+	 * @param pcrPlaatID
+	 *            the value for PCRPlaatdID
+	 * */
 	public void setPcrPlaatID(String pcrPlaatID) {
 		this.pcrPlaatID = pcrPlaatID;
 	}
 
+	/**
+	 * Get the value of Marker
+	 * 
+	 * @return value of Marker
+	 * */
 	public String getMarker() {
 		return marker;
 	}
 
+	/**
+	 * Set the value for Marker
+	 * 
+	 * @param marker
+	 *            value for Marker
+	 * */
 	public void setMarker(String marker) {
 		this.marker = marker;
 	}
 
+	/**
+	 * Extract the value from the AB1 filename document(s)
+	 * 
+	 * @param ab1FileName
+	 *            Set filename as parameter
+	 * */
 	public void setFieldValuesFromAB1FileName(String ab1FileName) {
 		/*
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
@@ -122,10 +141,21 @@ public class LimsAB1Fields {
 		}
 	}
 
+	/**
+	 * Get the value of Versionn number
+	 * 
+	 * @return versienummer
+	 * */
 	public int getVersieNummer() {
 		return versieNummer;
 	}
 
+	/**
+	 * Set the value for Version number
+	 * 
+	 * @param versienummer
+	 *            Set param versienummer
+	 * */
 	public void setVersieNummer(int versienummer) {
 		this.versieNummer = versienummer;
 	}

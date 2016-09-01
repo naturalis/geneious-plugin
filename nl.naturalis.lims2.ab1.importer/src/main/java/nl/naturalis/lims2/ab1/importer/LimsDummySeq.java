@@ -20,9 +20,32 @@ import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDo
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
 /**
- * Class to create a dummy sequence with some values. See the parameters
+ * <table>
+ * <tr>
+ * <td>
+ * Date: 24 august 2016</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Company: Naturalis Biodiversity Center</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * City: Leiden</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Country: Netherlands</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * Description:<br>
+ * Class to create a dummy DefaultNucleotideSequence document with some values.<br>
+ * Parameters are:<br>
  * filename, extractID, projectPlaatnummer, extractPlaatnummer, taxonName,
  * registrationNumber, plaatPositie, extractMethod
+ * </tr>
+ * </table>
  * 
  * @author Reinier.Kartowikromo
  *
@@ -38,8 +61,21 @@ public class LimsDummySeq {
 	 * Method to create a dummy sequence document
 	 * 
 	 * @param filename
-	 *            , extractID, projectPlaatnummer, extractPlaatnummer,
-	 *            taxonName, registrationNumber, plaatPositie, extractMethod
+	 *            Set param filename
+	 * @param extractID
+	 *            set param extractid
+	 * @param projectPlaatnummer
+	 *            set param Project plaatnummer
+	 * @param extractPlaatnummer
+	 *            set param extractplaatnummer
+	 * @param taxonName
+	 *            set param taxonname
+	 * @param registrationNumber
+	 *            set param Registration number
+	 * @param plaatPositie
+	 *            set param PlaatPositie
+	 * @param extractMethod
+	 *            set param ExtractMethod
 	 * */
 	public void createDummySampleSequence(String filename, String extractID,
 			String projectPlaatnummer, String extractPlaatnummer,
