@@ -7,6 +7,5 @@
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=nl.naturalis.lims2.utils&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GeneiousFiles"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="C:/Git/GeneiousFiles/lib/mysql-connector-java-5.1.38.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
