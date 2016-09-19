@@ -384,8 +384,62 @@ public class LimsImportSamples extends DocumentAction {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				} else {
-					showSelectedDocumentsMessage();
+				} else { // If no document selected then add dummy documents.
+					startTime = new Date().getTime();
+					limsFrameProgress.createProgressGUI();
+					fileSelected = fcd.loadSelectedFile();
+					setExtractIDFromSamplesSheet(fileSelected,
+							extractIDfileName);
+					limsFrameProgress.hideFrame();
+					/* Add failure records to the list */
+					if (extractIDfileName == null) {
+						failureList.add("Total records not matched: "
+								+ Integer.toString(failureList.size()) + "\n");
+					}
+
+					/* Show duration time of the process */
+					showProcessingDuration();
+
+					/*
+					 * Show a dialog with the results after processing the
+					 * documents
+					 */
+					EventQueue.invokeLater(new Runnable() {
+
+						/**
+						 * Show Message dialog with information after finished
+						 * adding notes to the document
+						 */
+						@Override
+						public void run() {
+							showFinishedDialogMessageDummyOK();
+
+							logger.info("Sample-method: Total imported document(s): "
+									+ msgList.toString());
+
+							failureList.add("Filename: " + fileSelected + "\n");
+							/*
+							 * limsLogger.logToFile(logSamplesFileName,
+							 * failureList.toString());
+							 */
+
+							clearSamplesVariablesAndList();
+							limsFrameProgress.hideFrame();
+						}
+
+						private void clearSamplesVariablesAndList() {
+							msgList.clear();
+							failureList.clear();
+							processedList.clear();
+							lackList.clear();
+							sampleExactRecordsVerwerkt = 0;
+							sampleRecordFailure = 0;
+							dummyRecordsVerwerkt = 0;
+							recordCount = 0;
+						}
+					});
+
+					// showSelectedDocumentsMessage();
 				}
 				/*
 				 * Choose "No" only samples documents will be processed and no
@@ -1120,6 +1174,23 @@ public class LimsImportSamples extends DocumentAction {
 				+ Integer.toString(dummyRecordsVerwerkt)
 				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
 				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
+				+ " sample records are ignored." + "\n" + "\n"
+				+ getLackMessage(isLackListNotEmpty()));
+	}
+
+	private void showFinishedDialogMessageDummyOK() {
+		sampleRecordFailure = failureList.size();
+		sampleExactRecordsVerwerkt = processedList.size();
+
+		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
+				+ " sample records have been read of which: " + "\n" + "\n"
+				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
+				+ " samples are imported and linked to "
+				+ Integer.toString(cntRec) + " existing documents (of "
+				+ importCounter + " selected)" + "\n" + "\n" + "[2] "
+				+ Integer.toString(dummyRecordsVerwerkt)
+				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
+				+ Integer.toString(failureList.size())
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
 	}

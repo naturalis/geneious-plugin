@@ -111,7 +111,7 @@ public class LimsAB1Fields {
 	 * @param ab1FileName
 	 *            Set filename as parameter
 	 * */
-	public void setFieldValuesFromAB1FileName(String ab1FileName) {
+	public void extractAB1_FastaFileName(String ab1FileName) {
 		/*
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
 		 */

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
@@ -87,6 +88,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private boolean ab1fileExists = false;
 	private int selectedTotal = 1;
 	private List<AnnotatedPluginDocument> docs = null;
+	private long startBeginTime = 0;
+	private long startTime;
+	private long lEndTime = 0;
 
 	public LimsImportAB1() {
 
@@ -118,7 +122,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * Import AB1 and fasta files
 	 * 
 	 * @param file
-	 *            , importCallback, progessListener
+	 * @param importCallback
+	 * @param progessListener
 	 * */
 	@Override
 	public void importDocuments(File file, ImportCallback importCallback,
@@ -137,28 +142,38 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				.getServerDatabaseServiceName();
 
 		if (ReadGeneiousFieldsValues.activeDB != null) {
+
+			/* Start time of the process */
+			startBeginTime = System.nanoTime();
 			/* Get the filename and extract the ID */
 			ab1FileName = StringUtils.split(file.getName(), "_");
 
 			/* Check if Dummy file exists in the database */
-			if (file.getName().contains(".ab1")
-					|| file.getName().contains("dum")) {
-				dummyFilename = ReadGeneiousFieldsValues
-						.getCacheNameFromGeneiousDatabase(ab1FileName[0]
-								+ ".dum", "//document/hiddenFields/cache_name");
+			if (file.getName().contains(".ab1")) {
 
+				/* Check if file exists in the database */
+
+				ab1fileExists = ReadGeneiousFieldsValues
+						.fileNameExistsInGeneiousDatabase(file.getName());
+
+				/*
+				 * dummyFilename = ReadGeneiousFieldsValues
+				 * .getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
+				 * "//document/hiddenFields/cache_name");
+				 */
 				/* if exists then get the ID from the dummy file */
 				annotatedDocumentID = ReadGeneiousFieldsValues
 						.getIDFromTableAnnotatedDocument(ab1FileName[0]
 								+ ".dum", "//document/hiddenFields/cache_name");
+				dummyFilename = ReadGeneiousFieldsValues.dummyName;
 
-				list.clear();
-				list.addAll(ReadGeneiousFieldsValues
-						.getDummySamplesValues(dummyFilename));
+				// System.out.println("Dummy Name: " + dummyFilename);
 
-				/* Check if file exists in the database */
-				ab1fileExists = ReadGeneiousFieldsValues
-						.fileNameExistsInGeneiousDatabase(file.getName());
+				if (dummyFilename != null) {
+					list.clear();
+					list.addAll(ReadGeneiousFieldsValues
+							.getDummySamplesValues(dummyFilename));
+				}
 			}
 
 			extractAb1FastaFileName = file.getName();
@@ -166,6 +181,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* FAS check */
 			if (extractAb1FastaFileName.contains(".fas")) {
 				// && !extractAb1FastaFileName.contains("ab1")) {
+
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
 
@@ -197,8 +213,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							+ "\n"
 							+ "You should preferably not start another action or change maps.");
 
-			docs = PluginUtilities
-					.importDocuments(file, ProgressListener.EMPTY);
+			docs = PluginUtilities.importDocuments(new File(file.toString()),
+					ProgressListener.EMPTY);
 
 			progressListener.setProgress(0, 10);
 
@@ -209,8 +225,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			if (file.getName() != null && list.size() == 0 && !isDeleted) {
 
-				limsAB1Fields
-						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 
 				/* Set version number */
 				setVersionNumber();
@@ -221,8 +236,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			else {
 				/* AB1 Document */
-				limsAB1Fields
-						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 
 				String extractid = ReadGeneiousFieldsValues.extractidSamplesFromDummy;
 
@@ -237,14 +251,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * from the Dummy documents will be inherited and add to the AB1
 				 * files
 				 */
+
 				replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
 						extractid);
-
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
 			logger.info("Done with extracting/imported Ab1 files. ");
 			isDeleted = false;
+
+			calculateTimeForAddingNotes(startBeginTime);
 
 			if (selectedTotal == 0) {
 				EventQueue.invokeLater(new Runnable() {
@@ -480,6 +496,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		} else {
 			versienummer = 1;
 		}
+	}
+
+	private void calculateTimeForAddingNotes(long startBeginTime) {
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		endTime = 0;
 	}
 
 }

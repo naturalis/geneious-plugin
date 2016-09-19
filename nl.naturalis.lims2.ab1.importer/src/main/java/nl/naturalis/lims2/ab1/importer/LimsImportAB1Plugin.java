@@ -128,7 +128,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	 * */
 	@Override
 	public String getVersion() {
-		return "0.90";
+		return "0.95";
 	}
 
 	/**

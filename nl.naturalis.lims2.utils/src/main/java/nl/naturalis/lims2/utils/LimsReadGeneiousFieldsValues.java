@@ -39,6 +39,7 @@ public class LimsReadGeneiousFieldsValues {
 	private String user = "";
 	private String password = "";
 	private String ssl = "";
+	public String dummyName = "";
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReadGeneiousFieldsValues.class);
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
@@ -259,12 +260,13 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT a.name, count(a.name) as count"
+			final String SQL = " SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count"
 					+ " FROM "
 					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
-					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name = ?";
+					+ " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
+					+ " FROM annotated_document"
+					+ " ) AS a "
+					+ " WHERE UNCOMPRESS(a.name) = ?";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -273,7 +275,7 @@ public class LimsReadGeneiousFieldsValues {
 			pst.setString(1, filename);
 			rs = pst.executeQuery();
 			while (rs.next()) {
-				result = rs.getString("name");
+				// result = rs.getString("name");
 				recordcount = rs.getInt("count");
 
 				if (rs.wasNull())
@@ -512,6 +514,7 @@ public class LimsReadGeneiousFieldsValues {
 			rs = pst.executeQuery();
 			while (rs.next()) {
 				result = rs.getObject(1).toString();
+				dummyName = rs.getObject(2).toString();
 				logger.debug("Annotated document id : " + result);
 			}
 		} catch (SQLException ex) {

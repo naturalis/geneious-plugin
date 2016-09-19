@@ -317,7 +317,7 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			if (documentFileName.getName().contains("ab1")) {
 				/* Extract values from the AB1 filename */
-				limsAB1Fields.setFieldValuesFromAB1FileName(documentFileName
+				limsAB1Fields.extractAB1_FastaFileName(documentFileName
 						.getName());
 				/*
 				 * if file exists and is not extravalue "ExtractIDCode_Seq"
@@ -332,7 +332,7 @@ public class LimsImportAB1Update extends DocumentAction {
 						+ extractAb1FastaFileName);
 				/* Extract values from the Fasta filename */
 				limsAB1Fields
-						.setFieldValuesFromAB1FileName(extractAb1FastaFileName);
+						.extractAB1_FastaFileName(extractAb1FastaFileName);
 				/*
 				 * if file exists and is not extravalue "ExtractIDCode_Seq"
 				 * increase Version number.
