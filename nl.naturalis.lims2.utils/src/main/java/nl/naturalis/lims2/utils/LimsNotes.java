@@ -5,7 +5,6 @@ package nl.naturalis.lims2.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +92,7 @@ public class LimsNotes {
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue, int count) {
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
@@ -189,7 +188,7 @@ public class LimsNotes {
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue) {
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
@@ -219,11 +218,8 @@ public class LimsNotes {
 		}
 
 		if (documentNoteType.getName().equals("Ampl-staff (Seq)")) {
-			// System.out.println("Note name:" + documentNoteType.getName());
-
 			documentNoteType.setDefaultVisibleInTable(false);
 			documentNoteType.setVisible(false);
-
 			DocumentNoteUtilities.setNoteType(documentNoteType);
 		}
 
@@ -240,6 +236,9 @@ public class LimsNotes {
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
+		if (listNotes != null) {
+			listNotes.clear();
+		}
 	}
 
 	/**
@@ -267,7 +266,7 @@ public class LimsNotes {
 			String fieldCode, String textNoteField, String noteTypeCode,
 			String fieldValue) {
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
@@ -309,6 +308,9 @@ public class LimsNotes {
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
+		if (listNotes != null) {
+			listNotes.clear();
+		}
 	}
 
 	/**
@@ -338,7 +340,7 @@ public class LimsNotes {
 			String[] multipleValues, String fieldCode, String textNoteField,
 			String noteTypeCode, String fieldValue, int count) {
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
@@ -384,7 +386,8 @@ public class LimsNotes {
 
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
-		listNotes.clear();
+		if (listNotes != null)
+			listNotes.clear();
 	}
 
 	/**
@@ -408,7 +411,7 @@ public class LimsNotes {
 			String fieldCode, String textNoteField, String noteTypeCode,
 			boolean fieldValue, int count) {
 
-		List<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
 		/* "ExtractPlaatNummerCode" */
 		this.fieldCode = fieldCode;
@@ -449,6 +452,8 @@ public class LimsNotes {
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
+		if (listNotes != null)
+			listNotes.clear();
 	}
 
 }

@@ -38,6 +38,5 @@
         <dependency org="org.codehaus.janino" name="janino" rev="3.0.1"/>
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
         <dependency org="org.apache.maven.plugins" name="maven-javadoc-plugin" rev="2.10.4"/>
-        
 	</dependencies>
 </ivy-module>
