@@ -69,8 +69,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	// private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new
-	// LimsReadGeneiousFieldsValues();
+	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private LimsSQL limsSQL = new LimsSQL();
 
@@ -140,12 +139,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 
 		/* Get Databasename */
-		if (LimsReadGeneiousFieldsValues.activeDB.length() == 0) {
-			LimsReadGeneiousFieldsValues.activeDB = LimsReadGeneiousFieldsValues
+		if (ReadGeneiousFieldsValues.activeDB.length() == 0) {
+			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
 		}
 
-		if (LimsReadGeneiousFieldsValues.activeDB != null) {
+		if (ReadGeneiousFieldsValues.activeDB != null) {
 
 			try {
 				if (!limsSQL.tableExist("tblDocumentImport")) {
@@ -164,16 +163,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* Check if Dummy file exists in the database */
 			if (file.getName().contains(".ab1")) {
 
-				if (!limsSQL.documentNameExist(file.getName())) {
-					try {
-						limsSQL.insertIntoTableDocumentImport(file.getName(),
-								limsSQL.importcounter);
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				ab1fileExists = limsSQL.truefalse;
+				/*
+				 * boolean ab1DocExists = limsSQL
+				 * .documentNameExist(file.getName()); if (!ab1DocExists) { try
+				 * { limsSQL.insertIntoTableDocumentImport(file.getName(),
+				 * limsSQL.importcounter); } catch (SQLException e) { throw new
+				 * RuntimeException(e); } } else { int counter =
+				 * limsSQL.importcounter + 1; limsSQL.updateImportCount(counter,
+				 * file.getName()); }
+				 * 
+				 * ab1fileExists = ab1DocExists;
+				 */
 
 				/* Check if file exists in the database */
 				/*
@@ -188,14 +188,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 */
 
 				/* if exists then get the ID from the dummy file */
-				annotatedDocumentID = LimsReadGeneiousFieldsValues
+				annotatedDocumentID = ReadGeneiousFieldsValues
 						.getIDFromTableAnnotatedDocument(ab1FileName[0]
 								+ ".dum", "//document/hiddenFields/cache_name");
-				dummyFilename = LimsReadGeneiousFieldsValues.dummyName;
+				dummyFilename = ReadGeneiousFieldsValues.dummyName;
 
 				if (dummyFilename.length() > 0) {
 					list.clear();
-					list.addAll(LimsReadGeneiousFieldsValues
+					list.addAll(ReadGeneiousFieldsValues
 							.getDummySamplesValues(dummyFilename));
 				}
 			}
@@ -208,17 +208,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
 
-				if (!limsSQL.documentNameExist(extractAb1FastaFileName)) {
-					try {
-						limsSQL.insertIntoTableDocumentImport(
-								extractAb1FastaFileName, limsSQL.importcounter);
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				fastaFileExists = limsSQL
-						.documentNameExist(extractAb1FastaFileName);
+				/*
+				 * boolean fastaExists = limsSQL
+				 * .documentNameExist(extractAb1FastaFileName); if
+				 * (!fastaExists) { try { limsSQL.insertIntoTableDocumentImport(
+				 * extractAb1FastaFileName, limsSQL.importcounter); } catch
+				 * (SQLException e) { throw new RuntimeException(e); } } else {
+				 * int counter = limsSQL.importcounter + 1;
+				 * limsSQL.updateImportCount(counter, extractAb1FastaFileName);
+				 * }
+				 */
+				// fastaFileExists = fastaExists;
 
 				/* Check if file already exists in the database. */
 				/*
@@ -230,12 +230,22 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * Get the version number from the last inserted document that
 				 * match the criteria
 				 */
-				versienummer = LimsReadGeneiousFieldsValues
+				versienummer = ReadGeneiousFieldsValues
 						.getLastVersionFromDocument(extractAb1FastaFileName);
+				if (versienummer == 0) {
+					fastaFileExists = false;
+				} else {
+					fastaFileExists = true;
+				}
 			} else {
 				/* AB1 version check */
-				versienummer = LimsReadGeneiousFieldsValues
+				versienummer = ReadGeneiousFieldsValues
 						.getLastVersionFromDocument(extractAb1FastaFileName);
+				if (versienummer == 0) {
+					ab1fileExists = false;
+				} else {
+					ab1fileExists = true;
+				}
 			}
 			progressListener
 					.setMessage("Importing sequence data"
@@ -267,7 +277,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				setVersionNumber();
 
 				/* Add Notes to AB1/Fasta document */
-				setNotes_To_AB1_Fasta(documentAnnotatedPlugin, file.getName());
+				if (documentAnnotatedPlugin != null) {
+					setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
+							extractAb1FastaFileName);
+				}
 			}
 
 			else {
@@ -287,7 +300,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 */
 
 				replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
-						LimsReadGeneiousFieldsValues.extractidSamplesFromDummy);
+						ReadGeneiousFieldsValues.extractidSamplesFromDummy);
 			}
 			if (docs != null) {
 				docs.clear();
@@ -314,7 +327,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 								 * Dummy documents will be inherited and add to
 								 * the AB1 files
 								 */
-								LimsReadGeneiousFieldsValues
+								ReadGeneiousFieldsValues
 										.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -414,34 +427,31 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsNotes.setImportNotes(documentAnnotated,
 					"ExtractIDCode_Samples", "Extract ID (Samples)",
 					"Extract ID (Samples)",
-					LimsReadGeneiousFieldsValues.extractidSamplesFromDummy);
+					ReadGeneiousFieldsValues.extractidSamplesFromDummy);
 
 			/* set note for Project Plate number */
 			limsNotes.setImportNotes(documentAnnotated,
 					"ProjectPlateNumberCode_Samples",
 					"Sample plate ID (Samples)", "Sample plate ID (Samples)",
-					LimsReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
+					ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
 
 			/* set note for Taxon name */
-			limsNotes
-					.setImportNotes(
-							documentAnnotated,
-							"TaxonName2Code_Samples",
-							"[Scientific name] (Samples)",
-							"[Scientific name] (Samples)",
-							LimsReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
+			limsNotes.setImportNotes(documentAnnotated,
+					"TaxonName2Code_Samples", "[Scientific name] (Samples)",
+					"[Scientific name] (Samples)",
+					ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
 
 			/* set note for Registration number */
 			limsNotes.setImportNotes(documentAnnotated,
 					"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
 					"Registr-nmbr (Samples)",
-					LimsReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
+					ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
 
 			/* set note for Plate position */
 			limsNotes.setImportNotes(documentAnnotated,
 					"PlatePositionCode_Samples", "Position (Samples)",
 					"Position (Samples)",
-					LimsReadGeneiousFieldsValues.positionSamplesFromDummy);
+					ReadGeneiousFieldsValues.positionSamplesFromDummy);
 
 			/* SequencingStaffCode_FixedValue_Seq */
 			limsNotes.setImportNotes(documentAnnotated,
@@ -459,22 +469,22 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsNotes.setImportNotes(documentAnnotated,
 					"ExtractPlateNumberCode_Samples",
 					"Extract plate ID (Samples)", "Extract plate ID (Samples)",
-					LimsReadGeneiousFieldsValues.extractPlateIDSamples);
+					ReadGeneiousFieldsValues.extractPlateIDSamples);
 
 			/* set note for Extract Method */
 			limsNotes.setImportNotes(documentAnnotated,
 					"SampleMethodCode_Samples", "Extraction method (Samples)",
 					"Extraction method (Samples)",
-					LimsReadGeneiousFieldsValues.extractionMethodSamples);
+					ReadGeneiousFieldsValues.extractionMethodSamples);
 
 			/*
 			 * set note for RegistrationNumberCode_TaxonName2Code_Samples
 			 */
 			limsNotes.setImportNotes(documentAnnotated,
 					"RegistrationNumberCode_TaxonName2Code_Samples",
-					"Registr-nmbr_[Scientific name] (Samples)",
-					"Registr-nmbr_[Scientific name] (Samples)",
-					LimsReadGeneiousFieldsValues.registrationScientificName);
+					"Registr-nmbr_[Scientific_name] (Samples)",
+					"Registr-nmbr_[Scientific_name] (Samples)",
+					ReadGeneiousFieldsValues.registrationScientificName);
 
 			/* set note for Version */
 			limsNotes.setImportNotes(documentAnnotated,

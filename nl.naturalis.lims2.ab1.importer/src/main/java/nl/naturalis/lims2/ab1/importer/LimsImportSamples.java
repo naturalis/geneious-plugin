@@ -83,7 +83,7 @@ public class LimsImportSamples extends DocumentAction {
 	private LimsSamplesFields limsExcelFields = new LimsSamplesFields();
 	private LimsNotes limsNotes = new LimsNotes();
 	private LimsFileSelector fcd = new LimsFileSelector();
-	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsDummySeq limsDummySeq = new LimsDummySeq();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportSamples.class);
@@ -214,10 +214,10 @@ public class LimsImportSamples extends DocumentAction {
 			return;
 		}
 		/* Get Database name */
-		readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
+		ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 				.getServerDatabaseServiceName();
 
-		if (readGeneiousFieldsValues.activeDB != null) {
+		if (ReadGeneiousFieldsValues.activeDB != null) {
 
 			Object[] options = { "Ok", "No", "Cancel" };
 			int n = JOptionPane.showOptionDialog(frame,
@@ -567,7 +567,7 @@ public class LimsImportSamples extends DocumentAction {
 				 */
 
 				if (isExtractIDSeqExists)
-					version = Integer.parseInt(readGeneiousFieldsValues
+					version = Integer.parseInt(ReadGeneiousFieldsValues
 							.getVersionValueFromAnnotatedPluginDocument(
 									documents,
 									"DocumentNoteUtilities-Document version",
@@ -751,8 +751,8 @@ public class LimsImportSamples extends DocumentAction {
 		 */
 		limsNotes.setNoteToAB1FileName(documents,
 				"RegistrationNumberCode_TaxonName2Code_Samples",
-				"Registr-nmbr_[Scientific name] (Samples)",
-				"Registr-nmbr_[Scientific name] (Samples)",
+				"Registr-nmbr_[Scientific_name] (Samples)",
+				"Registr-nmbr_[Scientific_name] (Samples)",
 				limsExcelFields.getRegNumberScientificName(), cnt);
 	}
 
@@ -786,7 +786,7 @@ public class LimsImportSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
-						String dummyFile = readGeneiousFieldsValues
+						String dummyFile = ReadGeneiousFieldsValues
 								.getFastaIDForSamples_GeneiousDB(ID);
 
 						if (dummyFile.trim() != "") {
@@ -915,7 +915,7 @@ public class LimsImportSamples extends DocumentAction {
 				+ limsExcelFields.getRegistrationNumber());
 		logger.info("Plaat positie: " + limsExcelFields.getPlaatPositie());
 		logger.info("Sample method: " + limsExcelFields.getSubSample());
-		logger.info("Registr-nmbr_[Scientific name] (Samples): "
+		logger.info("Registr-nmbr_[Scientific_name] (Samples): "
 				+ limsExcelFields.getRegNumberScientificName());
 	}
 
@@ -1016,7 +1016,7 @@ public class LimsImportSamples extends DocumentAction {
 								 */
 							} else if (isExtractIDSeqExists) {
 								version = Integer
-										.parseInt(readGeneiousFieldsValues
+										.parseInt(ReadGeneiousFieldsValues
 												.getVersionValueFromAnnotatedPluginDocument(
 														docsSamples,
 														"DocumentNoteUtilities-Document version",

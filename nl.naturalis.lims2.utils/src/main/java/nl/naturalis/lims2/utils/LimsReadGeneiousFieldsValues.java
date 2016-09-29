@@ -35,12 +35,12 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
  */
 public class LimsReadGeneiousFieldsValues {
 
-	private static String url = "";
-	private static String user = "";
-	private static String password = "";
-	private static String ssl = "";
-	public static String dummyName = "";
-	private static final Logger logger = LoggerFactory
+	private String url = "";
+	private String user = "";
+	private String password = "";
+	private String ssl = "";
+	public String dummyName = "";
+	private final Logger logger = LoggerFactory
 			.getLogger(LimsReadGeneiousFieldsValues.class);
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsLogList limsLogList = new LimsLogList();
@@ -52,26 +52,26 @@ public class LimsReadGeneiousFieldsValues {
 	private String dummyPositionSamplesValue = "";
 	private String dummyExtractIDSamplesValue = "";
 	private String dummySeqStaffSamplesValue = "";
-	private static List<String> listDummyValues = new ArrayList<String>();
-	public static String activeDB = "";
-	public static String extractidSamplesFromDummy;
-	public static String samplePlateIdSamplesFromDummy;
-	public static String scientificNameSamplesFromDummy;
-	public static String registrnmbrSamplesFromDummy;
-	public static String positionSamplesFromDummy;
-	public static String extractPlateIDSamples;
-	public static String extractionMethodSamples;
-	public static String registrationScientificName;
-	private static SQLException exception = null;
+	private List<String> listDummyValues = new ArrayList<String>();
+	public String activeDB = "";
+	public String extractidSamplesFromDummy;
+	public String samplePlateIdSamplesFromDummy;
+	public String scientificNameSamplesFromDummy;
+	public String registrnmbrSamplesFromDummy;
+	public String positionSamplesFromDummy;
+	public String extractPlateIDSamples;
+	public String extractionMethodSamples;
+	public String registrationScientificName;
+	private SQLException exception = null;
 	public int recordcount = 0;
 
-	private static Connection con = null;
-	private static PreparedStatement pst = null;
-	private static ResultSet rs = null;
+	private Connection con = null;
+	private PreparedStatement pst = null;
+	private ResultSet rs = null;
 
-	private static LimsReadGeneiousFieldsValues instance;
+	private LimsReadGeneiousFieldsValues instance;
 
-	public static LimsReadGeneiousFieldsValues getInstance() {
+	public LimsReadGeneiousFieldsValues getInstance() {
 		if (instance == null)
 			instance = new LimsReadGeneiousFieldsValues();
 		return instance;
@@ -157,7 +157,7 @@ public class LimsReadGeneiousFieldsValues {
 		return fieldValue;
 	}
 
-	private static HashSet<String> fastaAb1Cache = new HashSet<>(100);
+	private HashSet<String> fastaAb1Cache = new HashSet<>(100);
 
 	/**
 	 * Check if Fasts filename exists in the Database Used in LimsImportAB1 and
@@ -172,8 +172,8 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return boolean value true or false
 	 * @see boolean
 	 * */
-	public static boolean checkOfFastaOrAB1Exists(String fileName,
-			String fieldName, String xmlnotes) {
+	public boolean checkOfFastaOrAB1Exists(String fileName, String fieldName,
+			String xmlnotes) {
 
 		if (fastaAb1Cache.contains(fileName + '|' + fieldName))
 			return true;
@@ -189,30 +189,41 @@ public class LimsReadGeneiousFieldsValues {
 					+ xmlnotes + " ')) AS name " + " FROM annotated_document"
 					+ " ) AS a " + " WHERE a.name =?" + "\n" + " LIMIT 1";
 
-			/*
-			 * try { Class.forName("com.mysql.jdbc.Driver"); } catch
-			 * (ClassNotFoundException e) { e.printStackTrace(); }
-			 */
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, fileName);
 			rs = pst.executeQuery();
-			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				if (rs.wasNull())
-					truefalse = false;
-				else
-					truefalse = true;
 
-				logger.debug("Filename: " + result
-						+ " already exists in the geneious database.");
-				/*
-				 * limsLogList.UitvalList.add("Filename: " + result +
-				 * " already exists in the geneious database." + "\n");
-				 */
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+					if (rs.wasNull())
+						truefalse = false;
+					else
+						truefalse = true;
+
+					logger.debug("Filename: " + result
+							+ " already exists in the geneious database.");
+
+					limsLogList.UitvalList.add("Filename: " + result
+							+ " already exists in the geneious database."
+							+ "\n");
+				} while (rs.next());
 			}
+			/*
+			 * while (rs.next()) { result = rs.getObject(1).toString(); if
+			 * (rs.wasNull()) truefalse = false; else truefalse = true;
+			 * 
+			 * logger.debug("Filename: " + result +
+			 * " already exists in the geneious database.");
+			 * 
+			 * limsLogList.UitvalList.add("Filename: " + result +
+			 * " already exists in the geneious database." + "\n");
+			 * 
+			 * }
+			 */
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
 			exception = ex;
@@ -259,7 +270,7 @@ public class LimsReadGeneiousFieldsValues {
 	public boolean fileNameExistsInGeneiousDatabase(String filename) {
 
 		boolean truefalse = false;
-		String result = "";
+		/* String result = ""; */
 
 		try {
 
@@ -360,7 +371,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name like ?";
+					+ " WHERE a.name like ?" + "\n" + " LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -368,10 +379,17 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, "%" + extractid + "%");
 			rs = pst.executeQuery();
-			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				logger.info("Extract ID: " + result
-						+ " already exsist in the geneious database.");
+			/*
+			 * while (rs.next()) { result = rs.getObject(1).toString();
+			 * logger.info("Extract ID: " + result +
+			 * " already exsist in the geneious database."); }
+			 */
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+					logger.info("Extract ID: " + result
+							+ " already exsist in the geneious database.");
+				} while (rs.next());
 			}
 
 		} catch (SQLException ex) {
@@ -421,7 +439,7 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml,  ' "
 					+ xmlNotesName + " ')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name =?";
+					+ " WHERE a.name =?" + "\n" + " LIMIT 1 ";
 			try {
 				con = DriverManager.getConnection(url + activeDB + ssl, user,
 						password);
@@ -433,12 +451,22 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				logger.debug("Filename: " + result
-						+ " already exists in the geneious database.");
-				limsLogList.UitvalList.add("Filename: " + result
-						+ " already exists in the geneious database." + "\n");
+			/*
+			 * while (rs.next()) { result = rs.getObject(1).toString();
+			 * logger.debug("Filename: " + result +
+			 * " already exists in the geneious database.");
+			 * limsLogList.UitvalList.add("Filename: " + result +
+			 * " already exists in the geneious database." + "\n"); }
+			 */
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+					logger.debug("Filename: " + result
+							+ " already exists in the geneious database.");
+					limsLogList.UitvalList.add("Filename: " + result
+							+ " already exists in the geneious database."
+							+ "\n");
+				} while (rs.next());
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
@@ -485,7 +513,7 @@ public class LimsReadGeneiousFieldsValues {
 	 *             Throws a exception message
 	 * @see String
 	 * */
-	public static String getIDFromTableAnnotatedDocument(Object filename,
+	public String getIDFromTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
 
 		String result = "";
@@ -505,9 +533,15 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			while (rs.next()) {
-				result = rs.getObject(1).toString();
-				dummyName = rs.getObject(2).toString();
+			/*
+			 * while (rs.next()) { result = rs.getObject(1).toString();
+			 * dummyName = rs.getObject(2).toString(); }
+			 */
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+					dummyName = rs.getObject(2).toString();
+				} while (rs.next());
 			}
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
@@ -550,7 +584,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @throws IOException
 	 *             Throw a exception message
 	 * */
-	public static void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
+	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
 			throws IOException {
 
 		try {
@@ -671,7 +705,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return result value
 	 * @see int
 	 */
-	public static int getLastVersionFromDocument(String fileName) {
+	public int getLastVersionFromDocument(String fileName) {
 		int result = 0;
 
 		try {
@@ -897,7 +931,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return list Dummy values
 	 * @see LimsReadGeneiousFieldsValues
 	 * */
-	public static List<String> getDummySamplesValues(Object filename) {
+	public List<String> getDummySamplesValues(Object filename) {
 		String result = "";
 
 		try {
@@ -918,7 +952,9 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractPlateNumberCode_Samples')) AS extractPlateNumberIDSamples, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) AS extractMethod, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
-					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+					+ " FROM annotated_document) AS a "
+					+ " WHERE a.name =?"
+					+ " LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -985,7 +1021,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return names of the database
 	 * @see LimsReadGeneiousFieldsValues
 	 * */
-	public static String getServerDatabaseServiceName() {
+	public String getServerDatabaseServiceName() {
 		List<String> lstdb = new ArrayList<String>();
 
 		String output = "";

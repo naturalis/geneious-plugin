@@ -234,6 +234,7 @@ public class LimsNotes {
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
+
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
 		if (listNotes != null) {

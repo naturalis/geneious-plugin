@@ -34,7 +34,7 @@ public class LimsSQL {
 	private static Connection conn = null;
 	private Statement stmt = null;
 
-	public int importcounter = 0;
+	public int importcounter = 1;
 	public boolean truefalse = false;
 
 	/*
@@ -151,6 +151,7 @@ public class LimsSQL {
 		}// end try
 	}
 
+	/* Check if document exists in the table */
 	public boolean documentNameExist(String documentName) {
 
 		try {
@@ -167,15 +168,17 @@ public class LimsSQL {
 			while (rs.next()) {
 				// Retrieve by column name
 				String result = rs.getString("documentName");
+				importcounter = rs.getInt("Importcount");
 
 				if (result.isEmpty())
 					truefalse = false;
 				else
 					truefalse = true;
 
-				if (rs.getInt("Importcount") == 0
-						|| rs.getInt("Importcount") > 0)
-					importcounter++;
+				/*
+				 * if (rs.getInt("Importcount") == 0 || rs.getInt("Importcount")
+				 * > 0) importcounter++;
+				 */
 			}
 			rs.close();
 		} catch (SQLException se) {
@@ -198,6 +201,40 @@ public class LimsSQL {
 		return truefalse;
 	}
 
+	public void updateImportCount(int cnt, String docName) {
+
+		try {
+			// Open a connection
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			// Execute a query
+			stmt = conn.createStatement();
+
+			String sqlUpdate = "UPDATE tblDocumentImport" + "\n"
+					+ "SET importcount =  '" + cnt + "' " + "\n"
+					+ "WHERE Documentname =  '" + docName + "' ";
+			stmt.executeUpdate(sqlUpdate);
+
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			throw new RuntimeException(se);
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					conn.close();
+			} catch (SQLException se) {
+			}// do nothing
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				throw new RuntimeException(se);
+			}// end finally try
+		}// end try
+	}
+
+	/* Check if table exists in the database */
 	public boolean tableExist(String tableName) throws SQLException {
 		boolean bExists = false;
 		// Open the connection
@@ -205,7 +242,7 @@ public class LimsSQL {
 		try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName,
 				null)) {
 			while (rs.next()) {
-				String tName = rs.getString("TABLE_NAME");
+				String tName = rs.getString("TABLE_NAME").toLowerCase();
 				if (tName != null && tName.equals(tableName.toLowerCase())) {
 					bExists = true;
 					break;

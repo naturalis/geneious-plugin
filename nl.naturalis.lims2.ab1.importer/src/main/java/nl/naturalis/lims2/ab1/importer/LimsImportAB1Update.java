@@ -331,8 +331,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				logger.info("Fasta file to extract : "
 						+ extractAb1FastaFileName);
 				/* Extract values from the Fasta filename */
-				limsAB1Fields
-						.extractAB1_FastaFileName(extractAb1FastaFileName);
+				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 				/*
 				 * if file exists and is not extravalue "ExtractIDCode_Seq"
 				 * increase Version number.
