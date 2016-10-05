@@ -36,6 +36,8 @@ public class LimsSQL {
 
 	public int importcounter = 1;
 	public boolean truefalse = false;
+	public String documentname = "";
+	public String dummyID = "";
 
 	/*
 	 * Create Table tblDocumentImport
@@ -127,13 +129,13 @@ public class LimsSQL {
 			conn = DriverManager.getConnection(DB_URL, user, password);
 
 			// Execute a query
-			conn.setAutoCommit(false);
+			conn.setAutoCommit(true);
 			stmt = conn.createStatement();
 			stmt.executeUpdate(sqlInsert);
-			conn.commit();
+			// conn.commit();
 			logger.info("Record inserted succesfull into the table...");
 		} catch (SQLException e) {
-			conn.rollback();
+			// conn.rollback();
 			throw new RuntimeException(e);
 		} finally {
 			// finally block used to close resources
@@ -167,10 +169,10 @@ public class LimsSQL {
 			// Extract data from result set
 			while (rs.next()) {
 				// Retrieve by column name
-				String result = rs.getString("documentName");
+				documentname = rs.getString("documentName");
 				importcounter = rs.getInt("Importcount");
 
-				if (result.isEmpty())
+				if (documentname.isEmpty())
 					truefalse = false;
 				else
 					truefalse = true;
@@ -199,6 +201,47 @@ public class LimsSQL {
 			}// end finally try
 		}// end try
 		return truefalse;
+	}
+
+	/* Check if document exists in the table */
+	public String getdocumentName(String documentName) {
+
+		try {
+			// Open a connection
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			// Execute a query
+			stmt = conn.createStatement();
+
+			String sql = "SELECT ID, Documentname FROM tblDocumentImport"
+					+ "\n" + "WHERE Documentname like  '%" + documentName
+					+ "%' ";
+			ResultSet rs = stmt.executeQuery(sql);
+			// Extract data from result set
+			while (rs.next()) {
+				// Retrieve by column name
+				dummyID = rs.getString("ID");
+				documentname = rs.getString("documentName");
+			}
+			rs.close();
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			throw new RuntimeException(se);
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					conn.close();
+			} catch (SQLException se) {
+			}// do nothing
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				throw new RuntimeException(se);
+			}// end finally try
+		}// end try
+		return documentname;
 	}
 
 	public void updateImportCount(int cnt, String docName) {

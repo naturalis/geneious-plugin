@@ -715,11 +715,17 @@ public class LimsImportBold extends DocumentAction {
 
 		/* set note for GenBank URI */
 		try {
+			String genBankUri = "";
+			/* if Marker COI-5P Accessionhas a value */
+			if (record[8] != null) {
+				genBankUri = limsImporterUtil.getPropValues("boldurigenbank")
+						+ limsBoldFields.getCoi5PAccession();
+			} else {
+				genBankUri = "";
+			}
 			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
 					"GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)",
-					"GenBank URI (Bold)",
-					limsImporterUtil.getPropValues("boldurigenbank")
-							+ limsBoldFields.getCoi5PAccession(), cnt);
+					"GenBank URI (Bold)", genBankUri, cnt);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

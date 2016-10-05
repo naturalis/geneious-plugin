@@ -366,12 +366,12 @@ public class LimsReadGeneiousFieldsValues {
 		String result = "";
 		try {
 
-			final String SQL = " SELECT a.name"
+			final String SQL = " SELECT DISTINCT a.name, COUNT(*) as Count"
 					+ " FROM "
 					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
+					+ " SELECT DISTINCT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name like ?" + "\n" + " LIMIT 1";
+					+ " WHERE a.name like ?" + "\n" + "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);

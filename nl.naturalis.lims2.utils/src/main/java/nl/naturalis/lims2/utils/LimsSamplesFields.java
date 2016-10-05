@@ -1,12 +1,14 @@
 /**
  * 
  */
-package nl.naturalis.lims2.ab1.importer;
+package nl.naturalis.lims2.utils;
 
 import java.util.Date;
 import java.util.List;
 
 import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
@@ -44,6 +46,9 @@ import com.biomatters.geneious.publicapi.documents.XMLSerializer;
  */
 public class LimsSamplesFields implements PluginDocument,
 		LimsSamplesDocumentFields {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsSamplesFields.class);
 
 	private String extractID;
 	private String projectPlaatNummer;

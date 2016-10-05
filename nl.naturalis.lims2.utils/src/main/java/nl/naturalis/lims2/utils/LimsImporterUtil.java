@@ -7,8 +7,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.LineNumberReader;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -271,6 +273,7 @@ public class LimsImporterUtil {
 	 * */
 	public int countRecordsCSV(String filename) {
 		try {
+
 			InputStream is = new BufferedInputStream(new FileInputStream(
 					filename));
 			try {
@@ -281,17 +284,57 @@ public class LimsImporterUtil {
 				while ((readChars = is.read(c)) != -1) {
 					empty = false;
 					for (int i = 0; i < readChars; ++i) {
-						if (c[i] == '\n') {
+						if (c[i] == '\n' && Character.isWhitespace(c[i])) {
 							++count;
 						}
 					}
 				}
 				return (count == 0 && !empty) ? 1 : count;
+
+				/*
+				 * InputStream is = new BufferedInputStream(new FileInputStream(
+				 * filename)); try { byte[] c = new byte[1024]; int count = 0;
+				 * int readChars = 0; boolean endsWithoutNewLine = false; while
+				 * ((readChars = is.read(c)) != -1) { for (int i = 0; i <
+				 * readChars; ++i) { if (c[i] == '\n') ++count; }
+				 * endsWithoutNewLine = (c[readChars - 1] != '\n'); } if
+				 * (endsWithoutNewLine) { ++count; } return count;
+				 */
+
 			} finally {
 				is.close();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public int getlineNumber(String filename) {
+		int linenumber = 0;
+		try {
+
+			File file = new File(filename);
+
+			if (file.exists()) {
+
+				FileReader fr = new FileReader(file);
+				LineNumberReader lnr = new LineNumberReader(fr);
+				while (lnr.readLine() != null) {
+					linenumber++;
+				}
+
+				System.out.println("Total number of lines : " + linenumber);
+
+				lnr.close();
+
+			} else {
+				System.out.println("File does not exists!");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return linenumber;
 	}
 }

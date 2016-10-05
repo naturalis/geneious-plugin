@@ -11,6 +11,7 @@ import java.awt.EventQueue;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +26,9 @@ import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
+import nl.naturalis.lims2.utils.LimsSQL;
+import nl.naturalis.lims2.utils.LimsSamplesFields;
+import nl.naturalis.lims2.utils.LimsSamplesNotes;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -90,6 +94,8 @@ public class LimsImportSamples extends DocumentAction {
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
 	private JFrame frame = new JFrame();
 	private LimsLogger limsLogger = null;
+	private LimsSQL limsSQL = new LimsSQL();
+	private LimsSamplesNotes limsSamplesNotes = new LimsSamplesNotes();
 
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> failureList = new ArrayList<String>();
@@ -107,6 +113,7 @@ public class LimsImportSamples extends DocumentAction {
 	private String logSamplesFileName = "";
 	private String documentFileName = "";
 	private String readAssembyContigFileName = "";
+	private String regScientificname = "";
 
 	private boolean isExtractIDSeqExists = false;
 	private boolean match = false;
@@ -248,6 +255,10 @@ public class LimsImportSamples extends DocumentAction {
 					/* Get the total of records of the Sample CSV file */
 					sampleTotaalRecords = limsImporterUtil
 							.countRecordsCSV(fileSelected);
+
+					/*
+					 * limsImporterUtil .getlineNumber(fileSelected);
+					 */
 
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
@@ -638,12 +649,15 @@ public class LimsImportSamples extends DocumentAction {
 						+ extractIDfileName + "\n" + "  Recordcount: "
 						+ recordCount);
 
-				/*
-				 * Set values to the variables [0] : Projectplaatnr [1] :
-				 * Plaatpositie [2] : ExtractPlaatnr [3] : ExtractID [4] :
-				 * RegistrationNumber [5] : TaxonNaam [] : Version [6] : Sample
-				 * Method
-				 */
+				/* Set values to the variables */
+				// [0] : Projectplaatnr
+				// [1] : Plaatpositie
+				// [2] : ExtractPlaatnr
+				// [3] : ExtractID
+				// [4] : RegistrationNumber
+				// [5] : TaxonNaam
+				// [] : Version
+				// [6] : Sample Method
 				setFieldsValues(record[0], record[1], plateNumber, ID,
 						record[4], record[5], version, record[6]);
 
@@ -652,7 +666,10 @@ public class LimsImportSamples extends DocumentAction {
 				logger.info("Start with adding notes to the document");
 
 				/* Set the notes to the documents */
-				setSamplesNotes(documents, cnt);
+				// setSamplesNotes(documents, cnt);
+				limsSamplesNotes.setAllNotesToAB1FileName(documents, cnt,
+						record[4], record[5], record[1], record[3], record[2],
+						record[3], record[6], version, regScientificname);
 
 				logger.info("Done with adding notes to the document");
 
@@ -768,7 +785,7 @@ public class LimsImportSamples extends DocumentAction {
 			if (fileName != null) {
 				logger.info("Read samples file: " + fileName);
 				CSVReader csvReader = new CSVReader(new FileReader(fileName),
-						'\t', '\'', 0);
+						'\t', '\'', 1);
 				csvReader.readNext();
 				String[] record = null;
 				try {
@@ -786,8 +803,25 @@ public class LimsImportSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
-						String dummyFile = ReadGeneiousFieldsValues
-								.getFastaIDForSamples_GeneiousDB(ID);
+						boolean dummyFileExists = limsSQL.documentNameExist(ID);
+						if (!dummyFileExists) {
+							// || !limsSQL.documentname.contentEquals(".ab1")) {
+							try {
+								limsSQL.insertIntoTableDocumentImport(ID,
+										limsSQL.importcounter);
+							} catch (SQLException e) {
+								throw new RuntimeException(e);
+							}
+						} else {
+							int counter = limsSQL.importcounter + 1;
+							limsSQL.updateImportCount(counter, ID);
+						}
+
+						String dummyFile = limsSQL.getdocumentName(ID);
+						/*
+						 * ReadGeneiousFieldsValues
+						 * .getFastaIDForSamples_GeneiousDB(ID);
+						 */
 
 						if (dummyFile.trim() != "") {
 							dummyFile = getExtractIDFromAB1FileName(dummyFile);
@@ -814,16 +848,14 @@ public class LimsImportSamples extends DocumentAction {
 									.showProgress("Dummy file already exists in the DB: "
 											+ ID);
 						}
+
 					} // end While
 
 				} catch (IOException e) {
+
 					throw new RuntimeException(e);
 				}
-				try {
-					csvReader.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+				csvReader.close();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -849,8 +881,11 @@ public class LimsImportSamples extends DocumentAction {
 		} else if (fileName.contains("_")) {
 			underscore = StringUtils.split(fileName, "_");
 		} else {
-			throw new IllegalArgumentException("String " + fileName
-					+ " cannot be split. ");
+			underscore = StringUtils.split(fileName, "");
+			;
+			// System.out.println(fileName);
+			// throw new IllegalArgumentException("String " + fileName
+			// + " cannot be split. ");
 		}
 		return underscore[0];
 	}
@@ -885,7 +920,6 @@ public class LimsImportSamples extends DocumentAction {
 		// record[6]
 		limsExcelFields.setSubSample(sampleMethod);
 
-		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
 			regScientificname = registrationNumber + " " + taxonNaam;
 		} else if (registrationNumber.length() > 0) {
@@ -936,7 +970,7 @@ public class LimsImportSamples extends DocumentAction {
 				logger.info("Read samples file: " + fileName);
 				/* Read the records and skip the header */
 				CSVReader csvReader = new CSVReader(new FileReader(fileName),
-						'\t', '\'', 0);
+						'\t', '\'', 1);
 				csvReader.readNext();
 
 				/* Get "logname=Lims2-Import.log" from the property file */

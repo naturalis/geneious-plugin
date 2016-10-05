@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
+import nl.naturalis.lims2.utils.LimsImportNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
@@ -72,6 +73,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private LimsSQL limsSQL = new LimsSQL();
+	private LimsImportNotes limsImportNotes = new LimsImportNotes();
 
 	private AnnotatedPluginDocument documentAnnotatedPlugin;
 	private int count = 0;
@@ -163,17 +165,21 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* Check if Dummy file exists in the database */
 			if (file.getName().contains(".ab1")) {
 
-				/*
-				 * boolean ab1DocExists = limsSQL
-				 * .documentNameExist(file.getName()); if (!ab1DocExists) { try
-				 * { limsSQL.insertIntoTableDocumentImport(file.getName(),
-				 * limsSQL.importcounter); } catch (SQLException e) { throw new
-				 * RuntimeException(e); } } else { int counter =
-				 * limsSQL.importcounter + 1; limsSQL.updateImportCount(counter,
-				 * file.getName()); }
-				 * 
-				 * ab1fileExists = ab1DocExists;
-				 */
+				boolean ab1DocExists = limsSQL
+						.documentNameExist(file.getName());
+				if (!ab1DocExists) {
+					try {
+						limsSQL.insertIntoTableDocumentImport(file.getName(),
+								limsSQL.importcounter);
+					} catch (SQLException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					int counter = limsSQL.importcounter + 1;
+					limsSQL.updateImportCount(counter, file.getName());
+				}
+
+				// ab1fileExists = ab1DocExists;
 
 				/* Check if file exists in the database */
 				/*
@@ -188,9 +194,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 */
 
 				/* if exists then get the ID from the dummy file */
+
 				annotatedDocumentID = ReadGeneiousFieldsValues
 						.getIDFromTableAnnotatedDocument(ab1FileName[0]
 								+ ".dum", "//document/hiddenFields/cache_name");
+
 				dummyFilename = ReadGeneiousFieldsValues.dummyName;
 
 				if (dummyFilename.length() > 0) {
@@ -208,16 +216,20 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
 
-				/*
-				 * boolean fastaExists = limsSQL
-				 * .documentNameExist(extractAb1FastaFileName); if
-				 * (!fastaExists) { try { limsSQL.insertIntoTableDocumentImport(
-				 * extractAb1FastaFileName, limsSQL.importcounter); } catch
-				 * (SQLException e) { throw new RuntimeException(e); } } else {
-				 * int counter = limsSQL.importcounter + 1;
-				 * limsSQL.updateImportCount(counter, extractAb1FastaFileName);
-				 * }
-				 */
+				boolean fastaExists = limsSQL
+						.documentNameExist(extractAb1FastaFileName);
+				if (!fastaExists) {
+					try {
+						limsSQL.insertIntoTableDocumentImport(
+								extractAb1FastaFileName, limsSQL.importcounter);
+					} catch (SQLException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					int counter = limsSQL.importcounter + 1;
+					limsSQL.updateImportCount(counter, extractAb1FastaFileName);
+				}
+
 				// fastaFileExists = fastaExists;
 
 				/* Check if file already exists in the database. */
@@ -278,8 +290,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* Add Notes to AB1/Fasta document */
 				if (documentAnnotatedPlugin != null) {
-					setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
-							extractAb1FastaFileName);
+					// setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
+					// extractAb1FastaFileName);
+					limsImportNotes.setImportNotes(documentAnnotatedPlugin,
+							extractAb1FastaFileName,
+							limsAB1Fields.getExtractID(),
+							limsAB1Fields.getPcrPlaatID(),
+							limsAB1Fields.getMarker(), versienummer,
+							limsImporterUtil.getPropValues("seqsequencestaff"));
 				}
 			}
 

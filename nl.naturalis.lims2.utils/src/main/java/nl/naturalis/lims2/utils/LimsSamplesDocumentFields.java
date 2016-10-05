@@ -1,4 +1,4 @@
-package nl.naturalis.lims2.ab1.importer;
+package nl.naturalis.lims2.utils;
 
 import java.util.List;
 
