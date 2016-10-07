@@ -17,6 +17,7 @@ import nl.naturalis.lims2.utils.LimsImportNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
+import nl.naturalis.lims2.utils.LimsReplaceDummyNotes;
 import nl.naturalis.lims2.utils.LimsSQL;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,6 +75,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private LimsSQL limsSQL = new LimsSQL();
 	private LimsImportNotes limsImportNotes = new LimsImportNotes();
+	private LimsReplaceDummyNotes limsReplaceDummyNotes = new LimsReplaceDummyNotes();
 
 	private AnnotatedPluginDocument documentAnnotatedPlugin;
 	private int count = 0;
@@ -95,7 +97,20 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private ArrayList<AnnotatedPluginDocument> docs = null;
 	private long startBeginTime = 0;
 
+	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+
 	public LimsImportAB1() {
+
+		if (ReadGeneiousFieldsValues.activeDB != null) {
+			try {
+				if (!limsSQL.tableExist("tblDocumentImport")) {
+					limsSQL.createTableDocumentImport();
+					limsSQL.createIndexInTableDocumentImport();
+				}
+			} catch (SQLException e1) {
+				throw new RuntimeException(e1);
+			}
+		}
 
 	}
 
@@ -133,8 +148,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
-		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
-
+		/*
+		 * LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+		 */
 		if (!dbchk.checkDBName()) {
 			Dialogs.showMessageDialog(dbchk.msg);
 			dbchk.restartGeneious();
@@ -147,15 +163,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 
 		if (ReadGeneiousFieldsValues.activeDB != null) {
-
-			try {
-				if (!limsSQL.tableExist("tblDocumentImport")) {
-					limsSQL.createTableDocumentImport();
-					limsSQL.createIndexInTableDocumentImport();
-				}
-			} catch (SQLException e1) {
-				throw new RuntimeException(e1);
-			}
 
 			/* Start time of the process */
 			startBeginTime = System.nanoTime();
@@ -193,19 +200,34 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * "//document/hiddenFields/cache_name");
 				 */
 
+				// limsSQL.truefalse = false;
+
 				/* if exists then get the ID from the dummy file */
+				/*
+				 * int dummyExists = ReadGeneiousFieldsValues
+				 * .checkIfDocExistsInTableAnnotatedDocument( ab1FileName[0] +
+				 * ".dum", "//document/hiddenFields/cache_name");
+				 */
+				int dummyExists = limsSQL
+						.checkIfSampleDocExistsInTableAnnotatedDocument(ab1FileName[0]
+								+ ".dum");
+				// limsSQL.documentNameExist(ab1FileName[0]
+				// + ".dum");
+				if (dummyExists == 1) {
+					annotatedDocumentID = ReadGeneiousFieldsValues
+							.getIDFromTableAnnotatedDocument(ab1FileName[0]
+									+ ".dum",
+									"//document/hiddenFields/cache_name");
 
-				annotatedDocumentID = ReadGeneiousFieldsValues
-						.getIDFromTableAnnotatedDocument(ab1FileName[0]
-								+ ".dum", "//document/hiddenFields/cache_name");
+					dummyFilename = ReadGeneiousFieldsValues.dummyName;
 
-				dummyFilename = ReadGeneiousFieldsValues.dummyName;
-
-				if (dummyFilename.length() > 0) {
-					list.clear();
-					list.addAll(ReadGeneiousFieldsValues
-							.getDummySamplesValues(dummyFilename));
+					if (dummyFilename.length() > 0) {
+						list.clear();
+						list.addAll(ReadGeneiousFieldsValues
+								.getDummySamplesValues(dummyFilename));
+					}
 				}
+
 			}
 
 			extractAb1FastaFileName = file.getName();
@@ -305,6 +327,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				/* AB1 Document */
 				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 
+				String extractID = limsAB1Fields.getExtractID();
+				String pcrPlateId = limsAB1Fields.getPcrPlaatID();
+				String marker = limsAB1Fields.getMarker();
+
 				/* Set version number */
 				setVersionNumber();
 
@@ -317,8 +343,28 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * files
 				 */
 
-				replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
-						ReadGeneiousFieldsValues.extractidSamplesFromDummy);
+				limsReplaceDummyNotes
+						.replaceDummyNotesWithAB1Notes(
+								documentAnnotatedPlugin,
+								pcrPlateId,
+								marker,
+								extractID,
+								ReadGeneiousFieldsValues.extractidSamplesFromDummy,
+								ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy,
+								ReadGeneiousFieldsValues.scientificNameSamplesFromDummy,
+								ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy,
+								ReadGeneiousFieldsValues.positionSamplesFromDummy,
+								ReadGeneiousFieldsValues.extractPlateIDSamples,
+								ReadGeneiousFieldsValues.extractionMethodSamples,
+								ReadGeneiousFieldsValues.registrationScientificName,
+								versienummer);
+				if (count > 0) {
+					selectedTotal = 0;
+				}
+
+				// replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
+				// ReadGeneiousFieldsValues.extractidSamplesFromDummy);
+
 			}
 			if (docs != null) {
 				docs.clear();
@@ -347,6 +393,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 								 */
 								ReadGeneiousFieldsValues
 										.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
+								limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(ab1FileName[0]
+										+ ".dum");
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -381,42 +429,38 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	/*
 	 * Import Fasta with Naturalis Plugin Set notes for fasta file
 	 */
-	private void setNotes_To_AB1_Fasta(
-			AnnotatedPluginDocument documentAnnotated, String fileName)
-			throws IOException {
-		logger.info("----------------------------S T A R T ---------------------------------");
-		logger.info("Start extracting value from file: " + fileName);
-
-		/* set note for Extract-ID */
-		limsNotes.setImportNotes(documentAnnotated, "ExtractIDCode_Seq",
-				"Extract ID (Seq)", "Extract ID (Seq)",
-				limsAB1Fields.getExtractID());
-
-		/* set note for PCR Plaat-ID */
-		limsNotes.setImportNotes(documentAnnotated, "PCRplateIDCode_Seq",
-				"PCR plate ID (Seq)", "PCR plate ID (Seq)",
-				limsAB1Fields.getPcrPlaatID());
-
-		/* set note for Marker */
-		limsNotes.setImportNotes(documentAnnotated, "MarkerCode_Seq",
-				"Marker (Seq)", "Marker (Seq)", limsAB1Fields.getMarker());
-
-		/* set note for Marker */
-		limsNotes.setImportNotes(documentAnnotated, "DocumentVersionCode_Seq",
-				"Document version", "Document version",
-				Integer.toString(versienummer));
-
-		/* set note for SequencingStaffCode_FixedValue_Seq */
-		limsNotes.setImportNotes(documentAnnotated,
-				"SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
-				"Seq-staff (Seq)",
-				limsImporterUtil.getPropValues("seqsequencestaff"));
-
-		/* set note for ConsensusSeqPassCode_Seq */
-		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
-				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
-				"Pass (Seq)", "Pass (Seq)", null);
-	}
+	/*
+	 * private void setNotes_To_AB1_Fasta( AnnotatedPluginDocument
+	 * documentAnnotated, String fileName) throws IOException { logger.info(
+	 * "----------------------------S T A R T ---------------------------------"
+	 * ); logger.info("Start extracting value from file: " + fileName);
+	 * 
+	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
+	 * "ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
+	 * limsAB1Fields.getExtractID());
+	 * 
+	 * set note for PCR Plaat-ID limsNotes.setImportNotes(documentAnnotated,
+	 * "PCRplateIDCode_Seq", "PCR plate ID (Seq)", "PCR plate ID (Seq)",
+	 * limsAB1Fields.getPcrPlaatID());
+	 * 
+	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
+	 * "MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
+	 * limsAB1Fields.getMarker());
+	 * 
+	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
+	 * "DocumentVersionCode_Seq", "Document version", "Document version",
+	 * Integer.toString(versienummer));
+	 * 
+	 * set note for SequencingStaffCode_FixedValue_Seq
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
+	 * "Seq-staff (Seq)", limsImporterUtil.getPropValues("seqsequencestaff"));
+	 * 
+	 * set note for ConsensusSeqPassCode_Seq
+	 * limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
+	 * "Pass (Seq)", null); }
+	 */
 
 	/*
 	 * Import Replace dummy documents notes with AB1 notes

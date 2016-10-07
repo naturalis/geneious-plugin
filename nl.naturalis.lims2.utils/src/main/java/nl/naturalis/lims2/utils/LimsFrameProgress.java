@@ -74,7 +74,7 @@ public class LimsFrameProgress {
 		frame.add(BorderLayout.CENTER, jlMsg0);
 		frame.add(BorderLayout.CENTER, jlbMsg1);
 		frame.add(BorderLayout.CENTER, jlbMsg2);
-		frame.setBounds(0, 0, 500, 180);
+		frame.setBounds(0, 0, 500, 150);
 		frame.setVisible(true);
 	}
 
@@ -102,7 +102,7 @@ public class LimsFrameProgress {
 								+ "\n");
 						jlbMsg1.setText("Please wait for the import process to finish."
 								+ "\n");
-						jlbMsg2.setText("You should preferably not start another action or change maps.");
+						jlbMsg2.setText("You should preferably not start another action or change folders.");
 					}
 				});
 				java.lang.Thread.sleep(1);

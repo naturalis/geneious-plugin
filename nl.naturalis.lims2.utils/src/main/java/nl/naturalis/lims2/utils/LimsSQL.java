@@ -3,8 +3,10 @@
  */
 package nl.naturalis.lims2.utils;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -129,11 +131,11 @@ public class LimsSQL {
 			conn = DriverManager.getConnection(DB_URL, user, password);
 
 			// Execute a query
-			conn.setAutoCommit(true);
+			// conn.setAutoCommit(true);
 			stmt = conn.createStatement();
 			stmt.executeUpdate(sqlInsert);
 			// conn.commit();
-			logger.info("Record inserted succesfull into the table...");
+			logger.debug("Record inserted succesfull into the table...");
 		} catch (SQLException e) {
 			// conn.rollback();
 			throw new RuntimeException(e);
@@ -148,7 +150,7 @@ public class LimsSQL {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException se) {
-				se.printStackTrace();
+				throw new RuntimeException(se);
 			}// end finally try
 		}// end try
 	}
@@ -156,6 +158,7 @@ public class LimsSQL {
 	/* Check if document exists in the table */
 	public boolean documentNameExist(String documentName) {
 
+		boolean exists = false;
 		try {
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, user, password);
@@ -163,24 +166,18 @@ public class LimsSQL {
 			// Execute a query
 			stmt = conn.createStatement();
 
-			String sql = "SELECT Documentname, Importcount FROM tblDocumentImport"
-					+ "\n" + "WHERE Documentname =  '" + documentName + "' ";
+			String sql = "SELECT EXISTS(SELECT 1 FROM tblDocumentImport" + "\n"
+					+ "WHERE Documentname =  '" + documentName + "' ) as count";
 			ResultSet rs = stmt.executeQuery(sql);
-			// Extract data from result set
-			while (rs.next()) {
-				// Retrieve by column name
-				documentname = rs.getString("documentName");
-				importcounter = rs.getInt("Importcount");
+			if (rs.next()) {
+				do {
+					int cnt = rs.getInt(1);
+					if (cnt == 0)
+						exists = false;
+					else
+						exists = true;
 
-				if (documentname.isEmpty())
-					truefalse = false;
-				else
-					truefalse = true;
-
-				/*
-				 * if (rs.getInt("Importcount") == 0 || rs.getInt("Importcount")
-				 * > 0) importcounter++;
-				 */
+				} while (rs.next());
 			}
 			rs.close();
 		} catch (SQLException se) {
@@ -200,7 +197,7 @@ public class LimsSQL {
 				throw new RuntimeException(se);
 			}// end finally try
 		}// end try
-		return truefalse;
+		return exists;
 	}
 
 	/* Check if document exists in the table */
@@ -291,8 +288,92 @@ public class LimsSQL {
 					break;
 				}
 			}
+			if (conn != null) {
+				conn.close();
+			}
 		}
+
 		return bExists;
+	}
+
+	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object docName)
+			throws IOException {
+
+		try {
+			// Open a connection
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			// Execute a query
+			stmt = conn.createStatement();
+
+			String sqlUpdate = "DELETE FROM tblDocumentImport" + "\n"
+					+ "WHERE Documentname =  '" + docName + "' ";
+			stmt.executeUpdate(sqlUpdate);
+
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			throw new RuntimeException(se);
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					conn.close();
+			} catch (SQLException se) {
+			}// do nothing
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				throw new RuntimeException(se);
+			}// end finally try
+		}// end try
+	}
+
+	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename)
+			throws IOException {
+
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT EXISTS(SELECT 1 FROM tblDocumentImport "
+					+ "\n"
+					+ " WHERE Documentname like '%"
+					+ filename
+					+ "%' "
+					+ ") As Count" + "\n" + " LIMIT 1";
+
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			conn.clearWarnings();
+			pst = conn.prepareStatement(SQL);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
 	}
 
 }

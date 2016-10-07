@@ -58,6 +58,7 @@ public class LimsSamplesNotes {
 	private String descriptionExtractID;
 	private String noteTextExtractID = "Extract ID (Samples)";
 
+	/* Extract method */
 	private String fieldExtractMethod;
 	private String noteTypeCodeExtractMethod;
 	private String descriptionExtractMethod;
@@ -85,9 +86,11 @@ public class LimsSamplesNotes {
 			String regNumber, String taxonNaam, String projectPlateNumber,
 			String extractPlateNumber, String platePosition, String extractID,
 			String subSample, Object versionNumber, String regScientificname) {
+
 		/* Registration number */
 		this.fieldRegistrationNumber = "RegistrationNumberCode_Samples";
 		this.descriptionReg = "Naturalis file " + noteTextReg + " note";
+
 		/* Taxon name */
 		this.fieldTaxonName = "TaxonName2Code_Samples";
 		this.descriptionTaxon = "Naturalis file " + noteTextTaxon + " note";
@@ -143,6 +146,7 @@ public class LimsSamplesNotes {
 		listNotes.add(DocumentNoteField.createTextNoteField(noteTextReg,
 				this.descriptionReg, this.fieldRegistrationNumber,
 				Collections.<Constraint> emptyList(), false));
+
 		/* Taxon name */
 		listNotes.add(DocumentNoteField.createTextNoteField(noteTextTaxon,
 				this.descriptionTaxon, this.fieldTaxonName,
@@ -153,6 +157,12 @@ public class LimsSamplesNotes {
 				noteTextProjectPlate, this.descriptionProjectPlate,
 				this.fieldProjectPlate, Collections.<Constraint> emptyList(),
 				false));
+
+		/* Extract plate number */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextExtractPlateNumber, this.descriptionExtractPlateNumber,
+				this.fieldExtractPlateNumber,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Plate Postion */
 		listNotes.add(DocumentNoteField.createTextNoteField(
@@ -398,7 +408,6 @@ public class LimsSamplesNotes {
 		/* Registrationnumber */
 		DocumentNote documentNoteReg = documentNoteTypeReg.createDocumentNote();
 		documentNoteReg.setFieldValue(this.fieldRegistrationNumber, regNumber);
-		// limsExcelFields.getRegistrationNumber());
 
 		/* Taxonname */
 		DocumentNote documentNoteTaxon = documentNoteTypeTaxon

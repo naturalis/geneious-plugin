@@ -255,21 +255,29 @@ public class LimsImportNotes {
 		DocumentNote documentNoteExtractSeq = documentNoteTypeExtractSeq
 				.createDocumentNote();
 		documentNoteExtractSeq.setFieldValue(this.fieldExtractIDSeq, extractID);
+		logger.info("Note value " + this.fieldExtractIDSeq + ": " + extractID
+				+ " added succesful");
 
 		/* PCR plate */
 		DocumentNote documentNotePCR = documentNoteTypePCR.createDocumentNote();
 		documentNotePCR.setFieldValue(this.fieldPCRPlate, pcrPlate);
+		logger.info("Note value " + this.fieldPCRPlate + ": " + pcrPlate
+				+ " added succesful");
 
 		/* MARKER */
 		DocumentNote documentNoteMarker = documentNoteTypeMarker
 				.createDocumentNote();
 		documentNoteMarker.setFieldValue(this.fieldMarker, markerCode);
+		logger.info("Note value " + this.fieldMarker + ": " + markerCode
+				+ " added succesful");
 
 		/* Document Version */
 		DocumentNote documentNoteDocVersion = documentNoteTypeDocversion
 				.createDocumentNote();
 		documentNoteDocVersion.setFieldValue(this.fieldDocversion,
 				String.valueOf(versionNumber));
+		logger.info("Note value " + this.fieldDocversion + ": " + versionNumber
+				+ " added succesful");
 
 		/* Seq-staff (Seq) */
 		DocumentNote documentNoteSeqStaff = documentNoteTypeSeqStaff
@@ -277,6 +285,9 @@ public class LimsImportNotes {
 		try {
 			documentNoteSeqStaff.setFieldValue(this.fieldSeqStaff,
 					limsImporterUtil.getPropValues("seqsequencestaff"));
+			logger.info("Note value " + this.fieldSeqStaff + ": "
+					+ limsImporterUtil.getPropValues("seqsequencestaff")
+					+ " added succesful");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -285,6 +296,8 @@ public class LimsImportNotes {
 		DocumentNote documentNoteConsensus = documentNoteTypeConsensus
 				.createDocumentNote();
 		documentNoteConsensus.setFieldValue(this.fieldConsensus, null);
+		logger.info("Note value " + this.fieldConsensus + ": " + null
+				+ " added succesful");
 
 		/* ================================================================== */
 

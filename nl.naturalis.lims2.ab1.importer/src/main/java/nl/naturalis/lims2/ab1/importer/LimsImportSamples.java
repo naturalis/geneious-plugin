@@ -785,7 +785,7 @@ public class LimsImportSamples extends DocumentAction {
 			if (fileName != null) {
 				logger.info("Read samples file: " + fileName);
 				CSVReader csvReader = new CSVReader(new FileReader(fileName),
-						'\t', '\'', 1);
+						'\t', '\'', 0);
 				csvReader.readNext();
 				String[] record = null;
 				try {
@@ -803,39 +803,30 @@ public class LimsImportSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
-						boolean dummyFileExists = limsSQL.documentNameExist(ID);
-						if (!dummyFileExists) {
-							// || !limsSQL.documentname.contentEquals(".ab1")) {
-							try {
-								limsSQL.insertIntoTableDocumentImport(ID,
-										limsSQL.importcounter);
-							} catch (SQLException e) {
-								throw new RuntimeException(e);
-							}
-						} else {
-							int counter = limsSQL.importcounter + 1;
-							limsSQL.updateImportCount(counter, ID);
-						}
-
-						String dummyFile = limsSQL.getdocumentName(ID);
+						String dummyFile = limsSQL.getdocumentName(ID + ".dum");
 						/*
 						 * ReadGeneiousFieldsValues
 						 * .getFastaIDForSamples_GeneiousDB(ID);
 						 */
 
-						if (dummyFile.trim() != "") {
-							dummyFile = getExtractIDFromAB1FileName(dummyFile);
-						}
+						// if (dummyFile.trim() != "") {
+						// dummyFile = getExtractIDFromAB1FileName(dummyFile);
+						// }
 
-						if (!dummyFile.equals(ID)) {
+						int dummyExists = limsSQL
+								.checkIfSampleDocExistsInTableAnnotatedDocument(ID);
+
+						// if (!dummyFile.equals(ID + ".dum")) {
+						if (dummyExists == 0) {
 							limsFrameProgress
-									.showProgress("Creating dummy file: " + ID);
+									.showProgress("Creating dummy file: " + ID
+											+ ".dum");
 
 							/* extract only the numbers from ID */
 							if (ID.equals("e")
 									&& LimsImporterUtil.extractNumber(ID)
 											.isEmpty()) {
-								logger.info("Record is empty: " + ID);
+								logger.info("Record is empty: " + ID + ".dum");
 							} else {
 								/* Create dummy sequence */
 								limsDummySeq.createDummySampleSequence(ID, ID,
@@ -847,6 +838,20 @@ public class LimsImportSamples extends DocumentAction {
 							limsFrameProgress
 									.showProgress("Dummy file already exists in the DB: "
 											+ ID);
+						}
+
+						boolean dummyFileExists = limsSQL.documentNameExist(ID
+								+ ".dum");
+						if (!dummyFileExists) {
+							try {
+								limsSQL.insertIntoTableDocumentImport(ID
+										+ ".dum", limsSQL.importcounter);
+							} catch (SQLException e) {
+								throw new RuntimeException(e);
+							}
+						} else {
+							int counter = limsSQL.importcounter + 1;
+							limsSQL.updateImportCount(counter, ID + ".dum");
 						}
 
 					} // end While

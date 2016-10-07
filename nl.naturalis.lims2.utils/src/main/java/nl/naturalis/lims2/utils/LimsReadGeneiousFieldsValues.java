@@ -500,6 +500,97 @@ public class LimsReadGeneiousFieldsValues {
 		return result;
 	}
 
+	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename,
+			String xmlNotesName) throws IOException {
+
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT EXISTS(SELECT 1 FROM " + " ( "
+					+ " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name like '%" + filename + "%' " + ") As Count"
+					+ "\n" + " LIMIT 1";
+
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
+					password);
+			con.clearWarnings();
+			pst = con.prepareStatement(SQL);
+			// pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
+
+	public int checkIfDocExistsInTableAnnotatedDocument(Object filename,
+			String xmlNotesName) throws IOException {
+
+		int result = 0;
+
+		try {
+
+			final String SQL = " SELECT EXISTS(SELECT 1 FROM " + " ( "
+					+ " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?" + ") As Count" + "\n" + " LIMIT 1";
+
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
+					password);
+			con.clearWarnings();
+			pst = con.prepareStatement(SQL);
+			pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Get the ID and Name from a file(Parameter fileName) in the Database Used
 	 * in LimsImportAB1
@@ -537,6 +628,8 @@ public class LimsReadGeneiousFieldsValues {
 			 * while (rs.next()) { result = rs.getObject(1).toString();
 			 * dummyName = rs.getObject(2).toString(); }
 			 */
+
+			dummyName = "";
 			if (rs.next()) {
 				do {
 					result = rs.getObject(1).toString();
@@ -980,7 +1073,6 @@ public class LimsReadGeneiousFieldsValues {
 				int i = 1;
 				while (i <= numberOfColumns) {
 					listDummyValues.add(rs.getString(i++));
-					logger.debug("Annotated document id : " + result);
 				}
 			}
 		} catch (SQLException ex) {

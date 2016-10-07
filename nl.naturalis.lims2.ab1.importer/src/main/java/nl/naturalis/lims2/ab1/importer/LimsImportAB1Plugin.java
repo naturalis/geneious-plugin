@@ -13,6 +13,8 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import nl.naturalis.lims2.utils.LimsSamplesFields;
+
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentType;
@@ -160,4 +162,5 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 				"Samples document", LimsSamplesFields.class, null) };
 
 	}
+
 }
