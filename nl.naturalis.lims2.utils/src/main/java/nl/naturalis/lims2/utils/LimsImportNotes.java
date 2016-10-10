@@ -58,6 +58,9 @@ public class LimsImportNotes {
 	private String descriptionConsensus;
 	private String noteTextConsensus = "Pass (Seq)";
 
+	public String[] ConsensusSeqPass = { "OK", "medium", "low",
+			"contamination", "endo-contamination", "exo-contamination" };
+
 	/**
 	 * Set notes for AB1 and Dummy document(s). Used in Plugin:
 	 * "All Naturalis files"
@@ -86,69 +89,11 @@ public class LimsImportNotes {
 		logger.info("----------------------------S T A R T ---------------------------------");
 		logger.info("Start extracting value from file: " + fileName);
 
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-
-		/* Extract ID (Seq) */
-		this.fieldExtractIDSeq = "ExtractIDCode_Seq";
-		this.descriptionExtractIDSeq = "Naturalis file " + noteTextExtractIDSeq
-				+ " note";
-
-		/* PCR plate */
-		this.fieldPCRPlate = "PCRplateIDCode_Seq";
-		this.descriptionPCRPlate = "Naturalis file " + noteTextPCRPlate
-				+ " note";
-
-		/* MARKER */
-		this.fieldMarker = "MarkerCode_Seq";
-		this.descriptionMarker = "Naturalis file " + noteTextMarker + " note";
-
-		/* Document Version */
-		this.fieldDocversion = "DocumentVersionCode_Seq";
-		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
-				+ " note";
-
-		/* Seq-staff (Seq) */
-		this.fieldSeqStaff = "SequencingStaffCode_FixedValue_Seq";
-		this.descriptionSeqStaff = "Naturalis file " + noteTextSeqStaff
-				+ " note";
-
-		/* ConsensusSeqPassCode */
-		this.fieldConsensus = "ConsensusSeqPassCode_Seq";
-		this.descriptionConsensus = "Naturalis file " + noteTextConsensus
-				+ " note";
+		setFieldAndDescriptionValues();
 
 		/* ================================================================== */
 
-		/* Extract ID (Seq) */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextExtractIDSeq, this.descriptionExtractIDSeq,
-				this.fieldExtractIDSeq, Collections.<Constraint> emptyList(),
-				false));
-
-		/* PCR plate */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
-				this.descriptionPCRPlate, this.fieldPCRPlate,
-				Collections.<Constraint> emptyList(), false));
-
-		/* MARKER */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
-				this.descriptionMarker, this.fieldMarker,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Document Version */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
-				this.descriptionDocversion, this.fieldDocversion,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Seq-staff (Seq) */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
-				this.descriptionSeqStaff, this.fieldSeqStaff,
-				Collections.<Constraint> emptyList(), false));
-
-		/* ConsensusSeqPassCode */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextConsensus,
-				this.descriptionConsensus, this.fieldConsensus,
-				Collections.<Constraint> emptyList(), false));
+		ArrayList<DocumentNoteField> listNotes = addNotesToListNotes(ConsensusSeqPass);
 
 		/* =============================================================== */
 
@@ -244,12 +189,8 @@ public class LimsImportNotes {
 			DocumentNoteUtilities.setNoteType(documentNoteTypeConsensus);
 			logger.info("NoteType " + noteTextConsensus + " created succesful");
 		}
-		/*
-		 * if (documentNoteType.getName().equals("Ampl-staff (Seq)")) {
-		 * documentNoteType.setDefaultVisibleInTable(false);
-		 * documentNoteType.setVisible(false);
-		 * DocumentNoteUtilities.setNoteType(documentNoteType); }
-		 */
+
+		/* ===================================================================== */
 
 		/* Create note for Extract-ID */
 		DocumentNote documentNoteExtractSeq = documentNoteTypeExtractSeq
@@ -301,8 +242,18 @@ public class LimsImportNotes {
 
 		/* ================================================================== */
 
+		if (documentNoteSeqStaff.getName().equals("Seq-staff (Seq)")) {
+			documentNoteTypeSeqStaff.setDefaultVisibleInTable(false);
+			documentNoteTypeSeqStaff.setVisible(false);
+
+			DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff);
+		}
+
+		/* ================================================================== */
 		AnnotatedPluginDocument.DocumentNotes documentNotes = document
 				.getDocumentNotes(true);
+
+		/* ================================================================== */
 
 		/* Set note */
 		documentNotes.setNote(documentNoteExtractSeq);
@@ -320,6 +271,80 @@ public class LimsImportNotes {
 		if (listNotes != null) {
 			listNotes.clear();
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	private ArrayList<DocumentNoteField> addNotesToListNotes(
+			String[] multipleValues) {
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		/* Extract ID (Seq) */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextExtractIDSeq, this.descriptionExtractIDSeq,
+				this.fieldExtractIDSeq, Collections.<Constraint> emptyList(),
+				false));
+
+		/* PCR plate */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
+				this.descriptionPCRPlate, this.fieldPCRPlate,
+				Collections.<Constraint> emptyList(), false));
+
+		/* MARKER */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
+				this.descriptionMarker, this.fieldMarker,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Document Version */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
+				this.descriptionDocversion, this.fieldDocversion,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Seq-staff (Seq) */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
+				this.descriptionSeqStaff, this.fieldSeqStaff,
+				Collections.<Constraint> emptyList(), false));
+
+		/* ConsensusSeqPassCode */
+		listNotes.add(DocumentNoteField.createEnumeratedNoteField(
+				multipleValues, noteTextConsensus, this.descriptionConsensus,
+				this.fieldConsensus, true));
+
+		return listNotes;
+	}
+
+	/**
+	 * 
+	 */
+	private void setFieldAndDescriptionValues() {
+		/* Extract ID (Seq) */
+		this.fieldExtractIDSeq = "ExtractIDCode_Seq";
+		this.descriptionExtractIDSeq = "Naturalis file " + noteTextExtractIDSeq
+				+ " note";
+
+		/* PCR plate */
+		this.fieldPCRPlate = "PCRplateIDCode_Seq";
+		this.descriptionPCRPlate = "Naturalis file " + noteTextPCRPlate
+				+ " note";
+
+		/* MARKER */
+		this.fieldMarker = "MarkerCode_Seq";
+		this.descriptionMarker = "Naturalis file " + noteTextMarker + " note";
+
+		/* Document Version */
+		this.fieldDocversion = "DocumentVersionCode_Seq";
+		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
+				+ " note";
+
+		/* Seq-staff (Seq) */
+		this.fieldSeqStaff = "SequencingStaffCode_FixedValue_Seq";
+		this.descriptionSeqStaff = "Naturalis file " + noteTextSeqStaff
+				+ " note";
+
+		/* ConsensusSeqPassCode */
+		this.fieldConsensus = "ConsensusSeqPassCode_Seq";
+		this.descriptionConsensus = "Naturalis file " + noteTextConsensus
+				+ " note";
 	}
 
 }

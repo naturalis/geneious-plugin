@@ -87,115 +87,13 @@ public class LimsSamplesNotes {
 			String extractPlateNumber, String platePosition, String extractID,
 			String subSample, Object versionNumber, String regScientificname) {
 
-		/* Registration number */
-		this.fieldRegistrationNumber = "RegistrationNumberCode_Samples";
-		this.descriptionReg = "Naturalis file " + noteTextReg + " note";
-
-		/* Taxon name */
-		this.fieldTaxonName = "TaxonName2Code_Samples";
-		this.descriptionTaxon = "Naturalis file " + noteTextTaxon + " note";
-
-		/* Projecte plate number */
-		this.fieldProjectPlate = "ProjectPlateNumberCode_Samples";
-		this.descriptionProjectPlate = "Naturalis file " + noteTextProjectPlate
-				+ " note";
-
-		/* Extract plate number */
-		this.fieldExtractPlateNumber = "ExtractPlateNumberCode_Samples";
-		this.descriptionExtractPlateNumber = "Naturalis file "
-				+ noteTextExtractPlateNumber + " note";
-
-		/* Plate position */
-		this.fieldPlatePosition = "PlatePositionCode_Samples";
-		this.descriptionPlatePosition = "Naturalis file "
-				+ noteTextPlatePosition + " note";
-
-		/* Extract ID */
-		this.fieldExtractID = "ExtractIDCode_Samples";
-		this.descriptionExtractID = "Naturalis file " + noteTextExtractID
-				+ " note";
-
-		/* Extraction method (Samples) */
-		this.fieldExtractMethod = "SampleMethodCode_Samples";
-		this.descriptionExtractMethod = "Naturalis file "
-				+ noteTextExtractMethod + " note";
-
-		/* Document Version */
-		this.fieldDocversion = "DocumentVersionCode_Seq";
-		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
-				+ " note";
-
-		/* AmplicificationStaffCode_FixedValue_Samples */
-		this.fieldAmplStaff = "AmplicificationStaffCode_FixedValue_Samples";
-		this.descriptionAmplStaff = "Naturalis file " + noteTextAmplStaff
-				+ " note";
-
-		/* Registr-nmbr_[Scientific_name] */
-		this.fieldRegScientfic = "RegistrationNumberCode_TaxonName2Code_Samples";
-		this.descriptionRegScientfic = "Naturalis file " + noteTextRegScientfic
-				+ " note";
+		setFieldAndDescriptionValues();
 
 		/*
 		 * =====================================================================
 		 */
 
-		// if (docName.equals(resultExists.toString())) {
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-
-		/* Registration number */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextReg,
-				this.descriptionReg, this.fieldRegistrationNumber,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Taxon name */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextTaxon,
-				this.descriptionTaxon, this.fieldTaxonName,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Project plate number */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextProjectPlate, this.descriptionProjectPlate,
-				this.fieldProjectPlate, Collections.<Constraint> emptyList(),
-				false));
-
-		/* Extract plate number */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextExtractPlateNumber, this.descriptionExtractPlateNumber,
-				this.fieldExtractPlateNumber,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Plate Postion */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextPlatePosition, this.descriptionPlatePosition,
-				this.fieldPlatePosition, Collections.<Constraint> emptyList(),
-				false));
-
-		/* Extract ID */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextExtractID,
-				this.descriptionExtractID, this.fieldExtractID,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Extract Method */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextExtractMethod, this.descriptionExtractMethod,
-				this.fieldExtractMethod, Collections.<Constraint> emptyList(),
-				false));
-
-		/* Document Version */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
-				this.descriptionDocversion, this.fieldDocversion,
-				Collections.<Constraint> emptyList(), false));
-
-		/* AmplicificationStaffCode_FixedValue_Samples */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextAmplStaff,
-				this.descriptionAmplStaff, this.fieldAmplStaff,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Registr-nmbr_[Scientific_name] */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextRegScientfic, this.descriptionRegScientfic,
-				this.fieldRegScientfic, Collections.<Constraint> emptyList(),
-				false));
+		ArrayList<DocumentNoteField> listNotes = addNotesToListNotes();
 
 		/* ================================================================ */
 
@@ -373,6 +271,7 @@ public class LimsSamplesNotes {
 			logger.info("NoteType " + noteTextRegScientfic
 					+ " created succesful");
 		}
+		/* ================================================================= */
 
 		if (documentNoteTypeExtractMethod.getName().equals(
 				"Extraction method (Samples)")) {
@@ -383,25 +282,7 @@ public class LimsSamplesNotes {
 			documentNoteTypeExtractPlate.setDefaultVisibleInTable(false);
 		}
 
-		/*
-		 * if (documentNoteType.getName().equals("Extraction method (Samples)")
-		 * || documentNoteType.getName().equals( "Extract plate ID (Samples)")
-		 * || documentNoteType.getName().equals("Region (CRS)") ||
-		 * documentNoteType.getName().equals("Lat (CRS)") ||
-		 * documentNoteType.getName().equals("Long (CRS)") ||
-		 * documentNoteType.getName().equals("Altitude (CRS)") ||
-		 * documentNoteType.getName().equals("Phylum (CRS)") ||
-		 * documentNoteType.getName().equals("Class (CRS)") ||
-		 * documentNoteType.getName().equals("Family (CRS)") ||
-		 * documentNoteType.getName().equals("Subfamily (CRS)") ||
-		 * documentNoteType.getName().equals("Genus (CRS)") ||
-		 * documentNoteType.getName().equals("BOLD proj-ID (Bold)") ||
-		 * documentNoteType.getName().equals("Field ID (Bold)") ||
-		 * documentNoteType.getName().equals("BOLD BIN (Bold)") ||
-		 * documentNoteType.getName() .equals("Nucleotide length (Bold)") ||
-		 * documentNoteType.getName().equals("GenBank ID (Bold)")) {
-		 * documentNoteType.setDefaultVisibleInTable(false); }
-		 */
+		/* ================================================================= */
 
 		/* Create note for Extract-ID */
 
@@ -490,8 +371,122 @@ public class LimsSamplesNotes {
 		logger.info("Notes added succesful");
 
 		listNotes.clear();
+	}
 
-		// }
+	/**
+	 * @return
+	 */
+	private ArrayList<DocumentNoteField> addNotesToListNotes() {
+		// if (docName.equals(resultExists.toString())) {
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
+		/* Registration number */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextReg,
+				this.descriptionReg, this.fieldRegistrationNumber,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Taxon name */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextTaxon,
+				this.descriptionTaxon, this.fieldTaxonName,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Project plate number */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextProjectPlate, this.descriptionProjectPlate,
+				this.fieldProjectPlate, Collections.<Constraint> emptyList(),
+				false));
+
+		/* Extract plate number */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextExtractPlateNumber, this.descriptionExtractPlateNumber,
+				this.fieldExtractPlateNumber,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Plate Postion */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextPlatePosition, this.descriptionPlatePosition,
+				this.fieldPlatePosition, Collections.<Constraint> emptyList(),
+				false));
+
+		/* Extract ID */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextExtractID,
+				this.descriptionExtractID, this.fieldExtractID,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Extract Method */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextExtractMethod, this.descriptionExtractMethod,
+				this.fieldExtractMethod, Collections.<Constraint> emptyList(),
+				false));
+
+		/* Document Version */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
+				this.descriptionDocversion, this.fieldDocversion,
+				Collections.<Constraint> emptyList(), false));
+
+		/* AmplicificationStaffCode_FixedValue_Samples */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextAmplStaff,
+				this.descriptionAmplStaff, this.fieldAmplStaff,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Registr-nmbr_[Scientific_name] */
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextRegScientfic, this.descriptionRegScientfic,
+				this.fieldRegScientfic, Collections.<Constraint> emptyList(),
+				false));
+		return listNotes;
+	}
+
+	/**
+	 * 
+	 */
+	private void setFieldAndDescriptionValues() {
+		/* Registration number */
+		this.fieldRegistrationNumber = "RegistrationNumberCode_Samples";
+		this.descriptionReg = "Naturalis file " + noteTextReg + " note";
+
+		/* Taxon name */
+		this.fieldTaxonName = "TaxonName2Code_Samples";
+		this.descriptionTaxon = "Naturalis file " + noteTextTaxon + " note";
+
+		/* Projecte plate number */
+		this.fieldProjectPlate = "ProjectPlateNumberCode_Samples";
+		this.descriptionProjectPlate = "Naturalis file " + noteTextProjectPlate
+				+ " note";
+
+		/* Extract plate number */
+		this.fieldExtractPlateNumber = "ExtractPlateNumberCode_Samples";
+		this.descriptionExtractPlateNumber = "Naturalis file "
+				+ noteTextExtractPlateNumber + " note";
+
+		/* Plate position */
+		this.fieldPlatePosition = "PlatePositionCode_Samples";
+		this.descriptionPlatePosition = "Naturalis file "
+				+ noteTextPlatePosition + " note";
+
+		/* Extract ID */
+		this.fieldExtractID = "ExtractIDCode_Samples";
+		this.descriptionExtractID = "Naturalis file " + noteTextExtractID
+				+ " note";
+
+		/* Extraction method (Samples) */
+		this.fieldExtractMethod = "SampleMethodCode_Samples";
+		this.descriptionExtractMethod = "Naturalis file "
+				+ noteTextExtractMethod + " note";
+
+		/* Document Version */
+		this.fieldDocversion = "DocumentVersionCode_Seq";
+		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
+				+ " note";
+
+		/* AmplicificationStaffCode_FixedValue_Samples */
+		this.fieldAmplStaff = "AmplicificationStaffCode_FixedValue_Samples";
+		this.descriptionAmplStaff = "Naturalis file " + noteTextAmplStaff
+				+ " note";
+
+		/* Registr-nmbr_[Scientific_name] */
+		this.fieldRegScientfic = "RegistrationNumberCode_TaxonName2Code_Samples";
+		this.descriptionRegScientfic = "Naturalis file " + noteTextRegScientfic
+				+ " note";
 	}
 }

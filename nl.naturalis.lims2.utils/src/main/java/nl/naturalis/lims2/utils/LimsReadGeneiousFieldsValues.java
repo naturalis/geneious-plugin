@@ -274,22 +274,22 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
+			final String SQL = "SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count"
+					+ " FROM "
+					+ " ( "
+					+ " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
+					+ " FROM annotated_document"
+					+ " ) AS a "
+					+ " WHERE UNCOMPRESS(a.name) = ?";
+
 			/*
 			 * final String SQL =
-			 * "SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count" + " FROM " +
-			 * " ( " +
-			 * " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
-			 * + " FROM annotated_document" + " ) AS a " +
-			 * " WHERE UNCOMPRESS(a.name) = ?";
+			 * "SELECT ExtractValue(plugin_document_xml, '//ABIDocument/name') as name, Count(*) As Count"
+			 * + " FROM annotated_document" +
+			 * " WHERE ExtractValue(plugin_document_xml,'//ABIDocument/name')= ?"
+			 * + " AND match (plugin_document_xml) against (" + "'" + filename +
+			 * "'" + ")";
 			 */
-
-			final String SQL = "SELECT ExtractValue(plugin_document_xml, '//ABIDocument/name') as name, Count(*) As Count"
-					+ " FROM annotated_document"
-					+ " WHERE ExtractValue(plugin_document_xml,'//ABIDocument/name')= ?"
-					+ " AND match (plugin_document_xml) against ("
-					+ "'"
-					+ filename + "'" + ")";
-
 			/*
 			 * final String SQL = "SELECT DISTINCT Count(1) as count " +
 			 * "FROM   (  SELECT TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "

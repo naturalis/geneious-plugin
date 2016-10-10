@@ -803,20 +803,9 @@ public class LimsImportSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
-						String dummyFile = limsSQL.getdocumentName(ID + ".dum");
-						/*
-						 * ReadGeneiousFieldsValues
-						 * .getFastaIDForSamples_GeneiousDB(ID);
-						 */
-
-						// if (dummyFile.trim() != "") {
-						// dummyFile = getExtractIDFromAB1FileName(dummyFile);
-						// }
-
 						int dummyExists = limsSQL
 								.checkIfSampleDocExistsInTableAnnotatedDocument(ID);
 
-						// if (!dummyFile.equals(ID + ".dum")) {
 						if (dummyExists == 0) {
 							limsFrameProgress
 									.showProgress("Creating dummy file: " + ID
@@ -887,10 +876,6 @@ public class LimsImportSamples extends DocumentAction {
 			underscore = StringUtils.split(fileName, "_");
 		} else {
 			underscore = StringUtils.split(fileName, "");
-			;
-			// System.out.println(fileName);
-			// throw new IllegalArgumentException("String " + fileName
-			// + " cannot be split. ");
 		}
 		return underscore[0];
 	}

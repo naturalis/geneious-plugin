@@ -26,7 +26,7 @@ public class LimsReplaceDummyNotes {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsReplaceDummyNotes.class);
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
+	// private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 
 	private String fieldPCRPlate;
 	private String noteTypeCodePCRPlate;
@@ -326,8 +326,6 @@ public class LimsReplaceDummyNotes {
 					.createNewNoteType(noteTextAmplStaff,
 							this.noteTypeCodeAmplStaff,
 							this.descriptionAmplStaff, listNotes, false);
-			documentNoteTypeAmplStaff.setDefaultVisibleInTable(false);
-			documentNoteTypeAmplStaff.setVisible(false);
 			DocumentNoteUtilities.setNoteType(documentNoteTypeAmplStaff);
 			logger.info("NoteType " + noteTextAmplStaff + " created succesful");
 		}
@@ -505,6 +503,13 @@ public class LimsReplaceDummyNotes {
 		 * ==================================================================
 		 */
 
+		if (documentNoteSeqStaff.getName().equals("Seq-staff (Seq)")) {
+			documentNoteTypeSeqStaff.setDefaultVisibleInTable(false);
+			documentNoteTypeSeqStaff.setVisible(false);
+
+			DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff);
+		}
+
 		AnnotatedPluginDocument.DocumentNotes documentNotes = document
 				.getDocumentNotes(true);
 
@@ -617,6 +622,14 @@ public class LimsReplaceDummyNotes {
 		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
 				this.descriptionDocversion, this.fieldDocversion,
 				Collections.<Constraint> emptyList(), false));
+
+		/*
+		 * listNotes.add(DocumentNoteField.createTextNoteField(
+		 * noteTextAmplStaffSeq, this.descriptionAmplStaffSeq,
+		 * this.fieldAmplStaffSeq, Collections.<Constraint> emptyList(),
+		 * false));
+		 */
+
 		return listNotes;
 	}
 
@@ -690,6 +703,13 @@ public class LimsReplaceDummyNotes {
 		this.fieldDocversion = "DocumentVersionCode_Seq";
 		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
 				+ " note";
+
+		/*
+		 * Ampl staff Seq this.fieldAmplStaffSeq = "PCRplateIDCode_Seq";
+		 * this.descriptionAmplStaffSeq = "Naturalis file " +
+		 * noteTextAmplStaffSeq + " note";
+		 */
+
 	}
 
 }

@@ -462,6 +462,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * "Pass (Seq)", null); }
 	 */
 
+	private void setNotes_To_AB1_Fasta(
+			AnnotatedPluginDocument documentAnnotated, String fileName)
+			throws IOException {
+		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
+				"Pass (Seq)", "Pass (Seq)", null);
+	}
+
 	/*
 	 * Import Replace dummy documents notes with AB1 notes
 	 */

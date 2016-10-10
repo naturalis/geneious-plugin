@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.Constraint;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
@@ -24,7 +25,6 @@ public class LimsSetCRSNotes {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsSetCRSNotes.class);
-	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 
 	/* PHYLUM */
 	private String fieldPhylum;
@@ -142,13 +142,13 @@ public class LimsSetCRSNotes {
 
 	ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 
-	public void setImportNotes(AnnotatedPluginDocument document,
+	public void setImportNotes(AnnotatedPluginDocument[] document,
 			String fileName, String phylum, String classes, String order,
 			String family, String subFamily, String genus,
 			String scientificName, String identifier, String sex, String stage,
 			String collectorLeg, String collectingDate, String country,
 			String bioRegion, String locality, String latitude,
-			String longtitude, String heightAlitude) {
+			String longtitude, String heightAlitude, int cnt) {
 		logger.info("----------------------------S T A R T ---------------------------------");
 		logger.info("Start extracting value from file: " + fileName);
 
@@ -252,7 +252,7 @@ public class LimsSetCRSNotes {
 				.getNoteType(this.noteTypeAltitude);
 
 		/* CRS True False */
-		this.noteTypeCRS = "DocumentNoteUtilities-" + noteTypeCRS;
+		this.noteTypeCRS = "DocumentNoteUtilities-" + noteTextCRS;
 		DocumentNoteType documentNoteTypeCRS = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCRS);
 
@@ -427,10 +427,32 @@ public class LimsSetCRSNotes {
 		/* CRS True False */
 		if (documentNoteTypeCRS == null) {
 			documentNoteTypeCRS = DocumentNoteUtilities.createNewNoteType(
-					noteTypeCRS, this.noteTypeCRS, this.descriptionCRS,
+					noteTextCRS, this.noteTypeCRS, this.descriptionCRS,
 					listNotes, false);
 			DocumentNoteUtilities.setNoteType(documentNoteTypeCRS);
 			logger.info("NoteType " + noteTypeCRS + " created succesful");
+		}
+
+		/* =========================================================== */
+		if (documentNoteTypeRegion.getName().equals("Region (CRS)")
+				|| documentNoteTypeLatitude.getName().equals("Lat (CRS)")
+				|| documentNoteTypeLongtitude.getName().equals("Long (CRS)")
+				|| documentNoteTypeAltitude.getName().equals("Altitude (CRS)")
+				|| documentNoteTypePhylum.getName().equals("Phylum (CRS)")
+				|| documentNoteTypeClass.getName().equals("Class (CRS)")
+				|| documentNoteTypeFamily.getName().equals("Family (CRS)")
+				|| documentNoteTypeSubfamily.getName()
+						.equals("Subfamily (CRS)")
+				|| documentNoteTypeGenus.getName().equals("Genus (CRS)")) {
+			documentNoteTypeRegion.setDefaultVisibleInTable(false);
+			documentNoteTypeLatitude.setDefaultVisibleInTable(false);
+			documentNoteTypeLongtitude.setDefaultVisibleInTable(false);
+			documentNoteTypeAltitude.setDefaultVisibleInTable(false);
+			documentNoteTypePhylum.setDefaultVisibleInTable(false);
+			documentNoteTypeClass.setDefaultVisibleInTable(false);
+			documentNoteTypeFamily.setDefaultVisibleInTable(false);
+			documentNoteTypeSubfamily.setDefaultVisibleInTable(false);
+			documentNoteTypeGenus.setDefaultVisibleInTable(false);
 		}
 
 		/* ============================================================== */
@@ -492,7 +514,115 @@ public class LimsSetCRSNotes {
 		logger.info("Note value " + this.fieldIdentifier + ": " + identifier
 				+ " added succesful");
 
+		/* Create note for Sex */
+		DocumentNote documentNoteSex = documentNoteTypeSex.createDocumentNote();
+		documentNoteSex.setFieldValue(this.fieldSex, sex);
+		logger.info("Note value " + this.fieldSex + ": " + sex
+				+ " added succesful");
+
+		/* Create note for Phase Or Stage */
+		DocumentNote documentNoteStage = documentNoteTypeStage
+				.createDocumentNote();
+		documentNoteStage.setFieldValue(this.fieldStage, stage);
+		logger.info("Note value " + this.fieldStage + ": " + stage
+				+ " added succesful");
+
+		/* Create note for Collector */
+		DocumentNote documentNoteCollector = documentNoteTypeLeg
+				.createDocumentNote();
+		documentNoteCollector.setFieldValue(this.fieldLeg, collectorLeg);
+		logger.info("Note value " + this.fieldLeg + ": " + collectorLeg
+				+ " added succesful");
+
+		/* Create note for Collecting date */
+		DocumentNote documentNoteDate = documentNoteTypeDate
+				.createDocumentNote();
+		documentNoteDate.setFieldValue(this.fieldDate, collectingDate);
+		logger.info("Note value " + this.fieldDate + ": " + collectingDate
+				+ " added succesful");
+
+		/* Create note for Country */
+		DocumentNote documentNoteCountry = documentNoteTypeCountry
+				.createDocumentNote();
+		documentNoteCountry.setFieldValue(this.fieldCountry, country);
+		logger.info("Note value " + this.fieldCountry + ": " + country
+				+ " added succesful");
+
+		/* Create note for BioRegion */
+		DocumentNote documentNoteRegion = documentNoteTypeRegion
+				.createDocumentNote();
+		documentNoteRegion.setFieldValue(this.fieldRegion, bioRegion);
+		logger.info("Note value " + this.fieldRegion + ": " + bioRegion
+				+ " added succesful");
+
+		/* Create note for Locality */
+		DocumentNote documentNoteLocality = documentNoteTypeLocality
+				.createDocumentNote();
+		documentNoteLocality.setFieldValue(this.fieldLocality, locality);
+		logger.info("Note value " + this.fieldLocality + ": " + locality
+				+ " added succesful");
+
+		/* Create note for Latitude */
+		DocumentNote documentNoteLatitude = documentNoteTypeLatitude
+				.createDocumentNote();
+		documentNoteLatitude.setFieldValue(this.fieldLat, latitude);
+		logger.info("Note value " + this.fieldLat + ": " + latitude
+				+ " added succesful");
+
+		/* Create note for Longtitude */
+		DocumentNote documentNoteLongtitude = documentNoteTypeLongtitude
+				.createDocumentNote();
+		documentNoteLongtitude.setFieldValue(this.fieldLong, longtitude);
+		logger.info("Note value " + this.fieldLong + ": " + longtitude
+				+ " added succesful");
+
+		/* Create note for Height */
+		DocumentNote documentNoteHeight = documentNoteTypeAltitude
+				.createDocumentNote();
+		documentNoteHeight.setFieldValue(this.fieldAltitude, heightAlitude);
+		logger.info("Note value " + this.fieldAltitude + ": " + heightAlitude
+				+ " added succesful");
+
+		/* Create note for Height */
+		DocumentNote documentNoteCRS = documentNoteTypeCRS.createDocumentNote();
+		documentNoteCRS.setFieldValue(this.fieldCRS, true);
+		logger.info("Note value " + this.fieldCRS + ": " + true
+				+ " added succesful");
+
 		/* ============================================================ */
+
+		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) document[cnt]
+				.getDocumentNotes(true);
+
+		/* Set note */
+		documentNotes.setNote(documentNotePhylum);
+		documentNotes.setNote(documentNoteClass);
+		documentNotes.setNote(documentNoteOrder);
+		documentNotes.setNote(documentNotefamily);
+		documentNotes.setNote(documentNoteSubfamily);
+		documentNotes.setNote(documentNoteGenus);
+		documentNotes.setNote(documentNoteTaxonName);
+		documentNotes.setNote(documentNoteIdentifier);
+		documentNotes.setNote(documentNoteSex);
+		documentNotes.setNote(documentNoteStage);
+		documentNotes.setNote(documentNoteCollector);
+		documentNotes.setNote(documentNoteDate);
+		documentNotes.setNote(documentNoteCountry);
+		documentNotes.setNote(documentNoteRegion);
+		documentNotes.setNote(documentNoteLocality);
+		documentNotes.setNote(documentNoteLatitude);
+		documentNotes.setNote(documentNoteLongtitude);
+		documentNotes.setNote(documentNoteHeight);
+		documentNotes.setNote(documentNoteCRS);
+
+		/* Save the selected sequence document */
+		documentNotes.saveNotes();
+
+		logger.info("Notes added succesful");
+
+		if (listNotes != null) {
+			listNotes.clear();
+		}
 
 	}
 
