@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
@@ -86,6 +87,7 @@ public class LimsImportAB1Update extends DocumentAction {
 	private boolean fileExists = false;
 	private File file = null;
 	private Boolean extractValue = false;
+	private long startBeginTime = 0;
 
 	/**
 	 * ActionPerformed start the process of the selected documents and read the
@@ -136,9 +138,10 @@ public class LimsImportAB1Update extends DocumentAction {
 			 * Looping thru the selected documents that will be updated with
 			 * data
 			 */
+			Object filePathExists = null;
 			for (int cnt = 0; cnt < DocumentUtilities.getSelectedDocuments()
 					.size(); cnt++) {
-
+				startBeginTime = System.nanoTime();
 				/*
 				 * If selected document is a De Novo Assemble do not process the
 				 * document
@@ -180,13 +183,18 @@ public class LimsImportAB1Update extends DocumentAction {
 								"DocumentNoteUtilities-Extract ID (Seq)",
 								"ExtractIDCode_Seq");
 
+				filePathExists = ReadGeneiousFieldsValues
+						.getValueFromAnnotatedPluginDocument(
+								annotatedPluginDocuments[cnt], "importedFrom",
+								"path");
+
 				/*
 				 * Get the import path from the selected document
 				 * "C:\Git\Data\Fasta files"
 				 */
 				if (documentFileName.getName().contains("dum")) {
 					continue;
-				} else {
+				} else if ((boolean) filePathExists) {
 					documentFileImportPath = DocumentUtilities
 							.getSelectedDocuments().get(cnt)
 							.getDocumentNotes(true).getNote("importedFrom")
@@ -201,7 +209,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				}
 
 				/* if file exists in the database */
-				if (fileExists) {
+				if (fileExists && (boolean) filePathExists) {
 					if (!(documentFileName.getName().toString().contains("ab1") || documentFileName
 							.getName().toString().contains("dum"))) {
 
@@ -220,6 +228,7 @@ public class LimsImportAB1Update extends DocumentAction {
 						}
 
 						/* Check if fasta file exists in the database */
+
 						fastaFileExists = ReadGeneiousFieldsValues
 								.checkOfFastaOrAB1Exists(
 										extractAb1FastaFileName,
@@ -244,6 +253,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				/* AB1 File extracten */
 				extractAB1File(annotatedPluginDocuments, cnt);
 
+				calculateTimeForAddingNotes(startBeginTime);
 			} // end for loop
 
 			logger.info("Total of document(s) updated: "
@@ -255,6 +265,7 @@ public class LimsImportAB1Update extends DocumentAction {
 			} else {
 				logger.info("Done with extracting Fas file name. ");
 			}
+
 			EventQueue.invokeLater(new Runnable() {
 
 				/**
@@ -336,15 +347,18 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * if file exists and is not extravalue "ExtractIDCode_Seq"
 				 * increase Version number.
 				 */
-				if (fastaFileExists && !extractValue) {
+				if (fileExists && !extractValue) {
 					versienummer++;
 				}
 			}
 
 			/* Set version number Fasta file and AB1 */
+
 			if (fastaFileExists && !extractValue) {
 				limsAB1Fields.setVersieNummer(versienummer);
-			} else if (fileExists && !extractValue) {
+			} else
+
+			if (fileExists && !extractValue) {
 				limsAB1Fields.setVersieNummer(versienummer);
 			}
 
@@ -438,6 +452,16 @@ public class LimsImportAB1Update extends DocumentAction {
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
 				NucleotideSequenceDocument.class, 0, Integer.MAX_VALUE) };
+	}
+
+	private void calculateTimeForAddingNotes(long startBeginTime) {
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		endTime = 0;
 	}
 
 }

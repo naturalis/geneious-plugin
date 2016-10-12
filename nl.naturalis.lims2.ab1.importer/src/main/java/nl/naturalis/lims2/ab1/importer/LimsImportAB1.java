@@ -186,34 +186,23 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					limsSQL.updateImportCount(counter, file.getName());
 				}
 
-				// ab1fileExists = ab1DocExists;
-
 				/* Check if file exists in the database */
-				/*
-				 * ab1fileExists = ReadGeneiousFieldsValues
-				 * .fileNameExistsInGeneiousDatabase(file.getName());
-				 */
 
 				/*
 				 * dummyFilename = ReadGeneiousFieldsValues
 				 * .getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
 				 * "//document/hiddenFields/cache_name");
 				 */
+				boolean dummyExists = ReadGeneiousFieldsValues
+						.getImportDummyDocument(ab1FileName[0] + ".dum");
 
-				// limsSQL.truefalse = false;
-
-				/* if exists then get the ID from the dummy file */
 				/*
-				 * int dummyExists = ReadGeneiousFieldsValues
-				 * .checkIfDocExistsInTableAnnotatedDocument( ab1FileName[0] +
-				 * ".dum", "//document/hiddenFields/cache_name");
+				 * int dummyExists = limsSQL
+				 * .checkIfSampleDocExistsInTableAnnotatedDocument
+				 * (ab1FileName[0] + ".dum"); if (dummyExists == 0) {
 				 */
-				int dummyExists = limsSQL
-						.checkIfSampleDocExistsInTableAnnotatedDocument(ab1FileName[0]
-								+ ".dum");
-				// limsSQL.documentNameExist(ab1FileName[0]
-				// + ".dum");
-				if (dummyExists == 1) {
+
+				if (dummyExists) {
 					annotatedDocumentID = ReadGeneiousFieldsValues
 							.getIDFromTableAnnotatedDocument(ab1FileName[0]
 									+ ".dum",
@@ -462,13 +451,13 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * "Pass (Seq)", null); }
 	 */
 
-	private void setNotes_To_AB1_Fasta(
-			AnnotatedPluginDocument documentAnnotated, String fileName)
-			throws IOException {
-		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
-				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
-				"Pass (Seq)", "Pass (Seq)", null);
-	}
+	/*
+	 * private void setNotes_To_AB1_Fasta( AnnotatedPluginDocument
+	 * documentAnnotated, String fileName) throws IOException {
+	 * limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
+	 * "Pass (Seq)", null); }
+	 */
 
 	/*
 	 * Import Replace dummy documents notes with AB1 notes

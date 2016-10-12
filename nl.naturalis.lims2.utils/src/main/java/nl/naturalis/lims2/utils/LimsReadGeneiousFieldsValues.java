@@ -184,16 +184,22 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT a.name" + " FROM " + " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(" + fieldName + ", ' "
-					+ xmlnotes + " ')) AS name " + " FROM annotated_document"
-					+ " ) AS a " + " WHERE a.name =?" + "\n" + " LIMIT 1";
+			final String SQL = "SELECT ID FROM annotated_document" + "\n"
+					+ "WHERE document_xml like  '%" + fileName + "%' " + "\n"
+					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+
+			/*
+			 * final String SQL = " SELECT a.name" + " FROM " + " ( " +
+			 * " SELECT	TRIM(EXTRACTVALUE(" + fieldName + ", ' " + xmlnotes +
+			 * " ')) AS name " + " FROM annotated_document" + " ) AS a " +
+			 * " WHERE a.name =?" + "\n" + " LIMIT 1";
+			 */
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			pst.setString(1, fileName);
+			// pst.setString(1, fileName);
 			rs = pst.executeQuery();
 
 			if (rs.next()) {
@@ -203,27 +209,11 @@ public class LimsReadGeneiousFieldsValues {
 						truefalse = false;
 					else
 						truefalse = true;
-
-					logger.debug("Filename: " + result
-							+ " already exists in the geneious database.");
-
 					limsLogList.UitvalList.add("Filename: " + result
 							+ " already exists in the geneious database."
 							+ "\n");
 				} while (rs.next());
 			}
-			/*
-			 * while (rs.next()) { result = rs.getObject(1).toString(); if
-			 * (rs.wasNull()) truefalse = false; else truefalse = true;
-			 * 
-			 * logger.debug("Filename: " + result +
-			 * " already exists in the geneious database.");
-			 * 
-			 * limsLogList.UitvalList.add("Filename: " + result +
-			 * " already exists in the geneious database." + "\n");
-			 * 
-			 * }
-			 */
 		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
 			exception = ex;
@@ -274,13 +264,14 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = "SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count"
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
-					+ " FROM annotated_document"
-					+ " ) AS a "
-					+ " WHERE UNCOMPRESS(a.name) = ?";
+			/*
+			 * final String SQL =
+			 * "SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count" + " FROM " +
+			 * " ( " +
+			 * " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
+			 * + " FROM annotated_document" + " ) AS a " +
+			 * " WHERE UNCOMPRESS(a.name) = ?";
+			 */
 
 			/*
 			 * final String SQL =
@@ -290,35 +281,33 @@ public class LimsReadGeneiousFieldsValues {
 			 * + " AND match (plugin_document_xml) against (" + "'" + filename +
 			 * "'" + ")";
 			 */
-			/*
-			 * final String SQL = "SELECT DISTINCT Count(1) as count " +
-			 * "FROM   (  SELECT TRIM(EXTRACTVALUE(plugin_document_xml, '//ABIDocument/name')) AS name "
-			 * + "\n" + "WHERE a.name = ?" + "\n" + "GROUP by a.name";
-			 */
+
+			final String SQL = "SELECT ID FROM annotated_document" + "\n"
+					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
+					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			pst.setString(1, filename);
+			// pst.setString(1, filename);
 			rs = pst.executeQuery();
-			while (rs.next()) {
-				// result = rs.getString("name");
-				recordcount = rs.getInt("count");
+			if (rs.next()) {
+				do {
+					int cnt = rs.getInt(1);
+					if (cnt == 0)
+						truefalse = false;
+					else
+						truefalse = true;
 
-				if (rs.wasNull())
-					truefalse = false;
-				else
-					truefalse = true;
-
-				/*
-				 * logger.debug("Filename: " + result +
-				 * " already exists in the geneious database.");
-				 * limsLogList.UitvalList.add("Filename: " + result +
-				 * " already exists in the geneious database." + "\n");
-				 */
+				} while (rs.next());
 			}
-		} catch (SQLException ex) {
+			/*
+			 * while (rs.next()) { // result = rs.getString("name"); recordcount
+			 * = rs.getInt("count");
+			 * 
+			 * if (rs.wasNull()) truefalse = false; else truefalse = true; }
+			 */} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
 			exception = ex;
 
@@ -369,9 +358,16 @@ public class LimsReadGeneiousFieldsValues {
 			final String SQL = " SELECT DISTINCT a.name, COUNT(*) as Count"
 					+ " FROM "
 					+ " ( "
-					+ " SELECT DISTINCT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
+					+ " SELECT DISTINCT	TRIM(EXTRACTVALUE(document_xml, ' //document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name like ?" + "\n" + "LIMIT 1";
+			// final String SQL = " SELECT DISTINCT a.name, COUNT(*) as Count"
+			// + " FROM "
+			// + " ( "
+			// +
+			// " SELECT DISTINCT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
+			// + " FROM annotated_document" + " ) AS a "
+			// + " WHERE a.name like ?" + "\n" + "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -379,14 +375,9 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, "%" + extractid + "%");
 			rs = pst.executeQuery();
-			/*
-			 * while (rs.next()) { result = rs.getObject(1).toString();
-			 * logger.info("Extract ID: " + result +
-			 * " already exsist in the geneious database."); }
-			 */
 			if (rs.next()) {
 				do {
-					result = rs.getObject(1).toString();
+					result = rs.getString("name"); // .getObject(1).toString();
 					logger.info("Extract ID: " + result
 							+ " already exsist in the geneious database.");
 				} while (rs.next());
@@ -451,13 +442,6 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			/*
-			 * while (rs.next()) { result = rs.getObject(1).toString();
-			 * logger.debug("Filename: " + result +
-			 * " already exists in the geneious database.");
-			 * limsLogList.UitvalList.add("Filename: " + result +
-			 * " already exists in the geneious database." + "\n"); }
-			 */
 			if (rs.next()) {
 				do {
 					result = rs.getObject(1).toString();
@@ -498,6 +482,60 @@ public class LimsReadGeneiousFieldsValues {
 			}
 		}
 		return result;
+	}
+
+	public boolean getImportDummyDocument(Object filename) throws IOException {
+
+		boolean truefalse = false;
+
+		try {
+
+			final String SQL = "SELECT ID" + "\n" + "FROM annotated_document"
+					+ "\n" + "WHERE document_xml like  '%" + filename + "%' "
+					+ "\n" + "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+			try {
+				con = DriverManager.getConnection(url + activeDB + ssl, user,
+						password);
+				con.clearWarnings();
+			} catch (SQLException e) {
+				logger.warn("Cannot connect the database!", e);
+			}
+
+			pst = con.prepareStatement(SQL);
+
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					int cnt = rs.getInt(1);
+					if (cnt == 0)
+						truefalse = false;
+					else
+						truefalse = true;
+
+					limsLogList.UitvalList.add("Filename: " + filename
+							+ " already exists in the geneious database."
+							+ "\n");
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return truefalse;
 	}
 
 	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename,

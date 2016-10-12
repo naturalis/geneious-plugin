@@ -115,28 +115,31 @@ public class LimsAB1Fields {
 		/*
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
 		 */
-		if (ab1FileName.contains("_") && ab1FileName.contains(".ab1")) {
-			String[] underscore = StringUtils.split(ab1FileName, "_");
-			setExtractID(underscore[0]);
-			setPcrPlaatID(underscore[3]);
-			setMarker(underscore[4].substring(0, underscore[4].indexOf("-")));
-		} else if (!ab1FileName.contains(".ab1")) {
-
-			String[] underscore = StringUtils.split(ab1FileName, "_");
-			if (underscore[0] != null) {
+		if (ab1FileName != "") {
+			if (ab1FileName.contains("_") && ab1FileName.contains(".ab1")) {
+				String[] underscore = StringUtils.split(ab1FileName, "_");
 				setExtractID(underscore[0]);
-			} else {
-				logger.info("Geen Fasta ExtractID aanwezig? ");
-			}
-			if (underscore[3] != null) {
 				setPcrPlaatID(underscore[3]);
-			} else {
-				logger.info("Geen Fasta PcrPlaatID aanwezig? ");
-			}
-			if (underscore[4] != null) {
-				setMarker(underscore[4]);
-			} else {
-				logger.info("Geen Fasta Marker aanwezig? ");
+				setMarker(underscore[4]
+						.substring(0, underscore[4].indexOf("-")));
+			} else if (!ab1FileName.contains(".ab1")) {
+
+				String[] underscore = StringUtils.split(ab1FileName, "_");
+				if (underscore[0] != "") {
+					setExtractID(underscore[0]);
+				} else {
+					logger.info("Geen Fasta ExtractID aanwezig? ");
+				}
+				if (underscore[3] != "") {
+					setPcrPlaatID(underscore[3]);
+				} else {
+					logger.info("Geen Fasta PcrPlaatID aanwezig? ");
+				}
+				if (underscore[4] != "") {
+					setMarker(underscore[4]);
+				} else {
+					logger.info("Geen Fasta Marker aanwezig? ");
+				}
 			}
 		}
 	}

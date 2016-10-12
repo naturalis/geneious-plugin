@@ -124,6 +124,7 @@ public class LimsImportBold extends DocumentAction {
 
 	private DefaultAlignmentDocument defaultAlignmentDocument = null;
 	private DefaultNucleotideSequence defaultNucleotideSequence = null;
+	private DefaultNucleotideGraphSequence defaultNucleotideGraphSequence = null;
 
 	/**
 	 * Start the process of import the Bold CSV file and adding notes to the
@@ -248,7 +249,7 @@ public class LimsImportBold extends DocumentAction {
 
 				/* Get the total records from the BOLD file */
 				boldTotaalRecords = limsImporterUtil
-						.countRecordsCSV(boldFileSelected);
+						.countRecordsCSV(boldFileSelected) - 2;
 
 				logger.info("Totaal records Bold file: " + boldTotaalRecords);
 
@@ -258,7 +259,7 @@ public class LimsImportBold extends DocumentAction {
 				/* Create CSv object to read the Csv file. */
 				try {
 					CSVReader csvReader = new CSVReader(new FileReader(
-							boldFileSelected), '\t', '\'', 0);
+							boldFileSelected), '\t', '\'', 2);
 
 					/* Get the rowheader of the csv file. */
 					headerCOI = csvReader.readNext();
@@ -550,8 +551,9 @@ public class LimsImportBold extends DocumentAction {
 				/*
 				 * Copy of FAS document is saved as DefaultNucleotideSequence
 				 */
-				if (documentFileName.toString().contains("Copy")
-						|| documentFileName.toString().contains("kopie")) {
+				if ((documentFileName.toString().contains("Copy") || documentFileName
+						.toString().contains("kopie"))
+						&& documentFileName.toString().contains(".fas")) {
 					defaultNucleotideSequence = (DefaultNucleotideSequence) list
 							.getDocument();
 					documentFileName = defaultNucleotideSequence.getName();
@@ -565,11 +567,11 @@ public class LimsImportBold extends DocumentAction {
 						&& documentFileName.toString().contains(".ab1")
 						&& !list.toString().contains("Reads Assembly Contig")) {
 
-					System.out.println(list.getName());
+					// System.out.println(list.getName());
 					defaultNucleotideSequence = (DefaultNucleotideGraphSequence) list
 							.getDocument();
 					documentFileName = defaultNucleotideSequence.getName();
-				} else if (documentFileName.toString().contains(".ab1")
+				} else if (list.toString().contains(".ab1")
 						&& !isOverrideCacheName) {
 					defaultAlignmentDocument = (DefaultAlignmentDocument) list
 							.getDocument();

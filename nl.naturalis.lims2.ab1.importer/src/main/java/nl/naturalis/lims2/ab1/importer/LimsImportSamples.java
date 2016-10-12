@@ -803,10 +803,17 @@ public class LimsImportSamples extends DocumentAction {
 									record[2].indexOf("-"));
 						}
 
+						/*
+						 * String dummyFile = ReadGeneiousFieldsValues
+						 * .getFastaIDForSamples_GeneiousDB(ID);
+						 * System.out.println(dummyFile);
+						 */
+
 						int dummyExists = limsSQL
 								.checkIfSampleDocExistsInTableAnnotatedDocument(ID);
 
 						if (dummyExists == 0) {
+
 							limsFrameProgress
 									.showProgress("Creating dummy file: " + ID
 											+ ".dum");
