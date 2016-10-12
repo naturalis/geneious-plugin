@@ -248,8 +248,12 @@ public class LimsImportBold extends DocumentAction {
 				String[] headerCOI = null;
 
 				/* Get the total records from the BOLD file */
-				boldTotaalRecords = limsImporterUtil
-						.countRecordsCSV(boldFileSelected) - 2;
+				try {
+					boldTotaalRecords = limsImporterUtil
+							.countCsvRecords(boldFileSelected);
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);
+				}
 
 				logger.info("Totaal records Bold file: " + boldTotaalRecords);
 
@@ -434,6 +438,8 @@ public class LimsImportBold extends DocumentAction {
 							 */
 							private void showDialogMessageBoldEndProcess(
 									int totaalVerwerkt) {
+								boldTotaalRecords = processedList.size()
+										+ (failureList.size() - 1);
 								Dialogs.showMessageDialog(Integer
 										.toString(boldTotaalRecords)
 										+ " records have been read of which: "

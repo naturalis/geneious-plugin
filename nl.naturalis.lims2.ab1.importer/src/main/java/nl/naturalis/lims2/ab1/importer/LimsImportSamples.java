@@ -159,7 +159,7 @@ public class LimsImportSamples extends DocumentAction {
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("1 of 2 Samples").setInPopupMenu(true)
+		return new GeneiousActionOptions("1 or 2 Samples").setInPopupMenu(true)
 				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 1.0)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
@@ -253,12 +253,12 @@ public class LimsImportSamples extends DocumentAction {
 					}
 
 					/* Get the total of records of the Sample CSV file */
-					sampleTotaalRecords = limsImporterUtil
-							.countRecordsCSV(fileSelected);
-
-					/*
-					 * limsImporterUtil .getlineNumber(fileSelected);
-					 */
+					try {
+						sampleTotaalRecords = limsImporterUtil
+								.countCsvRecords(fileSelected);
+					} catch (IOException e2) {
+						throw new RuntimeException(e2);
+					}
 
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
@@ -559,6 +559,12 @@ public class LimsImportSamples extends DocumentAction {
 						.getFieldValue("override_cache_name");
 			}
 
+			/* get AB1 filename */
+			if (!list.toString().contains("consensus sequence")
+					|| !list.toString().contains("Contig")) {
+				documentFileName = list.getName();
+			}
+
 			/*
 			 * Compare the cache_name with the name of the document
 			 */
@@ -567,11 +573,12 @@ public class LimsImportSamples extends DocumentAction {
 				 * if selected document is a
 				 * "De Novo Assemble continue the process "
 				 */
-				if (list.toString().contains(documentTypeNovoAssembly)
-						|| list.toString().contains(
-								documentTypeConsensusSequence)) {
-					continue;
-				}
+
+				/*
+				 * if (list.toString().contains(documentTypeNovoAssembly) ||
+				 * list.toString().contains( documentTypeConsensusSequence)) {
+				 * continue; }
+				 */
 
 				/*
 				 * if "ExtractIDCode_Seq" note exists get the version number
@@ -618,7 +625,8 @@ public class LimsImportSamples extends DocumentAction {
 				extractIDfileName = getExtractIDFromAB1FileName(list.getName());
 			} else if (list.getName().toString().contains("consensus sequence")
 					|| list.getName().toString().contains("Contig")) {
-				extractIDfileName = list.getName();
+				extractIDfileName = getExtractIDFromAB1FileName(list.getName())
+						.toString().substring(15);
 			}
 
 			/*
@@ -1075,18 +1083,28 @@ public class LimsImportSamples extends DocumentAction {
 								limsFrameProgress
 										.showProgress("Document match: " + ID);
 								/*
-								 * Set values to the variables [0] :
-								 * Projectplaatnr [1] : Plaatpositie [2] :
-								 * ExtractPlaatnr [3] : ExtractID [4] :
-								 * RegistrationNumber [5] : TaxonNaam [] :
-								 * Version [6] : Sample Method
+								 * Set values to the variables
 								 */
+								// [0] : Projectplaatnr
+								// [1] : Plaatpositie
+								// [2] : ExtractPlaatnr
+								// [3] : ExtractID
+								// [4] : RegistrationNumber
+								// [5] : TaxonNaam
+								// [] : Version
+								// [6] : Sample Method
+
 								setFieldsValues(record[0], record[1],
 										plateNumber, ID, record[4], record[5],
 										version, record[6]);
 								logger.info("Start with adding notes to the document");
 								/* Add notes to the selected documents */
-								setSamplesNotes(docsSamples, cnt);
+								// setSamplesNotes(docsSamples, cnt);
+								limsSamplesNotes.setAllNotesToAB1FileName(
+										docsSamples, cnt, record[4], record[5],
+										record[1], record[3], record[2],
+										record[3], record[6], version,
+										regScientificname);
 
 								logger.info("Done with adding notes to the document");
 
@@ -1195,7 +1213,8 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();
-
+		sampleTotaalRecords = processedList.size()
+				+ (sampleRecordFailure - dummyRecordsVerwerkt);
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
@@ -1212,7 +1231,7 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageDummyOK() {
 		sampleRecordFailure = failureList.size();
 		sampleExactRecordsVerwerkt = processedList.size();
-
+		sampleTotaalRecords = processedList.size() + failureList.size();
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)

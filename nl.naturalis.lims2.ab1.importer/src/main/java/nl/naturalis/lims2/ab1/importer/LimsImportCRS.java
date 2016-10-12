@@ -247,7 +247,7 @@ public class LimsImportCRS extends DocumentAction {
 
 					/* Opvragen aantal in te lezen records uit de CRS file. */
 					crsTotaalRecords = limsImporterUtil
-							.countRecordsCSV(fileSelected);
+							.countCsvRecords(fileSelected);
 
 					logger.info("Aantal te lezen records: " + crsTotaalRecords);
 
@@ -544,6 +544,7 @@ public class LimsImportCRS extends DocumentAction {
 	 * Show dialog message at the end of processing the document(s)
 	 */
 	private void showMessageDialogEndOfProcessing() {
+		crsTotaalRecords = processedList.size() + crsRecordUitval;
 		Dialogs.showMessageDialog(Integer.toString(crsTotaalRecords)
 				+ " records have been read of which: " + "\n" + "[1] "
 				+ processedList.size() + " records are imported and linked to "

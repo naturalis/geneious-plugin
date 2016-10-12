@@ -4,6 +4,7 @@
 package nl.naturalis.lims2.utils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -310,6 +311,7 @@ public class LimsImporterUtil {
 	}
 
 	public int getlineNumber(String filename) {
+		String headerline = "";
 		int linenumber = 0;
 		try {
 
@@ -319,8 +321,11 @@ public class LimsImporterUtil {
 
 				FileReader fr = new FileReader(file);
 				LineNumberReader lnr = new LineNumberReader(fr);
-				while (lnr.readLine() != null) {
-					linenumber++;
+				headerline = lnr.readLine();
+				if ((headerline = lnr.readLine()) != null) {
+					while (lnr.readLine() != null) {
+						linenumber++;
+					}
 				}
 
 				System.out.println("Total number of lines : " + linenumber);
@@ -336,5 +341,43 @@ public class LimsImporterUtil {
 		}
 
 		return linenumber;
+	}
+
+	public int countCsvRecords(String csvFileName) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(new File(
+				csvFileName)));
+
+		String headerline = "";
+		String currentLine;
+		int teller = 0;
+		headerline = reader.readLine();
+		if ((headerline = reader.readLine()) != null) {
+			while ((currentLine = reader.readLine()) != null) {
+
+				if (currentLine.matches("(\\d+)(,\\s*\\d+)*")
+						// || currentLine.trim().equals("\t")
+						|| currentLine.trim().equals("\n")
+						|| currentLine.isEmpty()
+						|| currentLine.trim().equals("")) {
+					teller--;
+					continue;
+				} else {
+
+					/*
+					 * if (currentLine.isEmpty() ||
+					 * currentLine.trim().equals("") ||
+					 * currentLine.trim().equals("\n") ||
+					 * currentLine.trim().equals("\t")) { continue; }
+					 */
+
+					teller++;
+					// System.out.println(String.format("Invalid line: %s",
+					// currentLine));
+
+				}
+			}
+		}
+		reader.close();
+		return teller;
 	}
 }
