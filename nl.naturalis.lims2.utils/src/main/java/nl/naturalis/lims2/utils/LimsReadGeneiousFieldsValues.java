@@ -215,18 +215,7 @@ public class LimsReadGeneiousFieldsValues {
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Check of fasta/Ab1 file exists: "
-							+ exception.getMessage());
-				}
-			});
-
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				if (rs != null) {
@@ -240,7 +229,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		if (truefalse)
@@ -635,8 +624,7 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			logger.info("Dummy record: " + filename
-					+ " has been deleted from table annotated_document");
+
 			dummyName = "";
 			if (rs.next()) {
 				do {
@@ -696,18 +684,7 @@ public class LimsReadGeneiousFieldsValues {
 			logger.debug("Delete Dummy Annotated document id : " + ID
 					+ "From tabel annotated_document ");
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Delete dummy: "
-							+ exception.getMessage());
-				}
-			});
-
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				if (pst != null) {
@@ -718,7 +695,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 	}
@@ -1025,25 +1002,40 @@ public class LimsReadGeneiousFieldsValues {
 
 		try {
 
-			final String SQL = " SELECT a.name, a.pcrplateid, a.marker, a.Registrationnumber, a.ScientificName, "
-					+ " a.SamplePlateId, a.Position, a.ExtractID, a.Seqstaff, a.extractPlateNumberIDSamples, a.extractMethod, a.registrationScientificName "
+			final String SQL = " SELECT * "
+					// +
+					// "a.id, a.name, a.pcrplateid, a.marker, a.Registrationnumber, a.ScientificName, "
+					// +
+					// " a.SamplePlateId, a.Position, a.ExtractID, a.Seqstaff, a.extractPlateNumberIDSamples, a.extractMethod, a.registrationScientificName "
 					+ " FROM( "
-					+ " SELECT "
+					+ "\n"
+					+ " SELECT id, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/PCRplateIDCode_Seq')) AS pcrplateid, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/MarkerCode_Seq')) AS marker, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_Samples')) AS registrationnumber, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/TaxonName2Code_Samples')) AS scientificName, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ProjectPlateNumberCode_Samples')) AS samplePlateId, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/PlatePositionCode_Samples')) AS position, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractIDCode_Samples')) AS extractID, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SequencingStaffCode_FixedValue_Samples')) AS seqStaff, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractPlateNumberCode_Samples')) AS extractPlateNumberIDSamples, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) AS extractMethod, "
+					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
-					+ " FROM annotated_document) AS a "
-					+ " WHERE a.name =?"
-					+ " LIMIT 1";
+					+ "\n" + " FROM annotated_document) AS a " + "\n"
+					+ " WHERE a.name =?" + "\n" + " ORDER BY ID DESC LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -1072,17 +1064,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 			}
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get samples Value: "
-							+ exception.getMessage());
-				}
-			});
+			throw new RuntimeException(ex);
 
 		} finally {
 			try {
@@ -1097,7 +1079,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		return listDummyValues;

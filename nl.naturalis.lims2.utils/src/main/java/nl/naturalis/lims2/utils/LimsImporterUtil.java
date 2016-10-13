@@ -371,6 +371,7 @@ public class LimsImporterUtil {
 		logger.info("Took: "
 				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
 				+ " second(s)");
+
 		elapsedTime = 0;
 		endTime = 0;
 	}

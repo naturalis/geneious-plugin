@@ -137,7 +137,7 @@ public class LimsFileSelector {
 		/* Set the filter */
 		chooser.setFileFilter(filter);
 
-		logger.info("You chose to open this CSV file: "
+		logger.info("Fasta file selected to open: "
 				+ chooser.getSelectedFile().getAbsolutePath());
 		try {
 			/* Get the file */

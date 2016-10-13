@@ -93,6 +93,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private int selectedTotal = 1;
 	private ArrayList<AnnotatedPluginDocument> docs = null;
 	private long startBeginTime = 0;
+	private boolean dummyExists = false;
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -181,23 +182,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				}
 
 				/* Check if file exists in the database */
-				boolean dummyExists = ReadGeneiousFieldsValues
-						.getImportDummyDocument(ab1FileName[0] + ".dum");
-
-				if (dummyExists) {
-					annotatedDocumentID = ReadGeneiousFieldsValues
-							.getIDFromTableAnnotatedDocument(ab1FileName[0]
-									+ ".dum",
-									"//document/hiddenFields/cache_name");
-
-					dummyFilename = ReadGeneiousFieldsValues.dummyName;
-
-					if (dummyFilename.length() > 0) {
-						list.clear();
-						list.addAll(ReadGeneiousFieldsValues
-								.getDummySamplesValues(dummyFilename));
-					}
-				}
+				checkIfDummyExists();
 
 			}
 
@@ -222,6 +207,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					limsSQL.updateImportCount(counter, extractAb1FastaFileName);
 				}
 
+				checkIfDummyExists();
 				// fastaFileExists = fastaExists;
 
 				/* Check if file already exists in the database. */
@@ -367,6 +353,28 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						}
 					}
 				});
+			}
+		}
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private void checkIfDummyExists() throws IOException {
+		dummyExists = ReadGeneiousFieldsValues
+				.getImportDummyDocument(ab1FileName[0] + ".dum");
+
+		if (dummyExists) {
+			annotatedDocumentID = ReadGeneiousFieldsValues
+					.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
+							"//document/hiddenFields/cache_name");
+
+			dummyFilename = ReadGeneiousFieldsValues.dummyName;
+
+			if (dummyFilename.length() > 0) {
+				list.clear();
+				list.addAll(ReadGeneiousFieldsValues
+						.getDummySamplesValues(dummyFilename));
 			}
 		}
 	}

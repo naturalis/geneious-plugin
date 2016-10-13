@@ -1191,8 +1191,11 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();
-		sampleTotaalRecords = processedList.size()
-				+ (sampleRecordFailure - dummyRecordsVerwerkt);
+		sampleTotaalRecords = 0;
+		if (processedList.size() > 0) {
+			sampleTotaalRecords = processedList.size()
+					+ (sampleRecordFailure - dummyRecordsVerwerkt);
+		}
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
@@ -1209,6 +1212,7 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageDummyOK() {
 		sampleRecordFailure = failureList.size();
 		sampleExactRecordsVerwerkt = processedList.size();
+		sampleTotaalRecords = 0;
 		sampleTotaalRecords = processedList.size() + failureList.size();
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"

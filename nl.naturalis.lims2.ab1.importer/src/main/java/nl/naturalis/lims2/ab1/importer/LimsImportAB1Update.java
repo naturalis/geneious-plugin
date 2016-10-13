@@ -232,11 +232,11 @@ public class LimsImportAB1Update extends DocumentAction {
 
 						/* Check if fasta file exists in the database */
 
-						fastaFileExists = ReadGeneiousFieldsValues
-								.checkOfFastaOrAB1Exists(
-										extractAb1FastaFileName,
-										"plugin_document_xml",
-										"//XMLSerialisableRootElement/name");
+						// fastaFileExists = ReadGeneiousFieldsValues
+						// .checkOfFastaOrAB1Exists(
+						// extractAb1FastaFileName,
+						// "plugin_document_xml",
+						// "//XMLSerialisableRootElement/name");
 
 						/*
 						 * Get the last version number from the last insert
@@ -357,10 +357,10 @@ public class LimsImportAB1Update extends DocumentAction {
 
 			/* Set version number Fasta file and AB1 */
 
-			if (fastaFileExists && !extractValue) {
-				limsAB1Fields.setVersieNummer(versienummer);
-			} else
-
+			/*
+			 * if (fastaFileExists && !extractValue) {
+			 * limsAB1Fields.setVersieNummer(versienummer); } else
+			 */
 			if (fileExists && !extractValue) {
 				limsAB1Fields.setVersieNummer(versienummer);
 			}
