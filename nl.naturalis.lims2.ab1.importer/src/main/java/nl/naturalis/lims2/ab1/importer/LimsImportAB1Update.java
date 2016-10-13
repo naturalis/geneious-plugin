@@ -15,14 +15,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
+import nl.naturalis.lims2.utils.LimsSplitnameNotes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,11 +69,11 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 public class LimsImportAB1Update extends DocumentAction {
 
 	private SequenceDocument documentFileName = null;
-	private LimsNotes limsNotes = new LimsNotes();
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1Update.class);
+	private LimsSplitnameNotes limsSplitnameNotes = new LimsSplitnameNotes();
 
 	private List<String> msgList = new ArrayList<String>();
 	private int versienummer = 0;
@@ -88,6 +87,11 @@ public class LimsImportAB1Update extends DocumentAction {
 	private File file = null;
 	private Boolean extractValue = false;
 	private long startBeginTime = 0;
+
+	private Object documentFileImportPath = "";
+
+	private LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+	private ArrayList<AnnotatedPluginDocument> selectedDocuments = new ArrayList<AnnotatedPluginDocument>();
 
 	/**
 	 * ActionPerformed start the process of the selected documents and read the
@@ -118,11 +122,7 @@ public class LimsImportAB1Update extends DocumentAction {
 		 */
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
-			Object documentFileImportPath = "";
-
 			// getDatabaseURL();
-
-			LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 			if (!dbchk.checkDBName()) {
 				return;
 			}
@@ -139,8 +139,11 @@ public class LimsImportAB1Update extends DocumentAction {
 			 * data
 			 */
 			Object filePathExists = null;
-			for (int cnt = 0; cnt < DocumentUtilities.getSelectedDocuments()
-					.size(); cnt++) {
+
+			selectedDocuments = (ArrayList<AnnotatedPluginDocument>) DocumentUtilities
+					.getSelectedDocuments();
+
+			for (int cnt = 0; cnt < selectedDocuments.size(); cnt++) {
 				startBeginTime = System.nanoTime();
 				/*
 				 * If selected document is a De Novo Assemble do not process the
@@ -253,7 +256,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				/* AB1 File extracten */
 				extractAB1File(annotatedPluginDocuments, cnt);
 
-				calculateTimeForAddingNotes(startBeginTime);
+				limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 			} // end for loop
 
 			logger.info("Total of document(s) updated: "
@@ -363,7 +366,24 @@ public class LimsImportAB1Update extends DocumentAction {
 			}
 
 			/* Processing the notes */
-			setSplitDocumentsNotes(annotatedPluginDocuments, cnt);
+			// setSplitDocumentsNotes(annotatedPluginDocuments, cnt);
+			try {
+				limsSplitnameNotes.setSplitDocumentsNotes(
+						annotatedPluginDocuments, cnt,
+						limsAB1Fields.getExtractID(),
+						limsAB1Fields.getPcrPlaatID(),
+						limsAB1Fields.getMarker(), versienummer,
+						limsImporterUtil.getPropValues("seqsequencestaff"));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			/* Show processing dialog */
+			limsFrameProgress.showProgress("Processing: "
+					+ DocumentUtilities.getSelectedDocuments().get(cnt)
+							.getName());
+			logger.info("Done with adding notes to the document");
+
 		}
 	}
 
@@ -372,55 +392,49 @@ public class LimsImportAB1Update extends DocumentAction {
 	 * 
 	 * @param annotatedPluginDocuments , int
 	 */
-	private void setSplitDocumentsNotes(
-			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
-		logger.info("Extract ID: " + limsAB1Fields.getExtractID());
-		logger.info("PCR plaat ID: " + limsAB1Fields.getPcrPlaatID());
-		logger.info("Marker: " + limsAB1Fields.getMarker());
-		logger.info("Versienummer: " + limsAB1Fields.getVersieNummer());
-
-		/* set note for Extract-ID */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
-				limsAB1Fields.getExtractID(), cnt);
-
-		/* set note for PCR Plate ID */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
-				"PCR plate ID (Seq)", limsAB1Fields.getPcrPlaatID(), cnt);
-
-		/* set note for Marker */
-		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
-				limsAB1Fields.getMarker(), cnt);
-
-		/* set note for Document version */
-		if (fileExists && !extractValue) {
-			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-					"DocumentVersionCode_Seq", "Document version",
-					"Document version", Integer.toString(versienummer), cnt);
-		}
-
-		/* set note for SequencingStaffCode_FixedValue_Seq */
-		try {
-			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-					"SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
-					"Seq-staff (Seq)",
-					limsImporterUtil.getPropValues("seqsequencestaff"), cnt);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		/* Set note ConsensusSeqPassCode_Seq */
-		limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
-				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
-				"Pass (Seq)", "Pass (Seq)", null, cnt);
-
-		/* Show processing dialog */
-		limsFrameProgress.showProgress("Processing: "
-				+ DocumentUtilities.getSelectedDocuments().get(cnt).getName());
-		logger.info("Done with adding notes to the document");
-	}
+	/*
+	 * private void setSplitDocumentsNotes( AnnotatedPluginDocument[]
+	 * annotatedPluginDocuments, int cnt) { logger.info("Extract ID: " +
+	 * limsAB1Fields.getExtractID()); logger.info("PCR plaat ID: " +
+	 * limsAB1Fields.getPcrPlaatID()); logger.info("Marker: " +
+	 * limsAB1Fields.getMarker()); logger.info("Versienummer: " +
+	 * limsAB1Fields.getVersieNummer());
+	 * 
+	 * set note for Extract-ID
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
+	 * limsAB1Fields.getExtractID(), cnt);
+	 * 
+	 * set note for PCR Plate ID
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "PCRplateIDCode_Seq", "PCR plate ID (Seq)", "PCR plate ID (Seq)",
+	 * limsAB1Fields.getPcrPlaatID(), cnt);
+	 * 
+	 * set note for Marker
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
+	 * limsAB1Fields.getMarker(), cnt);
+	 * 
+	 * set note for Document version if (fileExists && !extractValue) {
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "DocumentVersionCode_Seq", "Document version", "Document version",
+	 * Integer.toString(versienummer), cnt); }
+	 * 
+	 * set note for SequencingStaffCode_FixedValue_Seq try {
+	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+	 * "SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
+	 * "Seq-staff (Seq)", limsImporterUtil.getPropValues("seqsequencestaff"),
+	 * cnt); } catch (IOException e) { e.printStackTrace(); }
+	 * 
+	 * Set note ConsensusSeqPassCode_Seq
+	 * limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
+	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
+	 * "Pass (Seq)", null, cnt);
+	 * 
+	 * Show processing dialog limsFrameProgress.showProgress("Processing: " +
+	 * DocumentUtilities.getSelectedDocuments().get(cnt).getName());
+	 * logger.info("Done with adding notes to the document"); }
+	 */
 
 	/**
 	 * Add plugin 5 Split name to the menubar
@@ -452,16 +466,6 @@ public class LimsImportAB1Update extends DocumentAction {
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
 				NucleotideSequenceDocument.class, 0, Integer.MAX_VALUE) };
-	}
-
-	private void calculateTimeForAddingNotes(long startBeginTime) {
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startBeginTime;
-		logger.info("Took: "
-				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
-				+ " second(s)");
-		elapsedTime = 0;
-		endTime = 0;
 	}
 
 }

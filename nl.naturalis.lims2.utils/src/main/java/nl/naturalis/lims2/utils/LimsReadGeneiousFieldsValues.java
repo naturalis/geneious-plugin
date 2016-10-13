@@ -260,28 +260,7 @@ public class LimsReadGeneiousFieldsValues {
 	public boolean fileNameExistsInGeneiousDatabase(String filename) {
 
 		boolean truefalse = false;
-		/* String result = ""; */
-
 		try {
-
-			/*
-			 * final String SQL =
-			 * "SELECT SQL_CALC_FOUND_ROWS(count(a.name)) as count" + " FROM " +
-			 * " ( " +
-			 * " SELECT	TRIM(EXTRACTVALUE(UNCOMPRESS(plugin_document_xml), '//ABIDocument/name')) AS name "
-			 * + " FROM annotated_document" + " ) AS a " +
-			 * " WHERE UNCOMPRESS(a.name) = ?";
-			 */
-
-			/*
-			 * final String SQL =
-			 * "SELECT ExtractValue(plugin_document_xml, '//ABIDocument/name') as name, Count(*) As Count"
-			 * + " FROM annotated_document" +
-			 * " WHERE ExtractValue(plugin_document_xml,'//ABIDocument/name')= ?"
-			 * + " AND match (plugin_document_xml) against (" + "'" + filename +
-			 * "'" + ")";
-			 */
-
 			final String SQL = "SELECT ID FROM annotated_document" + "\n"
 					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
 					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
@@ -290,7 +269,6 @@ public class LimsReadGeneiousFieldsValues {
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			// pst.setString(1, filename);
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
@@ -302,12 +280,7 @@ public class LimsReadGeneiousFieldsValues {
 
 				} while (rs.next());
 			}
-			/*
-			 * while (rs.next()) { // result = rs.getString("name"); recordcount
-			 * = rs.getInt("count");
-			 * 
-			 * if (rs.wasNull()) truefalse = false; else truefalse = true; }
-			 */} catch (SQLException ex) {
+		} catch (SQLException ex) {
 			logger.info(ex.getMessage(), ex);
 			exception = ex;
 
@@ -662,11 +635,8 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			/*
-			 * while (rs.next()) { result = rs.getObject(1).toString();
-			 * dummyName = rs.getObject(2).toString(); }
-			 */
-
+			logger.info("Dummy record: " + filename
+					+ " has been deleted from table annotated_document");
 			dummyName = "";
 			if (rs.next()) {
 				do {
@@ -675,18 +645,7 @@ public class LimsReadGeneiousFieldsValues {
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get ID from annotateddocument table: "
-							+ exception.getMessage());
-				}
-			});
-
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				if (rs != null) {
@@ -700,7 +659,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		return result;
@@ -776,16 +735,25 @@ public class LimsReadGeneiousFieldsValues {
 		int result = 0;
 
 		try {
-
-			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version, a.name, a.reference_count "
+			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version"
 					+ " FROM "
 					+ " ( "
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/strong_referenced_documents/strong_referenced_documents')) AS reference_count "
-					+ " FROM annotated_document) AS a "
-					+ " WHERE a.name =?"
-					+ " AND   a.reference_count = 0 " + " AND   a.version > 0";
+					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
+					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+
+			/*
+			 * final String SQL =
+			 * " SELECT MAX(CAST(a.version as UNSIGNED)) as version, a.name, a.reference_count "
+			 * + " FROM " + " ( " +
+			 * " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
+			 * +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name, "
+			 * +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/strong_referenced_documents/strong_referenced_documents')) AS reference_count "
+			 * + " FROM annotated_document) AS a " + " WHERE a.name =?" +
+			 * " AND   a.reference_count = 0 " + " AND   a.version > 0";
+			 */
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
@@ -799,17 +767,7 @@ public class LimsReadGeneiousFieldsValues {
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get last version: "
-							+ exception.getMessage());
-				}
-			});
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				if (rs != null) {
@@ -822,7 +780,7 @@ public class LimsReadGeneiousFieldsValues {
 					con.close();
 				}
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		return result;

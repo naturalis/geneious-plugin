@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,13 +149,6 @@ public class LimsImporterUtil {
 				if (inputStream != null) {
 					importProps.load(inputStream);
 				} else {
-					/* TODO */
-					// Ayco: deze message gaat dubbel gelogd worden, want
-					// de FileNotFoundException wordt in het catch block
-					// beneden opgevangen en daar wordt de message weer
-					// gelogd.
-					logger.info("property file '" + propFileName
-							+ "' not found in the classpath");
 					throw new FileNotFoundException("property file '"
 							+ propFileName + "' not found in the classpath");
 				}
@@ -291,17 +285,6 @@ public class LimsImporterUtil {
 					}
 				}
 				return (count == 0 && !empty) ? 1 : count;
-
-				/*
-				 * InputStream is = new BufferedInputStream(new FileInputStream(
-				 * filename)); try { byte[] c = new byte[1024]; int count = 0;
-				 * int readChars = 0; boolean endsWithoutNewLine = false; while
-				 * ((readChars = is.read(c)) != -1) { for (int i = 0; i <
-				 * readChars; ++i) { if (c[i] == '\n') ++count; }
-				 * endsWithoutNewLine = (c[readChars - 1] != '\n'); } if
-				 * (endsWithoutNewLine) { ++count; } return count;
-				 */
-
 			} finally {
 				is.close();
 			}
@@ -380,4 +363,16 @@ public class LimsImporterUtil {
 		reader.close();
 		return teller;
 	}
+
+	/* Calculate processing time of the notes */
+	public void calculateTimeForAddingNotes(long startBeginTime) {
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startBeginTime;
+		logger.info("Took: "
+				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
+				+ " second(s)");
+		elapsedTime = 0;
+		endTime = 0;
+	}
+
 }

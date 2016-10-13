@@ -8,14 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsImportNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsReplaceDummyNotes;
 import nl.naturalis.lims2.utils.LimsSQL;
@@ -69,7 +67,6 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 public class LimsImportAB1 extends DocumentFileImporter {
 
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
-	private LimsNotes limsNotes = new LimsNotes();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsFileSelector fileselector = new LimsFileSelector();
@@ -148,9 +145,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			ProgressListener progressListener) throws IOException,
 			DocumentImportException {
 
-		/*
-		 * LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
-		 */
 		if (!dbchk.checkDBName()) {
 			Dialogs.showMessageDialog(dbchk.msg);
 			dbchk.restartGeneious();
@@ -187,20 +181,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				}
 
 				/* Check if file exists in the database */
-
-				/*
-				 * dummyFilename = ReadGeneiousFieldsValues
-				 * .getCacheNameFromGeneiousDatabase(ab1FileName[0] + ".dum",
-				 * "//document/hiddenFields/cache_name");
-				 */
 				boolean dummyExists = ReadGeneiousFieldsValues
 						.getImportDummyDocument(ab1FileName[0] + ".dum");
-
-				/*
-				 * int dummyExists = limsSQL
-				 * .checkIfSampleDocExistsInTableAnnotatedDocument
-				 * (ab1FileName[0] + ".dum"); if (dummyExists == 0) {
-				 */
 
 				if (dummyExists) {
 					annotatedDocumentID = ReadGeneiousFieldsValues
@@ -222,7 +204,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			extractAb1FastaFileName = file.getName();
 			/* FAS check */
 			if (extractAb1FastaFileName.contains(".fas")) {
-				// && !extractAb1FastaFileName.contains("ab1")) {
 
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
@@ -301,8 +282,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* Add Notes to AB1/Fasta document */
 				if (documentAnnotatedPlugin != null) {
-					// setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
-					// extractAb1FastaFileName);
 					limsImportNotes.setImportNotes(documentAnnotatedPlugin,
 							extractAb1FastaFileName,
 							limsAB1Fields.getExtractID(),
@@ -351,9 +330,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					selectedTotal = 0;
 				}
 
-				// replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
-				// ReadGeneiousFieldsValues.extractidSamplesFromDummy);
-
 			}
 			if (docs != null) {
 				docs.clear();
@@ -364,7 +340,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			logger.info("Done with extracting/imported Ab1 files. ");
 			isDeleted = false;
 
-			calculateTimeForAddingNotes(startBeginTime);
+			limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 
 			if (selectedTotal == 0) {
 				EventQueue.invokeLater(new Runnable() {
@@ -388,9 +364,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 								e.printStackTrace();
 							}
 							isDeleted = true;
-							logger.info("Filename: "
-									+ ab1FileName[0]
-									+ ".dum has been deleted from table annotated_document");
 						}
 					}
 				});
@@ -462,99 +435,86 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	/*
 	 * Import Replace dummy documents notes with AB1 notes
 	 */
-	private void replaceDummyNotesWithAB1Notes(
-			AnnotatedPluginDocument documentAnnotated, String extractID)
-			throws IOException {
-
-		if (limsAB1Fields.getExtractID().equals(extractID)) {
-
-			/* set note for PCR Plaat-ID */
-			limsNotes.setImportNotes(documentAnnotated, "PCRplateIDCode_Seq",
-					"PCR plate ID (Seq)", "PCR plate ID (Seq)",
-					limsAB1Fields.getPcrPlaatID());
-
-			/* set note for Marker */
-			limsNotes.setImportNotes(documentAnnotated, "MarkerCode_Seq",
-					"Marker (Seq)", "Marker (Seq)", limsAB1Fields.getMarker());
-
-			/* set note for Extract-ID */
-			limsNotes.setImportNotes(documentAnnotated, "ExtractIDCode_Seq",
-					"Extract ID (Seq)", "Extract ID (Seq)",
-					limsAB1Fields.getExtractID());
-
-			/* set note for Extract-ID */
-			limsNotes.setImportNotes(documentAnnotated,
-					"ExtractIDCode_Samples", "Extract ID (Samples)",
-					"Extract ID (Samples)",
-					ReadGeneiousFieldsValues.extractidSamplesFromDummy);
-
-			/* set note for Project Plate number */
-			limsNotes.setImportNotes(documentAnnotated,
-					"ProjectPlateNumberCode_Samples",
-					"Sample plate ID (Samples)", "Sample plate ID (Samples)",
-					ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
-
-			/* set note for Taxon name */
-			limsNotes.setImportNotes(documentAnnotated,
-					"TaxonName2Code_Samples", "[Scientific name] (Samples)",
-					"[Scientific name] (Samples)",
-					ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
-
-			/* set note for Registration number */
-			limsNotes.setImportNotes(documentAnnotated,
-					"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
-					"Registr-nmbr (Samples)",
-					ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
-
-			/* set note for Plate position */
-			limsNotes.setImportNotes(documentAnnotated,
-					"PlatePositionCode_Samples", "Position (Samples)",
-					"Position (Samples)",
-					ReadGeneiousFieldsValues.positionSamplesFromDummy);
-
-			/* SequencingStaffCode_FixedValue_Seq */
-			limsNotes.setImportNotes(documentAnnotated,
-					"SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
-					"Seq-staff (Seq)",
-					limsImporterUtil.getPropValues("seqsequencestaff"));
-
-			/* AmplicificationStaffCode_FixedValue_Samples */
-			limsNotes.setImportNotes(documentAnnotated,
-					"AmplicificationStaffCode_FixedValue_Samples",
-					"Ampl-staff (Samples)", "Ampl-staff (Samples)",
-					limsImporterUtil.getPropValues("samplesamplicification"));
-
-			/* set note for Extract Plate ID Samples */
-			limsNotes.setImportNotes(documentAnnotated,
-					"ExtractPlateNumberCode_Samples",
-					"Extract plate ID (Samples)", "Extract plate ID (Samples)",
-					ReadGeneiousFieldsValues.extractPlateIDSamples);
-
-			/* set note for Extract Method */
-			limsNotes.setImportNotes(documentAnnotated,
-					"SampleMethodCode_Samples", "Extraction method (Samples)",
-					"Extraction method (Samples)",
-					ReadGeneiousFieldsValues.extractionMethodSamples);
-
-			/*
-			 * set note for RegistrationNumberCode_TaxonName2Code_Samples
-			 */
-			limsNotes.setImportNotes(documentAnnotated,
-					"RegistrationNumberCode_TaxonName2Code_Samples",
-					"Registr-nmbr_[Scientific_name] (Samples)",
-					"Registr-nmbr_[Scientific_name] (Samples)",
-					ReadGeneiousFieldsValues.registrationScientificName);
-
-			/* set note for Version */
-			limsNotes.setImportNotes(documentAnnotated,
-					"DocumentVersionCode_Seq", "Document version",
-					"Document version", Integer.toString(versienummer));
-
-			if (count > 0) {
-				selectedTotal = 0;
-			}
-		}
-	}
+	/*
+	 * private void replaceDummyNotesWithAB1Notes( AnnotatedPluginDocument
+	 * documentAnnotated, String extractID) throws IOException {
+	 * 
+	 * if (limsAB1Fields.getExtractID().equals(extractID)) {
+	 * 
+	 * set note for PCR Plaat-ID limsNotes.setImportNotes(documentAnnotated,
+	 * "PCRplateIDCode_Seq", "PCR plate ID (Seq)", "PCR plate ID (Seq)",
+	 * limsAB1Fields.getPcrPlaatID());
+	 * 
+	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
+	 * "MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
+	 * limsAB1Fields.getMarker());
+	 * 
+	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
+	 * "ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
+	 * limsAB1Fields.getExtractID());
+	 * 
+	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
+	 * "ExtractIDCode_Samples", "Extract ID (Samples)", "Extract ID (Samples)",
+	 * ReadGeneiousFieldsValues.extractidSamplesFromDummy);
+	 * 
+	 * set note for Project Plate number
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
+	 * "Sample plate ID (Samples)",
+	 * ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
+	 * 
+	 * set note for Taxon name limsNotes.setImportNotes(documentAnnotated,
+	 * "TaxonName2Code_Samples", "[Scientific name] (Samples)",
+	 * "[Scientific name] (Samples)",
+	 * ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
+	 * 
+	 * set note for Registration number
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
+	 * "Registr-nmbr (Samples)",
+	 * ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
+	 * 
+	 * set note for Plate position limsNotes.setImportNotes(documentAnnotated,
+	 * "PlatePositionCode_Samples", "Position (Samples)", "Position (Samples)",
+	 * ReadGeneiousFieldsValues.positionSamplesFromDummy);
+	 * 
+	 * SequencingStaffCode_FixedValue_Seq
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
+	 * "Seq-staff (Seq)", limsImporterUtil.getPropValues("seqsequencestaff"));
+	 * 
+	 * AmplicificationStaffCode_FixedValue_Samples
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)",
+	 * "Ampl-staff (Samples)",
+	 * limsImporterUtil.getPropValues("samplesamplicification"));
+	 * 
+	 * set note for Extract Plate ID Samples
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
+	 * "Extract plate ID (Samples)",
+	 * ReadGeneiousFieldsValues.extractPlateIDSamples);
+	 * 
+	 * set note for Extract Method limsNotes.setImportNotes(documentAnnotated,
+	 * "SampleMethodCode_Samples", "Extraction method (Samples)",
+	 * "Extraction method (Samples)",
+	 * ReadGeneiousFieldsValues.extractionMethodSamples);
+	 * 
+	 * 
+	 * set note for RegistrationNumberCode_TaxonName2Code_Samples
+	 * 
+	 * limsNotes.setImportNotes(documentAnnotated,
+	 * "RegistrationNumberCode_TaxonName2Code_Samples",
+	 * "Registr-nmbr_[Scientific_name] (Samples)",
+	 * "Registr-nmbr_[Scientific_name] (Samples)",
+	 * ReadGeneiousFieldsValues.registrationScientificName);
+	 * 
+	 * set note for Version limsNotes.setImportNotes(documentAnnotated,
+	 * "DocumentVersionCode_Seq", "Document version", "Document version",
+	 * Integer.toString(versienummer));
+	 * 
+	 * if (count > 0) { selectedTotal = 0; } } }
+	 */
 
 	private void setVersionNumber() {
 		if (ab1fileExists) {
@@ -565,15 +525,4 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			versienummer = 1;
 		}
 	}
-
-	private void calculateTimeForAddingNotes(long startBeginTime) {
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startBeginTime;
-		logger.info("Took: "
-				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
-				+ " second(s)");
-		elapsedTime = 0;
-		endTime = 0;
-	}
-
 }

@@ -463,8 +463,8 @@ public class LimsImportCRS extends DocumentAction {
 									/*
 									 * End duration of the processing of notes
 									 */
-									calculateTimeForAddingNotes(startBeginTime);
-									// isRMNHNumber = false;
+									limsImporterUtil
+											.calculateTimeForAddingNotes(startBeginTime);
 								} // end IF
 
 								cnt++;
@@ -602,15 +602,12 @@ public class LimsImportCRS extends DocumentAction {
 	 * 
 	 * @param startBeginTime
 	 */
-	private void calculateTimeForAddingNotes(long startBeginTime) {
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startBeginTime;
-		logger.info("Took: "
-				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
-				+ " second(s)");
-		elapsedTime = 0;
-		endTime = 0;
-	}
+	/*
+	 * private void calculateTimeForAddingNotes(long startBeginTime) { long
+	 * endTime = System.nanoTime(); long elapsedTime = endTime - startBeginTime;
+	 * logger.info("Took: " + (TimeUnit.SECONDS.convert(elapsedTime,
+	 * TimeUnit.NANOSECONDS)) + " second(s)"); elapsedTime = 0; endTime = 0; }
+	 */
 
 	/*
 	 * Add document(s) that not matched to the failure list.

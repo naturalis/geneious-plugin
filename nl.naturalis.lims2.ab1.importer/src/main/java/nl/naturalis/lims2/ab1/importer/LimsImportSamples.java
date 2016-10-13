@@ -8,7 +8,6 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -479,17 +478,6 @@ public class LimsImportSamples extends DocumentAction {
 		}
 	}
 
-	/* Calculate processing time of the notes */
-	private void calculateTimeForAddingNotes(long startBeginTime) {
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startBeginTime;
-		logger.info("Took: "
-				+ (TimeUnit.SECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS))
-				+ " second(s)");
-		elapsedTime = 0;
-		endTime = 0;
-	}
-
 	/* Duration process of all selected documents */
 	private void showProcessingDuration() {
 		lEndTime = new Date().getTime();
@@ -559,12 +547,6 @@ public class LimsImportSamples extends DocumentAction {
 						.getFieldValue("override_cache_name");
 			}
 
-			/* get AB1 filename */
-			if (!list.toString().contains("consensus sequence")
-					|| !list.toString().contains("Contig")) {
-				documentFileName = list.getName();
-			}
-
 			/*
 			 * Compare the cache_name with the name of the document
 			 */
@@ -592,42 +574,7 @@ public class LimsImportSamples extends DocumentAction {
 									"DocumentVersionCode_Seq", cnt));
 			}
 
-			/* Check if name is from a Contig file */
-			if ((readAssembyContigFileName != null)
-					&& readAssembyContigFileName.toString().contains(
-							"Reads Assembly Contig")) {
-				documentFileName = list.getName();
-			} /*
-			 * Check if name is from a Consensus document
-			 */
-			else if (list.getName().toString().contains("consensus sequence")) {
-				documentFileName = list.getName();
-			} /*
-			 * Check if name is from a dummy document
-			 */
-			else if (list.getName().toString().contains("dum")) {
-				documentFileName = list.getName();
-			} /* from a imported file */
-			else if (!(list.toString().contains(documentTypeNovoAssembly) || list
-					.toString().contains(documentTypeConsensusSequence))) {
-				/* Contig don't have imported filename. */
-				documentFileName = (String) list.getDocumentNotes(true)
-						.getNote("importedFrom").getFieldValue("filename");
-			}
-
-			/*
-			 * if filename contain "Fas" or "AB1" or "dum" get the filename from
-			 * the document else from the "De Novo Assemble""
-			 */
-			if ((documentFileName.toString().contains("fas"))
-					|| (documentFileName.toString().contains("ab1"))
-					|| (documentFileName.toString().contains("dum"))) {
-				extractIDfileName = getExtractIDFromAB1FileName(list.getName());
-			} else if (list.getName().toString().contains("consensus sequence")
-					|| list.getName().toString().contains("Contig")) {
-				extractIDfileName = getExtractIDFromAB1FileName(list.getName())
-						.toString().substring(15);
-			}
+			extractNovoAssemblyAndContig(list);
 
 			/*
 			 * Check if record(PlateNumber) contain "-"
@@ -691,7 +638,7 @@ public class LimsImportSamples extends DocumentAction {
 				/*
 				 * Duration of processing the notes to a document
 				 */
-				calculateTimeForAddingNotes(startBeginTime);
+				limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 
 				logger.info("=====================================");
 				match = false;
@@ -699,6 +646,48 @@ public class LimsImportSamples extends DocumentAction {
 			} // end IF
 			cnt++;
 		} // end For
+	}
+
+	/**
+	 * @param list
+	 */
+	private void extractNovoAssemblyAndContig(AnnotatedPluginDocument list) {
+		/* Check if name is from a Contig file */
+		if ((readAssembyContigFileName != null)
+				&& readAssembyContigFileName.toString().contains(
+						"Reads Assembly Contig")) {
+			documentFileName = list.getName();
+		} /*
+		 * Check if name is from a Consensus document
+		 */
+		else if (list.getName().toString().contains("consensus sequence")) {
+			documentFileName = list.getName();
+		} /*
+		 * Check if name is from a dummy document
+		 */
+		else if (list.getName().toString().contains("dum")) {
+			documentFileName = list.getName();
+		} /* from a imported file */
+		else if (!(list.toString().contains(documentTypeNovoAssembly) || list
+				.toString().contains(documentTypeConsensusSequence))) {
+			/* Contig don't have imported filename. */
+			documentFileName = (String) list.getDocumentNotes(true)
+					.getNote("importedFrom").getFieldValue("filename");
+		}
+
+		/*
+		 * if filename contain "Fas" or "AB1" or "dum" get the filename from the
+		 * document else from the "De Novo Assemble""
+		 */
+		if ((documentFileName.toString().contains("fas"))
+				|| (documentFileName.toString().contains("ab1"))
+				|| (documentFileName.toString().contains("dum"))) {
+			extractIDfileName = getExtractIDFromAB1FileName(list.getName());
+		} else if (list.toString().contains("consensus sequence")
+				|| list.toString().contains("Contig")) {
+			extractIDfileName = getExtractIDFromAB1FileName(list.getName())
+					.toString().substring(15);
+		}
 	}
 
 	/* Clear the fields variables */
@@ -975,7 +964,7 @@ public class LimsImportSamples extends DocumentAction {
 				logger.info("Read samples file: " + fileName);
 				/* Read the records and skip the header */
 				CSVReader csvReader = new CSVReader(new FileReader(fileName),
-						'\t', '\'', 1);
+						'\t', '\'', 0);
 				csvReader.readNext();
 
 				/* Get "logname=Lims2-Import.log" from the property file */
@@ -1018,12 +1007,12 @@ public class LimsImportSamples extends DocumentAction {
 							 * Assemble
 							 */
 							long startBeginTime = System.nanoTime();
-							if (list.toString().contains(
-									documentTypeNovoAssembly)
-									|| list.toString().contains(
-											documentTypeConsensusSequence)) {
-								continue;
-							}
+							/*
+							 * if (list.toString().contains(
+							 * documentTypeNovoAssembly) ||
+							 * list.toString().contains(
+							 * documentTypeConsensusSequence)) { continue; }
+							 */
 
 							/* get the filename */
 							if ((list.toString().contains("fas"))
@@ -1032,6 +1021,8 @@ public class LimsImportSamples extends DocumentAction {
 								extractIDfileName = getExtractIDFromAB1FileName(list
 										.getName());
 							}
+
+							extractNovoAssemblyAndContig(list);
 
 							/* Check if note exists */
 							isExtractIDSeqExists = list.toString().contains(
@@ -1109,7 +1100,8 @@ public class LimsImportSamples extends DocumentAction {
 								logger.info("Done with adding notes to the document");
 
 								/* Calculate processing time of the notes */
-								calculateTimeForAddingNotes(startBeginTime);
+								limsImporterUtil
+										.calculateTimeForAddingNotes(startBeginTime);
 
 								logger.info("=====================================");
 							}
@@ -1169,40 +1161,26 @@ public class LimsImportSamples extends DocumentAction {
 	 */
 	private void showFinishedDialogMessageNo(String fileName,
 			List<String> failureList, List<String> exactProcessedList) {
-		Dialogs.showMessageDialog(readTotalRecordsOfFileSelected(fileName)
-				+ " sample records have been read of which: " + "\n" + "\n"
-				+ "[1] " + Integer.toString(exactProcessedList.size())
-				+ " samples are imported and linked to "
-				+ Integer.toString(recordCount) + " existing documents (of "
-				+ listDocuments.size() + " selected)" + "\n" + "\n" + "[2] "
-				+ "0 samples are imported as dummy." + "\n" + "\n" + "[3] "
-				+ Integer.toString(failureList.size())
-				+ " samples records are ignored." + "\n" + "\n"
-				+ getLackMessage(isLackListNotEmpty()));
-	}
+		sampleTotaalRecords = exactProcessedList.size() + failureList.size();
 
-	/*
-	 * Get the total of records from the samples csv file
-	 * 
-	 * @param fileName
-	 * 
-	 * @return
-	 */
-	private int readTotalRecordsOfFileSelected(String fileName) {
-		int result = 0;
-		if (result == 0) {
-			try {
-				csvReader = new CSVReader(new FileReader(fileName), '\t', '\'',
-						1);
-				result = csvReader.readAll().size();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			csvReader = null;
-		}
-		return result;
+		Dialogs.showMessageDialog(sampleTotaalRecords // readTotalRecordsOfFileSelected(fileName)
+				+ " sample records have been read of which: "
+				+ "\n"
+				+ "\n"
+				+ "[1] "
+				+ Integer.toString(exactProcessedList.size())
+				+ " samples are imported and linked to "
+				+ Integer.toString(recordCount)
+				+ " existing documents (of "
+				+ listDocuments.size() + " selected)" + "\n" + "\n"
+				+ "[2] "
+				+ "0 samples are imported as dummy." + "\n"
+				+ "\n"
+				+ "[3] "
+				+ Integer.toString(failureList.size())
+				+ " samples records are ignored." + "\n"
+				+ "\n"
+				+ getLackMessage(isLackListNotEmpty()));
 	}
 
 	/*
