@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,9 +58,10 @@ public class LimsReadGeneiousFieldsValues {
 	public String scientificNameSamplesFromDummy;
 	public String registrnmbrSamplesFromDummy;
 	public String positionSamplesFromDummy;
-	public String extractPlateIDSamples;
+	public String extractPlateNumberIDSamples;
 	public String extractionMethodSamples;
 	public String registrationScientificName;
+
 	private SQLException exception = null;
 	public int recordcount = 0;
 
@@ -989,6 +989,31 @@ public class LimsReadGeneiousFieldsValues {
 		this.dummySeqStaffSamplesValue = dummySeqStaffSamplesValue;
 	}
 
+	public String getExtractionMethodSamples() {
+		return extractionMethodSamples;
+	}
+
+	public void setExtractionMethodSamples(String extractionMethodSamples) {
+		this.extractionMethodSamples = extractionMethodSamples;
+	}
+
+	public String getRegistrationScientificName() {
+		return registrationScientificName;
+	}
+
+	public void setRegistrationScientificName(String registrationScientificName) {
+		this.registrationScientificName = registrationScientificName;
+	}
+
+	public String getExtractPlateNumberIDSamples() {
+		return extractPlateNumberIDSamples;
+	}
+
+	public void setExtractPlateNumberIDSamples(
+			String extractPlateNumberIDSamples) {
+		this.extractPlateNumberIDSamples = extractPlateNumberIDSamples;
+	}
+
 	/**
 	 * Get Dummy Samples Values from the Database
 	 * 
@@ -997,16 +1022,10 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return list Dummy values
 	 * @see LimsReadGeneiousFieldsValues
 	 * */
-	public List<String> getDummySamplesValues(Object filename) {
-		String result = "";
-
+	public List<Dummy> getDummySamplesValues(Object filename) {
 		try {
 
 			final String SQL = " SELECT * "
-					// +
-					// "a.id, a.name, a.pcrplateid, a.marker, a.Registrationnumber, a.ScientificName, "
-					// +
-					// " a.SamplePlateId, a.Position, a.ExtractID, a.Seqstaff, a.extractPlateNumberIDSamples, a.extractMethod, a.registrationScientificName "
 					+ " FROM( "
 					+ "\n"
 					+ " SELECT id, "
@@ -1035,34 +1054,57 @@ public class LimsReadGeneiousFieldsValues {
 					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
 					+ "\n" + " FROM annotated_document) AS a " + "\n"
-					+ " WHERE a.name =?" + "\n" + " ORDER BY ID DESC LIMIT 1";
+					+ "WHERE a.name like  '%" + filename + "%' " + "\n"
+					+ " ORDER BY name DESC";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
-			ResultSetMetaData metadata = rs.getMetaData();
-			int numberOfColumns = metadata.getColumnCount();
+			// ResultSetMetaData metadata = rs.getMetaData();
+			// int numberOfColumns = metadata.getColumnCount();
 			listDummyValues.clear();
+			List<Dummy> dummies = new ArrayList<>(100);
 			while (rs.next()) {
-				registrnmbrSamplesFromDummy = rs
-						.getString("Registrationnumber");
-				scientificNameSamplesFromDummy = rs.getString("ScientificName");
-				samplePlateIdSamplesFromDummy = rs.getString("SamplePlateId");
-				positionSamplesFromDummy = rs.getString("Position");
-				extractidSamplesFromDummy = rs.getString("ExtractID");
-				extractPlateIDSamples = rs
-						.getString("extractPlateNumberIDSamples");
-				extractionMethodSamples = rs.getString("extractMethod");
-				registrationScientificName = rs
-						.getString("registrationScientificName");
-				int i = 1;
-				while (i <= numberOfColumns) {
-					listDummyValues.add(rs.getString(i++));
-				}
+				Dummy dummy = new Dummy();
+				dummy.setId(rs.getInt("id"));
+				dummy.setName(rs.getString("name"));
+				dummy.setExtractID(rs.getString("ExtractID"));
+				dummy.setRegistrationnumber(rs.getString("Registrationnumber"));
+				dummy.setScientificName(rs.getString("ScientificName"));
+				dummy.setSamplePlateId(rs.getString("SamplePlateId"));
+				dummy.setPosition(rs.getString("Position"));
+				dummy.setExtractPlateNumberIDSamples(rs
+						.getString("extractPlateNumberIDSamples"));
+				dummy.setExtractMethod(rs.getString("extractMethod"));
+				dummy.setRegistrationScientificName(rs
+						.getString("registrationScientificName"));
+				dummies.add(dummy);
+				/*
+				 * registrnmbrSamplesFromDummy =
+				 * rs.getString("Registrationnumber");
+				 * scientificNameSamplesFromDummy =
+				 * rs.getString("ScientificName"); samplePlateIdSamplesFromDummy
+				 * = rs.getString("SamplePlateId"); positionSamplesFromDummy =
+				 * rs.getString("Position");
+				 * 
+				 * extractidSamplesFromDummy = rs.getString("ExtractID");
+				 * 
+				 * extractPlateNumberIDSamples = rs
+				 * .getString("extractPlateNumberIDSamples");
+				 * 
+				 * extractionMethodSamples = rs.getString("extractMethod");
+				 * 
+				 * registrationScientificName = rs
+				 * .getString("registrationScientificName");
+				 */
+				// int i = 1;
+				// while (i <= numberOfColumns) {
+				// listDummyValues.add(rs.getString(i++));
+				// }
 			}
+			return dummies;
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 
@@ -1082,7 +1124,7 @@ public class LimsReadGeneiousFieldsValues {
 				throw new RuntimeException(ex);
 			}
 		}
-		return listDummyValues;
+		// return listDummyValues;
 	}
 
 	/**

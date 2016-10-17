@@ -74,7 +74,7 @@ public class LimsFrameProgress {
 		frame.add(BorderLayout.CENTER, jlMsg0);
 		frame.add(BorderLayout.CENTER, jlbMsg1);
 		frame.add(BorderLayout.CENTER, jlbMsg2);
-		frame.setBounds(0, 0, 500, 150);
+		frame.setBounds(0, 0, 450, 150);
 		frame.setVisible(true);
 	}
 

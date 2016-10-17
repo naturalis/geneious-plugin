@@ -342,7 +342,7 @@ public class LimsImporterUtil {
 						|| currentLine.trim().equals("\n")
 						|| currentLine.isEmpty()
 						|| currentLine.trim().equals("")) {
-					teller--;
+					teller++;
 					continue;
 				} else {
 

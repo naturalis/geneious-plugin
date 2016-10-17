@@ -182,8 +182,8 @@ public class LimsDummySeq {
 		/* Set note Registration with scientificname */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"RegistrationNumberCode_TaxonName2Code_Samples",
-				"Registr-nmbr_[Scientific name] (Samples)",
-				"Registr-nmbr_[Scientific name] (Samples)",
+				"Registr-nmbr_[Scientific_name] (Samples)",
+				"Registr-nmbr_[Scientific_name] (Samples)",
 				regScientificname.trim());
 
 		logger.info("New Dummy: " + filename + " file added.");

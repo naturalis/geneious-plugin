@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.lims2.utils.Dummy;
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsImportNotes;
@@ -85,7 +87,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private int versienummer = 0;
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
-	private ArrayList<String> list = new ArrayList<String>();
+	// private ArrayList<String> dummyList = new ArrayList<String>();
+	private List<Dummy> dummies = null;
 	private String[] ab1FileName = null;
 	private String dummyFilename = "";
 	private String annotatedDocumentID = "";
@@ -94,6 +97,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private ArrayList<AnnotatedPluginDocument> docs = null;
 	private long startBeginTime = 0;
 	private boolean dummyExists = false;
+	private String extractID = "";
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -155,6 +159,13 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		if (ReadGeneiousFieldsValues.activeDB.length() == 0) {
 			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
 					.getServerDatabaseServiceName();
+
+			setDummyValues();
+
+			/*
+			 * try { checkIfDummyExists(); } catch (IOException e) { throw new
+			 * RuntimeException(e); }
+			 */
 		}
 
 		if (ReadGeneiousFieldsValues.activeDB != null) {
@@ -182,7 +193,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				}
 
 				/* Check if file exists in the database */
-				checkIfDummyExists();
+				// checkIfDummyExists();
 
 			}
 
@@ -207,7 +218,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					limsSQL.updateImportCount(counter, extractAb1FastaFileName);
 				}
 
-				checkIfDummyExists();
+				// checkIfDummyExists();
 				// fastaFileExists = fastaExists;
 
 				/* Check if file already exists in the database. */
@@ -259,9 +270,29 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			documentAnnotatedPlugin = importCallback.addDocument(docs.stream()
 					.iterator().next());
 
-			if (file.getName() != null && list.size() == 0 && !isDeleted) {
+			limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
+			extractID = limsAB1Fields.getExtractID();
+			String pcrPlateId = limsAB1Fields.getPcrPlaatID();
+			String marker = limsAB1Fields.getMarker();
 
-				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
+			Dummy found = null;
+
+			for (Dummy dummy : dummies) {
+				if (dummy.getExtractID().equals(extractID)) {
+					found = dummy;
+					annotatedDocumentID = String.valueOf(found.getId());
+					dummyFilename = found.getName();
+					break;
+				}
+			}
+
+			if (found != null) {
+				dummyExists = true;
+			} else {
+				dummyExists = false;
+			}
+
+			if (file.getName() != null && !dummyExists && !isDeleted) {
 
 				/* Set version number */
 				setVersionNumber();
@@ -279,14 +310,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			else {
 				/* AB1 Document */
-				limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
-
-				String extractID = limsAB1Fields.getExtractID();
-				String pcrPlateId = limsAB1Fields.getPcrPlaatID();
-				String marker = limsAB1Fields.getMarker();
+				// limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 
 				/* Set version number */
 				setVersionNumber();
+
+				if (found == null) {
+					logger.info("Cannot match");
+					// throw new RuntimeException("Cannot match");
+				}
 
 				/*
 				 * When Dummy file exists and the AB1 imported document match
@@ -297,21 +329,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * files
 				 */
 
-				limsReplaceDummyNotes
-						.replaceDummyNotesWithAB1Notes(
-								documentAnnotatedPlugin,
-								pcrPlateId,
-								marker,
-								extractID,
-								ReadGeneiousFieldsValues.extractidSamplesFromDummy,
-								ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy,
-								ReadGeneiousFieldsValues.scientificNameSamplesFromDummy,
-								ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy,
-								ReadGeneiousFieldsValues.positionSamplesFromDummy,
-								ReadGeneiousFieldsValues.extractPlateIDSamples,
-								ReadGeneiousFieldsValues.extractionMethodSamples,
-								ReadGeneiousFieldsValues.registrationScientificName,
-								versienummer);
+				if (found != null) {
+					limsReplaceDummyNotes.enrichAb1DocumentWithDummyNotes(
+							documentAnnotatedPlugin, found, versienummer,
+							pcrPlateId, marker, extractID);
+				}
+
 				if (count > 0) {
 					selectedTotal = 0;
 				}
@@ -361,22 +384,24 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * @throws IOException
 	 */
 	private void checkIfDummyExists() throws IOException {
-		dummyExists = ReadGeneiousFieldsValues
-				.getImportDummyDocument(ab1FileName[0] + ".dum");
 
-		if (dummyExists) {
-			annotatedDocumentID = ReadGeneiousFieldsValues
-					.getIDFromTableAnnotatedDocument(ab1FileName[0] + ".dum",
-							"//document/hiddenFields/cache_name");
+		/*
+		 * dummyExists = ReadGeneiousFieldsValues
+		 * .getImportDummyDocument(ab1FileName[0] + ".dum");
+		 */
 
-			dummyFilename = ReadGeneiousFieldsValues.dummyName;
+		// if (dummyExists) {
+		// annotatedDocumentID = ReadGeneiousFieldsValues
+		// .getIDFromTableAnnotatedDocument(".dum",
+		// "//document/hiddenFields/cache_name");
 
-			if (dummyFilename.length() > 0) {
-				list.clear();
-				list.addAll(ReadGeneiousFieldsValues
-						.getDummySamplesValues(dummyFilename));
-			}
-		}
+		// dummyFilename = ReadGeneiousFieldsValues.dummyName;
+
+		// if (dummyFilename.length() > 0) {
+		// dummyList.clear();
+		// dummyList.add(ReadGeneiousFieldsValues.getDummySamplesValues(".dum"));
+		// }
+		// }
 	}
 
 	/**
@@ -532,5 +557,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		} else {
 			versienummer = 1;
 		}
+	}
+
+	private void setDummyValues() {
+		dummies = ReadGeneiousFieldsValues.getDummySamplesValues(".dum");
+
 	}
 }

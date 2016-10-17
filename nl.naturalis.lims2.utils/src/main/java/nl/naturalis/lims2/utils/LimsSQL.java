@@ -309,6 +309,9 @@ public class LimsSQL {
 			String sqlUpdate = "DELETE FROM tblDocumentImport" + "\n"
 					+ "WHERE Documentname =  '" + docName + "' ";
 			stmt.executeUpdate(sqlUpdate);
+			logger.info("Dummy record: "
+					+ docName
+					+ " has been deleted from table tblDocumentImport (Naturalis tussen tabel)");
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC

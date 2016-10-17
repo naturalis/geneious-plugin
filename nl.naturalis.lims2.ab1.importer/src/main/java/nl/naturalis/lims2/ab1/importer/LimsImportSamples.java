@@ -1191,11 +1191,13 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();
-		sampleTotaalRecords = 0;
-		if (processedList.size() > 0) {
-			sampleTotaalRecords = processedList.size()
-					+ (sampleRecordFailure - dummyRecordsVerwerkt);
-		}
+		/*
+		 * sampleTotaalRecords = 0; if (processedList.size() > 0 &&
+		 * sampleRecordFailure > 0) { sampleTotaalRecords = processedList.size()
+		 * + (sampleRecordFailure - dummyRecordsVerwerkt); } else if
+		 * (sampleRecordFailure == 0) { sampleTotaalRecords =
+		 * processedList.size() + dummyRecordsVerwerkt; }
+		 */
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
@@ -1212,8 +1214,13 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageDummyOK() {
 		sampleRecordFailure = failureList.size();
 		sampleExactRecordsVerwerkt = processedList.size();
-		sampleTotaalRecords = 0;
-		sampleTotaalRecords = processedList.size() + failureList.size();
+		/*
+		 * sampleTotaalRecords = 0; if (processedList.size() > 0 &&
+		 * sampleRecordFailure > 0) { sampleTotaalRecords = processedList.size()
+		 * + failureList.size(); } else if (sampleRecordFailure == 0 &&
+		 * dummyRecordsVerwerkt > 0) { sampleTotaalRecords =
+		 * processedList.size() + dummyRecordsVerwerkt; }
+		 */
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
