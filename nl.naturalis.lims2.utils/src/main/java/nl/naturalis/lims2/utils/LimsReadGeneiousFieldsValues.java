@@ -51,7 +51,6 @@ public class LimsReadGeneiousFieldsValues {
 	private String dummyPositionSamplesValue = "";
 	private String dummyExtractIDSamplesValue = "";
 	private String dummySeqStaffSamplesValue = "";
-	private List<String> listDummyValues = new ArrayList<String>();
 	public String activeDB = "";
 	public String extractidSamplesFromDummy;
 	public String samplePlateIdSamplesFromDummy;
@@ -98,7 +97,6 @@ public class LimsReadGeneiousFieldsValues {
 
 		/** noteCode = "DocumentNoteUtilities-Registration number"; */
 		DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteCode);
-		// Object fieldValue = "";
 		boolean truefalse = false;
 
 		if (noteType != null) {
@@ -188,18 +186,10 @@ public class LimsReadGeneiousFieldsValues {
 					+ "WHERE document_xml like  '%" + fileName + "%' " + "\n"
 					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
 
-			/*
-			 * final String SQL = " SELECT a.name" + " FROM " + " ( " +
-			 * " SELECT	TRIM(EXTRACTVALUE(" + fieldName + ", ' " + xmlnotes +
-			 * " ')) AS name " + " FROM annotated_document" + " ) AS a " +
-			 * " WHERE a.name =?" + "\n" + " LIMIT 1";
-			 */
-
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			// pst.setString(1, fileName);
 			rs = pst.executeQuery();
 
 			if (rs.next()) {
@@ -323,13 +313,6 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT DISTINCT	TRIM(EXTRACTVALUE(document_xml, ' //document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document" + " ) AS a "
 					+ " WHERE a.name like ?" + "\n" + "LIMIT 1";
-			// final String SQL = " SELECT DISTINCT a.name, COUNT(*) as Count"
-			// + " FROM "
-			// + " ( "
-			// +
-			// " SELECT DISTINCT	TRIM(EXTRACTVALUE(plugin_document_xml, '//XMLSerialisableRootElement/name')) AS name "
-			// + " FROM annotated_document" + " ) AS a "
-			// + " WHERE a.name like ?" + "\n" + "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -339,7 +322,7 @@ public class LimsReadGeneiousFieldsValues {
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
-					result = rs.getString("name"); // .getObject(1).toString();
+					result = rs.getString("name");
 					logger.info("Extract ID: " + result
 							+ " already exsist in the geneious database.");
 				} while (rs.next());
@@ -518,7 +501,6 @@ public class LimsReadGeneiousFieldsValues {
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			// pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
@@ -673,7 +655,6 @@ public class LimsReadGeneiousFieldsValues {
 			try {
 				con = DriverManager.getConnection(url + activeDB + ssl, user,
 						password);
-				// con.clearWarnings();
 			} catch (SQLException e) {
 				throw new IllegalStateException("Cannot connect the database!",
 						e);
@@ -681,7 +662,7 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) ID);
 			pst.executeUpdate();
-			logger.debug("Delete Dummy Annotated document id : " + ID
+			logger.info("Delete Dummy Annotated document id : " + ID
 					+ "From tabel annotated_document ");
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
@@ -718,19 +699,6 @@ public class LimsReadGeneiousFieldsValues {
 					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
 					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
-
-			/*
-			 * final String SQL =
-			 * " SELECT MAX(CAST(a.version as UNSIGNED)) as version, a.name, a.reference_count "
-			 * + " FROM " + " ( " +
-			 * " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-			 * +
-			 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name, "
-			 * +
-			 * " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/strong_referenced_documents/strong_referenced_documents')) AS reference_count "
-			 * + " FROM annotated_document) AS a " + " WHERE a.name =?" +
-			 * " AND   a.reference_count = 0 " + " AND   a.version > 0";
-			 */
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
@@ -791,22 +759,10 @@ public class LimsReadGeneiousFieldsValues {
 			if (rs.next()) {
 				do {
 					result = rs.getInt(1);
-					logger.debug("Versionnumber : " + result);
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {
-			logger.info(ex.getMessage(), ex);
-			exception = ex;
-
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Get last version: "
-							+ exception.getMessage());
-				}
-			});
-
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				if (rs != null) {
@@ -820,7 +776,7 @@ public class LimsReadGeneiousFieldsValues {
 				}
 
 			} catch (SQLException ex) {
-				logger.warn(ex.getMessage(), ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		return result;
@@ -1062,9 +1018,6 @@ public class LimsReadGeneiousFieldsValues {
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
 			rs = pst.executeQuery();
-			// ResultSetMetaData metadata = rs.getMetaData();
-			// int numberOfColumns = metadata.getColumnCount();
-			listDummyValues.clear();
 			List<Dummy> dummies = new ArrayList<>(100);
 			while (rs.next()) {
 				Dummy dummy = new Dummy();
@@ -1081,28 +1034,6 @@ public class LimsReadGeneiousFieldsValues {
 				dummy.setRegistrationScientificName(rs
 						.getString("registrationScientificName"));
 				dummies.add(dummy);
-				/*
-				 * registrnmbrSamplesFromDummy =
-				 * rs.getString("Registrationnumber");
-				 * scientificNameSamplesFromDummy =
-				 * rs.getString("ScientificName"); samplePlateIdSamplesFromDummy
-				 * = rs.getString("SamplePlateId"); positionSamplesFromDummy =
-				 * rs.getString("Position");
-				 * 
-				 * extractidSamplesFromDummy = rs.getString("ExtractID");
-				 * 
-				 * extractPlateNumberIDSamples = rs
-				 * .getString("extractPlateNumberIDSamples");
-				 * 
-				 * extractionMethodSamples = rs.getString("extractMethod");
-				 * 
-				 * registrationScientificName = rs
-				 * .getString("registrationScientificName");
-				 */
-				// int i = 1;
-				// while (i <= numberOfColumns) {
-				// listDummyValues.add(rs.getString(i++));
-				// }
 			}
 			return dummies;
 		} catch (SQLException ex) {
@@ -1124,7 +1055,6 @@ public class LimsReadGeneiousFieldsValues {
 				throw new RuntimeException(ex);
 			}
 		}
-		// return listDummyValues;
 	}
 
 	/**

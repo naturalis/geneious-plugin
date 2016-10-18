@@ -16,6 +16,7 @@ import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsImportNotes;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsReplaceDummyNotes;
 import nl.naturalis.lims2.utils.LimsSQL;
@@ -75,6 +76,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private LimsSQL limsSQL = new LimsSQL();
 	private LimsImportNotes limsImportNotes = new LimsImportNotes();
 	private LimsReplaceDummyNotes limsReplaceDummyNotes = new LimsReplaceDummyNotes();
+	private LimsNotes limsNotes = new LimsNotes();
 
 	private AnnotatedPluginDocument documentAnnotatedPlugin;
 	private int count = 0;
@@ -87,7 +89,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private int versienummer = 0;
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
-	// private ArrayList<String> dummyList = new ArrayList<String>();
 	private List<Dummy> dummies = null;
 	private String[] ab1FileName = null;
 	private String dummyFilename = "";
@@ -161,11 +162,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					.getServerDatabaseServiceName();
 
 			setDummyValues();
-
-			/*
-			 * try { checkIfDummyExists(); } catch (IOException e) { throw new
-			 * RuntimeException(e); }
-			 */
 		}
 
 		if (ReadGeneiousFieldsValues.activeDB != null) {
@@ -188,13 +184,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						throw new RuntimeException(e);
 					}
 				} else {
-					int counter = limsSQL.importcounter + 1;
-					limsSQL.updateImportCount(counter, file.getName());
+					int counterAB1 = limsSQL.importcounter + 1;
+
+					limsSQL.updateImportCount(counterAB1, file.getName());
 				}
-
-				/* Check if file exists in the database */
-				// checkIfDummyExists();
-
 			}
 
 			extractAb1FastaFileName = file.getName();
@@ -214,34 +207,32 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						throw new RuntimeException(e);
 					}
 				} else {
+
 					int counter = limsSQL.importcounter + 1;
 					limsSQL.updateImportCount(counter, extractAb1FastaFileName);
 				}
 
-				// checkIfDummyExists();
-				// fastaFileExists = fastaExists;
-
-				/* Check if file already exists in the database. */
-				/*
-				 * fastaFileExists = LimsReadGeneiousFieldsValues
-				 * .checkOfFastaOrAB1Exists(extractAb1FastaFileName,
-				 * "plugin_document_xml", "//XMLSerialisableRootElement/name");
-				 */
 				/*
 				 * Get the version number from the last inserted document that
 				 * match the criteria
 				 */
-				versienummer = ReadGeneiousFieldsValues
-						.getLastVersionFromDocument(extractAb1FastaFileName);
+				versienummer = limsSQL
+						.getVersionFromDocumentName(extractAb1FastaFileName);
+				// ReadGeneiousFieldsValues.getLastVersionFromDocument(extractAb1FastaFileName);
 				if (versienummer == 0) {
 					fastaFileExists = false;
 				} else {
 					fastaFileExists = true;
 				}
-			} else {
-				/* AB1 version check */
-				versienummer = ReadGeneiousFieldsValues
-						.getLastVersionFromDocument(extractAb1FastaFileName);
+			} else {/* AB1 version check */
+
+				versienummer = limsSQL
+						.getVersionFromDocumentName(extractAb1FastaFileName);
+				/*
+				 * versienummer = ReadGeneiousFieldsValues
+				 * .getLastVersionFromDocument(extractAb1FastaFileName);
+				 */
+
 				if (versienummer == 0) {
 					ab1fileExists = false;
 				} else {
@@ -275,22 +266,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			String pcrPlateId = limsAB1Fields.getPcrPlaatID();
 			String marker = limsAB1Fields.getMarker();
 
-			Dummy found = null;
-
-			for (Dummy dummy : dummies) {
-				if (dummy.getExtractID().equals(extractID)) {
-					found = dummy;
-					annotatedDocumentID = String.valueOf(found.getId());
-					dummyFilename = found.getName();
-					break;
-				}
-			}
-
-			if (found != null) {
-				dummyExists = true;
-			} else {
-				dummyExists = false;
-			}
+			boolean dummyExists = limsSQL.documentNameExist(extractID + ".dum");
 
 			if (file.getName() != null && !dummyExists && !isDeleted) {
 
@@ -299,25 +275,43 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* Add Notes to AB1/Fasta document */
 				if (documentAnnotatedPlugin != null) {
-					limsImportNotes.setImportNotes(documentAnnotatedPlugin,
-							extractAb1FastaFileName,
-							limsAB1Fields.getExtractID(),
-							limsAB1Fields.getPcrPlaatID(),
-							limsAB1Fields.getMarker(), versienummer,
-							limsImporterUtil.getPropValues("seqsequencestaff"));
+					setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
+							extractAb1FastaFileName);
+
+					/*
+					 * limsImportNotes.setImportNotes(documentAnnotatedPlugin,
+					 * extractAb1FastaFileName, limsAB1Fields.getExtractID(),
+					 * limsAB1Fields.getPcrPlaatID(), limsAB1Fields.getMarker(),
+					 * versienummer,
+					 * limsImporterUtil.getPropValues("seqsequencestaff"));
+					 */
+
 				}
 			}
 
-			else {
-				/* AB1 Document */
-				// limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
-
+			else { /* Get dummy values */
 				/* Set version number */
 				setVersionNumber();
 
+				Dummy found = null;
+
+				for (Dummy dummy : dummies) {
+					if (dummy.getExtractID().equals(extractID)) {
+						found = dummy;
+						annotatedDocumentID = String.valueOf(found.getId());
+						dummyFilename = found.getName();
+						break;
+					}
+				}
+
+				if (found != null) {
+					dummyExists = true;
+				} else {
+					dummyExists = false;
+				}
+
 				if (found == null) {
-					logger.info("Cannot match");
-					// throw new RuntimeException("Cannot match");
+					logger.info("No match found for: " + file.getName());
 				}
 
 				/*
@@ -381,30 +375,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	/**
-	 * @throws IOException
-	 */
-	private void checkIfDummyExists() throws IOException {
-
-		/*
-		 * dummyExists = ReadGeneiousFieldsValues
-		 * .getImportDummyDocument(ab1FileName[0] + ".dum");
-		 */
-
-		// if (dummyExists) {
-		// annotatedDocumentID = ReadGeneiousFieldsValues
-		// .getIDFromTableAnnotatedDocument(".dum",
-		// "//document/hiddenFields/cache_name");
-
-		// dummyFilename = ReadGeneiousFieldsValues.dummyName;
-
-		// if (dummyFilename.length() > 0) {
-		// dummyList.clear();
-		// dummyList.add(ReadGeneiousFieldsValues.getDummySamplesValues(".dum"));
-		// }
-		// }
-	}
-
-	/**
 	 * Search for a character in a Fasta file
 	 * 
 	 * @param file
@@ -421,138 +391,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	}
 
-	/*
-	 * Import Fasta with Naturalis Plugin Set notes for fasta file
-	 */
-	/*
-	 * private void setNotes_To_AB1_Fasta( AnnotatedPluginDocument
-	 * documentAnnotated, String fileName) throws IOException { logger.info(
-	 * "----------------------------S T A R T ---------------------------------"
-	 * ); logger.info("Start extracting value from file: " + fileName);
-	 * 
-	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
-	 * "ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
-	 * limsAB1Fields.getExtractID());
-	 * 
-	 * set note for PCR Plaat-ID limsNotes.setImportNotes(documentAnnotated,
-	 * "PCRplateIDCode_Seq", "PCR plate ID (Seq)", "PCR plate ID (Seq)",
-	 * limsAB1Fields.getPcrPlaatID());
-	 * 
-	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
-	 * "MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
-	 * limsAB1Fields.getMarker());
-	 * 
-	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
-	 * "DocumentVersionCode_Seq", "Document version", "Document version",
-	 * Integer.toString(versienummer));
-	 * 
-	 * set note for SequencingStaffCode_FixedValue_Seq
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
-	 * "Seq-staff (Seq)", limsImporterUtil.getPropValues("seqsequencestaff"));
-	 * 
-	 * set note for ConsensusSeqPassCode_Seq
-	 * limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
-	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
-	 * "Pass (Seq)", null); }
-	 */
-
-	/*
-	 * private void setNotes_To_AB1_Fasta( AnnotatedPluginDocument
-	 * documentAnnotated, String fileName) throws IOException {
-	 * limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
-	 * limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq", "Pass (Seq)",
-	 * "Pass (Seq)", null); }
-	 */
-
-	/*
-	 * Import Replace dummy documents notes with AB1 notes
-	 */
-	/*
-	 * private void replaceDummyNotesWithAB1Notes( AnnotatedPluginDocument
-	 * documentAnnotated, String extractID) throws IOException {
-	 * 
-	 * if (limsAB1Fields.getExtractID().equals(extractID)) {
-	 * 
-	 * set note for PCR Plaat-ID limsNotes.setImportNotes(documentAnnotated,
-	 * "PCRplateIDCode_Seq", "PCR plate ID (Seq)", "PCR plate ID (Seq)",
-	 * limsAB1Fields.getPcrPlaatID());
-	 * 
-	 * set note for Marker limsNotes.setImportNotes(documentAnnotated,
-	 * "MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)",
-	 * limsAB1Fields.getMarker());
-	 * 
-	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
-	 * "ExtractIDCode_Seq", "Extract ID (Seq)", "Extract ID (Seq)",
-	 * limsAB1Fields.getExtractID());
-	 * 
-	 * set note for Extract-ID limsNotes.setImportNotes(documentAnnotated,
-	 * "ExtractIDCode_Samples", "Extract ID (Samples)", "Extract ID (Samples)",
-	 * ReadGeneiousFieldsValues.extractidSamplesFromDummy);
-	 * 
-	 * set note for Project Plate number
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
-	 * "Sample plate ID (Samples)",
-	 * ReadGeneiousFieldsValues.samplePlateIdSamplesFromDummy);
-	 * 
-	 * set note for Taxon name limsNotes.setImportNotes(documentAnnotated,
-	 * "TaxonName2Code_Samples", "[Scientific name] (Samples)",
-	 * "[Scientific name] (Samples)",
-	 * ReadGeneiousFieldsValues.scientificNameSamplesFromDummy);
-	 * 
-	 * set note for Registration number
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
-	 * "Registr-nmbr (Samples)",
-	 * ReadGeneiousFieldsValues.registrnmbrSamplesFromDummy);
-	 * 
-	 * set note for Plate position limsNotes.setImportNotes(documentAnnotated,
-	 * "PlatePositionCode_Samples", "Position (Samples)", "Position (Samples)",
-	 * ReadGeneiousFieldsValues.positionSamplesFromDummy);
-	 * 
-	 * SequencingStaffCode_FixedValue_Seq
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
-	 * "Seq-staff (Seq)", limsImporterUtil.getPropValues("seqsequencestaff"));
-	 * 
-	 * AmplicificationStaffCode_FixedValue_Samples
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)",
-	 * "Ampl-staff (Samples)",
-	 * limsImporterUtil.getPropValues("samplesamplicification"));
-	 * 
-	 * set note for Extract Plate ID Samples
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
-	 * "Extract plate ID (Samples)",
-	 * ReadGeneiousFieldsValues.extractPlateIDSamples);
-	 * 
-	 * set note for Extract Method limsNotes.setImportNotes(documentAnnotated,
-	 * "SampleMethodCode_Samples", "Extraction method (Samples)",
-	 * "Extraction method (Samples)",
-	 * ReadGeneiousFieldsValues.extractionMethodSamples);
-	 * 
-	 * 
-	 * set note for RegistrationNumberCode_TaxonName2Code_Samples
-	 * 
-	 * limsNotes.setImportNotes(documentAnnotated,
-	 * "RegistrationNumberCode_TaxonName2Code_Samples",
-	 * "Registr-nmbr_[Scientific_name] (Samples)",
-	 * "Registr-nmbr_[Scientific_name] (Samples)",
-	 * ReadGeneiousFieldsValues.registrationScientificName);
-	 * 
-	 * set note for Version limsNotes.setImportNotes(documentAnnotated,
-	 * "DocumentVersionCode_Seq", "Document version", "Document version",
-	 * Integer.toString(versienummer));
-	 * 
-	 * if (count > 0) { selectedTotal = 0; } } }
-	 */
-
 	private void setVersionNumber() {
-		if (ab1fileExists) {
-			versienummer++;
-		} else if (fastaFileExists) {
+		if (ab1fileExists || fastaFileExists) {
 			versienummer++;
 		} else {
 			versienummer = 1;
@@ -561,6 +401,43 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	private void setDummyValues() {
 		dummies = ReadGeneiousFieldsValues.getDummySamplesValues(".dum");
-
 	}
+
+	private void setNotes_To_AB1_Fasta(
+			AnnotatedPluginDocument documentAnnotated, String fileName)
+			throws IOException {
+		logger.info("----------------------------S T A R T ---------------------------------");
+		logger.info("Start extracting value from file: " + fileName);
+
+		/* set note for Extract-ID */
+		limsNotes.setImportNotes(documentAnnotated, "ExtractIDCode_Seq",
+				"Extract ID (Seq)", "Extract ID (Seq)",
+				limsAB1Fields.getExtractID());
+
+		/* set note for PCR Plaat-ID */
+		limsNotes.setImportNotes(documentAnnotated, "PCRplateIDCode_Seq",
+				"PCR plate ID (Seq)", "PCR plate ID (Seq)",
+				limsAB1Fields.getPcrPlaatID());
+
+		/* set note for Marker */
+		limsNotes.setImportNotes(documentAnnotated, "MarkerCode_Seq",
+				"Marker (Seq)", "Marker (Seq)", limsAB1Fields.getMarker());
+
+		/* set note for Marker */
+		limsNotes.setImportNotes(documentAnnotated, "DocumentVersionCode_Seq",
+				"Document version", "Document version",
+				Integer.toString(versienummer));
+
+		/* set note for SequencingStaffCode_FixedValue_Seq */
+		limsNotes.setImportNotes(documentAnnotated,
+				"SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)",
+				"Seq-staff (Seq)",
+				limsImporterUtil.getPropValues("seqsequencestaff"));
+
+		/* set note for ConsensusSeqPassCode_Seq */
+		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
+				"Pass (Seq)", "Pass (Seq)", null);
+	}
+
 }

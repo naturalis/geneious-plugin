@@ -10,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,6 @@ public class LimsSQL {
 			.getDatabasePropValues("password");
 
 	private static Connection conn = null;
-	private Statement stmt = null;
 
 	public int importcounter = 1;
 	public boolean truefalse = false;
@@ -45,7 +46,7 @@ public class LimsSQL {
 	 * Create Table tblDocumentImport
 	 */
 	public void createTableDocumentImport() throws SQLException {
-
+		Statement stmt = null;
 		String sqlCreateTable = "CREATE TABLE tblDocumentImport" + "\n"
 				+ "(ID int(11) NOT NULL AUTO_INCREMENT," + "\n"
 				+ "Documentname varchar(255) NOT NULL," + "\n"
@@ -87,6 +88,7 @@ public class LimsSQL {
 	 * Create index for column name DocumentName
 	 */
 	public void createIndexInTableDocumentImport() throws SQLException {
+		Statement stmt = null;
 		String sqlCreateIndex = "CREATE INDEX IDXDocumentName" + "\n"
 				+ "ON tblDocumentImport(Documentname)";
 		try {
@@ -123,7 +125,7 @@ public class LimsSQL {
 	/* Insert data to the table */
 	public void insertIntoTableDocumentImport(String documentname, int count)
 			throws SQLException {
-
+		Statement stmt = null;
 		String sqlInsert = "INSERT INTO tblDocumentImport(Documentname, Importcount)"
 				+ "\n" + "VALUES('" + documentname + "','" + count + "')";
 		try {
@@ -155,9 +157,50 @@ public class LimsSQL {
 		}// end try
 	}
 
+	public List<LimsDocumentName> getDocumentNameForAB1Fasta() {
+		Statement stmt = null;
+		try {
+			// Open a connection
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			// Execute a query
+			stmt = conn.createStatement();
+
+			String sql = "SELECT Documentname FROM tblDocumentImport";
+
+			ResultSet rs = stmt.executeQuery(sql);
+			List<LimsDocumentName> documentNames = new ArrayList<>(100);
+			if (rs.next()) {
+				do {
+					LimsDocumentName docName = new LimsDocumentName();
+					docName.setDocumentFileName(rs.getString("Documentname"));
+				} while (rs.next());
+			}
+			rs.close();
+			return documentNames;
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			throw new RuntimeException(se);
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					conn.close();
+			} catch (SQLException se) {
+			}// do nothing
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				throw new RuntimeException(se);
+			}// end finally try
+		}// end try
+
+	}
+
 	/* Check if document exists in the table */
 	public boolean documentNameExist(String documentName) {
-
+		Statement stmt = null;
 		boolean exists = false;
 		try {
 			// Open a connection
@@ -166,8 +209,9 @@ public class LimsSQL {
 			// Execute a query
 			stmt = conn.createStatement();
 
-			String sql = "SELECT EXISTS(SELECT 1 FROM tblDocumentImport" + "\n"
-					+ "WHERE Documentname =  '" + documentName + "' ) as count";
+			String sql = "SELECT Importcount FROM tblDocumentImport" + "\n"
+					+ "WHERE Documentname =  '" + documentName + "'" + "\n";
+			// + "ORDER BY Documentname DESC ";
 			ResultSet rs = stmt.executeQuery(sql);
 			if (rs.next()) {
 				do {
@@ -176,6 +220,7 @@ public class LimsSQL {
 						exists = false;
 					else
 						exists = true;
+					importcounter = rs.getInt("Importcount");
 
 				} while (rs.next());
 			}
@@ -200,9 +245,49 @@ public class LimsSQL {
 		return exists;
 	}
 
+	public int getVersionFromDocumentName(String documentName) {
+		Statement stmt = null;
+		int result = 0;
+		try {
+			// Open a connection
+			conn = DriverManager.getConnection(DB_URL, user, password);
+
+			// Execute a query
+			stmt = conn.createStatement();
+
+			String sql = "SELECT MAX(CAST(Importcount as UNSIGNED)) as version FROM tblDocumentImport"
+					+ "\n" + "WHERE Documentname =  '" + documentName + "'";
+			ResultSet rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+					importcounter = result;
+				} while (rs.next());
+			}
+			rs.close();
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			throw new RuntimeException(se);
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					conn.close();
+			} catch (SQLException se) {
+			}// do nothing
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				throw new RuntimeException(se);
+			}// end finally try
+		}// end try
+		return result;
+	}
+
 	/* Check if document exists in the table */
 	public String getdocumentName(String documentName) {
-
+		Statement stmt = null;
 		try {
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, user, password);
@@ -242,7 +327,7 @@ public class LimsSQL {
 	}
 
 	public void updateImportCount(int cnt, String docName) {
-
+		Statement stmt = null;
 		try {
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, user, password);
@@ -298,7 +383,7 @@ public class LimsSQL {
 
 	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object docName)
 			throws IOException {
-
+		Statement stmt = null;
 		try {
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, user, password);

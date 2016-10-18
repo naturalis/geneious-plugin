@@ -129,417 +129,325 @@ public class LimsReplaceDummyNotes {
 	 * @param fieldValue
 	 *            The field value
 	 * */
-	public void replaceDummyNotesWithAB1Notes(AnnotatedPluginDocument document,
-			String pcrPlateID, String markerCode, String extractIDSeq,
-			String extractID, String projectPlateNumber, String taxonName,
-			String regNumber, String platePosition, String extractPlateNumber,
-			String subSample, String regScientificname, int versionNumber) {
-
-		// if (limsAB1Fields.getExtractID().equals(extractID)) { */
-		logger.info("----------------------------S T A R T ---------------------------------");
-
-		setFieldAndDescription();
-
-		/*
-		 * ==================================================================
-		 */
-		ArrayList<DocumentNoteField> listNotes = createListNotes();
-
-		/* =============================================================== */
-
-		/* Check if note type exists */
-		/* PCR plate */
-		this.noteTypeCodePCRPlate = "DocumentNoteUtilities-" + noteTextPCRPlate;
-		DocumentNoteType documentNoteTypePCR = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodePCRPlate);
-
-		/* MARKER */
-		this.noteTypeCodeMarker = "DocumentNoteUtilities-" + noteTextMarker;
-		DocumentNoteType documentNoteTypeMarker = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeMarker);
-
-		/* Extract ID (Seq) */
-		this.noteTypeCodeExtractIDSeq = "DocumentNoteUtilities-"
-				+ noteTextExtractIDSeq;
-		DocumentNoteType documentNoteTypeExtractSeq = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeExtractIDSeq);
-
-		/* Extract ID */
-		this.noteTypeCodeExtractID = "DocumentNoteUtilities-"
-				+ noteTextExtractID;
-		DocumentNoteType documentNoteTypeExtractID = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeExtractID);
-
-		/* Project plate number */
-		this.noteTypeCodeProjectPlate = "";
-		this.noteTypeCodeProjectPlate = "DocumentNoteUtilities-"
-				+ noteTextProjectPlate;
-		DocumentNoteType documentNoteTypeProjectPlate = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeProjectPlate);
-
-		/* Taxon name */
-		this.noteTypeCodeTaxon = "";
-		this.noteTypeCodeTaxon = "DocumentNoteUtilities-" + noteTextTaxon;
-		DocumentNoteType documentNoteTypeTaxon = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeTaxon);
-
-		/* Registrationnumber */
-		this.noteTypeCodeReg = "";
-		this.noteTypeCodeReg = "DocumentNoteUtilities-" + noteTextReg;
-		DocumentNoteType documentNoteTypeReg = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeReg);
-
-		/* Plate position */
-		this.noteTypeCodePlatePosition = "DocumentNoteUtilities-"
-				+ noteTextPlatePosition;
-		DocumentNoteType documentNoteTypePlatePosition = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodePlatePosition);
-
-		/* Seq-staff (Seq) */
-		this.noteTypeCodeSeqStaff = "DocumentNoteUtilities-" + noteTextSeqStaff;
-		DocumentNoteType documentNoteTypeSeqStaff = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeSeqStaff);
-
-		/* AmplicificationStaffCode_FixedValue_Samples */
-		this.noteTypeCodeAmplStaff = "DocumentNoteUtilities-"
-				+ noteTextAmplStaff;
-		DocumentNoteType documentNoteTypeAmplStaff = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeAmplStaff);
-
-		/* Extract plate number */
-		this.noteTypeCodeExtractPlateNumber = "DocumentNoteUtilities-"
-				+ noteTextExtractPlateNumber;
-		DocumentNoteType documentNoteTypeExtractPlate = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeExtractPlateNumber);
-
-		/* Extract Method */
-		this.noteTypeCodeExtractMethod = "DocumentNoteUtilities-"
-				+ noteTextExtractMethod;
-		DocumentNoteType documentNoteTypeExtractMethod = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeExtractMethod);
-
-		/* Registr-nmbr_[Scientific_name] */
-		this.noteTypeCodeRegScientfic = "DocumentNoteUtilities-"
-				+ noteTextRegScientfic;
-		DocumentNoteType documentNoteTypeRegScientific = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeRegScientfic);
-
-		/* Document Version */
-		this.noteTypeCodeDocversion = "DocumentNoteUtilities-"
-				+ noteTextDocversion;
-		DocumentNoteType documentNoteTypeDocversion = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCodeDocversion);
-
-		/* =============================================================== */
-
-		/* PCR plate */
-		if (documentNoteTypePCR == null) {
-			documentNoteTypePCR = DocumentNoteUtilities.createNewNoteType(
-					noteTextPCRPlate, this.noteTypeCodePCRPlate,
-					this.descriptionPCRPlate, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypePCR);
-			logger.info("NoteType " + noteTextPCRPlate + " created succesful");
-		}
-
-		/* MARKER */
-		if (documentNoteTypeMarker == null) {
-			documentNoteTypeMarker = DocumentNoteUtilities.createNewNoteType(
-					noteTextMarker, this.noteTypeCodeMarker,
-					this.descriptionMarker, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeMarker);
-			logger.info("NoteType " + noteTextMarker + " created succesful");
-		}
-
-		/* Extract-ID note */
-		if (documentNoteTypeExtractSeq == null) {
-			documentNoteTypeExtractSeq = DocumentNoteUtilities
-					.createNewNoteType(noteTextExtractIDSeq,
-							this.noteTypeCodeExtractIDSeq,
-							this.descriptionExtractIDSeq, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeExtractSeq);
-			logger.info("NoteType " + noteTextExtractIDSeq
-					+ " created succesful");
-		}
-
-		/* Extract ID */
-		if (documentNoteTypeExtractID == null) {
-			documentNoteTypeExtractID = DocumentNoteUtilities
-					.createNewNoteType(noteTextExtractID,
-							this.noteTypeCodeExtractID,
-							this.descriptionExtractID, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeExtractID);
-			logger.info("NoteType " + noteTextExtractID + " created succesful");
-		}
-
-		/* Project Plate number note */
-		if (documentNoteTypeProjectPlate == null) {
-			documentNoteTypeProjectPlate = DocumentNoteUtilities
-					.createNewNoteType(noteTextProjectPlate,
-							this.noteTypeCodeProjectPlate,
-							this.descriptionProjectPlate, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeProjectPlate);
-			logger.info("NoteType " + noteTextProjectPlate
-					+ " created succesful");
-		}
-
-		/* TaxonName note */
-		if (documentNoteTypeTaxon == null) {
-			documentNoteTypeTaxon = DocumentNoteUtilities.createNewNoteType(
-					noteTextTaxon, this.noteTypeCodeTaxon,
-					this.descriptionTaxon, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeTaxon);
-			logger.info("NoteType " + noteTextTaxon + " created succesful");
-		}
-
-		/* Registration note */
-		if (documentNoteTypeReg == null) {
-			documentNoteTypeReg = DocumentNoteUtilities.createNewNoteType(
-					noteTextReg, this.noteTypeCodeReg, this.descriptionReg,
-					listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeReg);
-			logger.info("NoteType " + noteTextReg + " created succesful");
-		}
-
-		/* Plate position note */
-		if (documentNoteTypePlatePosition == null) {
-			documentNoteTypePlatePosition = DocumentNoteUtilities
-					.createNewNoteType(noteTextPlatePosition,
-							this.noteTypeCodePlatePosition,
-							this.descriptionPlatePosition, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypePlatePosition);
-			logger.info("NoteType " + noteTextPlatePosition
-					+ " created succesful");
-		}
-
-		/* Seq-staff (Seq) */
-		if (documentNoteTypeSeqStaff == null) {
-			documentNoteTypeSeqStaff = DocumentNoteUtilities.createNewNoteType(
-					noteTextSeqStaff, this.noteTypeCodeSeqStaff,
-					this.descriptionSeqStaff, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff);
-			logger.info("NoteType " + noteTextSeqStaff + " created succesful");
-		}
-
-		/* AmplicificationStaffCode_FixedValue_Samples */
-		if (documentNoteTypeAmplStaff == null) {
-			documentNoteTypeAmplStaff = DocumentNoteUtilities
-					.createNewNoteType(noteTextAmplStaff,
-							this.noteTypeCodeAmplStaff,
-							this.descriptionAmplStaff, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeAmplStaff);
-			logger.info("NoteType " + noteTextAmplStaff + " created succesful");
-		}
-
-		/* Extract Plate number note */
-		if (documentNoteTypeExtractPlate == null) {
-			documentNoteTypeExtractPlate = DocumentNoteUtilities
-					.createNewNoteType(noteTextExtractPlateNumber,
-							this.noteTypeCodeExtractPlateNumber,
-							this.descriptionExtractPlateNumber, listNotes,
-							false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeExtractPlate);
-			logger.info("NoteType " + noteTextExtractPlateNumber
-					+ " created succesful");
-		}
-
-		/* Extract Method */
-		if (documentNoteTypeExtractMethod == null) {
-			documentNoteTypeExtractMethod = DocumentNoteUtilities
-					.createNewNoteType(noteTextExtractMethod,
-							this.noteTypeCodeExtractMethod,
-							this.descriptionExtractMethod, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeExtractMethod);
-			logger.info("NoteType " + noteTextExtractMethod
-					+ " created succesful");
-		}
-
-		/*
-		 * 
-		 * Lims-190:Sample import maak of update extra veld veldnaam -
-		 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
-		 * RegistrationNumberCode_TaxonName2Code_Samples
-		 * Registr-nmbr_[Scientific_name]
-		 */
-		if (documentNoteTypeRegScientific == null) {
-			documentNoteTypeRegScientific = DocumentNoteUtilities
-					.createNewNoteType(noteTextRegScientfic,
-							this.noteTypeCodeRegScientfic,
-							this.descriptionRegScientfic, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeRegScientific);
-			logger.info("NoteType " + noteTextRegScientfic
-					+ " created succesful");
-		}
-
-		/* Document Version */
-		if (documentNoteTypeDocversion == null) {
-			documentNoteTypeDocversion = DocumentNoteUtilities
-					.createNewNoteType(noteTextDocversion,
-							this.noteTypeCodeDocversion,
-							this.descriptionDocversion, listNotes, false);
-			DocumentNoteUtilities.setNoteType(documentNoteTypeDocversion);
-			logger.info("NoteType " + noteTextDocversion + " created succesful");
-		}
-
-		/*
-		 * ======================================================================
-		 */
-
-		/* PCR plate */
-		DocumentNote documentNotePCR = documentNoteTypePCR.createDocumentNote();
-		documentNotePCR.setFieldValue(this.fieldPCRPlate, pcrPlateID);
-		logger.info("Note value " + this.fieldPCRPlate + ": " + pcrPlateID
-				+ " added succesful");
-
-		/* MARKER */
-		DocumentNote documentNoteMarker = documentNoteTypeMarker
-				.createDocumentNote();
-		documentNoteMarker.setFieldValue(this.fieldMarker, markerCode);
-		logger.info("Note value " + this.fieldMarker + ": " + markerCode
-				+ " added succesful");
-
-		/* Create note for Extract-ID */
-		DocumentNote documentNoteExtractSeq = documentNoteTypeExtractSeq
-				.createDocumentNote();
-		documentNoteExtractSeq.setFieldValue(this.fieldExtractIDSeq,
-				extractIDSeq);
-		logger.info("Note value " + this.fieldExtractIDSeq + ": "
-				+ extractIDSeq + " added succesful");
-
-		/* Extract ID */
-		DocumentNote documentNoteExtractID = documentNoteTypeExtractID
-				.createDocumentNote();
-		documentNoteExtractID.setFieldValue(this.fieldExtractID, extractID);
-		logger.info("Note value " + this.fieldExtractID + ": " + extractID
-				+ " added succesful");
-
-		/* Project Plate number */
-		DocumentNote documentNoteProjectPlate = documentNoteTypeProjectPlate
-				.createDocumentNote();
-		documentNoteProjectPlate.setFieldValue(this.fieldProjectPlate,
-				projectPlateNumber);
-		logger.info("Note value " + this.fieldProjectPlate + ": "
-				+ projectPlateNumber + " added succesful");
-
-		/* Taxonname */
-		DocumentNote documentNoteTaxon = documentNoteTypeTaxon
-				.createDocumentNote();
-		documentNoteTaxon.setFieldValue(this.fieldTaxonName, taxonName);
-		logger.info("Note value " + this.fieldTaxonName + ": " + taxonName
-				+ " added succesful");
-
-		/* Registrationnumber */
-		DocumentNote documentNoteReg = documentNoteTypeReg.createDocumentNote();
-		documentNoteReg.setFieldValue(this.fieldRegistrationNumber, regNumber);
-		logger.info("Note value " + this.fieldRegistrationNumber + ": "
-				+ regNumber + " added succesful");
-
-		/* Plate position */
-		DocumentNote documentNotePlatePosition = documentNoteTypePlatePosition
-				.createDocumentNote();
-		documentNotePlatePosition.setFieldValue(this.fieldPlatePosition,
-				platePosition);
-		logger.info("Note value " + this.fieldPlatePosition + ": "
-				+ platePosition + " added succesful");
-
-		/* Seq-staff (Seq) */
-		DocumentNote documentNoteSeqStaff = documentNoteTypeSeqStaff
-				.createDocumentNote();
-		try {
-			documentNoteSeqStaff.setFieldValue(this.fieldSeqStaff,
-					limsImporterUtil.getPropValues("seqsequencestaff"));
-			logger.info("Note value " + this.fieldSeqStaff + ": "
-					+ limsImporterUtil.getPropValues("seqsequencestaff")
-					+ " added succesful");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		/* AmplicificationStaffCode_FixedValue_Samples */
-		DocumentNote documentNoteAmplStaff = documentNoteTypeAmplStaff
-				.createDocumentNote();
-		try {
-			documentNoteAmplStaff.setFieldValue(this.fieldAmplStaff,
-					limsImporterUtil.getPropValues("samplesamplicification"));
-			logger.info("Note value " + this.fieldAmplStaff + ": "
-					+ limsImporterUtil.getPropValues("samplesamplicification")
-					+ " added succesful");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		/* Extract Plate number */
-		DocumentNote documentNoteExtractPlate = documentNoteTypeExtractPlate
-				.createDocumentNote();
-		documentNoteExtractPlate.setFieldValue(this.fieldExtractPlateNumber,
-				extractPlateNumber);
-		logger.info("Note value " + this.fieldExtractPlateNumber + ": "
-				+ extractPlateNumber + " added succesful");
-
-		/* Extract Method */
-		DocumentNote documentNoteExtractMethod = documentNoteTypeExtractMethod
-				.createDocumentNote();
-		documentNoteExtractMethod.setFieldValue(this.fieldExtractMethod,
-				subSample);
-		logger.info("Note value " + this.fieldExtractMethod + ": " + subSample
-				+ " added succesful");
-
-		/* Registr-nmbr_[Scientific_name] */
-		DocumentNote documentNoteRegScientific = documentNoteTypeRegScientific
-				.createDocumentNote();
-		documentNoteRegScientific.setFieldValue(this.fieldRegScientfic,
-				regScientificname);
-		logger.info("Note value " + this.fieldRegScientfic + ": "
-				+ regScientificname + " added succesful");
-
-		/* Document Version */
-		DocumentNote documentNoteDocVersion = documentNoteTypeDocversion
-				.createDocumentNote();
-		documentNoteDocVersion.setFieldValue(this.fieldDocversion,
-				String.valueOf(versionNumber));
-		logger.info("Note value " + this.fieldDocversion + ": " + versionNumber
-				+ " added succesful");
-
-		/*
-		 * ==================================================================
-		 */
-
-		if (documentNoteSeqStaff.getName().equals("Seq-staff (Seq)")) {
-			documentNoteTypeSeqStaff.setDefaultVisibleInTable(false);
-			documentNoteTypeSeqStaff.setVisible(false);
-
-			DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff);
-		}
-
-		AnnotatedPluginDocument.DocumentNotes documentNotes = document
-				.getDocumentNotes(true);
-
-		/* Set note */
-		documentNotes.setNote(documentNotePCR);
-		documentNotes.setNote(documentNoteMarker);
-		documentNotes.setNote(documentNoteExtractSeq);
-		documentNotes.setNote(documentNoteExtractID);
-		documentNotes.setNote(documentNoteProjectPlate);
-		documentNotes.setNote(documentNoteTaxon);
-		documentNotes.setNote(documentNoteReg);
-		documentNotes.setNote(documentNotePlatePosition);
-		documentNotes.setNote(documentNoteSeqStaff);
-		documentNotes.setNote(documentNoteAmplStaff);
-		documentNotes.setNote(documentNoteExtractPlate);
-		documentNotes.setNote(documentNoteExtractMethod);
-		documentNotes.setNote(documentNoteRegScientific);
-		documentNotes.setNote(documentNoteDocVersion);
-
-		/* Save the selected sequence document */
-		documentNotes.saveNotes();
-
-		logger.info("Notes added succesful");
-
-		if (listNotes != null) {
-			listNotes.clear();
-		}
-
-		// }
-	}
+	/*
+	 * public void replaceDummyNotesWithAB1Notes(AnnotatedPluginDocument
+	 * document, String pcrPlateID, String markerCode, String extractIDSeq,
+	 * String extractID, String projectPlateNumber, String taxonName, String
+	 * regNumber, String platePosition, String extractPlateNumber, String
+	 * subSample, String regScientificname, int versionNumber) {
+	 * 
+	 * // if (limsAB1Fields.getExtractID().equals(extractID)) { logger.info(
+	 * "----------------------------S T A R T ---------------------------------"
+	 * );
+	 * 
+	 * setFieldAndDescription();
+	 * 
+	 * 
+	 * ==================================================================
+	 * 
+	 * ArrayList<DocumentNoteField> listNotes = createListNotes();
+	 * 
+	 * ===============================================================
+	 * 
+	 * Check if note type exists PCR plate this.noteTypeCodePCRPlate =
+	 * "DocumentNoteUtilities-" + noteTextPCRPlate; DocumentNoteType
+	 * documentNoteTypePCR = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodePCRPlate);
+	 * 
+	 * MARKER this.noteTypeCodeMarker = "DocumentNoteUtilities-" +
+	 * noteTextMarker; DocumentNoteType documentNoteTypeMarker =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeMarker);
+	 * 
+	 * Extract ID (Seq) this.noteTypeCodeExtractIDSeq = "DocumentNoteUtilities-"
+	 * + noteTextExtractIDSeq; DocumentNoteType documentNoteTypeExtractSeq =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeExtractIDSeq);
+	 * 
+	 * Extract ID this.noteTypeCodeExtractID = "DocumentNoteUtilities-" +
+	 * noteTextExtractID; DocumentNoteType documentNoteTypeExtractID =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeExtractID);
+	 * 
+	 * Project plate number this.noteTypeCodeProjectPlate = "";
+	 * this.noteTypeCodeProjectPlate = "DocumentNoteUtilities-" +
+	 * noteTextProjectPlate; DocumentNoteType documentNoteTypeProjectPlate =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeProjectPlate);
+	 * 
+	 * Taxon name this.noteTypeCodeTaxon = ""; this.noteTypeCodeTaxon =
+	 * "DocumentNoteUtilities-" + noteTextTaxon; DocumentNoteType
+	 * documentNoteTypeTaxon = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodeTaxon);
+	 * 
+	 * Registrationnumber this.noteTypeCodeReg = ""; this.noteTypeCodeReg =
+	 * "DocumentNoteUtilities-" + noteTextReg; DocumentNoteType
+	 * documentNoteTypeReg = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodeReg);
+	 * 
+	 * Plate position this.noteTypeCodePlatePosition = "DocumentNoteUtilities-"
+	 * + noteTextPlatePosition; DocumentNoteType documentNoteTypePlatePosition =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodePlatePosition);
+	 * 
+	 * Seq-staff (Seq) this.noteTypeCodeSeqStaff = "DocumentNoteUtilities-" +
+	 * noteTextSeqStaff; DocumentNoteType documentNoteTypeSeqStaff =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeSeqStaff);
+	 * 
+	 * AmplicificationStaffCode_FixedValue_Samples this.noteTypeCodeAmplStaff =
+	 * "DocumentNoteUtilities-" + noteTextAmplStaff; DocumentNoteType
+	 * documentNoteTypeAmplStaff = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodeAmplStaff);
+	 * 
+	 * Extract plate number this.noteTypeCodeExtractPlateNumber =
+	 * "DocumentNoteUtilities-" + noteTextExtractPlateNumber; DocumentNoteType
+	 * documentNoteTypeExtractPlate = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodeExtractPlateNumber);
+	 * 
+	 * Extract Method this.noteTypeCodeExtractMethod = "DocumentNoteUtilities-"
+	 * + noteTextExtractMethod; DocumentNoteType documentNoteTypeExtractMethod =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeExtractMethod);
+	 * 
+	 * Registr-nmbr_[Scientific_name] this.noteTypeCodeRegScientfic =
+	 * "DocumentNoteUtilities-" + noteTextRegScientfic; DocumentNoteType
+	 * documentNoteTypeRegScientific = DocumentNoteUtilities
+	 * .getNoteType(this.noteTypeCodeRegScientfic);
+	 * 
+	 * Document Version this.noteTypeCodeDocversion = "DocumentNoteUtilities-" +
+	 * noteTextDocversion; DocumentNoteType documentNoteTypeDocversion =
+	 * DocumentNoteUtilities .getNoteType(this.noteTypeCodeDocversion);
+	 * 
+	 * ===============================================================
+	 * 
+	 * PCR plate if (documentNoteTypePCR == null) { documentNoteTypePCR =
+	 * DocumentNoteUtilities.createNewNoteType( noteTextPCRPlate,
+	 * this.noteTypeCodePCRPlate, this.descriptionPCRPlate, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypePCR);
+	 * logger.info("NoteType " + noteTextPCRPlate + " created succesful"); }
+	 * 
+	 * MARKER if (documentNoteTypeMarker == null) { documentNoteTypeMarker =
+	 * DocumentNoteUtilities.createNewNoteType( noteTextMarker,
+	 * this.noteTypeCodeMarker, this.descriptionMarker, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeMarker);
+	 * logger.info("NoteType " + noteTextMarker + " created succesful"); }
+	 * 
+	 * Extract-ID note if (documentNoteTypeExtractSeq == null) {
+	 * documentNoteTypeExtractSeq = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextExtractIDSeq, this.noteTypeCodeExtractIDSeq,
+	 * this.descriptionExtractIDSeq, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeExtractSeq);
+	 * logger.info("NoteType " + noteTextExtractIDSeq + " created succesful"); }
+	 * 
+	 * Extract ID if (documentNoteTypeExtractID == null) {
+	 * documentNoteTypeExtractID = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextExtractID, this.noteTypeCodeExtractID,
+	 * this.descriptionExtractID, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeExtractID);
+	 * logger.info("NoteType " + noteTextExtractID + " created succesful"); }
+	 * 
+	 * Project Plate number note if (documentNoteTypeProjectPlate == null) {
+	 * documentNoteTypeProjectPlate = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextProjectPlate, this.noteTypeCodeProjectPlate,
+	 * this.descriptionProjectPlate, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeProjectPlate);
+	 * logger.info("NoteType " + noteTextProjectPlate + " created succesful"); }
+	 * 
+	 * TaxonName note if (documentNoteTypeTaxon == null) { documentNoteTypeTaxon
+	 * = DocumentNoteUtilities.createNewNoteType( noteTextTaxon,
+	 * this.noteTypeCodeTaxon, this.descriptionTaxon, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeTaxon);
+	 * logger.info("NoteType " + noteTextTaxon + " created succesful"); }
+	 * 
+	 * Registration note if (documentNoteTypeReg == null) { documentNoteTypeReg
+	 * = DocumentNoteUtilities.createNewNoteType( noteTextReg,
+	 * this.noteTypeCodeReg, this.descriptionReg, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeReg);
+	 * logger.info("NoteType " + noteTextReg + " created succesful"); }
+	 * 
+	 * Plate position note if (documentNoteTypePlatePosition == null) {
+	 * documentNoteTypePlatePosition = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextPlatePosition, this.noteTypeCodePlatePosition,
+	 * this.descriptionPlatePosition, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypePlatePosition);
+	 * logger.info("NoteType " + noteTextPlatePosition + " created succesful");
+	 * }
+	 * 
+	 * Seq-staff (Seq) if (documentNoteTypeSeqStaff == null) {
+	 * documentNoteTypeSeqStaff = DocumentNoteUtilities.createNewNoteType(
+	 * noteTextSeqStaff, this.noteTypeCodeSeqStaff, this.descriptionSeqStaff,
+	 * listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff);
+	 * logger.info("NoteType " + noteTextSeqStaff + " created succesful"); }
+	 * 
+	 * AmplicificationStaffCode_FixedValue_Samples if (documentNoteTypeAmplStaff
+	 * == null) { documentNoteTypeAmplStaff = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextAmplStaff, this.noteTypeCodeAmplStaff,
+	 * this.descriptionAmplStaff, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeAmplStaff);
+	 * logger.info("NoteType " + noteTextAmplStaff + " created succesful"); }
+	 * 
+	 * Extract Plate number note if (documentNoteTypeExtractPlate == null) {
+	 * documentNoteTypeExtractPlate = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextExtractPlateNumber,
+	 * this.noteTypeCodeExtractPlateNumber, this.descriptionExtractPlateNumber,
+	 * listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeExtractPlate);
+	 * logger.info("NoteType " + noteTextExtractPlateNumber +
+	 * " created succesful"); }
+	 * 
+	 * Extract Method if (documentNoteTypeExtractMethod == null) {
+	 * documentNoteTypeExtractMethod = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextExtractMethod, this.noteTypeCodeExtractMethod,
+	 * this.descriptionExtractMethod, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeExtractMethod);
+	 * logger.info("NoteType " + noteTextExtractMethod + " created succesful");
+	 * }
+	 * 
+	 * 
+	 * 
+	 * Lims-190:Sample import maak of update extra veld veldnaam -
+	 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
+	 * RegistrationNumberCode_TaxonName2Code_Samples
+	 * Registr-nmbr_[Scientific_name]
+	 * 
+	 * if (documentNoteTypeRegScientific == null) {
+	 * documentNoteTypeRegScientific = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextRegScientfic, this.noteTypeCodeRegScientfic,
+	 * this.descriptionRegScientfic, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeRegScientific);
+	 * logger.info("NoteType " + noteTextRegScientfic + " created succesful"); }
+	 * 
+	 * Document Version if (documentNoteTypeDocversion == null) {
+	 * documentNoteTypeDocversion = DocumentNoteUtilities
+	 * .createNewNoteType(noteTextDocversion, this.noteTypeCodeDocversion,
+	 * this.descriptionDocversion, listNotes, false);
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeDocversion);
+	 * logger.info("NoteType " + noteTextDocversion + " created succesful"); }
+	 * 
+	 * 
+	 * ======================================================================
+	 * 
+	 * 
+	 * PCR plate DocumentNote documentNotePCR =
+	 * documentNoteTypePCR.createDocumentNote();
+	 * documentNotePCR.setFieldValue(this.fieldPCRPlate, pcrPlateID);
+	 * logger.info("Note value " + this.fieldPCRPlate + ": " + pcrPlateID +
+	 * " added succesful");
+	 * 
+	 * MARKER DocumentNote documentNoteMarker = documentNoteTypeMarker
+	 * .createDocumentNote(); documentNoteMarker.setFieldValue(this.fieldMarker,
+	 * markerCode); logger.info("Note value " + this.fieldMarker + ": " +
+	 * markerCode + " added succesful");
+	 * 
+	 * Create note for Extract-ID DocumentNote documentNoteExtractSeq =
+	 * documentNoteTypeExtractSeq .createDocumentNote();
+	 * documentNoteExtractSeq.setFieldValue(this.fieldExtractIDSeq,
+	 * extractIDSeq); logger.info("Note value " + this.fieldExtractIDSeq + ": "
+	 * + extractIDSeq + " added succesful");
+	 * 
+	 * Extract ID DocumentNote documentNoteExtractID = documentNoteTypeExtractID
+	 * .createDocumentNote();
+	 * documentNoteExtractID.setFieldValue(this.fieldExtractID, extractID);
+	 * logger.info("Note value " + this.fieldExtractID + ": " + extractID +
+	 * " added succesful");
+	 * 
+	 * Project Plate number DocumentNote documentNoteProjectPlate =
+	 * documentNoteTypeProjectPlate .createDocumentNote();
+	 * documentNoteProjectPlate.setFieldValue(this.fieldProjectPlate,
+	 * projectPlateNumber); logger.info("Note value " + this.fieldProjectPlate +
+	 * ": " + projectPlateNumber + " added succesful");
+	 * 
+	 * Taxonname DocumentNote documentNoteTaxon = documentNoteTypeTaxon
+	 * .createDocumentNote();
+	 * documentNoteTaxon.setFieldValue(this.fieldTaxonName, taxonName);
+	 * logger.info("Note value " + this.fieldTaxonName + ": " + taxonName +
+	 * " added succesful");
+	 * 
+	 * Registrationnumber DocumentNote documentNoteReg =
+	 * documentNoteTypeReg.createDocumentNote();
+	 * documentNoteReg.setFieldValue(this.fieldRegistrationNumber, regNumber);
+	 * logger.info("Note value " + this.fieldRegistrationNumber + ": " +
+	 * regNumber + " added succesful");
+	 * 
+	 * Plate position DocumentNote documentNotePlatePosition =
+	 * documentNoteTypePlatePosition .createDocumentNote();
+	 * documentNotePlatePosition.setFieldValue(this.fieldPlatePosition,
+	 * platePosition); logger.info("Note value " + this.fieldPlatePosition +
+	 * ": " + platePosition + " added succesful");
+	 * 
+	 * Seq-staff (Seq) DocumentNote documentNoteSeqStaff =
+	 * documentNoteTypeSeqStaff .createDocumentNote(); try {
+	 * documentNoteSeqStaff.setFieldValue(this.fieldSeqStaff,
+	 * limsImporterUtil.getPropValues("seqsequencestaff"));
+	 * logger.info("Note value " + this.fieldSeqStaff + ": " +
+	 * limsImporterUtil.getPropValues("seqsequencestaff") + " added succesful");
+	 * } catch (IOException e) { throw new RuntimeException(e); }
+	 * 
+	 * AmplicificationStaffCode_FixedValue_Samples DocumentNote
+	 * documentNoteAmplStaff = documentNoteTypeAmplStaff .createDocumentNote();
+	 * try { documentNoteAmplStaff.setFieldValue(this.fieldAmplStaff,
+	 * limsImporterUtil.getPropValues("samplesamplicification"));
+	 * logger.info("Note value " + this.fieldAmplStaff + ": " +
+	 * limsImporterUtil.getPropValues("samplesamplicification") +
+	 * " added succesful"); } catch (IOException e) { throw new
+	 * RuntimeException(e); }
+	 * 
+	 * Extract Plate number DocumentNote documentNoteExtractPlate =
+	 * documentNoteTypeExtractPlate .createDocumentNote();
+	 * documentNoteExtractPlate.setFieldValue(this.fieldExtractPlateNumber,
+	 * extractPlateNumber); logger.info("Note value " +
+	 * this.fieldExtractPlateNumber + ": " + extractPlateNumber +
+	 * " added succesful");
+	 * 
+	 * Extract Method DocumentNote documentNoteExtractMethod =
+	 * documentNoteTypeExtractMethod .createDocumentNote();
+	 * documentNoteExtractMethod.setFieldValue(this.fieldExtractMethod,
+	 * subSample); logger.info("Note value " + this.fieldExtractMethod + ": " +
+	 * subSample + " added succesful");
+	 * 
+	 * Registr-nmbr_[Scientific_name] DocumentNote documentNoteRegScientific =
+	 * documentNoteTypeRegScientific .createDocumentNote();
+	 * documentNoteRegScientific.setFieldValue(this.fieldRegScientfic,
+	 * regScientificname); logger.info("Note value " + this.fieldRegScientfic +
+	 * ": " + regScientificname + " added succesful");
+	 * 
+	 * Document Version DocumentNote documentNoteDocVersion =
+	 * documentNoteTypeDocversion .createDocumentNote();
+	 * documentNoteDocVersion.setFieldValue(this.fieldDocversion,
+	 * String.valueOf(versionNumber)); logger.info("Note value " +
+	 * this.fieldDocversion + ": " + versionNumber + " added succesful");
+	 * 
+	 * 
+	 * ==================================================================
+	 * 
+	 * 
+	 * if (documentNoteSeqStaff.getName().equals("Seq-staff (Seq)")) {
+	 * documentNoteTypeSeqStaff.setDefaultVisibleInTable(false);
+	 * documentNoteTypeSeqStaff.setVisible(false);
+	 * 
+	 * DocumentNoteUtilities.setNoteType(documentNoteTypeSeqStaff); }
+	 * 
+	 * AnnotatedPluginDocument.DocumentNotes documentNotes = document
+	 * .getDocumentNotes(true);
+	 * 
+	 * Set note documentNotes.setNote(documentNotePCR);
+	 * documentNotes.setNote(documentNoteMarker);
+	 * documentNotes.setNote(documentNoteExtractSeq);
+	 * documentNotes.setNote(documentNoteExtractID);
+	 * documentNotes.setNote(documentNoteProjectPlate);
+	 * documentNotes.setNote(documentNoteTaxon);
+	 * documentNotes.setNote(documentNoteReg);
+	 * documentNotes.setNote(documentNotePlatePosition);
+	 * documentNotes.setNote(documentNoteSeqStaff);
+	 * documentNotes.setNote(documentNoteAmplStaff);
+	 * documentNotes.setNote(documentNoteExtractPlate);
+	 * documentNotes.setNote(documentNoteExtractMethod);
+	 * documentNotes.setNote(documentNoteRegScientific);
+	 * documentNotes.setNote(documentNoteDocVersion);
+	 * 
+	 * Save the selected sequence document documentNotes.saveNotes();
+	 * 
+	 * logger.info("Notes added succesful");
+	 * 
+	 * if (listNotes != null) { listNotes.clear(); }
+	 * 
+	 * // } }
+	 */
 
 	/**
 	 * @return

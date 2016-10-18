@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.Constraint;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
@@ -58,6 +59,8 @@ public class LimsImportNotes {
 	private String descriptionConsensus;
 	private String noteTextConsensus = "Pass (Seq)";
 
+	private ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>(
+			50);
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
 			"contamination", "endo-contamination", "exo-contamination" };
 
@@ -250,7 +253,7 @@ public class LimsImportNotes {
 		}
 
 		/* ================================================================== */
-		AnnotatedPluginDocument.DocumentNotes documentNotes = document
+		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) document
 				.getDocumentNotes(true);
 
 		/* ================================================================== */
@@ -268,6 +271,9 @@ public class LimsImportNotes {
 
 		logger.info("Notes added succesful");
 
+		if (documentNotes != null) {
+			documentNotes = null;
+		}
 		if (listNotes != null) {
 			listNotes.clear();
 		}
@@ -278,7 +284,7 @@ public class LimsImportNotes {
 	 */
 	private ArrayList<DocumentNoteField> addNotesToListNotes(
 			String[] multipleValues) {
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+
 		/* Extract ID (Seq) */
 		listNotes.add(DocumentNoteField.createTextNoteField(
 				noteTextExtractIDSeq, this.descriptionExtractIDSeq,
