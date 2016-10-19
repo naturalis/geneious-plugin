@@ -5,7 +5,12 @@ package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +76,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private LimsSQL limsSQL = new LimsSQL();
 	private LimsImportNotes limsImportNotes = new LimsImportNotes();
@@ -89,13 +94,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private int versienummer = 0;
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
-	private List<Dummy> dummies = null;
+
 	private String[] ab1FileName = null;
 	private String dummyFilename = "";
 	private String annotatedDocumentID = "";
 	private boolean ab1fileExists = false;
 	private int selectedTotal = 1;
+
 	private ArrayList<AnnotatedPluginDocument> docs = null;
+	public List<Dummy> dummies = null;
+
 	private long startBeginTime = 0;
 	private boolean dummyExists = false;
 	private String extractID = "";
@@ -104,7 +112,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	public LimsImportAB1() {
 
-		if (ReadGeneiousFieldsValues.activeDB != null) {
+		if (readGeneiousFieldsValues.activeDB != null) {
 			try {
 				if (!limsSQL.tableExist("tblDocumentImport")) {
 					limsSQL.createTableDocumentImport();
@@ -157,14 +165,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 
 		/* Get Databasename */
-		if (ReadGeneiousFieldsValues.activeDB.length() == 0) {
-			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
+		if (readGeneiousFieldsValues.activeDB.length() == 0) {
+			readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 					.getServerDatabaseServiceName();
 
 			setDummyValues();
 		}
 
-		if (ReadGeneiousFieldsValues.activeDB != null) {
+		/*
+		 * if (ReadGeneiousFieldsValues.activeDB != null) { setDummyValues(); }
+		 */
+		if (readGeneiousFieldsValues.activeDB != null) {
 
 			/* Start time of the process */
 			startBeginTime = System.nanoTime();
@@ -266,7 +277,31 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			String pcrPlateId = limsAB1Fields.getPcrPlaatID();
 			String marker = limsAB1Fields.getMarker();
 
-			boolean dummyExists = limsSQL.documentNameExist(extractID + ".dum");
+			// boolean dummyExists = limsSQL.documentNameExist(extractID +
+			// ".dum");
+			/*
+			 * try {
+			 * readDummyRecords("C:\\Git\\GeneiousFiles\\dummyRecords.txt"); }
+			 * catch (ClassNotFoundException e1) { throw new
+			 * RuntimeException(e1); }
+			 */
+
+			Dummy found = null;
+
+			for (Dummy dummy : dummies) {
+				if (dummy.getExtractID().equals(extractID)) {
+					found = dummy;
+					annotatedDocumentID = String.valueOf(found.getId());
+					dummyFilename = found.getName();
+					break;
+				}
+			}
+
+			if (found != null) {
+				dummyExists = true;
+			} else {
+				dummyExists = false;
+			}
 
 			if (file.getName() != null && !dummyExists && !isDeleted) {
 
@@ -275,6 +310,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 				/* Add Notes to AB1/Fasta document */
 				if (documentAnnotatedPlugin != null) {
+
 					setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
 							extractAb1FastaFileName);
 
@@ -292,23 +328,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			else { /* Get dummy values */
 				/* Set version number */
 				setVersionNumber();
-
-				Dummy found = null;
-
-				for (Dummy dummy : dummies) {
-					if (dummy.getExtractID().equals(extractID)) {
-						found = dummy;
-						annotatedDocumentID = String.valueOf(found.getId());
-						dummyFilename = found.getName();
-						break;
-					}
-				}
-
-				if (found != null) {
-					dummyExists = true;
-				} else {
-					dummyExists = false;
-				}
 
 				if (found == null) {
 					logger.info("No match found for: " + file.getName());
@@ -359,7 +378,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 								 * Dummy documents will be inherited and add to
 								 * the AB1 files
 								 */
-								ReadGeneiousFieldsValues
+								readGeneiousFieldsValues
 										.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
 								limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(ab1FileName[0]
 										+ ".dum");
@@ -400,8 +419,51 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	private void setDummyValues() {
-		dummies = ReadGeneiousFieldsValues.getDummySamplesValues(".dum");
+		dummies = readGeneiousFieldsValues.getDummySamplesValues(".dum");
+		try {
+			saveDummyFile("dummyRecords.txt");
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
+
+	private void saveDummyFile(String filename) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
+		for (Dummy dm : dummies) {
+			pw.println(dm.getId());
+			pw.println(dm.getName());
+			pw.println(dm.getPcrplateid());
+			pw.println(dm.getMarker());
+			pw.println(dm.getRegistrationnumber());
+			pw.println(dm.getScientificName());
+			pw.println(dm.getSamplePlateId());
+			pw.println(dm.getPosition());
+			pw.println(dm.getExtractID());
+			pw.println(dm.getSeqStaff());
+			pw.println(dm.getExtractPlateNumberIDSamples());
+			pw.println(dm.getExtractMethod());
+			pw.println(dm.getRegistrationScientificName());
+		}
+		pw.close();
+	}
+
+	private void readDummyRecords(String filename) throws IOException,
+			ClassNotFoundException {
+		FileInputStream fis = new FileInputStream(filename);
+		ObjectInputStream ois = new ObjectInputStream(fis);
+		readGeneiousFieldsValues.dummies = (ArrayList<Dummy>) ois.readObject();
+		fis.close();
+	}
+
+	/*
+	 * public String[] readLines(String filename) throws IOException {
+	 * FileReader fileReader = new FileReader(filename); BufferedReader
+	 * bufferedReader = new BufferedReader(fileReader); List<Dummy> lines = new
+	 * ArrayList<Dummy>(); String line = null; while ((line =
+	 * bufferedReader.readLine()) != null) { lines.add(line); }
+	 * bufferedReader.close(); return lines.toArray(new String[lines.size()]); }
+	 */
 
 	private void setNotes_To_AB1_Fasta(
 			AnnotatedPluginDocument documentAnnotated, String fileName)

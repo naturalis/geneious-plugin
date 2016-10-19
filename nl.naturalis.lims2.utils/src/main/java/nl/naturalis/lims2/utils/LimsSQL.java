@@ -35,8 +35,6 @@ public class LimsSQL {
 	static final String password = limsImporterUtil
 			.getDatabasePropValues("password");
 
-	private static Connection conn = null;
-
 	public int importcounter = 1;
 	public boolean truefalse = false;
 	public String documentname = "";
@@ -46,6 +44,7 @@ public class LimsSQL {
 	 * Create Table tblDocumentImport
 	 */
 	public void createTableDocumentImport() throws SQLException {
+		Connection conn = null;
 		Statement stmt = null;
 		String sqlCreateTable = "CREATE TABLE tblDocumentImport" + "\n"
 				+ "(ID int(11) NOT NULL AUTO_INCREMENT," + "\n"
@@ -88,6 +87,7 @@ public class LimsSQL {
 	 * Create index for column name DocumentName
 	 */
 	public void createIndexInTableDocumentImport() throws SQLException {
+		Connection conn = null;
 		Statement stmt = null;
 		String sqlCreateIndex = "CREATE INDEX IDXDocumentName" + "\n"
 				+ "ON tblDocumentImport(Documentname)";
@@ -125,6 +125,7 @@ public class LimsSQL {
 	/* Insert data to the table */
 	public void insertIntoTableDocumentImport(String documentname, int count)
 			throws SQLException {
+		Connection conn = null;
 		Statement stmt = null;
 		String sqlInsert = "INSERT INTO tblDocumentImport(Documentname, Importcount)"
 				+ "\n" + "VALUES('" + documentname + "','" + count + "')";
@@ -158,6 +159,7 @@ public class LimsSQL {
 	}
 
 	public List<LimsDocumentName> getDocumentNameForAB1Fasta() {
+		Connection conn = null;
 		Statement stmt = null;
 		try {
 			// Open a connection
@@ -200,6 +202,7 @@ public class LimsSQL {
 
 	/* Check if document exists in the table */
 	public boolean documentNameExist(String documentName) {
+		Connection conn = null;
 		Statement stmt = null;
 		boolean exists = false;
 		try {
@@ -246,6 +249,7 @@ public class LimsSQL {
 	}
 
 	public int getVersionFromDocumentName(String documentName) {
+		Connection conn = null;
 		Statement stmt = null;
 		int result = 0;
 		try {
@@ -255,7 +259,7 @@ public class LimsSQL {
 			// Execute a query
 			stmt = conn.createStatement();
 
-			String sql = "SELECT MAX(CAST(Importcount as UNSIGNED)) as version FROM tblDocumentImport"
+			String sql = "SELECT Importcount as version FROM tblDocumentImport"
 					+ "\n" + "WHERE Documentname =  '" + documentName + "'";
 			ResultSet rs = stmt.executeQuery(sql);
 			if (rs.next()) {
@@ -287,6 +291,7 @@ public class LimsSQL {
 
 	/* Check if document exists in the table */
 	public String getdocumentName(String documentName) {
+		Connection conn = null;
 		Statement stmt = null;
 		try {
 			// Open a connection
@@ -327,6 +332,7 @@ public class LimsSQL {
 	}
 
 	public void updateImportCount(int cnt, String docName) {
+		Connection conn = null;
 		Statement stmt = null;
 		try {
 			// Open a connection
@@ -361,6 +367,7 @@ public class LimsSQL {
 
 	/* Check if table exists in the database */
 	public boolean tableExist(String tableName) throws SQLException {
+		Connection conn = null;
 		boolean bExists = false;
 		// Open the connection
 		conn = DriverManager.getConnection(DB_URL, user, password);
@@ -383,6 +390,7 @@ public class LimsSQL {
 
 	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object docName)
 			throws IOException {
+		Connection conn = null;
 		Statement stmt = null;
 		try {
 			// Open a connection
@@ -419,7 +427,7 @@ public class LimsSQL {
 
 	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename)
 			throws IOException {
-
+		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		int result = 0;

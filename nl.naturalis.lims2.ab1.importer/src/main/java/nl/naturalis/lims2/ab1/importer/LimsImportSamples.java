@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import nl.naturalis.lims2.utils.Dummy;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -99,6 +100,7 @@ public class LimsImportSamples extends DocumentAction {
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
+	private List<Dummy> dummies = null;
 
 	private CSVReader csvReader = null;
 
@@ -327,19 +329,17 @@ public class LimsImportSamples extends DocumentAction {
 								+ listDocuments.size());
 
 						/* Set for creating dummy files */
-						if (!ID.equals(extractIDfileName)) {
-							/* Create progressbar GUI */
-							limsFrameProgress.createProgressGUI();
+						// if (!ID.equals(extractIDfileName)) {
+						/* Create progressbar GUI */
+						limsFrameProgress.createProgressGUI();
 
-							sampleTotaalRecords = limsImporterUtil
-									.countCsvRecords(fileSelected);
+						/* Create dummy files for samples */
+						setExtractIDFromSamplesSheet(fileSelected,
+								extractIDfileName);
 
-							/* Create dummy files for samples */
-							setExtractIDFromSamplesSheet(fileSelected,
-									extractIDfileName);
-							/* Hide the progressbar GUI */
-							limsFrameProgress.hideFrame();
-						}
+						/* Hide the progressbar GUI */
+						limsFrameProgress.hideFrame();
+						// }
 
 						logger.info("-------------------------- E N D --------------------------");
 						logger.info("Done with updating the selected document(s). ");
@@ -818,24 +818,24 @@ public class LimsImportSamples extends DocumentAction {
 									record[0], plateNumber, record[5],
 									record[4], record[1], record[6]);
 							dummyRecordsVerwerkt++;
+
+							boolean dummyFileExists = limsSQL
+									.documentNameExist(ID + ".dum");
+							if (!dummyFileExists) {
+								try {
+									limsSQL.insertIntoTableDocumentImport(ID
+											+ ".dum", limsSQL.importcounter);
+								} catch (SQLException e) {
+									throw new RuntimeException(e);
+								}
+							} else {
+								int counter = limsSQL.importcounter + 1;
+								limsSQL.updateImportCount(counter, ID + ".dum");
+							}
 						}
 					} else {
 						limsFrameProgress.showProgress(ID
 								+ " Dummy file already exists.");
-					}
-
-					boolean dummyFileExists = limsSQL.documentNameExist(ID
-							+ ".dum");
-					if (!dummyFileExists) {
-						try {
-							limsSQL.insertIntoTableDocumentImport(ID + ".dum",
-									limsSQL.importcounter);
-						} catch (SQLException e) {
-							throw new RuntimeException(e);
-						}
-					} else {
-						int counter = limsSQL.importcounter + 1;
-						limsSQL.updateImportCount(counter, ID + ".dum");
 					}
 
 				} // end While
@@ -1178,13 +1178,7 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();
-		/*
-		 * sampleTotaalRecords = 0; if (processedList.size() > 0 &&
-		 * sampleRecordFailure > 0) { sampleTotaalRecords = processedList.size()
-		 * + (sampleRecordFailure - dummyRecordsVerwerkt); } else if
-		 * (sampleRecordFailure == 0) { sampleTotaalRecords =
-		 * processedList.size() + dummyRecordsVerwerkt; }
-		 */
+
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
@@ -1220,6 +1214,9 @@ public class LimsImportSamples extends DocumentAction {
 				+ Integer.toString(failureList.size())
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
+
+		readGeneiousFieldsValues.dummies = readGeneiousFieldsValues
+				.getDummySamplesValues(".dum");
 	}
 
 }
