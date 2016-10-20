@@ -8,8 +8,11 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,7 +103,7 @@ public class LimsImportSamples extends DocumentAction {
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
-	private List<Dummy> dummies = null;
+	// private List<Dummy> dummies = null;
 
 	private CSVReader csvReader = null;
 
@@ -419,6 +422,10 @@ public class LimsImportSamples extends DocumentAction {
 					/* Show duration time of the process */
 					showProcessingDuration();
 
+					limsFrameProgress.createProgressGUI();
+					limsFrameProgress
+							.showProgress("Start collecting dummy values. One moment please....");
+
 					/*
 					 * Show a dialog with the results after processing the
 					 * documents
@@ -431,6 +438,7 @@ public class LimsImportSamples extends DocumentAction {
 						 */
 						@Override
 						public void run() {
+
 							showFinishedDialogMessageDummyOK();
 
 							logger.info("Sample-method: Total imported document(s): "
@@ -443,7 +451,7 @@ public class LimsImportSamples extends DocumentAction {
 							 */
 
 							clearSamplesVariablesAndList();
-							limsFrameProgress.hideFrame();
+							// limsFrameProgress.hideFrame();
 						}
 
 						private void clearSamplesVariablesAndList() {
@@ -1203,6 +1211,16 @@ public class LimsImportSamples extends DocumentAction {
 			throw new RuntimeException(e);
 		}
 
+		readGeneiousFieldsValues.dummiesList = readGeneiousFieldsValues
+				.getDummySamplesValues(".dum");
+		try {
+			saveDummyFile("dummyRecords.txt");
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		limsFrameProgress.hideFrame();
+
 		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
 				+ " sample records have been read of which: " + "\n" + "\n"
 				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
@@ -1215,8 +1233,23 @@ public class LimsImportSamples extends DocumentAction {
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
 
-		readGeneiousFieldsValues.dummies = readGeneiousFieldsValues
-				.getDummySamplesValues(".dum");
+	}
+
+	public static List<Dummy> dummyMemory;
+
+	private void saveDummyFile(String filename) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
+		for (Dummy dm : readGeneiousFieldsValues.dummiesList) {
+			pw.println(dm.getId() + "," + dm.getName() + ","
+					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
+					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
+					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
+					+ "," + dm.getExtractID() + "," + dm.getSeqStaff() + ","
+					+ dm.getExtractPlateNumberIDSamples() + ","
+					+ dm.getExtractMethod() + ","
+					+ dm.getRegistrationScientificName());
+		}
+		pw.close();
 	}
 
 }

@@ -60,12 +60,13 @@ public class LimsReadGeneiousFieldsValues {
 	public String extractPlateNumberIDSamples;
 	public String extractionMethodSamples;
 	public String registrationScientificName;
+	public static List<Dummy> dummiesList = null;
 
 	private SQLException exception = null;
 	public int recordcount = 0;
 
 	private Connection con = null;
-	private PreparedStatement pst = null;
+
 	private ResultSet rs = null;
 
 	private LimsReadGeneiousFieldsValues instance;
@@ -173,6 +174,7 @@ public class LimsReadGeneiousFieldsValues {
 	public boolean checkOfFastaOrAB1Exists(String fileName, String fieldName,
 			String xmlnotes) {
 
+		PreparedStatement pst = null;
 		if (fastaAb1Cache.contains(fileName + '|' + fieldName))
 			return true;
 
@@ -237,7 +239,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @see boolean
 	 * */
 	public boolean fileNameExistsInGeneiousDatabase(String filename) {
-
+		PreparedStatement pst = null;
 		boolean truefalse = false;
 		try {
 			final String SQL = "SELECT ID FROM annotated_document" + "\n"
@@ -303,7 +305,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * */
 	public String getFastaIDForSamples_GeneiousDB(String extractid)
 			throws IOException {
-
+		PreparedStatement pst = null;
 		String result = "";
 		try {
 
@@ -366,7 +368,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * */
 	public String getCacheNameFromGeneiousDatabase(Object filename,
 			String xmlNotesName) throws IOException {
-
+		PreparedStatement pst = null;
 		String result = "";
 
 		try {
@@ -430,7 +432,7 @@ public class LimsReadGeneiousFieldsValues {
 	}
 
 	public boolean getImportDummyDocument(Object filename) throws IOException {
-
+		PreparedStatement pst = null;
 		boolean truefalse = false;
 
 		try {
@@ -485,7 +487,7 @@ public class LimsReadGeneiousFieldsValues {
 
 	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
-
+		PreparedStatement pst = null;
 		int result = 0;
 
 		try {
@@ -530,7 +532,7 @@ public class LimsReadGeneiousFieldsValues {
 
 	public int checkIfDocExistsInTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
-
+		PreparedStatement pst = null;
 		int result = 0;
 
 		try {
@@ -588,7 +590,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * */
 	public String getIDFromTableAnnotatedDocument(Object filename,
 			String xmlNotesName) throws IOException {
-
+		PreparedStatement pst = null;
 		String result = "";
 
 		try {
@@ -646,7 +648,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * */
 	public void DeleteDummyRecordFromTableAnnotatedtDocument(Object ID)
 			throws IOException {
-
+		PreparedStatement pst = null;
 		try {
 
 			final String SQL = "DELETE FROM annotated_document"
@@ -663,7 +665,7 @@ public class LimsReadGeneiousFieldsValues {
 			pst.setString(1, (String) ID);
 			pst.executeUpdate();
 			logger.info("Delete Dummy Annotated document id : " + ID
-					+ "From tabel annotated_document ");
+					+ " From tabel annotated_document ");
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 		} finally {
@@ -691,7 +693,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * */
 	public int getLastVersion_For_AB1_Fasta(String fileName) {
 		int result = 0;
-
+		PreparedStatement pst = null;
 		try {
 			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version"
 					+ " FROM "
@@ -741,7 +743,7 @@ public class LimsReadGeneiousFieldsValues {
 	 */
 	public int getLastVersionFromDocument(String fileName) {
 		int result = 0;
-
+		PreparedStatement pst = null;
 		try {
 
 			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version"
@@ -979,8 +981,10 @@ public class LimsReadGeneiousFieldsValues {
 	 * @see LimsReadGeneiousFieldsValues
 	 * */
 	public List<Dummy> getDummySamplesValues(Object filename) {
+		PreparedStatement pst = null;
+		List<Dummy> dummies = new ArrayList<>();
+		// Map<String, Dummy> cache = new HashMap<String, Dummy>(100);
 		try {
-
 			final String SQL = " SELECT * "
 					+ " FROM( "
 					+ "\n"
@@ -1018,23 +1022,29 @@ public class LimsReadGeneiousFieldsValues {
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
 			rs = pst.executeQuery();
-			List<Dummy> dummies = new ArrayList<>(100);
-			while (rs.next()) {
-				Dummy dummy = new Dummy();
-				dummy.setId(rs.getInt("id"));
-				dummy.setName(rs.getString("name"));
-				dummy.setExtractID(rs.getString("ExtractID"));
-				dummy.setRegistrationnumber(rs.getString("Registrationnumber"));
-				dummy.setScientificName(rs.getString("ScientificName"));
-				dummy.setSamplePlateId(rs.getString("SamplePlateId"));
-				dummy.setPosition(rs.getString("Position"));
-				dummy.setExtractPlateNumberIDSamples(rs
-						.getString("extractPlateNumberIDSamples"));
-				dummy.setExtractMethod(rs.getString("extractMethod"));
-				dummy.setRegistrationScientificName(rs
-						.getString("registrationScientificName"));
-				dummies.add(dummy);
+			if (rs != null) {
+				while (rs.next()) {
+					Dummy dummy = new Dummy();
+
+					dummy.setId(rs.getInt("id"));
+					dummy.setName(rs.getString("name"));
+					dummy.setExtractID(rs.getString("ExtractID"));
+					dummy.setRegistrationnumber(rs
+							.getString("Registrationnumber"));
+					dummy.setScientificName(rs.getString("ScientificName"));
+					dummy.setSamplePlateId(rs.getString("SamplePlateId"));
+					dummy.setPosition(rs.getString("Position"));
+					dummy.setExtractPlateNumberIDSamples(rs
+							.getString("extractPlateNumberIDSamples"));
+					dummy.setExtractMethod(rs.getString("extractMethod"));
+					dummy.setRegistrationScientificName(rs
+							.getString("registrationScientificName"));
+					dummies.add(dummy);
+					// cache.put(dummy.getExtractID(), dummy);
+
+				}
 			}
+			// return cache;
 			return dummies;
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);

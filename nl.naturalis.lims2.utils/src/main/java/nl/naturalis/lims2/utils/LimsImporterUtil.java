@@ -326,42 +326,47 @@ public class LimsImporterUtil {
 		return linenumber;
 	}
 
+	private void skipBlankHeader(final BufferedReader reader)
+			throws IOException {
+		String line = reader.readLine();
+
+		while (line != null && line.trim().isEmpty()) {
+			/*
+			 * && line.matches("(\\d+)(,\\s*\\d+)*") && line.trim().equals("\t")
+			 * && line.trim().equals("\n") && line.trim().equals("")) {
+			 */
+			line = reader.readLine();
+		}
+	}
+
 	public int countCsvRecords(String csvFileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
 				csvFileName)));
 
-		String headerline = "";
+		skipBlankHeader(reader);
 		String currentLine;
 		int teller = 0;
-		headerline = reader.readLine();
-		if ((headerline = reader.readLine()) != null) {
-			while ((currentLine = reader.readLine()) != null) {
+		int result = 0;
 
-				if (currentLine.matches("(\\d+)(,\\s*\\d+)*")
-						// || currentLine.trim().equals("\t")
-						|| currentLine.trim().equals("\n")
-						|| currentLine.isEmpty()
-						|| currentLine.trim().equals("")) {
-					teller++;
-					continue;
-				} else {
+		// String headerline = reader.readLine();
+		while ((currentLine = reader.readLine()) != null) {
 
-					/*
-					 * if (currentLine.isEmpty() ||
-					 * currentLine.trim().equals("") ||
-					 * currentLine.trim().equals("\n") ||
-					 * currentLine.trim().equals("\t")) { continue; }
-					 */
+			if (currentLine.matches("(\\d+)(,\\s*\\d+)*")
+					|| currentLine.trim().equals("\t")
+					|| currentLine.trim().equals("\n") || currentLine.isEmpty()
+					|| currentLine.trim().equals("")) {
+				teller++;
+				continue;
+			} else {
 
-					teller++;
-					// System.out.println(String.format("Invalid line: %s",
-					// currentLine));
-
-				}
+				teller++;
+				System.out.println(String.format("Valid line " + teller
+						+ ": %s", currentLine));
+				result = teller;
 			}
 		}
 		reader.close();
-		return teller;
+		return result;
 	}
 
 	/* Calculate processing time of the notes */
