@@ -7,9 +7,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +106,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private long startBeginTime = 0;
 	private boolean dummyExists = false;
 	private String extractID = "";
+	public static List<Dummy> dummiesRecords = null;
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -115,6 +118,21 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					limsSQL.createTableDocumentImport();
 					limsSQL.createIndexInTableDocumentImport();
 				}
+
+				readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
+						.getServerDatabaseServiceName();
+				if (readGeneiousFieldsValues.activeDB == "") {
+					readGeneiousFieldsValues.activeDB = limsImporterUtil
+							.getDatabasePropValues("databasename");
+
+					setDummyValues();
+					try {
+						saveDummyFile("dummyRecords.txt");
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+
 			} catch (SQLException e1) {
 				throw new RuntimeException(e1);
 			}
@@ -166,7 +184,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
 					.getServerDatabaseServiceName();
 
-			// setDummyValues();
+			setDummyValues();
+			saveDummyFile("dummyRecords.txt");
 		}
 
 		if (readGeneiousFieldsValues.activeDB != null) {
@@ -276,8 +295,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			// dummiesList = readGeneiousFieldsValues.dummiesList;
 
 			Dummy found = null;
-			for (Dummy dummy : read_file_array_list_java()) { // readGeneiousFieldsValues.dummiesList)
-																// {
+			// for (Dummy dummy : read_file_array_list_java()) { //
+			// readGeneiousFieldsValues.dummiesList)
+			for (Dummy dummy : dummiesRecords) {
 				if (dummy.getExtractID().equals(extractID)) {
 					found = dummy;
 					annotatedDocumentID = String.valueOf(found.getId());
@@ -374,7 +394,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 
 		}
-
+		// showFinishedDialogMessageOK();
 	}
 
 	/**
@@ -402,16 +422,33 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 	}
 
-	// private void setDummyValues() {
-	// if (dummiesList == null) {
-	// dummiesList = readGeneiousFieldsValues
-	// .getDummySamplesValues(".dum");
+	private void setDummyValues() {
+		if (dummiesRecords == null) {
+			dummiesRecords = readGeneiousFieldsValues
+					.getDummySamplesValues(".dum");
+		}
+	}
+
+	/*
+	 * // * try { saveDummyFile("dummyRecords.txt"); } catch // *
+	 * (FileNotFoundException e) { throw new RuntimeException(e); } //
+	 */
 	// }
-	// /*
-	// * try { saveDummyFile("dummyRecords.txt"); } catch
-	// * (FileNotFoundException e) { throw new RuntimeException(e); }
-	// */
-	// }
+
+	private void saveDummyFile(String filename) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
+		for (Dummy dm : dummiesRecords) {
+			pw.println(dm.getId() + "," + dm.getName() + ","
+					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
+					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
+					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
+					+ "," + dm.getExtractID() + "," + dm.getSeqStaff() + ","
+					+ dm.getExtractPlateNumberIDSamples() + ","
+					+ dm.getExtractMethod() + ","
+					+ dm.getRegistrationScientificName());
+		}
+		pw.close();
+	}
 
 	public List<Dummy> read_file_array_list_java() throws FileNotFoundException {
 
@@ -581,4 +618,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * }
 	 */
 	// }
+
+	private void showFinishedDialogMessageOK() {
+		Dialogs.showMessageDialog(Integer.toString(count)
+				+ " records have been read.");
+		dummiesRecords.clear();
+	}
 }

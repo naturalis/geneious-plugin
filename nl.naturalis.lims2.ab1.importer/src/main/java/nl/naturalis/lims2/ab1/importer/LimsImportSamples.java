@@ -97,6 +97,7 @@ public class LimsImportSamples extends DocumentAction {
 	private LimsLogger limsLogger = null;
 	private LimsSQL limsSQL = new LimsSQL();
 	private LimsSamplesNotes limsSamplesNotes = new LimsSamplesNotes();
+	private LimsImportAB1 impAB1Fasta = new LimsImportAB1();
 
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> failureList = new ArrayList<String>();
@@ -1211,8 +1212,12 @@ public class LimsImportSamples extends DocumentAction {
 			throw new RuntimeException(e);
 		}
 
-		readGeneiousFieldsValues.dummiesList = readGeneiousFieldsValues
+		impAB1Fasta.dummiesRecords = readGeneiousFieldsValues
 				.getDummySamplesValues(".dum");
+		/*
+		 * readGeneiousFieldsValues.dummiesList = readGeneiousFieldsValues
+		 * .getDummySamplesValues(".dum");
+		 */
 		try {
 			saveDummyFile("dummyRecords.txt");
 		} catch (FileNotFoundException e) {
@@ -1239,7 +1244,8 @@ public class LimsImportSamples extends DocumentAction {
 
 	private void saveDummyFile(String filename) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
-		for (Dummy dm : readGeneiousFieldsValues.dummiesList) {
+		for (Dummy dm : impAB1Fasta.dummiesRecords) {// readGeneiousFieldsValues.dummiesList)
+														// {
 			pw.println(dm.getId() + "," + dm.getName() + ","
 					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
 					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
