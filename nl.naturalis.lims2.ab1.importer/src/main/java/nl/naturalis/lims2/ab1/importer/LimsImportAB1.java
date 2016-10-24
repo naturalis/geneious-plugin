@@ -289,14 +289,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			String pcrPlateId = limsAB1Fields.getPcrPlaatID();
 			String marker = limsAB1Fields.getMarker();
 
-			// boolean dummyExists = limsSQL.documentNameExist(extractID +
-			// ".dum");
-
 			// dummiesList = readGeneiousFieldsValues.dummiesList;
 
 			Dummy found = null;
-			// for (Dummy dummy : read_file_array_list_java()) { //
-			// readGeneiousFieldsValues.dummiesList)
 			for (Dummy dummy : dummiesRecords) {
 				if (dummy.getExtractID().equals(extractID)) {
 					found = dummy;
@@ -428,12 +423,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					.getDummySamplesValues(".dum");
 		}
 	}
-
-	/*
-	 * // * try { saveDummyFile("dummyRecords.txt"); } catch // *
-	 * (FileNotFoundException e) { throw new RuntimeException(e); } //
-	 */
-	// }
 
 	private void saveDummyFile(String filename) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));

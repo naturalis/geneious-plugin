@@ -331,10 +331,6 @@ public class LimsImporterUtil {
 		String line = reader.readLine();
 
 		while (line != null && line.trim().isEmpty()) {
-			/*
-			 * && line.matches("(\\d+)(,\\s*\\d+)*") && line.trim().equals("\t")
-			 * && line.trim().equals("\n") && line.trim().equals("")) {
-			 */
 			line = reader.readLine();
 		}
 	}
@@ -348,7 +344,6 @@ public class LimsImporterUtil {
 		int teller = 0;
 		int result = 0;
 
-		// String headerline = reader.readLine();
 		while ((currentLine = reader.readLine()) != null) {
 
 			if (currentLine.matches("(\\d+)(,\\s*\\d+)*")
@@ -360,8 +355,10 @@ public class LimsImporterUtil {
 			} else {
 
 				teller++;
-				System.out.println(String.format("Valid line " + teller
-						+ ": %s", currentLine));
+				/*
+				 * System.out.println(String.format("Valid line " + teller +
+				 * ": %s", currentLine));
+				 */
 				result = teller;
 			}
 		}

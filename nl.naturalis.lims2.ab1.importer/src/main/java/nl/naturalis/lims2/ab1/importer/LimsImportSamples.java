@@ -446,13 +446,8 @@ public class LimsImportSamples extends DocumentAction {
 									+ msgList.toString());
 
 							failureList.add("Filename: " + fileSelected + "\n");
-							/*
-							 * limsLogger.logToFile(logSamplesFileName,
-							 * failureList.toString());
-							 */
 
 							clearSamplesVariablesAndList();
-							// limsFrameProgress.hideFrame();
 						}
 
 						private void clearSamplesVariablesAndList() {
@@ -466,8 +461,6 @@ public class LimsImportSamples extends DocumentAction {
 							recordCount = 0;
 						}
 					});
-
-					// showSelectedDocumentsMessage();
 				}
 				/*
 				 * Choose "No" only samples documents will be processed and no
@@ -569,17 +562,6 @@ public class LimsImportSamples extends DocumentAction {
 			 * Compare the cache_name with the name of the document
 			 */
 			if (documentFileName.equals(list.getName())) {
-				/*
-				 * if selected document is a
-				 * "De Novo Assemble continue the process "
-				 */
-
-				/*
-				 * if (list.toString().contains(documentTypeNovoAssembly) ||
-				 * list.toString().contains( documentTypeConsensusSequence)) {
-				 * continue; }
-				 */
-
 				/*
 				 * if "ExtractIDCode_Seq" note exists get the version number
 				 */
