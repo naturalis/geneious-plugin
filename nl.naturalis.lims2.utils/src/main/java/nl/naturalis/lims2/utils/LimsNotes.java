@@ -238,7 +238,7 @@ public class LimsNotes {
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
 		if (listNotes != null) {
-			listNotes.clear();
+			listNotes = null;
 		}
 	}
 
