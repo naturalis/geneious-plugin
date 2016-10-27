@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import jebl.util.ProgressListener;
@@ -109,7 +108,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private boolean dummyExists = false;
 	private String extractID = "";
 	public static List<Dummy> dummiesRecords = null;
-	Collection files = new ArrayList();
+	List<String> files = new ArrayList<String>();
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -191,11 +190,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			saveDummyFile("dummyRecords.txt");
 		}
 
-		// int returnValue =
-		if (file != null) {
-			File fl = file.getAbsoluteFile();
-			files.add(fl.getName());
-		}
+		/*
+		 * if (file != null) { File fl = file.getAbsoluteFile();
+		 * files.add(fl.getName()); }
+		 */
 
 		if (readGeneiousFieldsValues.activeDB != null) {
 
@@ -434,9 +432,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	private void setDummyValues() {
-		// if (dummiesRecords == null) {
-		dummiesRecords = readGeneiousFieldsValues.getDummySamplesValues(".dum");
-		// }
+		if (dummiesRecords == null) {
+			dummiesRecords = readGeneiousFieldsValues
+					.getDummySamplesValues(".dum");
+		}
 	}
 
 	private void saveDummyFile(String filename) throws FileNotFoundException {
@@ -684,14 +683,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		limsNotes.setImportNotes(documentAnnotated, "DocumentVersionCode_Seq",
 				"Document version", "Document version",
 				Integer.toString(versienummer));
-	}
-
-	// }
-
-	private void showFinishedDialogMessageOK() {
-		Dialogs.showMessageDialog(Integer.toString(count)
-				+ " records have been read.");
-		dummiesRecords.clear();
 	}
 
 	private void deleteElementFromDummyList(String extractID) {

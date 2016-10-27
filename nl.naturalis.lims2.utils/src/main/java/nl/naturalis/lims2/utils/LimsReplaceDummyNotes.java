@@ -453,81 +453,76 @@ public class LimsReplaceDummyNotes {
 	 * @return
 	 */
 	private ArrayList<DocumentNoteField> createListNotes() {
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		ArrayList<DocumentNoteField> Notes = new ArrayList<DocumentNoteField>();
 
 		/* PCR plate */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
 				this.descriptionPCRPlate, this.fieldPCRPlate,
 				Collections.<Constraint> emptyList(), false));
 
 		/* MARKER */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
 				this.descriptionMarker, this.fieldMarker,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Extract ID (Seq) */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextExtractIDSeq, this.descriptionExtractIDSeq,
-				this.fieldExtractIDSeq, Collections.<Constraint> emptyList(),
-				false));
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextExtractIDSeq,
+				this.descriptionExtractIDSeq, this.fieldExtractIDSeq,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Extract ID */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextExtractID,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextExtractID,
 				this.descriptionExtractID, this.fieldExtractID,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Project plate number */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextProjectPlate, this.descriptionProjectPlate,
-				this.fieldProjectPlate, Collections.<Constraint> emptyList(),
-				false));
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextProjectPlate,
+				this.descriptionProjectPlate, this.fieldProjectPlate,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Taxon name */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextTaxon,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextTaxon,
 				this.descriptionTaxon, this.fieldTaxonName,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Registration number */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextReg,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextReg,
 				this.descriptionReg, this.fieldRegistrationNumber,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Plate Postion */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextPlatePosition, this.descriptionPlatePosition,
-				this.fieldPlatePosition, Collections.<Constraint> emptyList(),
-				false));
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextPlatePosition,
+				this.descriptionPlatePosition, this.fieldPlatePosition,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Seq-staff (Seq) */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
 				this.descriptionSeqStaff, this.fieldSeqStaff,
 				Collections.<Constraint> emptyList(), false));
 
 		/* AmplicificationStaffCode_FixedValue_Samples */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextAmplStaff,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextAmplStaff,
 				this.descriptionAmplStaff, this.fieldAmplStaff,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Extract plate number */
-		listNotes.add(DocumentNoteField.createTextNoteField(
+		Notes.add(DocumentNoteField.createTextNoteField(
 				noteTextExtractPlateNumber, this.descriptionExtractPlateNumber,
 				this.fieldExtractPlateNumber,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Extract Method */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextExtractMethod, this.descriptionExtractMethod,
-				this.fieldExtractMethod, Collections.<Constraint> emptyList(),
-				false));
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextExtractMethod,
+				this.descriptionExtractMethod, this.fieldExtractMethod,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Registr-nmbr_[Scientific_name] */
-		listNotes.add(DocumentNoteField.createTextNoteField(
-				noteTextRegScientfic, this.descriptionRegScientfic,
-				this.fieldRegScientfic, Collections.<Constraint> emptyList(),
-				false));
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextRegScientfic,
+				this.descriptionRegScientfic, this.fieldRegScientfic,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Document Version */
-		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
+		Notes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
 				this.descriptionDocversion, this.fieldDocversion,
 				Collections.<Constraint> emptyList(), false));
 
@@ -538,7 +533,7 @@ public class LimsReplaceDummyNotes {
 		 * false));
 		 */
 
-		return listNotes;
+		return Notes;
 	}
 
 	/**
@@ -1025,9 +1020,9 @@ public class LimsReplaceDummyNotes {
 
 		logger.info("Notes added succesful");
 
-		if (listNotes != null) {
-			listNotes.clear();
-		}
+		/*
+		 * if (listNotes != null) { listNotes.clear(); }
+		 */
 
 	}
 

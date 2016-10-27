@@ -1034,6 +1034,7 @@ public class LimsReadGeneiousFieldsValues {
 					dummy.setScientificName(rs.getString("ScientificName"));
 					dummy.setSamplePlateId(rs.getString("SamplePlateId"));
 					dummy.setPosition(rs.getString("Position"));
+					dummy.setSeqStaff(rs.getString("seqStaff"));
 					dummy.setExtractPlateNumberIDSamples(rs
 							.getString("extractPlateNumberIDSamples"));
 					dummy.setExtractMethod(rs.getString("extractMethod"));
