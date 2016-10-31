@@ -106,6 +106,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	List<String> files = null;
 	private int selectedTotal = 1;
 	private int selectedCount = 0;
+	private List<String> deleteDummyList = new ArrayList<String>(100);
+	private List<String> deleteExtractList = new ArrayList<String>(100);
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -154,20 +156,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * */
 	@Override
 	public String[] getPermissibleExtensions() {
-		/*
-		 * JFileChooser chooser; try { chooser = new
-		 * JFileChooser(System.getProperty(limsImporterUtil
-		 * .getPropValues("ab1files")));
-		 * 
-		 * Component frame = null; FileNameExtensionFilter filter = new
-		 * FileNameExtensionFilter( "AB1 files", "ab1");
-		 * chooser.setFileFilter(filter); int returnVal =
-		 * chooser.showDialog(frame, null); if (returnVal ==
-		 * JFileChooser.APPROVE_OPTION) { chooser.getSize();
-		 * System.out.println(); } } catch (IOException e1) {
-		 * e1.printStackTrace(); }
-		 */
-
 		return new String[] { "" };
 	}
 
@@ -257,8 +245,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					.importDocuments(file, ProgressListener.EMPTY);
 
 			getFiles(extractID + ".dum");
-
-			// readGeneiousFieldsValues.getDummySamplesValues(dummyFilename);
 
 			progressListener.setProgress(0, 10);
 
@@ -412,6 +398,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				annotatedDocumentID = String.valueOf(found.getId());
 				setDummyFilename(found.getName());
 				writeOneDummyRecord();
+				deleteDummyList.add(annotatedDocumentID);
+				deleteExtractList.add(found.getName());
 				isDeleted = true;
 				break;
 			} /*
@@ -442,12 +430,18 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				 * Most of the notes from the Dummy documents will be inherited
 				 * and add to the AB1 files
 				 */
-				readGeneiousFieldsValues
-						.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
-				limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(extractID
-						+ ".dum");
+				for (int j = 0; j < deleteDummyList.size(); j++) {
+					String obj = deleteDummyList.get(j);
 
-				deleteElementFromDummyList(extractID);
+					readGeneiousFieldsValues
+							.DeleteDummyRecordFromTableAnnotatedtDocument(obj);
+
+				}
+				for (int i = 0; i < deleteExtractList.size(); i++) {
+					String extract = deleteExtractList.get(i);
+					limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(extract);
+					deleteElementFromDummyList(extract);
+				}
 				isDeleted = false;
 
 			} catch (IOException e) {
