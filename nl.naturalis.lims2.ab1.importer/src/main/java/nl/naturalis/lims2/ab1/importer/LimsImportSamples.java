@@ -524,6 +524,7 @@ public class LimsImportSamples extends DocumentAction {
 			String[] record, long startBeginTime) {
 		int cnt = 0;
 		Object resultExists;
+		// Object resultExtractIDSamples = null;
 		for (AnnotatedPluginDocument list : listDocuments) {
 
 			resultExists = null;
@@ -584,10 +585,20 @@ public class LimsImportSamples extends DocumentAction {
 			}
 
 			/*
+			 * if (list.toString().contains("ExtractIDCode_Samples")) {
+			 * resultExtractIDSamples = list.getDocumentNotes(true)
+			 * .getNote("DocumentNoteUtilities-Extract ID (Samples)")
+			 * .getFieldValue("ExtractIDCode_Samples"); }
+			 */
+
+			/*
 			 * ID (ID = record[0]) match extractid from the filename
 			 */
 			if (ID.equals(extractIDfileName) && isExtractIDSeqExists) {
 
+				/*
+				 * if (resultExtractIDSamples != null) { continue; }
+				 */
 				/*
 				 * Start time for processing the notes to the documents
 				 */
@@ -936,6 +947,7 @@ public class LimsImportSamples extends DocumentAction {
 		List<String> failureList = new ArrayList<String>();
 		List<String> exactProcessedList = new ArrayList<String>();
 		String[] record = null;
+		// Object resultExtractIDSamples = null;
 		try {
 			if (fileName != null) {
 				logger.info("Read samples file: " + fileName);
@@ -984,12 +996,6 @@ public class LimsImportSamples extends DocumentAction {
 							 * Assemble
 							 */
 							long startBeginTime = System.nanoTime();
-							/*
-							 * if (list.toString().contains(
-							 * documentTypeNovoAssembly) ||
-							 * list.toString().contains(
-							 * documentTypeConsensusSequence)) { continue; }
-							 */
 
 							/* get the filename */
 							if ((list.toString().contains("fas"))
@@ -1040,6 +1046,23 @@ public class LimsImportSamples extends DocumentAction {
 							 */
 							if (ID.equals(extractIDfileName)
 									&& isExtractIDSeqExists) {
+
+								/*
+								 * if (list.toString().contains(
+								 * "ExtractIDCode_Samples")) {
+								 * resultExtractIDSamples = list
+								 * .getDocumentNotes(true) .getNote(
+								 * "DocumentNoteUtilities-Extract ID (Samples)")
+								 * .getFieldValue( "ExtractIDCode_Samples"); }
+								 * 
+								 * String extractIDSamples = "";
+								 * 
+								 * if (resultExtractIDSamples != null) {
+								 * continue; } else { extractIDSamples =
+								 * record[3];
+								 * 
+								 * }
+								 */
 
 								startTime = new Date().getTime();
 								isMatched = true;

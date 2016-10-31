@@ -212,7 +212,7 @@ public class LimsSQL {
 			// Execute a query
 			stmt = conn.createStatement();
 
-			String sql = "SELECT Importcount FROM tblDocumentImport" + "\n"
+			String sql = "SELECT * FROM tblDocumentImport" + "\n"
 					+ "WHERE Documentname =  '" + documentName + "'" + "\n";
 			// + "ORDER BY Documentname DESC ";
 			ResultSet rs = stmt.executeQuery(sql);
@@ -224,6 +224,7 @@ public class LimsSQL {
 					else
 						exists = true;
 					importcounter = rs.getInt("Importcount");
+					documentname = rs.getString("Documentname");
 
 				} while (rs.next());
 			}

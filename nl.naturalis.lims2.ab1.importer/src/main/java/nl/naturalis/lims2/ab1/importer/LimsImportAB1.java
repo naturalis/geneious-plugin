@@ -3,15 +3,8 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +20,6 @@ import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsReplaceDummyNotes;
 import nl.naturalis.lims2.utils.LimsSQL;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +29,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
+import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
@@ -96,7 +89,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
 
-	private String[] ab1FileName = null;
 	private String dummyFilename = "";
 	private String annotatedDocumentID = null;
 	private boolean ab1fileExists = false;
@@ -104,11 +96,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private ArrayList<AnnotatedPluginDocument> docs = null;
 
 	private long startBeginTime = 0;
-	private int cntDummy = 0;
 	private boolean dummyExists = false;
 	private String extractID = "";
-	public static List<Dummy> dummiesRecords = null;
-	List<String> files = new ArrayList<String>();
+	public static List<Dummy> dummiesRecords = new ArrayList<Dummy>(100);
+
+	private static ArrayList<String> recordList = null;
+	private static ArrayList<String> onerecordList = null;
+
+	List<String> files = null;
+	private int selectedTotal = 1;
+	private int selectedCount = 0;
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
@@ -128,11 +125,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							.getDatabasePropValues("databasename");
 
 					setDummyValues();
-					try {
-						saveDummyFile("dummyRecords.txt");
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					}
+					writeDummyRecord();
 				}
 
 			} catch (SQLException e1) {
@@ -161,7 +154,40 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * */
 	@Override
 	public String[] getPermissibleExtensions() {
+		/*
+		 * JFileChooser chooser; try { chooser = new
+		 * JFileChooser(System.getProperty(limsImporterUtil
+		 * .getPropValues("ab1files")));
+		 * 
+		 * Component frame = null; FileNameExtensionFilter filter = new
+		 * FileNameExtensionFilter( "AB1 files", "ab1");
+		 * chooser.setFileFilter(filter); int returnVal =
+		 * chooser.showDialog(frame, null); if (returnVal ==
+		 * JFileChooser.APPROVE_OPTION) { chooser.getSize();
+		 * System.out.println(); } } catch (IOException e1) {
+		 * e1.printStackTrace(); }
+		 */
+
 		return new String[] { "" };
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.biomatters.geneious.publicapi.plugin.DocumentFileImporter#
+	 * getFractionOfTimeToSaveResults()
+	 */
+	@Override
+	public double getFractionOfTimeToSaveResults() {
+
+		return super.getFractionOfTimeToSaveResults();
+	}
+
+	@Override
+	public File getPrimaryFileForMultipleFileImporter(List<File> list) {
+		selectedCount = list.size();
+		System.out.println("Totaal geselecteerde bestanden: " + selectedCount);
+		return super.getPrimaryFileForMultipleFileImporter(list);
 	}
 
 	/**
@@ -187,20 +213,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					.getServerDatabaseServiceName();
 
 			setDummyValues();
-			saveDummyFile("dummyRecords.txt");
+			writeDummyRecord();
 		}
-
-		/*
-		 * if (file != null) { File fl = file.getAbsoluteFile();
-		 * files.add(fl.getName()); }
-		 */
 
 		if (readGeneiousFieldsValues.activeDB != null) {
 
 			/* Start time of the process */
 			startBeginTime = System.nanoTime();
-			/* Get the filename and extract the ID */
-			ab1FileName = StringUtils.split(file.getName(), "_");
+
+			/* Split the filename and extract the ID */
 
 			extractAb1FastaFileName = file.getName();
 			limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
@@ -211,66 +232,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* Check if Dummy file exists in the database */
 			if (file.getName().contains(".ab1")) {
 
-				boolean ab1DocExists = limsSQL
-						.documentNameExist(file.getName());
-				if (!ab1DocExists) {
-					try {
-						limsSQL.insertIntoTableDocumentImport(file.getName(),
-								limsSQL.importcounter);
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-				} else {
-					int counterAB1 = limsSQL.importcounter + 1;
-					limsSQL.updateImportCount(counterAB1, file.getName());
-				}
-
-				versienummer = limsSQL.getVersionFromDocumentName(file
-						.getName());
-				/*
-				 * versienummer = ReadGeneiousFieldsValues
-				 * .getLastVersionFromDocument(extractAb1FastaFileName);
-				 */
-
-				if (versienummer == 0) {
-					ab1fileExists = false;
-				} else {
-					ab1fileExists = true;
-				}
+				insertFileNameIntoTableDocumentImport(extractAb1FastaFileName);
 			} else /* FAS check */
 			if (extractAb1FastaFileName.contains(".fas")) {
 
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
-				tentativeAutoDetect(file, ">");
 
-				boolean fastaExists = limsSQL
-						.documentNameExist(extractAb1FastaFileName);
-				if (!fastaExists) {
-					try {
-						limsSQL.insertIntoTableDocumentImport(
-								extractAb1FastaFileName, limsSQL.importcounter);
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-				} else {
-
-					int counter = limsSQL.importcounter + 1;
-					limsSQL.updateImportCount(counter, extractAb1FastaFileName);
-				}
-
-				/*
-				 * Get the version number from the last inserted document that
-				 * match the criteria
-				 */
-				versienummer = limsSQL
-						.getVersionFromDocumentName(extractAb1FastaFileName);
-				// ReadGeneiousFieldsValues.getLastVersionFromDocument(extractAb1FastaFileName);
-				if (versienummer == 0) {
-					fastaFileExists = false;
-				} else {
-					fastaFileExists = true;
-				}
+				insertFileNameIntoTableDocumentImport(extractAb1FastaFileName);
 			}
 			progressListener
 					.setMessage("Importing sequence data"
@@ -287,123 +256,205 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			docs = (ArrayList<AnnotatedPluginDocument>) PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
 
+			getFiles(extractID + ".dum");
+
+			// readGeneiousFieldsValues.getDummySamplesValues(dummyFilename);
+
 			progressListener.setProgress(0, 10);
 
 			count += docs.size();
 
-			documentAnnotatedPlugin = importCallback.addDocument(docs.stream()
+			documentAnnotatedPlugin = importCallback.addDocument(docs
 					.iterator().next());
 
-			dummiesRecords = read_file_array_list_java();
-			Dummy found = null;
-			for (Dummy dummy : dummiesRecords) {
-				if (dummy.getExtractID().equals(extractID)) {
-					found = dummy;
-					annotatedDocumentID = String.valueOf(found.getId());
-					dummyFilename = found.getName();
-					saveDummyRecordToFile(dummy, "FoundDummy.txt", extractID);
-					cntDummy++;
-					isDeleted = true;
-					break;
-				} else if (isDeleted) {
-					dummiesRecords = read_DummyRecord();
-					for (Dummy dm : dummiesRecords) {
-						found = dm;
-						annotatedDocumentID = String.valueOf(found.getId());
-						dummyFilename = found.getName();
-						isDeleted = false;
-						break;
-					}
-					break;
-				}
-			}
-
-			if (found != null) {
-				dummyExists = true;
-			} else {
-				dummyExists = false;
-				logger.info("No match found for: " + file.getName());
-			}
-
-			if (file.getName() != null && !isDeleted && found == null) {
-				/* Set version number */
-				setVersionNumber();
-
-				/* Add Notes to AB1/Fasta document */
-				if (documentAnnotatedPlugin != null) {
-
-					/*
-					 * setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
-					 * extractAb1FastaFileName);
-					 */
-
-					LimsImportNotes limsImportNotes = new LimsImportNotes();
-					limsImportNotes.setImportNotes(documentAnnotatedPlugin,
-							extractAb1FastaFileName,
-							limsAB1Fields.getExtractID(),
-							limsAB1Fields.getPcrPlaatID(),
-							limsAB1Fields.getMarker(), versienummer,
-							limsImporterUtil.getPropValues("seqsequencestaff"));
-				}
+			if (file.getName() != null && !isDeleted
+					&& !limsSQL.documentNameExist(extractID + ".dum")) {
+				setAB1_FastaImportNotes();
 			}
 
 			else { /* Get dummy values */
 
-				/* Set version number */
-				setVersionNumber();
-
-				/*
-				 * When Dummy file exists and the AB1 imported document match
-				 * the Dummy filename then the dummy notes will be replaced with
-				 * the AB1 notes. After all the matching dummy document will be
-				 * deleted from the Geneious Folder/Database. Most of the notes
-				 * from the Dummy documents will be inherited and add to the AB1
-				 * files
-				 */
-
-				if (found != null) {
-
-					replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin,
-							found, pcrPlateId, marker, extractID);
-
-					// limsReplaceDummyNotes.enrichAb1DocumentWithDummyNotes(
-					// documentAnnotatedPlugin, found, versienummer,
-					// pcrPlateId, marker, extractID);
-
-					found = null;
-					if (isDeleted) {
-						try {
-							/*
-							 * Delete dummy records after it match with the AB1
-							 * filename. Most of the notes from the Dummy
-							 * documents will be inherited and add to the AB1
-							 * files
-							 */
-							readGeneiousFieldsValues
-									.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
-							limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(ab1FileName[0]
-									+ ".dum");
-
-							deleteElementFromDummyList(extractID);
-							saveDummyFile("dummyRecords.txt");
-
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				}
+				Dummy found = searchForDummyRecords(file);
+				enrichAB1_FastaImportDocumentsWithNotes(pcrPlateId, marker,
+						found);
 			}
 
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
 			logger.info("Done with extracting/imported Ab1 files. ");
-			// isDeleted = false;
 
 			limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 
 		}
+	}
 
-		// showFinishedDialogMessageOK();
+	private List<String> getFiles(String fileName) {
+		files = new ArrayList<String>();
+		if (limsSQL.documentNameExist(extractID + ".dum")) {
+			files.add(fileName);
+		}
+		return files;
+	}
+
+	@Override
+	public List<File> importDocumentsFromMultipleFilesReturningUnimported(
+			Options options, List<File> file, ImportCallback importCallback,
+			ProgressListener progressListener) throws IOException,
+			DocumentImportException {
+		return super.importDocumentsFromMultipleFilesReturningUnimported(
+				options, file, importCallback, progressListener);
+	}
+
+	/**
+	 * @param fileName
+	 */
+	private void insertFileNameIntoTableDocumentImport(String fileName) {
+		boolean ab1DocExists = limsSQL.documentNameExist(fileName);
+		if (!ab1DocExists) {
+			try {
+				limsSQL.insertIntoTableDocumentImport(fileName,
+						limsSQL.importcounter);
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}/*
+		 * else { int counterAB1 = limsSQL.importcounter + 1;
+		 * limsSQL.updateImportCount(counterAB1, fileName); }
+		 */
+
+		versienummer = readGeneiousFieldsValues
+				.getLastVersionFromDocument(fileName);
+
+		if (versienummer == 0) {
+			ab1fileExists = false;
+			fastaFileExists = false;
+		} else {
+			ab1fileExists = true;
+			fastaFileExists = true;
+		}
+	}
+
+	/**
+	 * @param pcrPlateId
+	 * @param marker
+	 * @param found
+	 */
+	private void enrichAB1_FastaImportDocumentsWithNotes(String pcrPlateId,
+			String marker, Dummy found) {
+		logger.info("Get dummy notes and enrich notes to ab1/fasta document import.");
+		/* Set version number */
+		setVersionNumber();
+
+		/*
+		 * When Dummy file exists and the AB1 imported document match the Dummy
+		 * filename then the dummy notes will be replaced with the AB1 notes.
+		 * After all the matching dummy document will be deleted from the
+		 * Geneious Folder/Database. Most of the notes from the Dummy documents
+		 * will be inherited and add to the AB1 files
+		 */
+
+		if (found != null) {
+
+			/*
+			 * replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin, found,
+			 * pcrPlateId, marker, extractID);
+			 */
+
+			limsReplaceDummyNotes.enrichAb1DocumentWithDummyNotes(
+					documentAnnotatedPlugin, found, versienummer, pcrPlateId,
+					marker, extractID);
+			if (count > 0) {
+				selectedTotal = 0;
+			}
+
+			found = null;
+			if (selectedTotal == 0) {
+				deleteRecordsFromTable();
+			}
+		}
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private void setAB1_FastaImportNotes() throws IOException {
+		logger.info("Add notes to ab1/fasta document import.");
+		/* Set version number */
+		setVersionNumber();
+
+		/* Add Notes to AB1/Fasta document */
+		if (documentAnnotatedPlugin != null) {
+
+			/*
+			 * setNotes_To_AB1_Fasta(documentAnnotatedPlugin,
+			 * extractAb1FastaFileName);
+			 */
+
+			LimsImportNotes limsImportNotes = new LimsImportNotes();
+			limsImportNotes.setImportNotes(documentAnnotatedPlugin,
+					extractAb1FastaFileName, limsAB1Fields.getExtractID(),
+					limsAB1Fields.getPcrPlaatID(), limsAB1Fields.getMarker(),
+					versienummer,
+					limsImporterUtil.getPropValues("seqsequencestaff"));
+		}
+	}
+
+	/**
+	 * @param file
+	 * @return
+	 */
+	private Dummy searchForDummyRecords(File file) {
+		dummiesRecords = readDummyRecord();
+		Dummy found = null;
+		for (Dummy dummy : dummiesRecords) {
+			if (dummy.getExtractID().equals(extractID)) {
+				found = dummy;
+				annotatedDocumentID = String.valueOf(found.getId());
+				setDummyFilename(found.getName());
+				writeOneDummyRecord();
+				isDeleted = true;
+				break;
+			} /*
+			 * else if (isDeleted) { dummiesRecords = readOneDummyRecord(); for
+			 * (Dummy dm : dummiesRecords) { found = dm; annotatedDocumentID =
+			 * String.valueOf(found.getId()); setDummyFilename(found.getName());
+			 * isDeleted = false; break; } break; }
+			 */
+		}
+
+		if (found != null) {
+			setDummyExists(true);
+		} else {
+			setDummyExists(false);
+			logger.info("No match found for: " + file.getName());
+		}
+		return found;
+	}
+
+	/**
+	 * 
+	 */
+	private void deleteRecordsFromTable() {
+		if (count == selectedCount && isDeleted) {
+			try {
+				/*
+				 * Delete dummy records after it match with the AB1 filename.
+				 * Most of the notes from the Dummy documents will be inherited
+				 * and add to the AB1 files
+				 */
+				readGeneiousFieldsValues
+						.DeleteDummyRecordFromTableAnnotatedtDocument(annotatedDocumentID);
+				limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(extractID
+						+ ".dum");
+
+				deleteElementFromDummyList(extractID);
+				isDeleted = false;
+
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		}
 	}
 
 	/**
@@ -432,16 +483,65 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	private void setDummyValues() {
-		if (dummiesRecords == null) {
-			dummiesRecords = readGeneiousFieldsValues
-					.getDummySamplesValues(".dum");
-		}
+		dummiesRecords.clear();
+		dummiesRecords = readGeneiousFieldsValues.getDummySamplesValues(".dum");
 	}
 
-	private void saveDummyFile(String filename) throws FileNotFoundException {
-		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
+	public List<Dummy> readDummyRecord() {
+		List<Dummy> list = new ArrayList<Dummy>(100);
+		for (int i = 0; i < recordList.size(); i++) {
+
+			Dummy dummy = new Dummy();
+			String[] data = recordList.get(i).toString().split(",");
+
+			dummy.setId(Integer.valueOf(data[0]));
+			dummy.setName(data[1]);
+			dummy.setPcrplateid(data[2]);
+			dummy.setMarker(data[3]);
+			dummy.setRegistrationnumber(data[4]);
+			dummy.setScientificName(data[5]);
+			dummy.setSamplePlateId(data[6]);
+			dummy.setPosition(data[7]);
+			dummy.setExtractID(data[8]);
+			dummy.setSeqStaff(data[9]);
+			dummy.setExtractPlateNumberIDSamples(data[10]);
+			dummy.setExtractMethod(data[11]);
+			dummy.setRegistrationScientificName(data[12]);
+			list.add(dummy);
+		}
+		return list;
+	}
+
+	public List<Dummy> readOneDummyRecord() {
+		List<Dummy> list = new ArrayList<Dummy>(100);
+		for (int i = 0; i < onerecordList.size(); i++) {
+
+			Dummy dummy = new Dummy();
+			String[] data = onerecordList.get(i).toString().split(",");
+
+			dummy.setId(Integer.valueOf(data[0]));
+			dummy.setName(data[1]);
+			dummy.setPcrplateid(data[2]);
+			dummy.setMarker(data[3]);
+			dummy.setRegistrationnumber(data[4]);
+			dummy.setScientificName(data[5]);
+			dummy.setSamplePlateId(data[6]);
+			dummy.setPosition(data[7]);
+			dummy.setExtractID(data[8]);
+			dummy.setSeqStaff(data[9]);
+			dummy.setExtractPlateNumberIDSamples(data[10]);
+			dummy.setExtractMethod(data[11]);
+			dummy.setRegistrationScientificName(data[12]);
+			list.add(dummy);
+		}
+		return list;
+
+	}
+
+	public List<String> writeDummyRecord() {
+		recordList = new ArrayList<String>(100);
 		for (Dummy dm : dummiesRecords) {
-			pw.println(dm.getId() + "," + dm.getName() + ","
+			recordList.add(dm.getId() + "," + dm.getName() + ","
 					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
 					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
 					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
@@ -450,15 +550,13 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					+ dm.getExtractMethod() + ","
 					+ dm.getRegistrationScientificName());
 		}
-		pw.close();
+		return recordList;
 	}
 
-	private void saveDummyRecordToFile(Dummy dm, String filename,
-			String extractId) throws FileNotFoundException {
-		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
-		// for (Dummy dm : dummiesRecords) {
-		if (dm.getExtractID().equals(extractId)) {
-			pw.println(dm.getId() + "," + dm.getName() + ","
+	public List<String> writeOneDummyRecord() {
+		onerecordList = new ArrayList<String>(100);
+		for (Dummy dm : dummiesRecords) {
+			onerecordList.add(dm.getId() + "," + dm.getName() + ","
 					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
 					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
 					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
@@ -467,100 +565,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					+ dm.getExtractMethod() + ","
 					+ dm.getRegistrationScientificName());
 		}
-		// }
-		pw.close();
-	}
-
-	public List<Dummy> read_DummyRecord() throws FileNotFoundException {
-
-		String workingdirectory = System.getProperty("user.dir");
-
-		InputStream in = new FileInputStream(workingdirectory + "/"
-				+ "FoundDummy.txt");
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		List<Dummy> dummies = new ArrayList<>();
-
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				Dummy dummy = new Dummy();
-				String[] data = line.split(",");
-
-				dummy.setId(Integer.valueOf(data[0]));
-				dummy.setName(data[1]);
-				dummy.setPcrplateid(data[2]);
-				dummy.setMarker(data[3]);
-				dummy.setRegistrationnumber(data[4]);
-				dummy.setScientificName(data[5]);
-				dummy.setSamplePlateId(data[6]);
-				dummy.setPosition(data[7]);
-				dummy.setExtractID(data[8]);
-				dummy.setSeqStaff(data[9]);
-				dummy.setExtractPlateNumberIDSamples(data[10]);
-				dummy.setExtractMethod(data[11]);
-				dummy.setRegistrationScientificName(data[12]);
-				dummies.add(dummy);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return dummies;
-
-	}
-
-	public List<Dummy> read_file_array_list_java() throws FileNotFoundException {
-
-		String workingdirectory = System.getProperty("user.dir");
-
-		// return LimsReadGeneiousFieldsValues.dummiesList;
-
-		InputStream in = new FileInputStream(workingdirectory + "/"
-				+ "dummyRecords.txt");
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		List<Dummy> dummies = new ArrayList<>();
-
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				Dummy dummy = new Dummy();
-				String[] data = line.split(",");
-
-				dummy.setId(Integer.valueOf(data[0]));
-				dummy.setName(data[1]);
-				dummy.setPcrplateid(data[2]);
-				dummy.setMarker(data[3]);
-				dummy.setRegistrationnumber(data[4]);
-				dummy.setScientificName(data[5]);
-				dummy.setSamplePlateId(data[6]);
-				dummy.setPosition(data[7]);
-				dummy.setExtractID(data[8]);
-				dummy.setSeqStaff(data[9]);
-				dummy.setExtractPlateNumberIDSamples(data[10]);
-				dummy.setExtractMethod(data[11]);
-				dummy.setRegistrationScientificName(data[12]);
-				dummies.add(dummy);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return dummies;
-
+		return onerecordList;
 	}
 
 	private void setNotes_To_AB1_Fasta(
@@ -698,5 +703,21 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		}
 
+	}
+
+	public boolean isDummyExists() {
+		return dummyExists;
+	}
+
+	public void setDummyExists(boolean dummyExists) {
+		this.dummyExists = dummyExists;
+	}
+
+	public String getDummyFilename() {
+		return dummyFilename;
+	}
+
+	public void setDummyFilename(String dummyFilename) {
+		this.dummyFilename = dummyFilename;
 	}
 }
