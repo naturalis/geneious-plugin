@@ -664,8 +664,8 @@ public class LimsReadGeneiousFieldsValues {
 			pst = con.prepareStatement(SQL);
 			pst.setString(1, (String) ID);
 			pst.executeUpdate();
-			logger.info("Delete Dummy Annotated document id : " + ID
-					+ " From tabel annotated_document ");
+			logger.info("DELETE Dummy Annotated document id : " + ID
+					+ " FROM TABLE annotated_document ");
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 		} finally {

@@ -100,10 +100,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private String extractID = "";
 	public static List<Dummy> dummiesRecords = new ArrayList<Dummy>(100);
 
-	private static ArrayList<String> recordList = null;
-	private static ArrayList<String> onerecordList = null;
+	private static ArrayList<String> recordList = new ArrayList<String>(100);
 
-	List<String> files = null;
+	// List<String> files = null;
 	private int selectedTotal = 1;
 	private int selectedCount = 0;
 	private List<String> deleteDummyList = new ArrayList<String>(100);
@@ -174,7 +173,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	@Override
 	public File getPrimaryFileForMultipleFileImporter(List<File> list) {
 		selectedCount = list.size();
-		System.out.println("Totaal geselecteerde bestanden: " + selectedCount);
+		logger.info("Total selected import files: " + selectedCount);
 		return super.getPrimaryFileForMultipleFileImporter(list);
 	}
 
@@ -218,7 +217,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			String marker = limsAB1Fields.getMarker();
 
 			/* Check if Dummy file exists in the database */
-			if (file.getName().contains(".ab1")) {
+			if (extractAb1FastaFileName.contains(".ab1")) {
 
 				insertFileNameIntoTableDocumentImport(extractAb1FastaFileName);
 			} else /* FAS check */
@@ -244,7 +243,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			docs = (ArrayList<AnnotatedPluginDocument>) PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
 
-			getFiles(extractID + ".dum");
+			// getFiles(extractID + ".dum");
 
 			progressListener.setProgress(0, 10);
 
@@ -274,13 +273,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 	}
 
-	private List<String> getFiles(String fileName) {
-		files = new ArrayList<String>();
-		if (limsSQL.documentNameExist(extractID + ".dum")) {
-			files.add(fileName);
-		}
-		return files;
-	}
+	/*
+	 * private List<String> getFiles(String fileName) { files = new
+	 * ArrayList<String>(); if (limsSQL.documentNameExist(extractID + ".dum")) {
+	 * files.add(fileName); } return files; }
+	 */
 
 	@Override
 	public List<File> importDocumentsFromMultipleFilesReturningUnimported(
@@ -349,14 +346,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsReplaceDummyNotes.enrichAb1DocumentWithDummyNotes(
 					documentAnnotatedPlugin, found, versienummer, pcrPlateId,
 					marker, extractID);
-			if (count > 0) {
-				selectedTotal = 0;
-			}
 
-			found = null;
-			if (selectedTotal == 0) {
-				deleteRecordsFromTable();
-			}
+			/*
+			 * if (count > 0) { selectedTotal = 0; }
+			 */
+
+			// found = null;
+			// if (selectedTotal == 0) {
+			deleteRecordsFromTable();
+			// }
 		}
 	}
 
@@ -383,6 +381,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					versienummer,
 					limsImporterUtil.getPropValues("seqsequencestaff"));
 		}
+
 	}
 
 	/**
@@ -390,31 +389,32 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * @return
 	 */
 	private Dummy searchForDummyRecords(File file) {
-		dummiesRecords = readDummyRecord();
+		// dummiesRecords = readDummyRecord();
 		Dummy found = null;
 		for (Dummy dummy : dummiesRecords) {
 			if (dummy.getExtractID().equals(extractID)) {
 				found = dummy;
 				annotatedDocumentID = String.valueOf(found.getId());
 				setDummyFilename(found.getName());
-				writeOneDummyRecord();
+				// writeOneDummyRecord();
 				deleteDummyList.add(annotatedDocumentID);
 				deleteExtractList.add(found.getName());
 				isDeleted = true;
 				break;
-			} /*
-			 * else if (isDeleted) { dummiesRecords = readOneDummyRecord(); for
-			 * (Dummy dm : dummiesRecords) { found = dm; annotatedDocumentID =
-			 * String.valueOf(found.getId()); setDummyFilename(found.getName());
-			 * isDeleted = false; break; } break; }
-			 */
+			}
 		}
 
 		if (found != null) {
 			setDummyExists(true);
 		} else {
 			setDummyExists(false);
-			logger.info("No match found for: " + file.getName());
+			try {
+				setAB1_FastaImportNotes();
+				deleteRecordsFromTable();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			// logger.info("No match found for: " + file.getName());
 		}
 		return found;
 	}
@@ -440,9 +440,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				for (int i = 0; i < deleteExtractList.size(); i++) {
 					String extract = deleteExtractList.get(i);
 					limsSQL.DeleteDummyRecordFromTableAnnotatedtDocument(extract);
-					deleteElementFromDummyList(extract);
+					// deleteElementFromDummyList(extract);
 				}
 				isDeleted = false;
+				selectedCount = 0;
+				count = 0;
 
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -506,34 +508,28 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		return list;
 	}
 
-	public List<Dummy> readOneDummyRecord() {
-		List<Dummy> list = new ArrayList<Dummy>(100);
-		for (int i = 0; i < onerecordList.size(); i++) {
-
-			Dummy dummy = new Dummy();
-			String[] data = onerecordList.get(i).toString().split(",");
-
-			dummy.setId(Integer.valueOf(data[0]));
-			dummy.setName(data[1]);
-			dummy.setPcrplateid(data[2]);
-			dummy.setMarker(data[3]);
-			dummy.setRegistrationnumber(data[4]);
-			dummy.setScientificName(data[5]);
-			dummy.setSamplePlateId(data[6]);
-			dummy.setPosition(data[7]);
-			dummy.setExtractID(data[8]);
-			dummy.setSeqStaff(data[9]);
-			dummy.setExtractPlateNumberIDSamples(data[10]);
-			dummy.setExtractMethod(data[11]);
-			dummy.setRegistrationScientificName(data[12]);
-			list.add(dummy);
-		}
-		return list;
-
-	}
+	/*
+	 * public List<Dummy> readOneDummyRecord() { List<Dummy> list = new
+	 * ArrayList<Dummy>(100); for (int i = 0; i < onerecordList.size(); i++) {
+	 * 
+	 * Dummy dummy = new Dummy(); String[] data =
+	 * onerecordList.get(i).toString().split(",");
+	 * 
+	 * dummy.setId(Integer.valueOf(data[0])); dummy.setName(data[1]);
+	 * dummy.setPcrplateid(data[2]); dummy.setMarker(data[3]);
+	 * dummy.setRegistrationnumber(data[4]); dummy.setScientificName(data[5]);
+	 * dummy.setSamplePlateId(data[6]); dummy.setPosition(data[7]);
+	 * dummy.setExtractID(data[8]); dummy.setSeqStaff(data[9]);
+	 * dummy.setExtractPlateNumberIDSamples(data[10]);
+	 * dummy.setExtractMethod(data[11]);
+	 * dummy.setRegistrationScientificName(data[12]); list.add(dummy); } return
+	 * list;
+	 * 
+	 * }
+	 */
 
 	public List<String> writeDummyRecord() {
-		recordList = new ArrayList<String>(100);
+
 		for (Dummy dm : dummiesRecords) {
 			recordList.add(dm.getId() + "," + dm.getName() + ","
 					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
@@ -547,20 +543,17 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		return recordList;
 	}
 
-	public List<String> writeOneDummyRecord() {
-		onerecordList = new ArrayList<String>(100);
-		for (Dummy dm : dummiesRecords) {
-			onerecordList.add(dm.getId() + "," + dm.getName() + ","
-					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
-					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
-					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
-					+ "," + dm.getExtractID() + "," + dm.getSeqStaff() + ","
-					+ dm.getExtractPlateNumberIDSamples() + ","
-					+ dm.getExtractMethod() + ","
-					+ dm.getRegistrationScientificName());
-		}
-		return onerecordList;
-	}
+	/*
+	 * public List<String> writeOneDummyRecord() { onerecordList = new
+	 * ArrayList<String>(100); for (Dummy dm : dummiesRecords) {
+	 * onerecordList.add(dm.getId() + "," + dm.getName() + "," +
+	 * dm.getPcrplateid() + "," + dm.getMarker() + "," +
+	 * dm.getRegistrationnumber() + "," + dm.getScientificName() + "," +
+	 * dm.getSamplePlateId() + "," + dm.getPosition() + "," + dm.getExtractID()
+	 * + "," + dm.getSeqStaff() + "," + dm.getExtractPlateNumberIDSamples() +
+	 * "," + dm.getExtractMethod() + "," + dm.getRegistrationScientificName());
+	 * } return onerecordList; }
+	 */
 
 	private void setNotes_To_AB1_Fasta(
 			AnnotatedPluginDocument documentAnnotated, String fileName)
@@ -684,20 +677,19 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				Integer.toString(versienummer));
 	}
 
-	private void deleteElementFromDummyList(String extractID) {
-
-		for (int j = 0; j < dummiesRecords.size(); j++) {
-			Dummy obj = dummiesRecords.get(j);
-
-			if (obj.getExtractID().equals(extractID)) {
-				// found, delete.
-				dummiesRecords.remove(j);
-				break;
-			}
-
-		}
-
-	}
+	/*
+	 * private void deleteElementFromDummyList(String extractID) {
+	 * 
+	 * for (int j = 0; j < dummiesRecords.size(); j++) { Dummy obj =
+	 * dummiesRecords.get(j);
+	 * 
+	 * if (obj.getExtractID().equals(extractID)) { // found, delete.
+	 * dummiesRecords.remove(j); break; }
+	 * 
+	 * }
+	 * 
+	 * }
+	 */
 
 	public boolean isDummyExists() {
 		return dummyExists;

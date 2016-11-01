@@ -69,7 +69,7 @@ public class LimsFileSelector {
 			csvPath = limsImporterUtil
 					.getPropValues("lims.import.input.cs_dir");
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		/* Set the path */
 		JFileChooser chooser = new JFileChooser(csvPath);
@@ -161,14 +161,10 @@ public class LimsFileSelector {
 						/* Get the filename. >e30233392_Lon_rub_RL030_COI */
 						currentFileName = line.substring(1);
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				try {
 					/* Close the buffer */
 					in.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			} else {
 				/*
@@ -184,8 +180,7 @@ public class LimsFileSelector {
 						+ fastaImportFilePath + "' is not correct.");
 			}
 		} catch (FileNotFoundException e) {
-			logger.info("Wrong path for fasta file: " + fastaImportFilePath);
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		return currentFileName;
 	}
@@ -213,10 +208,6 @@ public class LimsFileSelector {
 				/* Get the filename. >e30233392_Lon_rub_RL030_COI */
 				resultFastaFileName = line.substring(1);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
 			in.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);

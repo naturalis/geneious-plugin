@@ -80,7 +80,7 @@ public class LimsImportAB1Update extends DocumentAction {
 	private boolean isVersionnumberOne = false;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-	private LimsReadGeneiousFieldsValues ReadGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private String extractAb1FastaFileName = "";
 	private boolean fastaFileExists = false;
 	private boolean fileExists = false;
@@ -106,16 +106,7 @@ public class LimsImportAB1Update extends DocumentAction {
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
 
 		/* if no document selected show a message. */
-		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					Dialogs.showMessageDialog("Select all documents");
-					return;
-				}
-			});
-		}
+		isSelectedDocumentEmpty();
 
 		/*
 		 * If documents selected then start the process.
@@ -128,8 +119,10 @@ public class LimsImportAB1Update extends DocumentAction {
 			}
 
 			/* Get Databasename */
-			ReadGeneiousFieldsValues.activeDB = ReadGeneiousFieldsValues
-					.getServerDatabaseServiceName();
+			if (readGeneiousFieldsValues.activeDB.length() == 0) {
+				readGeneiousFieldsValues.activeDB = readGeneiousFieldsValues
+						.getServerDatabaseServiceName();
+			}
 
 			/* Create the dialog GUI to see the processing of the documents */
 			limsFrameProgress.createProgressGUI();
@@ -161,7 +154,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				setDocumentFileName(cnt);
 
 				/* Check if the file exists in the database */
-				fileExists = ReadGeneiousFieldsValues
+				fileExists = readGeneiousFieldsValues
 						.fileNameExistsInGeneiousDatabase(documentFileName
 								.getName());
 
@@ -169,7 +162,7 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * If true and recordcount > 1 version exists else check in the
 				 * selected document content if version exists
 				 */
-				if (fileExists && ReadGeneiousFieldsValues.recordcount >= 1) {
+				if (fileExists && readGeneiousFieldsValues.recordcount >= 1) {
 					isVersionnumberOne = true;
 				} else {
 					isVersionnumberOne = documentFileName.toString().contains(
@@ -180,13 +173,13 @@ public class LimsImportAB1Update extends DocumentAction {
 				 * Get the value from 'ExtractIDCode_Seq' from the selected
 				 * document.
 				 */
-				extractValue = ReadGeneiousFieldsValues
+				extractValue = readGeneiousFieldsValues
 						.getValueFromAnnotatedPluginDocument(
 								annotatedPluginDocuments[cnt],
 								"DocumentNoteUtilities-Extract ID (Seq)",
 								"ExtractIDCode_Seq");
 
-				filePathExists = ReadGeneiousFieldsValues
+				filePathExists = readGeneiousFieldsValues
 						.getValueFromAnnotatedPluginDocument(
 								annotatedPluginDocuments[cnt], "importedFrom",
 								"path");
@@ -227,28 +220,20 @@ public class LimsImportAB1Update extends DocumentAction {
 								return;
 							}
 						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
+							throw new RuntimeException(e1);
 						}
-
-						/* Check if fasta file exists in the database */
-
-						// fastaFileExists = ReadGeneiousFieldsValues
-						// .checkOfFastaOrAB1Exists(
-						// extractAb1FastaFileName,
-						// "plugin_document_xml",
-						// "//XMLSerialisableRootElement/name");
 
 						/*
 						 * Get the last version number from the last insert
 						 * fasta file.
 						 */
-						versienummer = ReadGeneiousFieldsValues
+						versienummer = readGeneiousFieldsValues
 								.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
 
 					} else {
 						/* Get AB1 Filename and Version from AB1 file */
 						extractAb1FastaFileName = documentFileName.getName();
-						versienummer = ReadGeneiousFieldsValues
+						versienummer = readGeneiousFieldsValues
 								.getLastVersion_For_AB1_Fasta(extractAb1FastaFileName);
 					}
 				}
@@ -302,6 +287,22 @@ public class LimsImportAB1Update extends DocumentAction {
 		}
 	}
 
+	/**
+	 * 
+	 */
+	private void isSelectedDocumentEmpty() {
+		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("Select all documents");
+					return;
+				}
+			});
+		}
+	}
+
 	/*
 	 * Get the Document content
 	 * 
@@ -311,8 +312,8 @@ public class LimsImportAB1Update extends DocumentAction {
 		try {
 			documentFileName = (SequenceDocument) DocumentUtilities
 					.getSelectedDocuments().get(cnt).getDocument();
-		} catch (DocumentOperationException e3) {
-			e3.printStackTrace();
+		} catch (DocumentOperationException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -356,11 +357,6 @@ public class LimsImportAB1Update extends DocumentAction {
 			}
 
 			/* Set version number Fasta file and AB1 */
-
-			/*
-			 * if (fastaFileExists && !extractValue) {
-			 * limsAB1Fields.setVersieNummer(versienummer); } else
-			 */
 			if (fileExists && !extractValue) {
 				limsAB1Fields.setVersieNummer(versienummer);
 			}
