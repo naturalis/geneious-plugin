@@ -1219,15 +1219,6 @@ public class LimsImportSamples extends DocumentAction {
 
 		impAB1Fasta.dummiesRecords = readGeneiousFieldsValues
 				.getDummySamplesValues(".dum");
-		/*
-		 * readGeneiousFieldsValues.dummiesList = readGeneiousFieldsValues
-		 * .getDummySamplesValues(".dum");
-		 */
-		try {
-			saveDummyFile("dummyRecords.txt");
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
 
 		limsFrameProgress.hideFrame();
 

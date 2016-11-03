@@ -103,7 +103,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private static ArrayList<String> recordList = new ArrayList<String>(100);
 
 	// List<String> files = null;
-	private int selectedTotal = 1;
+	// private int selectedTotal = 1;
 	private int selectedCount = 0;
 	private List<String> deleteDummyList = new ArrayList<String>(100);
 	private List<String> deleteExtractList = new ArrayList<String>(100);
@@ -218,16 +218,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			/* Check if Dummy file exists in the database */
 			if (extractAb1FastaFileName.contains(".ab1")) {
-
 				insertFileNameIntoTableDocumentImport(extractAb1FastaFileName);
 			} else /* FAS check */
 			if (extractAb1FastaFileName.contains(".fas")) {
-
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
-
 				insertFileNameIntoTableDocumentImport(extractAb1FastaFileName);
 			}
+
 			progressListener
 					.setMessage("Importing sequence data"
 							+ "\n"

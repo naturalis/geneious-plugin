@@ -243,8 +243,9 @@ public class LimsReadGeneiousFieldsValues {
 		boolean truefalse = false;
 		try {
 			final String SQL = "SELECT ID FROM annotated_document" + "\n"
-					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
-					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+					+ "WHERE document_xml like  '%<cache_name>" + filename
+					+ "</cache_name>%' " + "\n" + "ORDER BY ID DESC" + "\n"
+					+ "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -695,17 +696,18 @@ public class LimsReadGeneiousFieldsValues {
 		int result = 0;
 		PreparedStatement pst = null;
 		try {
-			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version"
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
-					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+			final String SQL = "SELECT CAST(max(TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq'))) as unsigned) AS version "
+					+ "\n"
+					+ "FROM annotated_document"
+					+ "\n"
+					+ "WHERE document_xml like '%<cache_name>"
+					+ fileName
+					+ "</cache_name>%' ";
+
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			pst.setString(1, (String) fileName);
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
@@ -746,17 +748,18 @@ public class LimsReadGeneiousFieldsValues {
 		PreparedStatement pst = null;
 		try {
 
-			final String SQL = " SELECT MAX(CAST(a.version as UNSIGNED)) as version"
-					+ " FROM "
-					+ " ( "
-					+ " SELECT	TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq')) AS version, "
-					+ " TRIM(EXTRACTVALUE(document_xml, '//document/hiddenFields/cache_name')) AS name "
-					+ " FROM annotated_document) AS a " + " WHERE a.name =?";
+			final String SQL = "SELECT CAST(max(TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq'))) as unsigned) AS version "
+					+ "\n"
+					+ "FROM annotated_document"
+					+ "\n"
+					+ "WHERE document_xml like '%<cache_name>"
+					+ fileName
+					+ "</cache_name>%' ";
+
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
 			con.clearWarnings();
 			pst = con.prepareStatement(SQL);
-			pst.setString(1, (String) fileName);
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
@@ -985,10 +988,8 @@ public class LimsReadGeneiousFieldsValues {
 		List<Dummy> dummies = new ArrayList<>();
 		// Map<String, Dummy> cache = new HashMap<String, Dummy>(100);
 		try {
-			final String SQL = " SELECT * "
-					+ " FROM( "
-					+ "\n"
-					+ " SELECT id, "
+
+			final String SQL = " SELECT id, "
 					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name, "
 					+ "\n"
@@ -1013,9 +1014,40 @@ public class LimsReadGeneiousFieldsValues {
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) AS extractMethod, "
 					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
-					+ "\n" + " FROM annotated_document) AS a " + "\n"
-					+ "WHERE a.name like  '%" + filename + "%' " + "\n"
+					+ "\n" + " FROM annotated_document AS a " + "\n"
+					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
 					+ " ORDER BY name DESC";
+
+			/*
+			 * final String SQL = " SELECT * " + " FROM( " + "\n" +
+			 * " SELECT id, " + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/PCRplateIDCode_Seq')) AS pcrplateid, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/MarkerCode_Seq')) AS marker, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_Samples')) AS registrationnumber, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/TaxonName2Code_Samples')) AS scientificName, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ProjectPlateNumberCode_Samples')) AS samplePlateId, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/PlatePositionCode_Samples')) AS position, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractIDCode_Samples')) AS extractID, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SequencingStaffCode_FixedValue_Samples')) AS seqStaff, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/ExtractPlateNumberCode_Samples')) AS extractPlateNumberIDSamples, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/SampleMethodCode_Samples')) AS extractMethod, "
+			 * + "\n" +
+			 * " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
+			 * + "\n" + " FROM annotated_document) AS a " + "\n" +
+			 * "WHERE a.name like  '%<cache_name>" + filename +
+			 * "</cache_name>%' " + "\n" + " ORDER BY name DESC";
+			 */
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
