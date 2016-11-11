@@ -802,10 +802,10 @@ public class LimsImportSamples extends DocumentAction {
 								record[2].indexOf("-"));
 					}
 
-					int dummyExists = limsSQL
+					boolean dummyExists = limsSQL
 							.checkIfSampleDocExistsInTableAnnotatedDocument(ID);
 
-					if (dummyExists == 0) {
+					if (!dummyExists) {
 
 						limsFrameProgress.showProgress("Creating dummy file: "
 								+ ID + ".dum");

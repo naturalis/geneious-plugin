@@ -243,9 +243,8 @@ public class LimsReadGeneiousFieldsValues {
 		boolean truefalse = false;
 		try {
 			final String SQL = "SELECT ID FROM annotated_document" + "\n"
-					+ "WHERE document_xml like  '%<cache_name>" + filename
-					+ "</cache_name>%' " + "\n" + "ORDER BY ID DESC" + "\n"
-					+ "LIMIT 1";
+					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
+					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);

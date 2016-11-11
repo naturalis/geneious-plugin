@@ -426,21 +426,30 @@ public class LimsSQL {
 		}// end try
 	}
 
-	public int checkIfSampleDocExistsInTableAnnotatedDocument(Object filename)
-			throws IOException {
+	public boolean checkIfSampleDocExistsInTableAnnotatedDocument(
+			Object filename) throws IOException {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-		int result = 0;
+		boolean result = false;
 
 		try {
 
-			final String SQL = " SELECT EXISTS(SELECT 1 FROM tblDocumentImport "
+			/*
+			 * final String SQL =
+			 * " SELECT EXISTS(SELECT 1 FROM tblDocumentImport " + "\n" +
+			 * " WHERE Documentname like '%" + filename + "%' " + ") As Count" +
+			 * "\n" + " LIMIT 1";
+			 */
+
+			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name"
 					+ "\n"
-					+ " WHERE Documentname like '%"
+					+ "FROM annotated_document"
+					+ "\n"
+					+ " WHERE document_xml like '%"
 					+ filename
 					+ "%' "
-					+ ") As Count" + "\n" + " LIMIT 1";
+					+ "ORDER BY ID DESC" + "\n" + " LIMIT 1";
 
 			conn = DriverManager.getConnection(DB_URL, user, password);
 
@@ -449,7 +458,11 @@ public class LimsSQL {
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				do {
-					result = rs.getInt(1);
+					String name = rs.getString(1);
+					if (name != null) {
+						result = true;
+						break;
+					}
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {
