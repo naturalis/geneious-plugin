@@ -26,12 +26,10 @@ import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
-import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsNotesAB1FastaSamples;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsSQL;
 import nl.naturalis.lims2.utils.LimsSamplesFields;
-import nl.naturalis.lims2.utils.LimsSamplesNotes;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -97,9 +95,7 @@ public class LimsImportSamples extends DocumentAction {
 	private JFrame frame = new JFrame();
 	private LimsLogger limsLogger = null;
 	private LimsSQL limsSQL = new LimsSQL();
-	private LimsSamplesNotes limsSamplesNotes = new LimsSamplesNotes();
 	private LimsImportAB1 impAB1Fasta = new LimsImportAB1();
-	private LimsNotes limsNotes = new LimsNotes();
 
 	private LimsNotesAB1FastaSamples limsNotesAB1FastaSamples = new LimsNotesAB1FastaSamples();
 
@@ -108,7 +104,6 @@ public class LimsImportSamples extends DocumentAction {
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
-	// private List<Dummy> dummies = null;
 
 	private CSVReader csvReader = null;
 
@@ -120,7 +115,6 @@ public class LimsImportSamples extends DocumentAction {
 	private String logSamplesFileName = "";
 	private String documentFileName = "";
 	private String readAssembyContigFileName = "";
-	private String regScientificname = "";
 
 	private boolean isExtractIDSeqExists = false;
 	private boolean match = false;
@@ -138,11 +132,6 @@ public class LimsImportSamples extends DocumentAction {
 	private int cntRec = 0;
 	private LimsDatabaseChecker dbchk = null;
 
-	/*
-	 * private final String documentClassAB1 = "ABIPluginDocument"; private
-	 * final String documentClassFasta = "DefaultNucleotideSequence"; private
-	 * final String documentClassDummy = "DefaultNucleotideSequence";
-	 */
 	private final String documentTypeNovoAssembly = "NucleotideSequenceDocument";
 	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
 

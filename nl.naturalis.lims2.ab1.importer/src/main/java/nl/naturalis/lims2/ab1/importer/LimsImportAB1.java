@@ -5,19 +5,17 @@ package nl.naturalis.lims2.ab1.importer;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.Dummy;
-import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
+import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsNotesAB1FastaImport;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
-import nl.naturalis.lims2.utils.LimsReplaceDummyNotes;
 import nl.naturalis.lims2.utils.LimsSQL;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,12 +67,10 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
  */
 public class LimsImportAB1 extends DocumentFileImporter {
 
-	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
 	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
 	private LimsFileSelector fileselector = new LimsFileSelector();
 	private LimsSQL limsSQL = new LimsSQL();
-	private LimsReplaceDummyNotes limsReplaceDummyNotes = new LimsReplaceDummyNotes();
 
 	private LimsNotesAB1FastaImport limsNotesIAB1FastaImp = new LimsNotesAB1FastaImport();
 
@@ -82,6 +78,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private int count = 0;
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportAB1.class);
+	private LimsLogger limsLogger = null;
+	private String logImportAllNaturalisFiles;
 
 	public static ArrayList<DocumentField> displayFields;
 	public static QueryField[] searchFields;
@@ -103,6 +101,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	public static List<Dummy> dummiesRecords = new ArrayList<Dummy>(100);
 
 	private static ArrayList<String> recordList = new ArrayList<String>(100);
+	private List<String> uitValList = new ArrayList<String>();
 
 	private int selectedCount = 0;
 	private List<String> deleteDummyList = new ArrayList<String>(100);
@@ -226,7 +225,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					setDummyValues();
 				}
 
-			}
+			} else
 
 			/* Check if Dummy file exists in the database */
 			/* FAS check */
@@ -253,6 +252,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					setDummyValues();
 					writeDummyRecord();
 				}
+			} else { /* Uitvallijst */
+				logImportAllNaturalisFiles = limsImporterUtil.getLogPath()
+						+ "Import_All_Naturalis-Uitvallijst-"
+						+ limsImporterUtil.getLogFilename();
+
+				/* Create logfile */
+				limsLogger = new LimsLogger(logImportAllNaturalisFiles);
+				limsLogger.logToFile(logImportAllNaturalisFiles,
+						uitValList.toString());
 			}
 
 			progressListener
@@ -298,12 +306,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 	}
 
-	/*
-	 * private List<String> getFiles(String fileName) { files = new
-	 * ArrayList<String>(); if (limsSQL.documentNameExist(extractID + ".dum")) {
-	 * files.add(fileName); } return files; }
-	 */
-
 	@Override
 	public List<File> importDocumentsFromMultipleFilesReturningUnimported(
 			Options options, List<File> file, ImportCallback importCallback,
@@ -311,35 +313,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			DocumentImportException {
 		return super.importDocumentsFromMultipleFilesReturningUnimported(
 				options, file, importCallback, progressListener);
-	}
-
-	/**
-	 * @param fileName
-	 */
-	private void insertFileNameIntoTableDocumentImport(String fileName) {
-		boolean ab1DocExists = limsSQL.documentNameExist(fileName);
-		if (!ab1DocExists) {
-			try {
-				limsSQL.insertIntoTableDocumentImport(fileName,
-						limsSQL.importcounter);
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}/*
-		 * else { int counterAB1 = limsSQL.importcounter + 1;
-		 * limsSQL.updateImportCount(counterAB1, fileName); }
-		 */
-
-		versienummer = readGeneiousFieldsValues
-				.getLastVersionFromDocument(fileName);
-
-		if (versienummer == 0) {
-			ab1fileExists = false;
-			fastaFileExists = false;
-		} else {
-			ab1fileExists = true;
-			fastaFileExists = true;
-		}
 	}
 
 	/**
