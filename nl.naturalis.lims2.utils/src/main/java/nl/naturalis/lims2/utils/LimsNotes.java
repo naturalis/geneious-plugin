@@ -5,6 +5,7 @@ package nl.naturalis.lims2.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,51 @@ import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
  */
 public class LimsNotes {
 
+	/**
+	 * @return the fieldCode
+	 */
+	public String getFieldCode() {
+		return fieldCode;
+	}
+
+	/**
+	 * @param fieldCode
+	 *            the fieldCode to set
+	 */
+	public void setFieldCode(String fieldCode) {
+		this.fieldCode = fieldCode;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description
+	 *            the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @return the noteTypeCode
+	 */
+	public String getNoteTypeCode() {
+		return noteTypeCode;
+	}
+
+	/**
+	 * @param noteTypeCode
+	 *            the noteTypeCode to set
+	 */
+	public void setNoteTypeCode(String noteTypeCode) {
+		this.noteTypeCode = noteTypeCode;
+	}
+
 	private String fieldCode;
 	private String description;
 	private String noteTypeCode;
@@ -64,7 +110,7 @@ public class LimsNotes {
 	 * Notes values for Consensus Sequence(ComboBox control)
 	 * */
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
-			"contamination", "endo-contamination", "exo-contamination" };
+			"contamination", "endo-contamination", "exo-contamination", "ND" };
 
 	/**
 	 * Set notes to a document(s) Used in following Class: - LimsImportAB1Update
@@ -89,37 +135,40 @@ public class LimsNotes {
 
 	public void setNoteToAB1FileName(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
-			String fieldCode, String textNoteField, String noteTypeCode,
-			String fieldValue, int count) {
+			String pFieldCode, String pTextNoteField, String pNoteTypeCode,
+			String pFieldValue, int pCount) {
 
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		@SuppressWarnings("rawtypes")
+		List listNotesFields = new ArrayList();
 
 		/* "ExtractPlaatNummerCode" */
-		this.fieldCode = fieldCode;
+		setFieldCode(pFieldCode);
+
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis file " + noteTypeCode + " note";
+		description = "Naturalis file " + pNoteTypeCode + " note";
 
 		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 		 * fieldcode
 		 */
-		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-				this.description, this.fieldCode,
+		listNotesFields.add(DocumentNoteField.createTextNoteField(
+				pTextNoteField, description, pFieldCode,
 				Collections.<Constraint> emptyList(), false));
 
 		/* Check if note type exists */
 		/* Parameter noteTypeCode get value "" */
-		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
+		setNoteTypeCode("DocumentNoteUtilities-" + pNoteTypeCode);
+		// noteTypeCode = "DocumentNoteUtilities-" + pNoteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
-				.getNoteType(this.noteTypeCode);
+				.getNoteType(noteTypeCode);
 
 		/* Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
-					noteTypeCode, this.noteTypeCode, this.description,
-					listNotes, false);
+					pNoteTypeCode, noteTypeCode, description, listNotesFields,
+					false);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
-			logger.info("NoteType " + noteTypeCode + " created succesful");
+			logger.info("NoteType " + pNoteTypeCode + " created succesful");
 		}
 
 		if (documentNoteType.getName().equals("Extraction method (Samples)")
@@ -146,20 +195,19 @@ public class LimsNotes {
 		/* Create note for Extract-ID */
 
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
-		documentNote.setFieldValue(this.fieldCode, fieldValue);
+		documentNote.setFieldValue(fieldCode, pFieldValue);
 
-		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) annotatedPluginDocuments[count]
+		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) annotatedPluginDocuments[pCount]
 				.getDocumentNotes(true);
 
 		/* Set note */
 		documentNotes.setNote(documentNote);
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
-
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+		logger.info("Note value " + noteTypeCode + ": " + pFieldValue
 				+ " added succesful");
-		// geneiousPlugin.getDocumentTypes();
-		listNotes.clear();
+
+		listNotesFields.clear();
 
 	}
 
@@ -185,34 +233,35 @@ public class LimsNotes {
 	 *            The field value
 	 * */
 	public void setImportNotes(AnnotatedPluginDocument document,
-			String fieldCode, String textNoteField, String noteTypeCode,
-			String fieldValue) {
+			String pFieldCode, String pTextNoteField, String pNoteTypeCode,
+			String pFieldValue) {
 
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+		List listNotesFields = new ArrayList();
 
 		/* "ExtractPlaatNummerCode" */
-		this.fieldCode = fieldCode;
+		this.fieldCode = pFieldCode;
 		/* Parameter example noteTypeCode = "Extract-Plaatnummer" */
-		this.description = "Naturalis file " + noteTypeCode + " note";
+		this.description = "Naturalis file " + pNoteTypeCode + " note";
 
 		/*
 		 * Parameter: textNoteField= ExtractPlaatNummer, this.fieldcode value
 		 * fieldcode
 		 */
-		listNotes.add(DocumentNoteField.createTextNoteField(textNoteField,
-				this.description, this.fieldCode,
-				Collections.<Constraint> emptyList(), true));
+		listNotesFields.add(DocumentNoteField.createTextNoteField(
+				pTextNoteField, this.description, this.fieldCode,
+				Collections.<Constraint> emptyList(), false));
 
 		/* Check if note type exists */
 		/* Parameter noteTypeCode get value "Extract Plaatnummer" */
-		this.noteTypeCode = "DocumentNoteUtilities-" + noteTypeCode;
+		this.noteTypeCode = "DocumentNoteUtilities-" + pNoteTypeCode;
 		DocumentNoteType documentNoteType = DocumentNoteUtilities
 				.getNoteType(this.noteTypeCode);
+
 		/* Extract-ID note */
 		if (documentNoteType == null) {
 			documentNoteType = DocumentNoteUtilities.createNewNoteType(
-					noteTypeCode, this.noteTypeCode, this.description,
-					listNotes, false);
+					pNoteTypeCode, this.noteTypeCode, this.description,
+					listNotesFields, true);
 			DocumentNoteUtilities.setNoteType(documentNoteType);
 			logger.info("NoteType " + noteTypeCode + " created succesful");
 		}
@@ -225,7 +274,7 @@ public class LimsNotes {
 
 		/* Create note for Extract-ID */
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
-		documentNote.setFieldValue(this.fieldCode, fieldValue);
+		documentNote.setFieldValue(this.fieldCode, pFieldValue);
 
 		AnnotatedPluginDocument.DocumentNotes documentNotes = document
 				.getDocumentNotes(true);
@@ -235,11 +284,11 @@ public class LimsNotes {
 		/* Save the selected sequence document */
 		documentNotes.saveNotes();
 
-		logger.info("Note value " + noteTypeCode + ": " + fieldValue
+		logger.info("Note value " + pNoteTypeCode + ": " + pFieldValue
 				+ " added succesful");
-		if (listNotes != null) {
-			listNotes = null;
-		}
+
+		listNotesFields.clear();
+
 	}
 
 	/**
@@ -309,9 +358,9 @@ public class LimsNotes {
 		documentNotes.saveNotes();
 		logger.info("Note value " + noteTypeCode + ": " + fieldValue
 				+ " added succesful");
-		if (listNotes != null) {
-			listNotes.clear();
-		}
+		/*
+		 * if (listNotes != null) { listNotes.clear(); }
+		 */
 	}
 
 	/**

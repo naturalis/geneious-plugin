@@ -26,39 +26,39 @@ public class LimsImportNotes {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportNotes.class);
-	private static String fieldExtractIDSeq;
+	private String fieldExtractIDSeq;
 	private String noteTypeCodeExtractIDSeq;
 	private String descriptionExtractIDSeq;
 	private static String noteTextExtractIDSeq = "Extract ID (Seq)";
 
-	private static String fieldPCRPlate;
+	private String fieldPCRPlate;
 	private String noteTypeCodePCRPlate;
 	private String descriptionPCRPlate;
 	private static String noteTextPCRPlate = "PCR plate ID (Seq)";
 
-	private static String fieldMarker;
+	private String fieldMarker;
 	private String noteTypeCodeMarker;
 	private String descriptionMarker;
 	private static String noteTextMarker = "Marker (Seq)";
 
-	private static String fieldDocversion;
+	private String fieldDocversion;
 	private String noteTypeCodeDocversion;
 	private String descriptionDocversion;
 	private static String noteTextDocversion = "Document version";
 
-	private static String fieldSeqStaff;
+	private String fieldSeqStaff;
 	private String noteTypeCodeSeqStaff;
 	private String descriptionSeqStaff;
 	private static String noteTextSeqStaff = "Seq-staff (Seq)";
 
 	/* ConsensusSeqPassCode */
-	private static String fieldConsensus;
+	private String fieldConsensus;
 	private String noteTypeCodeConsensus;
 	private String descriptionConsensus;
 	private static String noteTextConsensus = "Pass (Seq)";
 
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
-			"contamination", "endo-contamination", "exo-contamination" };
+			"contamination", "endo-contamination", "exo-contamination", "ND" };
 
 	/**
 	 * Set notes for AB1 and Dummy document(s). Used in Plugin:
@@ -89,10 +89,41 @@ public class LimsImportNotes {
 		logger.info("Start extracting value from file: " + fileName);
 
 		setFieldAndDescriptionValues();
-
 		/* ================================================================== */
 
-		ArrayList<DocumentNoteField> listNotes = addNotesToListNotes(ConsensusSeqPass);
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
+
+		/* ================================================================ */
+
+		listNotes.add(DocumentNoteField.createTextNoteField(
+				noteTextExtractIDSeq, this.descriptionExtractIDSeq,
+				this.fieldExtractIDSeq, Collections.<Constraint> emptyList(),
+				false));
+
+		/* PCR plate */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
+				this.descriptionPCRPlate, this.fieldPCRPlate,
+				Collections.<Constraint> emptyList(), false));
+
+		/* MARKER */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
+				this.descriptionMarker, this.fieldMarker,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Document Version */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
+				this.descriptionDocversion, this.fieldDocversion,
+				Collections.<Constraint> emptyList(), false));
+
+		/* Seq-staff (Seq) */
+		listNotes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
+				this.descriptionSeqStaff, this.fieldSeqStaff,
+				Collections.<Constraint> emptyList(), false));
+
+		/* ConsensusSeqPassCode */
+		listNotes.add(DocumentNoteField.createEnumeratedNoteField(
+				ConsensusSeqPass, noteTextConsensus, this.descriptionConsensus,
+				this.fieldConsensus, false));
 
 		/* =============================================================== */
 
@@ -194,52 +225,30 @@ public class LimsImportNotes {
 		/* Create note for Extract-ID */
 		DocumentNote documentNoteExtractSeq = documentNoteTypeExtractSeq
 				.createDocumentNote();
-		documentNoteExtractSeq.setFieldValue(LimsImportNotes.fieldExtractIDSeq,
-				extractID);
-		/*
-		 * logger.info("Note value " + LimsImportNotes.fieldExtractIDSeq + ": "
-		 * + extractID + " added succesful");
-		 */
+		documentNoteExtractSeq.setFieldValue(fieldExtractIDSeq, extractID);
 
 		/* PCR plate */
 		DocumentNote documentNotePCR = documentNoteTypePCR.createDocumentNote();
-		documentNotePCR.setFieldValue(LimsImportNotes.fieldPCRPlate, pcrPlate);
-		/*
-		 * logger.info("Note value " + LimsImportNotes.fieldPCRPlate + ": " +
-		 * pcrPlate + " added succesful");
-		 */
+		documentNotePCR.setFieldValue(fieldPCRPlate, pcrPlate);
+
 		/* MARKER */
 		DocumentNote documentNoteMarker = documentNoteTypeMarker
 				.createDocumentNote();
-		documentNoteMarker.setFieldValue(LimsImportNotes.fieldMarker,
-				markerCode);
-		/*
-		 * logger.info("Note value " + LimsImportNotes.fieldMarker + ": " +
-		 * markerCode + " added succesful");
-		 */
+		documentNoteMarker.setFieldValue(fieldMarker, markerCode);
 
 		/* Document Version */
 		DocumentNote documentNoteDocVersion = documentNoteTypeDocversion
 				.createDocumentNote();
-		documentNoteDocVersion.setFieldValue(LimsImportNotes.fieldDocversion,
+		documentNoteDocVersion.setFieldValue(fieldDocversion,
 				String.valueOf(versionNumber));
-		/*
-		 * logger.info("Note value " + LimsImportNotes.fieldDocversion + ": " +
-		 * versionNumber + " added succesful");
-		 */
 
 		/* Seq-staff (Seq) */
 		DocumentNote documentNoteSeqStaff = documentNoteTypeSeqStaff
 				.createDocumentNote();
 		try {
 			LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-			documentNoteSeqStaff.setFieldValue(LimsImportNotes.fieldSeqStaff,
+			documentNoteSeqStaff.setFieldValue(fieldSeqStaff,
 					limsImporterUtil.getPropValues("seqsequencestaff"));
-			/*
-			 * logger.info("Note value " + LimsImportNotes.fieldSeqStaff + ": "
-			 * + limsImporterUtil.getPropValues("seqsequencestaff") +
-			 * " added succesful");
-			 */
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -247,12 +256,7 @@ public class LimsImportNotes {
 		/* ConsensusSeqPassCode */
 		DocumentNote documentNoteConsensus = documentNoteTypeConsensus
 				.createDocumentNote();
-		documentNoteConsensus.setFieldValue(LimsImportNotes.fieldConsensus,
-				null);
-		/*
-		 * logger.info("Note value " + LimsImportNotes.fieldConsensus + ": " +
-		 * null + " added succesful");
-		 */
+		documentNoteConsensus.setFieldValue(fieldConsensus, null);
 
 		/* ================================================================== */
 
@@ -283,48 +287,23 @@ public class LimsImportNotes {
 		setNotesLog(extractID, pcrPlate, markerCode, versionNumber, null);
 		logger.info("Notes added succesful");
 
+		if (listNotes != null) {
+			listNotes.clear();
+		}
+
 	}
 
 	/**
 	 * @return
+	 * @return
 	 */
+
 	private ArrayList<DocumentNoteField> addNotesToListNotes(
 			String[] multipleValues) {
-
-		ArrayList<DocumentNoteField> Notes = new ArrayList<DocumentNoteField>();
-
+		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
 		/* Extract ID (Seq) */
-		Notes.add(DocumentNoteField.createTextNoteField(noteTextExtractIDSeq,
-				this.descriptionExtractIDSeq,
-				LimsImportNotes.fieldExtractIDSeq,
-				Collections.<Constraint> emptyList(), false));
 
-		/* PCR plate */
-		Notes.add(DocumentNoteField.createTextNoteField(noteTextPCRPlate,
-				this.descriptionPCRPlate, LimsImportNotes.fieldPCRPlate,
-				Collections.<Constraint> emptyList(), false));
-
-		/* MARKER */
-		Notes.add(DocumentNoteField.createTextNoteField(noteTextMarker,
-				this.descriptionMarker, LimsImportNotes.fieldMarker,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Document Version */
-		Notes.add(DocumentNoteField.createTextNoteField(noteTextDocversion,
-				this.descriptionDocversion, LimsImportNotes.fieldDocversion,
-				Collections.<Constraint> emptyList(), false));
-
-		/* Seq-staff (Seq) */
-		Notes.add(DocumentNoteField.createTextNoteField(noteTextSeqStaff,
-				this.descriptionSeqStaff, LimsImportNotes.fieldSeqStaff,
-				Collections.<Constraint> emptyList(), false));
-
-		/* ConsensusSeqPassCode */
-		Notes.add(DocumentNoteField.createEnumeratedNoteField(multipleValues,
-				noteTextConsensus, this.descriptionConsensus,
-				LimsImportNotes.fieldConsensus, true));
-
-		return Notes;
+		return listNotes;
 	}
 
 	/**
@@ -332,60 +311,60 @@ public class LimsImportNotes {
 	 */
 	private void setFieldAndDescriptionValues() {
 		/* Extract ID (Seq) */
-		LimsImportNotes.fieldExtractIDSeq = "ExtractIDCode_Seq";
+		fieldExtractIDSeq = "ExtractIDCode_Seq";
 		this.descriptionExtractIDSeq = "Naturalis file " + noteTextExtractIDSeq
 				+ " note";
 
 		/* PCR plate */
-		LimsImportNotes.fieldPCRPlate = "PCRplateIDCode_Seq";
+		fieldPCRPlate = "PCRplateIDCode_Seq";
 		this.descriptionPCRPlate = "Naturalis file " + noteTextPCRPlate
 				+ " note";
 
 		/* MARKER */
-		LimsImportNotes.fieldMarker = "MarkerCode_Seq";
+		fieldMarker = "MarkerCode_Seq";
 		this.descriptionMarker = "Naturalis file " + noteTextMarker + " note";
 
 		/* Document Version */
-		LimsImportNotes.fieldDocversion = "DocumentVersionCode_Seq";
+		fieldDocversion = "DocumentVersionCode_Seq";
 		this.descriptionDocversion = "Naturalis file " + noteTextDocversion
 				+ " note";
 
 		/* Seq-staff (Seq) */
-		LimsImportNotes.fieldSeqStaff = "SequencingStaffCode_FixedValue_Seq";
+		fieldSeqStaff = "SequencingStaffCode_FixedValue_Seq";
 		this.descriptionSeqStaff = "Naturalis file " + noteTextSeqStaff
 				+ " note";
 
 		/* ConsensusSeqPassCode */
-		LimsImportNotes.fieldConsensus = "ConsensusSeqPassCode_Seq";
+		fieldConsensus = "ConsensusSeqPassCode_Seq";
 		this.descriptionConsensus = "Naturalis file " + noteTextConsensus
 				+ " note";
 	}
 
 	private void setNotesLog(String extractID, String pcrPlate,
 			String markerCode, int versionNumber, String seqStaff) {
-		logger.info("Note value " + LimsImportNotes.fieldExtractIDSeq + ": "
-				+ extractID + " added succesful");
+		logger.info("Note value " + this.fieldExtractIDSeq + ": " + extractID
+				+ " added succesful");
 
-		logger.info("Note value " + LimsImportNotes.fieldPCRPlate + ": "
-				+ pcrPlate + " added succesful");
+		logger.info("Note value " + this.fieldPCRPlate + ": " + pcrPlate
+				+ " added succesful");
 
-		logger.info("Note value " + LimsImportNotes.fieldMarker + ": "
-				+ markerCode + " added succesful");
+		logger.info("Note value " + this.fieldMarker + ": " + markerCode
+				+ " added succesful");
 
-		logger.info("Note value " + LimsImportNotes.fieldDocversion + ": "
-				+ versionNumber + " added succesful");
+		logger.info("Note value " + this.fieldDocversion + ": " + versionNumber
+				+ " added succesful");
 
 		LimsImporterUtil importerUtil = new LimsImporterUtil();
 		try {
-			logger.info("Note value " + LimsImportNotes.fieldSeqStaff + ": "
+			logger.info("Note value " + this.fieldSeqStaff + ": "
 					+ importerUtil.getPropValues("seqsequencestaff")
 					+ " added succesful");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		logger.info("Note value " + LimsImportNotes.fieldConsensus + ": "
-				+ null + " added succesful");
+		logger.info("Note value " + this.fieldConsensus + ": " + null
+				+ " added succesful");
 
 	}
 

@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +26,8 @@ import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
+import nl.naturalis.lims2.utils.LimsNotes;
+import nl.naturalis.lims2.utils.LimsNotesAB1FastaSamples;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsSQL;
 import nl.naturalis.lims2.utils.LimsSamplesFields;
@@ -98,6 +99,9 @@ public class LimsImportSamples extends DocumentAction {
 	private LimsSQL limsSQL = new LimsSQL();
 	private LimsSamplesNotes limsSamplesNotes = new LimsSamplesNotes();
 	private LimsImportAB1 impAB1Fasta = new LimsImportAB1();
+	private LimsNotes limsNotes = new LimsNotes();
+
+	private LimsNotesAB1FastaSamples limsNotesAB1FastaSamples = new LimsNotesAB1FastaSamples();
 
 	private List<String> msgList = new ArrayList<String>();
 	private List<String> failureList = new ArrayList<String>();
@@ -240,6 +244,7 @@ public class LimsImportSamples extends DocumentAction {
 
 			/* If OK Selected */
 			if (n == 0) {
+				cntRec = 0;
 				/* Check if document(s) has been selected * */
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 
@@ -332,18 +337,23 @@ public class LimsImportSamples extends DocumentAction {
 						logger.info("Total of document(s) updated: "
 								+ listDocuments.size());
 
+						/*
+						 * String dummyFile = listDocuments.iterator().next()
+						 * .getName();
+						 */
+
 						/* Set for creating dummy files */
-						// if (!ID.equals(extractIDfileName)) {
-						/* Create progressbar GUI */
-						limsFrameProgress.createProgressGUI();
+						if (!ID.equals(extractIDfileName)) {
+							/* Create progressbar GUI */
+							limsFrameProgress.createProgressGUI();
 
-						/* Create dummy files for samples */
-						setExtractIDFromSamplesSheet(fileSelected,
-								extractIDfileName);
+							/* Create dummy files for samples */
+							setExtractIDFromSamplesSheet(fileSelected,
+									extractIDfileName);
 
-						/* Hide the progressbar GUI */
-						limsFrameProgress.hideFrame();
-						// }
+							/* Hide the progressbar GUI */
+							limsFrameProgress.hideFrame();
+						}
 
 						logger.info("-------------------------- E N D --------------------------");
 						logger.info("Done with updating the selected document(s). ");
@@ -524,7 +534,7 @@ public class LimsImportSamples extends DocumentAction {
 			String[] record, long startBeginTime) {
 		int cnt = 0;
 		Object resultExists;
-		// Object resultExtractIDSamples = null;
+
 		for (AnnotatedPluginDocument list : listDocuments) {
 
 			resultExists = null;
@@ -585,20 +595,10 @@ public class LimsImportSamples extends DocumentAction {
 			}
 
 			/*
-			 * if (list.toString().contains("ExtractIDCode_Samples")) {
-			 * resultExtractIDSamples = list.getDocumentNotes(true)
-			 * .getNote("DocumentNoteUtilities-Extract ID (Samples)")
-			 * .getFieldValue("ExtractIDCode_Samples"); }
-			 */
-
-			/*
 			 * ID (ID = record[0]) match extractid from the filename
 			 */
 			if (ID.equals(extractIDfileName) && isExtractIDSeqExists) {
 
-				/*
-				 * if (resultExtractIDSamples != null) { continue; }
-				 */
 				/*
 				 * Start time for processing the notes to the documents
 				 */
@@ -624,8 +624,14 @@ public class LimsImportSamples extends DocumentAction {
 				// [5] : TaxonNaam
 				// [] : Version
 				// [6] : Sample Method
-				setFieldsValues(record[0], record[1], plateNumber, ID,
-						record[4], record[5], version, record[6]);
+				/*
+				 * setFieldsValues(record[0], record[1], plateNumber, ID,
+				 * record[4], record[5], version, record[6]);
+				 */
+
+				limsNotesAB1FastaSamples.setSamplesNotes_FieldsValues(
+						record[0], record[1], plateNumber, ID, record[4],
+						record[5], version, record[6]);
 
 				logger.info("Document Filename: " + documentFileName);
 
@@ -633,9 +639,15 @@ public class LimsImportSamples extends DocumentAction {
 
 				/* Set the notes to the documents */
 				// setSamplesNotes(documents, cnt);
-				limsSamplesNotes.setAllNotesToAB1FileName(documents, cnt,
-						record[4], record[5], record[1], record[3], record[2],
-						record[3], record[6], version, regScientificname);
+				limsNotesAB1FastaSamples
+						.enrich_AB1_Fasta_Documents_With_SamplesNotes(
+								documents, cnt);
+
+				/*
+				 * limsSamplesNotes.setAllNotesToAB1FileName(documents, cnt,
+				 * record[4], record[5], record[1], ID, record[2], ID,
+				 * record[6], version, regScientificname);
+				 */
 
 				logger.info("Done with adding notes to the document");
 
@@ -711,68 +723,6 @@ public class LimsImportSamples extends DocumentAction {
 		limsExcelFields.setTaxonNaam("");
 	}
 
-	/* Adding notes to the documents */
-	/*
-	 * private void setSamplesNotes(AnnotatedPluginDocument[] documents, int
-	 * cnt) {
-	 * 
-	 * set note for Registration number
-	 * limsNotes.setNoteToAB1FileName(documents,
-	 * "RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
-	 * "Registr-nmbr (Samples)", limsExcelFields.getRegistrationNumber(), cnt);
-	 * 
-	 * set note for Taxonname limsNotes.setNoteToAB1FileName(documents,
-	 * "TaxonName2Code_Samples", "[Scientific name] (Samples)",
-	 * "[Scientific name] (Samples)", limsExcelFields.getTaxonNaam(), cnt);
-	 * 
-	 * set note for Project Plate number
-	 * limsNotes.setNoteToAB1FileName(documents,
-	 * "ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
-	 * "Sample plate ID (Samples)", limsExcelFields.getProjectPlaatNummer(),
-	 * cnt);
-	 * 
-	 * Set note for Extract plate number
-	 * limsNotes.setNoteToAB1FileName(documents,
-	 * "ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
-	 * "Extract plate ID (Samples)", limsExcelFields.getExtractPlaatNummer(),
-	 * cnt);
-	 * 
-	 * set note for Plate position limsNotes.setNoteToAB1FileName(documents,
-	 * "PlatePositionCode_Samples", "Position (Samples)", "Position (Samples)",
-	 * limsExcelFields.getPlaatPositie(), cnt);
-	 * 
-	 * set note for Extract-ID limsNotes.setNoteToAB1FileName(documents,
-	 * "ExtractIDCode_Samples", "Extract ID (Samples)", "Extract ID (Samples)",
-	 * limsExcelFields.getExtractID(), cnt);
-	 * 
-	 * set note for Sample method limsNotes.setNoteToAB1FileName(documents,
-	 * "SampleMethodCode_Samples", "Extraction method (Samples)",
-	 * "Extraction method (Samples)", limsExcelFields.getSubSample(), cnt);
-	 * 
-	 * Set note for the document version
-	 * limsNotes.setNoteToAB1FileName(documents, "DocumentVersionCode_Seq",
-	 * "Document version", "Document version",
-	 * String.valueOf(limsExcelFields.getVersieNummer()), cnt);
-	 * 
-	 * AmplicificationStaffCode_FixedValue_Samples
-	 * 
-	 * try { limsNotes.setNoteToAB1FileName(documents,
-	 * "AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)",
-	 * "Ampl-staff (Samples)",
-	 * limsImporterUtil.getPropValues("samplesamplicification"), cnt); } catch
-	 * (IOException e) { throw new RuntimeException(e); }
-	 * 
-	 * 
-	 * Lims-190:Sample import maak of update extra veld veldnaam -
-	 * Registr-nmbr_[Scientific name] (Samples) en veldcode =
-	 * RegistrationNumberCode_TaxonName2Code_Samples
-	 * 
-	 * limsNotes.setNoteToAB1FileName(documents,
-	 * "RegistrationNumberCode_TaxonName2Code_Samples",
-	 * "Registr-nmbr_[Scientific_name] (Samples)",
-	 * "Registr-nmbr_[Scientific_name] (Samples)",
-	 * limsExcelFields.getRegNumberScientificName(), cnt); }
-	 */
 	/*
 	 * Create dummy files for samples when there is no match with records in the
 	 * database
@@ -820,20 +770,6 @@ public class LimsImportSamples extends DocumentAction {
 									record[0], plateNumber, record[5],
 									record[4], record[1], record[6]);
 							dummyRecordsVerwerkt++;
-
-							boolean dummyFileExists = limsSQL
-									.documentNameExist(ID + ".dum");
-							if (!dummyFileExists) {
-								try {
-									limsSQL.insertIntoTableDocumentImport(ID
-											+ ".dum", limsSQL.importcounter);
-								} catch (SQLException e) {
-									throw new RuntimeException(e);
-								}
-							} else {
-								int counter = limsSQL.importcounter + 1;
-								limsSQL.updateImportCount(counter, ID + ".dum");
-							}
 						}
 					} else {
 						limsFrameProgress.showProgress(ID
@@ -872,69 +808,6 @@ public class LimsImportSamples extends DocumentAction {
 		return underscore[0];
 	}
 
-	/* Add the values to the fields variables */
-	private void setFieldsValues(String projectPlaatNr, String plaatPositie,
-			String extractPlaatNr, String extractID, String registrationNumber,
-			String taxonNaam, Object versieNummer, String sampleMethod) {
-
-		// record[0]
-		limsExcelFields.setProjectPlaatNummer(projectPlaatNr);
-
-		// record[1]
-		limsExcelFields.setPlaatPositie(plaatPositie);
-
-		// record[2]
-		limsExcelFields.setExtractPlaatNummer(extractPlaatNr);
-
-		// record[3]
-		if (extractID != null) {
-			limsExcelFields.setExtractID(extractID);
-		} else {
-			limsExcelFields.setExtractID("");
-		}
-
-		// record[4]
-		limsExcelFields.setRegistrationNumber(registrationNumber);
-
-		// record[5]
-		limsExcelFields.setTaxonNaam(taxonNaam);
-
-		// record[6]
-		limsExcelFields.setSubSample(sampleMethod);
-
-		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
-			regScientificname = registrationNumber + " " + taxonNaam;
-		} else if (registrationNumber.length() > 0) {
-			regScientificname = registrationNumber;
-		} else if (registrationNumber.length() == 0 && taxonNaam.length() > 0) {
-			regScientificname = taxonNaam;
-		}
-
-		/*
-		 * Set a combination of registrationnumber with scientificname or only
-		 * scientificname
-		 */
-		limsExcelFields.setRegNumberScientificName(regScientificname);
-
-		/*
-		 * Set the version number
-		 */
-		limsExcelFields.setVersieNummer(versieNummer);
-
-		logger.info("Extract-ID: " + limsExcelFields.getExtractID());
-		logger.info("Project plaatnummer: "
-				+ limsExcelFields.getProjectPlaatNummer());
-		logger.info("Extract plaatnummer: "
-				+ limsExcelFields.getExtractPlaatNummer());
-		logger.info("Taxon naam: " + limsExcelFields.getTaxonNaam());
-		logger.info("Registrationnumber: "
-				+ limsExcelFields.getRegistrationNumber());
-		logger.info("Plaat positie: " + limsExcelFields.getPlaatPositie());
-		logger.info("Sample method: " + limsExcelFields.getSubSample());
-		logger.info("Registr-nmbr_[Scientific_name] (Samples): "
-				+ limsExcelFields.getRegNumberScientificName());
-	}
-
 	/*
 	 * When user choose "No". Processing the samples CSV record to the selected
 	 * documents. No Dummy documents are created.
@@ -947,7 +820,6 @@ public class LimsImportSamples extends DocumentAction {
 		List<String> failureList = new ArrayList<String>();
 		List<String> exactProcessedList = new ArrayList<String>();
 		String[] record = null;
-		// Object resultExtractIDSamples = null;
 		try {
 			if (fileName != null) {
 				logger.info("Read samples file: " + fileName);
@@ -1086,17 +958,31 @@ public class LimsImportSamples extends DocumentAction {
 								// [] : Version
 								// [6] : Sample Method
 
-								setFieldsValues(record[0], record[1],
-										plateNumber, ID, record[4], record[5],
-										version, record[6]);
+								/*
+								 * setFieldsValues(record[0], record[1],
+								 * plateNumber, ID, record[4], record[5],
+								 * version, record[6]);
+								 */
+
+								limsNotesAB1FastaSamples
+										.setSamplesNotes_FieldsValues(
+												record[0], record[1],
+												plateNumber, ID, record[4],
+												record[5], version, record[6]);
 								logger.info("Start with adding notes to the document");
 								/* Add notes to the selected documents */
 								// setSamplesNotes(docsSamples, cnt);
-								limsSamplesNotes.setAllNotesToAB1FileName(
-										docsSamples, cnt, record[4], record[5],
-										record[1], record[3], record[2],
-										record[3], record[6], version,
-										regScientificname);
+
+								limsNotesAB1FastaSamples
+										.enrich_AB1_Fasta_Documents_With_SamplesNotes(
+												docsSamples, cnt);
+
+								/*
+								 * limsSamplesNotes.setAllNotesToAB1FileName(
+								 * docsSamples, cnt, record[4], record[5],
+								 * record[1], ID, record[2], ID, record[6],
+								 * version, regScientificname);
+								 */
 
 								logger.info("Done with adding notes to the document");
 

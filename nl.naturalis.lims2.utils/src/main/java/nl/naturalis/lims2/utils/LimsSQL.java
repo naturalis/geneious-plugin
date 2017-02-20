@@ -39,6 +39,7 @@ public class LimsSQL {
 	public boolean truefalse = false;
 	public String documentname = "";
 	public String dummyID = "";
+	public String dummyName = "";
 
 	/*
 	 * Create Table tblDocumentImport
@@ -434,14 +435,6 @@ public class LimsSQL {
 		boolean result = false;
 
 		try {
-
-			/*
-			 * final String SQL =
-			 * " SELECT EXISTS(SELECT 1 FROM tblDocumentImport " + "\n" +
-			 * " WHERE Documentname like '%" + filename + "%' " + ") As Count" +
-			 * "\n" + " LIMIT 1";
-			 */
-
 			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name"
 					+ "\n"
 					+ "FROM annotated_document"
@@ -463,6 +456,111 @@ public class LimsSQL {
 						result = true;
 						break;
 					}
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
+
+	public boolean getImportDummyDocument(Object filename) throws IOException {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		boolean truefalse = false;
+
+		try {
+
+			final String SQL = "SELECT ID" + "\n" + "FROM annotated_document"
+					+ "\n" + "WHERE document_xml like  '%" + filename + "%' "
+					+ "\n" + "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+			try {
+				conn = DriverManager.getConnection(DB_URL, user, password);
+
+				conn.clearWarnings();
+			} catch (SQLException e) {
+				logger.warn("Cannot connect the database!", e);
+			}
+
+			pst = conn.prepareStatement(SQL);
+
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					int cnt = rs.getInt(1);
+					if (cnt == 0)
+						truefalse = false;
+					else
+						truefalse = true;
+
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return truefalse;
+	}
+
+	public String getIDFromTableAnnotatedDocument(Object filename,
+			String xmlNotesName) throws IOException {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		String result = "";
+
+		try {
+
+			final String SQL = " SELECT DISTINCT a.id, a.name" + " FROM "
+					+ " ( "
+					+ " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' "
+					+ xmlNotesName + " ')) AS name "
+					+ " FROM annotated_document" + " ) AS a "
+					+ " WHERE a.name =?" + "\n" + " LIMIT 1";
+
+			conn = DriverManager.getConnection(DB_URL, user, password);
+			conn.clearWarnings();
+			pst = conn.prepareStatement(SQL);
+			pst.setString(1, (String) filename);
+			rs = pst.executeQuery();
+
+			dummyName = "";
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+					dummyName = rs.getObject(2).toString();
 				} while (rs.next());
 			}
 		} catch (SQLException ex) {

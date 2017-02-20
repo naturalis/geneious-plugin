@@ -93,6 +93,15 @@ public class LimsDummySeq {
 		sequenceList.add(DocumentUtilities
 				.createAnnotatedPluginDocument(sequence));
 
+		/* set note for PCR Plaat-ID */
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
+				"PCR plate ID (Seq)", "AA000");
+
+		/* set note for Marker */
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)", "Dum");
+
 		/* set note for Extract-ID */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractIDCode_Samples", "Extract ID (Samples)",
@@ -103,7 +112,12 @@ public class LimsDummySeq {
 				"ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)",
 				"Sample plate ID (Samples)", projectPlaatnummer);
 
-		/* Set note for Extract Plate number */
+		/* set note for Plate position */
+		limsNotes.setImportNotes(sequenceList.iterator().next(),
+				"PlatePositionCode_Samples", "Position (Samples)",
+				"Position (Samples)", plaatPositie);
+
+		/* Set note for Institute Extract Plate number */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)",
 				"Extract plate ID (Samples)", extractPlaatnummer);
@@ -118,11 +132,6 @@ public class LimsDummySeq {
 				"RegistrationNumberCode_Samples", "Registr-nmbr (Samples)",
 				"Registr-nmbr (Samples)", registrationNumber);
 
-		/* set note for Plate position */
-		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"PlatePositionCode_Samples", "Position (Samples)",
-				"Position (Samples)", plaatPositie);
-
 		/* set note for Sample method */
 		limsNotes.setImportNotes(sequenceList.iterator().next(),
 				"SampleMethodCode_Samples", "Extraction method (Samples)",
@@ -133,15 +142,6 @@ public class LimsDummySeq {
 				"DocumentVersionCode_Seq", "Document version",
 				"Document version", "0");
 
-		/* set note for PCR Plaat-ID */
-		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"PCRplateIDCode_Seq", "PCR plate ID (Seq)",
-				"PCR plate ID (Seq)", "AA000");
-
-		/* set note for Marker */
-		limsNotes.setImportNotes(sequenceList.iterator().next(),
-				"MarkerCode_Seq", "Marker (Seq)", "Marker (Seq)", "Dum");
-
 		/* SequencingStaffCode_FixedValue */
 		try {
 			limsNotes.setImportNotes(sequenceList.iterator().next(),
@@ -149,7 +149,7 @@ public class LimsDummySeq {
 					"Seq-staff (Samples)", "Seq-staff (Samples)",
 					limsImporterUtil.getPropValues("samplessequencestaff"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		/* AmplicificationStaffCode_FixedValue_Samples */
@@ -159,7 +159,7 @@ public class LimsDummySeq {
 					"Ampl-staff (Samples)", "Ampl-staff (Samples)",
 					limsImporterUtil.getPropValues("samplesamplicification"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		/*

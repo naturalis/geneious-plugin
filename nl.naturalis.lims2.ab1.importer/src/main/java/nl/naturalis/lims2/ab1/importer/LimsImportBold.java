@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import nl.naturalis.lims2.utils.LimsBoldNotes;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -92,7 +91,6 @@ public class LimsImportBold extends DocumentAction {
 	private LimsLogger limsLogger = null;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-	private LimsBoldNotes limsBoldNotes = new LimsBoldNotes();
 
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
@@ -585,7 +583,7 @@ public class LimsImportBold extends DocumentAction {
 				}
 			}
 		} catch (DocumentOperationException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -623,30 +621,11 @@ public class LimsImportBold extends DocumentAction {
 		 * record[6] = COI-5P Seq. Length, record[7] = COI-5P Trace Count,
 		 * record[8] = COI-5P Accession
 		 */
-		setNotesThatMatchRegistrationNumberAndMarker(record[6], record[7],
-				record[8]);
-
-		String genBankUri = "";
-		/* if Marker COI-5P Accessionhas a value */
-		if (record[8] != null) {
-			try {
-				genBankUri = limsImporterUtil.getPropValues("boldurigenbank")
-						+ limsBoldFields.getCoi5PAccession();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			genBankUri = "";
-		}
+		setNotesValuesThatMatchRegistrationNumberAndMarker(record[6],
+				record[7], record[8]);
 
 		/* Set the notes. */
-		// setNotesToBoldDocumentsRegistrationMarker(annotatedDocument, cnt);
-		limsBoldNotes.setNotesToBoldDocumentsRegistrationMarker(
-				annotatedDocument, cnt, limsBoldFields.getTraceFilePresence(),
-				limsBoldFields.getNucleotideLength(),
-				limsBoldFields.getGenBankID(), genBankUri);
-
-		// setVerwerktRegMarker(getVerwerktRegMarker() + 1);
+		enrichNotesToBoldDocumentsRegistrationMarker(annotatedDocument, cnt);
 
 		/*
 		 * Get the end time to see the duration from processing the notes.
@@ -690,7 +669,7 @@ public class LimsImportBold extends DocumentAction {
 		 * get the URI from the propertie file lims-import.properties and
 		 * concatenating the Process ID
 		 */
-		if (processID != null) {
+		if (processID != null && !processID.isEmpty()) {
 			boldURI = limsImporterUtil.getPropValues("bolduri") + record[1];
 		}
 
@@ -704,16 +683,11 @@ public class LimsImportBold extends DocumentAction {
 		// BoldBIN = 4,
 		// BoldURI = uit LimsProperties File
 
-		setNotesThatMatchRegistrationNumber(record[1], record[9], record[0],
-				record[3], record[4], boldURI);
+		setNotesValuesThatMatchRegistrationNumber(record[1], record[9],
+				record[0], record[3], record[4], boldURI);
 
 		/* Set the notes. */
-		// setNotesToBoldDocumentsRegistration(annotatedDocument, cnt);
-		limsBoldNotes.setNotesToBoldDocumentsRegistration(annotatedDocument,
-				cnt, limsBoldFields.getBoldID(),
-				limsBoldFields.getNumberOfImagesBold(),
-				limsBoldFields.getBoldProjectID(), limsBoldFields.getFieldID(),
-				limsBoldFields.getBoldBIN(), limsBoldFields.getBoldURI());
+		enrichNotesToBoldDocumentsRegistration(annotatedDocument, cnt);
 
 		/*
 		 * Duration time of adding notes.
@@ -732,83 +706,95 @@ public class LimsImportBold extends DocumentAction {
 	 * 
 	 * @param annotatedPluginDocuments , cnt
 	 */
-	/*
-	 * private void setNotesToBoldDocumentsRegistrationMarker(
-	 * AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) { set note
-	 * for TraceFile Presence
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "TraceFilePresenceCode_Bold", "N traces (Bold)", "N traces (Bold)",
-	 * limsBoldFields.getTraceFilePresence(), cnt);
-	 * 
-	 * set note for Nucleotide Length limsNotes
-	 * .setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "NucleotideLengthCode_Bold", "Nucl-length (Bold)", "Nucl-length (Bold)",
-	 * limsBoldFields.getNucleotideLength(), cnt);
-	 * 
-	 * set note for GenBankID
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "GenBankIDCode_Bold", "GenBank ID (Bold)", "GenBank ID (Bold)",
-	 * limsBoldFields.getGenBankID(), cnt);
-	 * 
-	 * set note for GenBank URI try { String genBankUri = ""; if Marker COI-5P
-	 * Accessionhas a value if (record[8] != null) { genBankUri =
-	 * limsImporterUtil.getPropValues("boldurigenbank") +
-	 * limsBoldFields.getCoi5PAccession(); } else { genBankUri = ""; }
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)",
-	 * "GenBank URI (Bold)", genBankUri, cnt); } catch (IOException e) {
-	 * e.printStackTrace(); }
-	 * 
-	 * logger.info("Done with adding notes to the document"); logger.info(" ");
-	 * }
-	 */
+
+	private void enrichNotesToBoldDocumentsRegistrationMarker(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		/* set note for TraceFile Presence */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"TraceFilePresenceCode_Bold", "N traces (Bold)",
+				"N traces (Bold)", limsBoldFields.getTraceFilePresence(), cnt);
+
+		/* set note for Nucleotide Length */
+		limsNotes
+				.setNoteToAB1FileName(annotatedPluginDocuments,
+						"NucleotideLengthCode_Bold", "Nucl-length (Bold)",
+						"Nucl-length (Bold)",
+						limsBoldFields.getNucleotideLength(), cnt);
+
+		/* set note for GenBankID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"GenBankIDCode_Bold", "GenBank ID (Bold)", "GenBank ID (Bold)",
+				limsBoldFields.getGenBankID(), cnt);
+
+		/* set note for GenBank URI */
+		try {
+			String genBankUri;
+			/* if Marker COI-5P Accessionhas a value */
+			if (record[8] != null && !record[8].isEmpty()) {
+				genBankUri = limsImporterUtil.getPropValues("boldurigenbank")
+						+ limsBoldFields.getCoi5PAccession();
+			} else {
+				genBankUri = null;
+			}
+			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+					"GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)",
+					"GenBank URI (Bold)", genBankUri, cnt);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		logger.info("Done with adding notes to the document");
+		logger.info(" ");
+	}
 
 	/*
 	 * Set value to documents notes if match only on registration number
 	 * 
 	 * @param annotatedPluginDocuments , cnt
 	 */
-	/*
-	 * private void setNotesToBoldDocumentsRegistration(
-	 * AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) { set note
-	 * for BOLD-ID limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "BOLDIDCode_Bold", "BOLD ID (Bold)", "BOLD ID (Bold)",
-	 * limsBoldFields.getBoldID(), cnt);
-	 * 
-	 * set note for Number of Images
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "NumberOfImagesCode_Bold", "N images (Bold)", "N images (Bold)",
-	 * limsBoldFields.getNumberOfImagesBold(), cnt);
-	 * 
-	 * set note for BoldProjectID
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)", "BOLD proj-ID (Bold)",
-	 * limsBoldFields.getBoldProjectID(), cnt);
-	 * 
-	 * set note for FieldID
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
-	 * limsBoldFields.getFieldID(), cnt);
-	 * 
-	 * set note for BOLD BIN Code
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
-	 * limsBoldFields.getBoldBIN(), cnt);
-	 * 
-	 * set note for BOLD URI
-	 * limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
-	 * "BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)", "BOLD URI (Bold)",
-	 * limsBoldFields.getBoldURI(), cnt);
-	 * 
-	 * logger.info("Done with adding notes to the document"); }
-	 */
+
+	private void enrichNotesToBoldDocumentsRegistration(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
+		/* set note for BOLD-ID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDIDCode_Bold", "BOLD ID (Bold)", "BOLD ID (Bold)",
+				limsBoldFields.getBoldID(), cnt);
+
+		/* set note for Number of Images */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"NumberOfImagesCode_Bold", "N images (Bold)",
+				"N images (Bold)", limsBoldFields.getNumberOfImagesBold(), cnt);
+
+		/* set note for BoldProjectID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)",
+				"BOLD proj-ID (Bold)", limsBoldFields.getBoldProjectID(), cnt);
+
+		/* set note for FieldID */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"FieldIDCode_Bold", "Field ID (Bold)", "Field ID (Bold)",
+				limsBoldFields.getFieldID(), cnt);
+
+		/* set note for BOLD BIN Code */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDBINCode_Bold", "BOLD BIN (Bold)", "BOLD BIN (Bold)",
+				limsBoldFields.getBoldBIN(), cnt);
+
+		/* set note for BOLD URI */
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)",
+				"BOLD URI (Bold)", limsBoldFields.getBoldURI(), cnt);
+
+		logger.info("Done with adding notes to the document");
+	}
+
 	/*
 	 * Set value to variable
 	 * 
 	 * @param boldID , numberOfImagesBold, boldProjectID, fieldID, boldBIN,
 	 * boldURI
 	 */
-	private void setNotesThatMatchRegistrationNumber(String boldID,
+	private void setNotesValuesThatMatchRegistrationNumber(String boldID,
 			String numberOfImagesBold, String boldProjectID, String fieldID,
 			String boldBIN, String boldURI) {
 
@@ -836,7 +822,7 @@ public class LimsImportBold extends DocumentAction {
 	 * 
 	 * @param nucleotideLength , tracebestandPresence, coi5pAccession
 	 */
-	private void setNotesThatMatchRegistrationNumberAndMarker(
+	private void setNotesValuesThatMatchRegistrationNumberAndMarker(
 			String nucleotideLength, String tracebestandPresence,
 			String coi5pAccession) {
 
@@ -857,7 +843,7 @@ public class LimsImportBold extends DocumentAction {
 					+ limsImporterUtil.getPropValues("boldurigenbank")
 					+ limsBoldFields.getCoi5PAccession());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 

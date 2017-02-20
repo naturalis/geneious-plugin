@@ -156,6 +156,30 @@ public class LimsReadGeneiousFieldsValues {
 		return fieldValue;
 	}
 
+	public String getNotesValueFromAnnotatedPluginDocument(
+			AnnotatedPluginDocument[] annotatedPluginDocuments,
+			String noteCode, String fieldName, int i) {
+
+		/** Example noteCode = "DocumentNoteUtilities-Registration number"; */
+		DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteCode);
+		String fieldValue = null;
+
+		if (noteType != null) {
+			AnnotatedPluginDocument.DocumentNotes documentNotes = annotatedPluginDocuments[i]
+					.getDocumentNotes(true);
+
+			DocumentNote bos = documentNotes.getNote(noteCode);
+			/** example: FieldName = "BasisOfRecordCode" */
+			if (bos != null) {
+				fieldValue = (String) bos.getFieldValue(fieldName);
+			} else {
+				fieldValue = "";
+			}
+		}
+
+		return fieldValue;
+	}
+
 	private HashSet<String> fastaAb1Cache = new HashSet<>(100);
 
 	/**
@@ -691,7 +715,7 @@ public class LimsReadGeneiousFieldsValues {
 	 * @return Return integer value (Version number)
 	 * @see int
 	 * */
-	public int getLastVersion_For_AB1_Fasta(String fileName) {
+	public int getLastVersion_For_AB1_Fasta_ConsensusContig(String fileName) {
 		int result = 0;
 		PreparedStatement pst = null;
 		try {
@@ -702,6 +726,48 @@ public class LimsReadGeneiousFieldsValues {
 					+ "WHERE document_xml like '%<cache_name>"
 					+ fileName
 					+ "</cache_name>%' ";
+
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
+					password);
+			con.clearWarnings();
+			pst = con.prepareStatement(SQL);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					result = rs.getInt(1);
+					logger.debug("Versionnumber : " + result);
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
+
+	public int getLastVersion_From_ContigAssemblyDocuments(String fileName) {
+		int result = 0;
+		PreparedStatement pst = null;
+		try {
+			final String SQL = "SELECT CAST(max(TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/DocumentVersionCode_Seq'))) as unsigned) AS version "
+					+ "\n"
+					+ "FROM annotated_document"
+					+ "\n"
+					+ "WHERE document_xml like '%<override_cache_name>"
+					+ fileName + "</override_cache_name>%' ";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);

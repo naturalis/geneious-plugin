@@ -67,7 +67,7 @@ public class LimsSplitnameNotes {
 	private String noteTextConsensus = "Pass (Seq)";
 
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
-			"contamination", "endo-contamination", "exo-contamination" };
+			"contamination", "endo-contamination", "exo-contamination", "ND" };
 
 	public void setSplitDocumentsNotes(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt,

@@ -47,6 +47,14 @@ public class LimsAB1Fields {
 	private String marker;
 	private int versieNummer = 1;
 
+	public void setLimsAB1Fields(String pExtractID, String pPcrPlaatID,
+			String pMarker) {
+		extractID = pExtractID;
+		pcrPlaatID = pPcrPlaatID;
+		marker = pMarker;
+
+	}
+
 	/**
 	 * Get the value of ExtractID
 	 * 
