@@ -2,6 +2,7 @@
 <configuration>
      <property resource="lims-import.properties" /> 
      <property name="Log" value="./Log/Verwerking" />
+     <property file="src/main/resources/lims-import.properties" />
 
 	<timestamp key="date" datePattern="yyyyMMddHHmmss"/>
 
@@ -13,14 +14,15 @@
 
   
  	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>${Log}/Lims2-Import-Verwerkinglijst.${date}.xml</file>
+ 	    <file>${log.home}/Lims2-Import-Verwerkinglijst.${date}.xml</file>
+		<!-- <file>${Log}/Lims2-Import-Verwerkinglijst.${date}.xml</file>  -->
 		<append>true</append>
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
 		 <layout class="ch.qos.logback.classic.log4j.XMLLayout">
             <locationInfo>false</locationInfo>
          </layout>
-		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>
-		</encoder>
+		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern> 
+		 </encoder>
 	</appender>
 	
 	
@@ -34,19 +36,15 @@
     </if>
 
 	<appender name="FILE2" class="ch.qos.logback.core.FileAppender">
-		<file>${Log}/Lims2-Import-Verwerkinglijst.${date}.log</file>  
+		<file>${log.home}/Lims2-Import-Verwerkinglijst.${date}.log</file>  
+		<!-- 
+		<file>${Log}/Lims2-Import-Verwerkinglijst.${date}.log</file>   -->
 		<append>true</append>
 		<encoder>
-		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern>
+		 <pattern>%d %5p | %t | %-55logger{55} | %m %n</pattern> 
 		</encoder>
 	</appender>
 	
-<!-- 	<appender name="FILE1" class="ch.qos.logback.core.FileAppender">
-    <file>Log/Lims2-Verwerkingslijst.${date}.log</file>
-    <encoder>
-      <pattern>%date | %level | [%thread] %logger{10} | [%file:%line] | %msg%n</pattern>
-    </encoder>
-  </appender> -->
 	
 	<root level="INFO">
 		<appender-ref ref="FILE" />

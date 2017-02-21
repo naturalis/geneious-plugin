@@ -67,9 +67,17 @@ public class LimsImporterUtil {
 	public String getLogFilename() {
 		String logFileName = "";
 
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(propFileName).getFile());
+
+		String workingDatadirectory = file.toString();
+
 		if (workingDatadirectory != null) {
-			absoluteFilePath = workingDatadirectory + File.separator
-					+ propFileName;
+			absoluteFilePath = workingDatadirectory;
+			/*
+			 * absoluteFilePath = workingDatadirectory + File.separator +
+			 * propFileName;
+			 */
 		}
 
 		try {
@@ -97,10 +105,17 @@ public class LimsImporterUtil {
 	public String getLogPath() {
 		String logPath = "";
 
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(propFileName).getFile());
+
+		String workingDatadirectory = file.toString();
+
 		if (workingDatadirectory != null) {
-			absoluteFilePath = workingDatadirectory + File.separator
-					+ propFileName;
-		}
+			absoluteFilePath = workingDatadirectory;
+			/*
+			 * absoluteFilePath = workingDatadirectory + File.separator +
+			 * propFileName;
+			 */}
 
 		try {
 			inputStream = new FileInputStream(absoluteFilePath);
@@ -136,13 +151,17 @@ public class LimsImporterUtil {
 		if (importProps == null) {
 			try {
 				importProps = new Properties();
-				String workingDatadirectory = System.getProperty("user.dir");
+				ClassLoader classLoader = getClass().getClassLoader();
+				File file = new File(classLoader.getResource(propFileName)
+						.getFile());
+
+				String workingDatadirectory = file.toString(); // System.getProperty("user.dir");
 
 				String absoluteFilePath = null;
 
 				if (workingDatadirectory != null) {
-					absoluteFilePath = workingDatadirectory + File.separator
-							+ propFileName;
+					absoluteFilePath = workingDatadirectory;
+					// + File.separator + propFileName;
 				}
 
 				inputStream = new FileInputStream(absoluteFilePath);

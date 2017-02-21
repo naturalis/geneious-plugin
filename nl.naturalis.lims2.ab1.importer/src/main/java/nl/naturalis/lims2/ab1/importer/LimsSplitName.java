@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,9 +118,6 @@ public class LimsSplitName extends DocumentAction {
 	private String fastFilename;
 	private String docType;
 	private String logSplitFileName;
-	private String logVerwerkingSplitname;
-	private static final DateFormat sdf = new SimpleDateFormat(
-			"dd-MM-yyyy HH:mm:ss");
 
 	/**
 	 * ActionPerformed start the process of the selected documents and read the
@@ -167,18 +162,6 @@ public class LimsSplitName extends DocumentAction {
 			/* Create logfile */
 			limsLogger = new LimsLogger(logSplitFileName);
 
-			/*
-			 * logVerwerkingSplitname = limsImporterUtil.getLogPath() +
-			 * "Verwerking/" + "Splitname-Verwerkinglijst-" +
-			 * limsImporterUtil.getLogFilename();
-			 */
-
-			/*
-			 * verwerkingList.add("Auteur: R.Kartowikromo"); Date date = new
-			 * Date(); verwerkingList.add("Date:" + sdf.format(date));
-			 * verwerkingList.add("Splitname plugin");
-			 */
-
 			/* Create the dialog GUI to see the processing of the documents */
 			limsFrameProgress.createProgressGUI();
 			logger.info("----------------------------S T A R T -------------------------------");
@@ -205,7 +188,6 @@ public class LimsSplitName extends DocumentAction {
 				try {
 					docType = (String) DocumentUtilities.getSelectedDocuments()
 							.get(cnt).getDocument().getClass().getTypeName();
-					// System.out.println(docType);
 				} catch (DocumentOperationException e) {
 					throw new RuntimeException(e);
 				}
@@ -524,12 +506,6 @@ public class LimsSplitName extends DocumentAction {
 			uitValList.add(selectedDocuments.get(cnt).getName());
 			limsLogger.logToFile(logSplitFileName, uitValList.toString());
 		}
-		/*
-		 * else { try { verwerkingList.add("Document: " + cnt + " " +
-		 * selectedDocuments.get(cnt).getName());
-		 * createFile(logVerwerkingSplitname, (ArrayList<String>)
-		 * verwerkingList); } catch (IOException e) { e.printStackTrace(); } }
-		 */
 
 		/* Show processing dialog */
 		limsFrameProgress.showProgress("Processing: "
@@ -604,14 +580,17 @@ public class LimsSplitName extends DocumentAction {
 
 	private void extractDataFromDescription(int pCnt, String pFilename) {
 		if (pFilename != null) {
-			logger.info("Start extracting value from file: " + pFilename);
+
 			try {
 				documentDescription = (String) DocumentUtilities
 						.getSelectedDocuments().get(pCnt).getDocument()
 						.getDescription();
 				if (documentDescription.toString().length() != 0
-						&& !documentDescription.isEmpty()) {
-
+						&& !documentDescription.isEmpty()
+						&& !selectedDocuments.get(pCnt).getName()
+								.contains("dum")) {
+					logger.info("Start extracting value from file: "
+							+ pFilename);
 					verwerkingList.add(pFilename);
 
 					String[] description = StringUtils.split(
@@ -648,7 +627,9 @@ public class LimsSplitName extends DocumentAction {
 						.getSelectedDocuments().get(pCnt).getDocument()
 						.getDescription();
 				if (documentDescription != null
-						&& !documentDescription.isEmpty()) {
+						&& !documentDescription.isEmpty()
+						&& !selectedDocuments.get(pCnt).getName()
+								.contains("dum")) {
 
 					verwerkingList.add(defAlignmentDoc.getName());
 
@@ -680,7 +661,9 @@ public class LimsSplitName extends DocumentAction {
 						.getSelectedDocuments().get(pCnt).getDocument()
 						.getDescription();
 				if (documentDescription != null
-						&& !documentDescription.isEmpty()) {
+						&& !documentDescription.isEmpty()
+						&& !selectedDocuments.get(pCnt).getName()
+								.contains("dum")) {
 
 					verwerkingList.add(defNucleotideGraphSequence.getName());
 
