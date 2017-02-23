@@ -88,12 +88,4 @@ public class LimsNotesSplitName {
 		limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 	}
 
-	/*
-	 * public void setFastaDocumentFileName(String pExtractFastaFileName) {
-	 * limsAB1Fields.extractAB1_FastaFileName(pExtractFastaFileName); }
-	 * 
-	 * public void extractContigDocumentFileName(String pExtractFastaFileName) {
-	 * limsAB1Fields.extractAB1_FastaFileName(pExtractFastaFileName); }
-	 */
-
 }

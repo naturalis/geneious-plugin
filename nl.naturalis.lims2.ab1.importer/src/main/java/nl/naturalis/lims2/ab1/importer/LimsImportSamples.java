@@ -40,6 +40,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
@@ -113,7 +114,7 @@ public class LimsImportSamples extends DocumentAction {
 	private String plateNumber = "";
 	private String extractIDfileName = "";
 	private String logSamplesFileName = "";
-	private String documentFileName = "";
+	private Object documentFileName = "";
 	private String readAssembyContigFileName = "";
 
 	private boolean isExtractIDSeqExists = false;
@@ -680,8 +681,9 @@ public class LimsImportSamples extends DocumentAction {
 		else if (list.getName().toString().contains("dum")) {
 			documentFileName = list.getName();
 		} /* from a imported file */
-		else if (!(list.toString().contains(documentTypeNovoAssembly) || list
-				.toString().contains(documentTypeConsensusSequence))) {
+		else if (!(list.toString().contains(documentTypeNovoAssembly)
+				|| list.toString().contains(documentTypeConsensusSequence) || list
+				.toString().contains("DefaultSequenceListDocument"))) {
 			/* Contig don't have imported filename. */
 			documentFileName = (String) list.getDocumentNotes(true)
 					.getNote("importedFrom").getFieldValue("filename");
@@ -1127,6 +1129,29 @@ public class LimsImportSamples extends DocumentAction {
 					+ dm.getRegistrationScientificName());
 		}
 		pw.close();
+	}
+
+	private Object getDocumentType(int cnt) {
+		String docType;
+		try {
+			docType = (String) DocumentUtilities.getSelectedDocuments()
+					.get(cnt).getDocument().getClass().getTypeName();
+			/*
+			 * Documentname bestaat alleen uit Reads Assembly Consensus
+			 * Sequences
+			 */
+			if (docType.contains("DefaultSequenceListDocument")) {
+				logger.info("Documentname only contains: "
+						+ DocumentUtilities.getSelectedDocuments().get(cnt)
+								.getDocument().getName());
+				failureList.add("Documentname only contains: "
+						+ DocumentUtilities.getSelectedDocuments().get(cnt)
+								.getDocument().getName());
+			}
+		} catch (DocumentOperationException e) {
+			throw new RuntimeException(e);
+		}
+		return docType;
 	}
 
 }
