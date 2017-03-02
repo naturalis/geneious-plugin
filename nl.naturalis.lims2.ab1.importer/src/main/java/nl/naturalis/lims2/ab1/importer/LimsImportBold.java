@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JOptionPane;
+
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -265,6 +267,16 @@ public class LimsImportBold extends DocumentAction {
 
 					/* Get the rowheader of the csv file. */
 					headerCOI = csvReader.readNext();
+					if (headerCOI == null) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"Info: "
+												+ "Bold file does not contain a header",
+										boldFile,
+										JOptionPane.INFORMATION_MESSAGE, null);
+						limsFrameProgress.hideFrame();
+					}
 
 					try {
 

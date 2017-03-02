@@ -204,7 +204,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			fastaFileName = file.getName();
 			ab1FileName = StringUtils.split(file.getName(), "_");
-			extractAb1FastaFileName = file.getName();
+			if (file.getName().contains(".fas")) {
+				extractAb1FastaFileName = file.getName().substring(0,
+						file.getName().indexOf(".fas"));
+			} else {
+				extractAb1FastaFileName = file.getName();
+			}
 
 			versienummer = readGeneiousFieldsValues
 					.getLastVersionFromDocument(extractAb1FastaFileName);
@@ -221,11 +226,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				limsNotesIAB1FastaImp
 						.set_AB1_Fasta_DocumentFileName(extractAb1FastaFileName);
 
+				/* Get the ID of dummy. Search on filename "e4444444444.dum" */
 				dummyExists = limsSQL.getImportDummyDocument(ab1FileName[0]
 						+ ".dum");
-				/*
-				 * if (!dummyExists) { count = 0; }
-				 */
+
 				if (dummyExists) {
 					annotatedDocumentID = limsSQL
 							.getIDFromTableAnnotatedDocument(ab1FileName[0]
@@ -238,12 +242,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					}
 					setDummyValues();
 				}
-
 			} else
 
 			/* Check if Dummy file exists in the database */
 			/* FAS check */
-			if (extractAb1FastaFileName.contains(".fas")) {
+			if (file.getName().contains(".fas")) {
 				/* Get the file name from the Fasta file content */
 				extractAb1FastaFileName = fileselector.readFastaContent(file);
 

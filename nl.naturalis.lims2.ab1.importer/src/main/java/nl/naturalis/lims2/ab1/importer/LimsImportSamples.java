@@ -764,7 +764,8 @@ public class LimsImportSamples extends DocumentAction {
 						}
 					} else {
 						limsFrameProgress.showProgress(ID
-								+ " Dummy file already exists.");
+								+ " Dummy file already exists. " + '\n'
+								+ " No Dummy file created.");
 					}
 
 				} // end While

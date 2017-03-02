@@ -124,6 +124,13 @@ public class LimsAB1Fields {
 		 * for example: e4010125015_Sil_tri_MJ243_COI-A01_M13F_A01_008.ab1
 		 */
 		if (ab1FileName != "") {
+
+			String regex = "\\s*\\bReads Assembly\\b\\s*";
+			ab1FileName = ab1FileName.replaceAll(regex, "");
+
+			String regexConsesus = "\\s*\\bconsensus sequence\\b\\s*";
+			ab1FileName = ab1FileName.replaceAll(regexConsesus, "");
+
 			if (ab1FileName.contains("_") && ab1FileName.contains(".ab1")) {
 				String[] underscore = StringUtils.split(ab1FileName, "_");
 				setExtractID(underscore[0]);
@@ -143,10 +150,24 @@ public class LimsAB1Fields {
 				} else {
 					logger.info("Geen Fasta PcrPlaatID aanwezig? ");
 				}
-				if (underscore[4] != "") {
-					setMarker(underscore[4]);
+				if (underscore[4] != "" && underscore[4].contains("-")) {
+					setMarker(underscore[4].substring(0,
+							underscore[4].indexOf("-")));
 				} else {
-					logger.info("Geen Fasta Marker aanwezig? ");
+					if (underscore[4].contains(".fas")) {
+						setMarker(underscore[4].substring(0,
+								underscore[4].indexOf(".")));
+					} else {
+						int emptySpace = underscore[4].indexOf(" ");
+						if (underscore[4].indexOf(" ") > 0) {
+							setMarker(underscore[4].substring(0,
+									underscore[4].indexOf(" ")));
+						} else {
+							setMarker(underscore[4]);
+						}
+						// setMarker(underscore[(underscore.length - 1)]);
+					}
+					// logger.info("Geen Fasta Marker aanwezig? ");
 				}
 			}
 		}

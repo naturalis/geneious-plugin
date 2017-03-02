@@ -543,17 +543,26 @@ public class LimsSQL {
 
 		try {
 
-			final String SQL = " SELECT DISTINCT a.id, a.name" + " FROM "
-					+ " ( "
-					+ " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' "
-					+ xmlNotesName + " ')) AS name "
-					+ " FROM annotated_document" + " ) AS a "
-					+ " WHERE a.name =?" + "\n" + " LIMIT 1";
+			/*
+			 * final String SQL = " SELECT DISTINCT a.id, a.name" + " FROM " +
+			 * " ( " + " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' " +
+			 * xmlNotesName + " ')) AS name " + " FROM annotated_document" +
+			 * " ) AS a " + " WHERE a.name =?" + "\n" + " LIMIT 1";
+			 */
+			final String SQL = " SELECT ID as ID, TRIM(EXTRACTVALUE(document_xml, '"
+					+ xmlNotesName
+					+ "')) AS name "
+					+ " FROM annotated_document"
+					+ " WHERE document_xml like  '%"
+					+ filename
+					+ "%' "
+					+ "\n"
+					+ " LIMIT 1";
 
 			conn = DriverManager.getConnection(DB_URL, user, password);
 			conn.clearWarnings();
 			pst = conn.prepareStatement(SQL);
-			pst.setString(1, (String) filename);
+			// pst.setString(1, (String) filename);
 			rs = pst.executeQuery();
 
 			dummyName = "";
