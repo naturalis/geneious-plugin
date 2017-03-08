@@ -435,14 +435,18 @@ public class LimsSQL {
 		boolean result = false;
 
 		try {
+
 			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '//document/hiddenFields/cache_name')) AS name"
 					+ "\n"
 					+ "FROM annotated_document"
 					+ "\n"
-					+ " WHERE document_xml like '%"
+					+ " WHERE document_xml like '%<cache_name>"
 					+ filename
-					+ "%' "
-					+ "ORDER BY ID DESC" + "\n" + " LIMIT 1";
+					+ "</cache_name>%'"
+					+ "\n"
+					+ "ORDER BY ID DESC"
+					+ "\n"
+					+ " LIMIT 2";
 
 			conn = DriverManager.getConnection(DB_URL, user, password);
 
