@@ -321,7 +321,9 @@ public class LimsImportCRS extends DocumentAction {
 								 * processing
 								 */
 								if (resultRegNum.equals(registrationNumber)
-										&& isRMNHNumber) {
+										&& isRMNHNumber
+										&& !documentFileName.toString()
+												.contains(".dum")) {
 
 									/* Start time of the process */
 									startBeginTime = System.nanoTime();
@@ -407,28 +409,6 @@ public class LimsImportCRS extends DocumentAction {
 									enrichNotesToCRS(annotatedPluginDocuments,
 											cnt);
 
-									/*
-									 * limsSetCRSNotes .setImportNotes(
-									 * annotatedPluginDocuments, fileSelected,
-									 * LimsCRSFields.getPhylum() .trim(),
-									 * LimsCRSFields.getKlasse() .trim(),
-									 * LimsCRSFields.getOrder() .trim(),
-									 * LimsCRSFields.getFamily() .trim(),
-									 * LimsCRSFields .getSubFamily() .trim(),
-									 * LimsCRSFields.getGenus() .trim(),
-									 * LimsCRSFields.getTaxon() .trim(),
-									 * LimsCRSFields .getDeterminator() .trim(),
-									 * LimsCRSFields.getSex() .trim(),
-									 * LimsCRSFields.getStadium() .trim(),
-									 * LimsCRSFields.getLegavit() .trim(),
-									 * LimsCRSFields .getCollectingDate(),
-									 * LimsCRSFields.getCountry() .trim(),
-									 * LimsCRSFields .getBioRegion() .trim(),
-									 * LimsCRSFields.getLocality() .trim(),
-									 * LimsCRSFields .getLatitudeDecimal(),
-									 * LimsCRSFields .getLongitudeDecimal(),
-									 * LimsCRSFields.getHeight(), cnt);
-									 */
 									logger.info("Done with adding notes to the document: "
 											+ documentFileName);
 

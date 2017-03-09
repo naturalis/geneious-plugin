@@ -134,7 +134,7 @@ public class LimsImportSamples extends DocumentAction {
 	private LimsDatabaseChecker dbchk = null;
 	private Object extractIDSeqExists;
 	private boolean dummyExists = false;
-	private String docName;
+	private AnnotatedPluginDocument listDocs;
 
 	private final String documentTypeNovoAssembly = "NucleotideSequenceDocument";
 	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
@@ -330,19 +330,18 @@ public class LimsImportSamples extends DocumentAction {
 						logger.info("Total of document(s) updated: "
 								+ listDocuments.size());
 
-						// /* Set for creating dummy files */
-						// if (!csvID.equals(extractIDfileName)) {
-						// // if (!(csvID.equals(extractIDfileName) &&
-						// // // isExtractIDSeqExists)) {
-						// /* Create progressbar GUI */
-						// limsFrameProgress.createProgressGUI();
-						//
-						// /* Create dummy files for samples */
-						// createDummyFile(fileSelected, extractIDfileName);
-						//
-						// /* Hide the progressbar GUI */
-						// limsFrameProgress.hideFrame();
-						// }
+						/* Set for creating dummy files */
+						if (!csvID.equals(extractIDfileName)) {
+							/* Create progressbar GUI */
+							limsFrameProgress.createProgressGUI();
+
+							/* Create dummy files for samples */
+
+							createDummyFile(fileSelected);
+
+							/* Hide the progressbar GUI */
+							limsFrameProgress.hideFrame();
+						}
 
 						logger.info("-------------------------- E N D --------------------------");
 						logger.info("Done with updating the selected document(s). ");
@@ -410,7 +409,7 @@ public class LimsImportSamples extends DocumentAction {
 						createDummyFileWithOutSelection(fileSelected,
 								extractIDfileName);
 					} catch (IOException e) {
-						throw new RuntimeException(e);
+						e.printStackTrace();
 					}
 					limsFrameProgress.hideFrame();
 					/* Add failure records to the list */
@@ -526,13 +525,11 @@ public class LimsImportSamples extends DocumentAction {
 			String[] record, long startBeginTime) {
 		int cnt = 0;
 
-		/*
-		 * for (int i = 0; i < listDocs.size(); i++) { docName =
-		 * listDocs.get(i).getName(); }
-		 */
 		for (AnnotatedPluginDocument list : listDocuments) {
 
 			extractIDSeqExists = null;
+
+			listDocs = listDocuments.listIterator().next();
 			/* Check if "ExtractIDCode_Seq" note exists */
 			if (list.toString().contains("ExtractIDCode_Seq")) {
 				extractIDSeqExists = list.getDocumentNotes(true)
@@ -650,44 +647,6 @@ public class LimsImportSamples extends DocumentAction {
 				match = false;
 
 			} // end IF
-			/* Set for creating dummy files */
-			else if (isExtractIDSeqExists) {
-				boolean dummyExists;
-				try {
-					dummyExists = limsSQL
-							.checkIfSampleDocExistsInTableAnnotatedDocument(csvID
-									+ ".dum");
-
-					if (!dummyExists) {
-
-						limsFrameProgress.showProgress("Creating dummy file: "
-								+ csvID + ".dum");
-
-						/* extract only the numbers from ID */
-						if (csvID.equals("e")
-								&& LimsImporterUtil.extractNumber(csvID)
-										.isEmpty()) {
-							logger.info("Record is empty: " + csvID + ".dum");
-						} else {
-							/* Create dummy sequence */
-							limsDummySeq.createDummySampleSequence(csvID,
-									csvID, record[0], plateNumber, record[5],
-									record[4], record[1], record[6]);
-							dummyRecordsVerwerkt++;
-						}
-						break;
-					} else {
-						limsFrameProgress.showProgress(csvID
-								+ " Dummy file already exists. " + '\n'
-								+ " No Dummy file created.");
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				/* Hide the progressbar GUI */
-				limsFrameProgress.hideFrame();
-			}
-
 			cnt++;
 		} // end For
 	}
@@ -751,37 +710,71 @@ public class LimsImportSamples extends DocumentAction {
 	 * 
 	 * @param fileName , extractFileID
 	 */
-	private void createDummyFile(String fileName, String extractFileID,
-			String[] record) throws IOException {
+	private void createDummyFile(String fileName) throws IOException {
+
 		if (fileName != null) {
-			boolean dummyExists = limsSQL
-					.checkIfSampleDocExistsInTableAnnotatedDocument(csvID);
+			// logger.info("Read samples file: " + fileName);
 
-			if (!dummyExists) {
-				// && extractIDfileName.equals(csvID))) {
+			// for (int i = 0; i < listDocs.size(); i++) {
 
-				limsFrameProgress.showProgress("Creating dummy file: " + csvID
-						+ ".dum");
+			Object Idexists = null;
+			if (listDocs.toString().contains("ExtractIDCode_Seq")) {
+				Idexists = listDocs.getDocumentNotes(true)
+						.getNote("DocumentNoteUtilities-Extract ID (Seq)")
+						.getFieldValue("ExtractIDCode_Seq");
 
-				/* extract only the numbers from ID */
-				if (csvID.equals("e")
-						&& LimsImporterUtil.extractNumber(csvID).isEmpty()) {
-					logger.info("Record is empty: " + csvID + ".dum");
-				} else {
-					/* Create dummy sequence */
-					limsDummySeq.createDummySampleSequence(csvID, csvID,
-							record[0], plateNumber, record[5], record[4],
-							record[1], record[6]);
-					dummyRecordsVerwerkt++;
-				}
-			} else {
-				limsFrameProgress.showProgress(csvID
-						+ " Dummy file already exists. " + '\n'
-						+ " No Dummy file created.");
 			}
 
-		}
+			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
+					'\'', 0);
+			try {
+				csvReader.readNext();
+				String[] record = null;
+				while ((record = csvReader.readNext()) != null) {
+					if (record.length == 1 && record[0].isEmpty()) {
+						continue;
+					}
 
+					if (record[3].trim() != null) {
+						csvID = "e" + record[3];
+					}
+
+					if (record[2].length() > 0 && record[2].contains("-")) {
+						plateNumber = record[2].substring(0,
+								record[2].indexOf("-"));
+					}
+
+					boolean dummyExists = limsSQL
+							.checkIfSampleDocExistsInTableAnnotatedDocument(csvID
+									+ ".dum");
+
+					if (!dummyExists) {
+
+						limsFrameProgress.showProgress("Creating dummy file: "
+								+ csvID + ".dum");
+
+						/* extract only the numbers from ID */
+						if (csvID.equals("e")
+								&& LimsImporterUtil.extractNumber(csvID)
+										.isEmpty()) {
+							logger.info("Record is empty: " + csvID + ".dum");
+						} else {
+							/* Create dummy sequence */
+							limsDummySeq.createDummySampleSequence(csvID,
+									csvID, record[0], plateNumber, record[5],
+									record[4], record[1], record[6]);
+							dummyRecordsVerwerkt++;
+						}
+					} else {
+						limsFrameProgress.showProgress(csvID
+								+ " Dummy file already exists. " + '\n'
+								+ " No Dummy file created.");
+					}
+				} // end While
+			} finally {
+				csvReader.close();
+			}
+		}
 	}
 
 	private void createDummyFileWithOutSelection(String fileName,
@@ -983,24 +976,6 @@ public class LimsImportSamples extends DocumentAction {
 							 */
 							if (csvID.equals(extractIDSeqExists)
 									&& isExtractIDSeqExists) {
-
-								/*
-								 * if (list.toString().contains(
-								 * "ExtractIDCode_Samples")) {
-								 * resultExtractIDSamples = list
-								 * .getDocumentNotes(true) .getNote(
-								 * "DocumentNoteUtilities-Extract ID (Samples)")
-								 * .getFieldValue( "ExtractIDCode_Samples"); }
-								 * 
-								 * String extractIDSamples = "";
-								 * 
-								 * if (resultExtractIDSamples != null) {
-								 * continue; } else { extractIDSamples =
-								 * record[3];
-								 * 
-								 * }
-								 */
-
 								startTime = new Date().getTime();
 								isMatched = true;
 								/* if match add to processed List */
@@ -1024,12 +999,6 @@ public class LimsImportSamples extends DocumentAction {
 								// [] : Version
 								// [6] : Sample Method
 
-								/*
-								 * setFieldsValues(record[0], record[1],
-								 * plateNumber, ID, record[4], record[5],
-								 * version, record[6]);
-								 */
-
 								limsNotesAB1FastaSamples
 										.setSamplesNotes_FieldsValues(
 												record[0], record[1],
@@ -1037,18 +1006,9 @@ public class LimsImportSamples extends DocumentAction {
 												record[5], version, record[6]);
 								logger.info("Start with adding notes to the document");
 								/* Add notes to the selected documents */
-								// setSamplesNotes(docsSamples, cnt);
-
 								limsNotesAB1FastaSamples
 										.enrich_AB1_Fasta_Documents_With_SamplesNotes(
 												docsSamples, cnt);
-
-								/*
-								 * limsSamplesNotes.setAllNotesToAB1FileName(
-								 * docsSamples, cnt, record[4], record[5],
-								 * record[1], ID, record[2], ID, record[6],
-								 * version, regScientificname);
-								 */
 
 								logger.info("Done with adding notes to the document");
 
@@ -1152,8 +1112,11 @@ public class LimsImportSamples extends DocumentAction {
 				+ Integer.toString(cntRec) + " existing documents (of "
 				+ importCounter + " selected)" + "\n" + "\n" + "[2] "
 				+ Integer.toString(dummyRecordsVerwerkt)
-				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
-				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
+				+ " samples are imported as dummy" + "\n" + "\n"
+				+ "[3] "
+				+ Integer.toString(sampleRecordFailure)
+				// + Integer.toString(dummyRecordsVerwerkt -
+				// sampleRecordFailure)
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
 	}

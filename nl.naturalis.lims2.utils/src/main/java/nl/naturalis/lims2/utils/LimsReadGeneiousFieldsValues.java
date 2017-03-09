@@ -267,8 +267,9 @@ public class LimsReadGeneiousFieldsValues {
 		boolean truefalse = false;
 		try {
 			final String SQL = "SELECT ID FROM annotated_document" + "\n"
-					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
-					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+					+ "WHERE document_xml like  '%<cache_name>" + filename
+					+ "</cache_name>%' " + "\n" + "ORDER BY ID DESC" + "\n"
+					+ "LIMIT 1";
 
 			con = DriverManager.getConnection(url + activeDB + ssl, user,
 					password);
@@ -1080,8 +1081,8 @@ public class LimsReadGeneiousFieldsValues {
 					+ "\n"
 					+ " TRIM(EXTRACTVALUE(document_xml, '//document/notes/note/RegistrationNumberCode_TaxonName2Code_Samples')) AS registrationScientificName "
 					+ "\n" + " FROM annotated_document AS a " + "\n"
-					+ "WHERE document_xml like  '%" + filename + "%' " + "\n"
-					+ " ORDER BY name DESC";
+					+ "WHERE document_xml like  '%<cache_name>" + filename
+					+ "</cache_name>%' " + "\n" + " ORDER BY name DESC";
 
 			/*
 			 * final String SQL = " SELECT * " + " FROM( " + "\n" +

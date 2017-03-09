@@ -184,13 +184,6 @@ public class LimsSplitName extends DocumentAction {
 				defNucleotideSequence = null;
 				defNucleotideGraphSequence = null;
 
-				/*
-				 * if (defAlignmentDoc != null) { } else if
-				 * (defNucleotideSequence != null) { defNucleotideSequence =
-				 * null; } else if (defNucleotideGraphSequence != null) {
-				 * defNucleotideGraphSequence = null; }
-				 */
-
 				try {
 					docType = (String) DocumentUtilities.getSelectedDocuments()
 							.get(cnt).getDocument().getClass().getTypeName();
@@ -404,10 +397,16 @@ public class LimsSplitName extends DocumentAction {
 				}
 
 				private void showAllSelectedDocumentsDialog() {
-					Dialogs.showMessageDialog(Integer
-							.toString(selectedDocuments.size())
-							+ " selected documents are updated.");
-
+					if (ab1Filename.contains(".dum")) {
+						Dialogs.showMessageDialog(" dummies worden niet geupdate"
+								+ "\n"
+								+ Integer.toString(selectedDocuments.size())
+								+ " selected documents are not updated.");
+					} else {
+						Dialogs.showMessageDialog(Integer
+								.toString(selectedDocuments.size())
+								+ " selected documents are updated.");
+					}
 					logger.info("Update: Total imported document(s): "
 							+ verwerkingList.toString());
 				}

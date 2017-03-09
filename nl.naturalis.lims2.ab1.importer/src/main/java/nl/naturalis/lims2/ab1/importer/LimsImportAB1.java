@@ -237,7 +237,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 									"//document/hiddenFields/cache_name");
 
 					if (limsSQL.dummyName.length() > 0) {
-						listDummy.clear();
+						// listDummy.clear();
+
 						listDummy.add((limsSQL.dummyName));
 					}
 					setDummyValues();
@@ -298,17 +299,15 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			progressListener.setProgress(0, 10);
 
 			count += docs.size();//
+			counter++;
 			if (count == selectedCount) {
 				counter = selectedCount;
-				System.out.println("Size: " + count);
 			}
 
 			documentAnnotatedPlugin = importCallback.addDocument(docs
 					.listIterator().next());
 
-			/* listDummy.size() == 0) */
-
-			if (file.getName() != null && !isDeleted && !dummyExists) {
+			if (file.getName() != null && !dummyExists) {
 				setAB1_FastaImportNotes();
 				count = 0;
 			} else { /* Get dummy values */
@@ -318,6 +317,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						limsNotesIAB1FastaImp.marker, found);
 			}
 
+			deleteRecordsFromTable();
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
 			logger.info("Done with extracting/imported Ab1 files. ");
@@ -359,7 +359,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				replaceDummyNotesWithAB1Notes(documentAnnotatedPlugin, found,
 						pcrPlateId, marker, limsNotesIAB1FastaImp.extractID);
 				/* Delete dummy record from the table annotated document */
-				deleteRecordsFromTable();
+				// deleteRecordsFromTable();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -381,7 +381,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					documentAnnotatedPlugin, extractAb1FastaFileName,
 					versienummer);
 		}
-
 	}
 
 	/**
@@ -471,7 +470,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			count = 0;
 			listDummy.clear();
 		}
-
 	}
 
 	/**
@@ -566,9 +564,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				"Extract ID (Seq)", "Extract ID (Seq)", extractID);
 
 		/* set note for Extract-ID Samples */
-		limsNotes.setImportNotes(documentAnnotated, "ExtractIDCode_Samples",
-				"Extract ID (Samples)", "Extract ID (Samples)",
-				found.getExtractID());
+		if (found.getExtractID() != "") {
+			limsNotes.setImportNotes(documentAnnotated,
+					"ExtractIDCode_Samples", "Extract ID (Samples)",
+					"Extract ID (Samples)", found.getExtractID());
+		}
 
 		/* set note for Project Plate number */
 		limsNotes.setImportNotes(documentAnnotated,
