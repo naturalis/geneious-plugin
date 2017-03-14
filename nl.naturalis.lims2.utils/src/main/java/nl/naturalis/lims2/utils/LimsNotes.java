@@ -110,7 +110,8 @@ public class LimsNotes {
 	 * Notes values for Consensus Sequence(ComboBox control)
 	 * */
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
-			"contamination", "endo-contamination", "exo-contamination", "ND" };
+			"contamination", "endo-contamination", "exo-contamination",
+			"not determined" };
 
 	/**
 	 * Set notes to a document(s) Used in following Class: - LimsImportAB1Update

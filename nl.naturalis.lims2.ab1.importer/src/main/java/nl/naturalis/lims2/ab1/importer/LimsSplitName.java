@@ -398,9 +398,8 @@ public class LimsSplitName extends DocumentAction {
 
 				private void showAllSelectedDocumentsDialog() {
 					if (ab1Filename.contains(".dum")) {
-						Dialogs.showMessageDialog(" dummies worden niet geupdate"
-								+ "\n"
-								+ Integer.toString(selectedDocuments.size())
+						Dialogs.showMessageDialog(Integer
+								.toString(selectedDocuments.size())
 								+ " selected documents are not updated.");
 					} else {
 						Dialogs.showMessageDialog(Integer

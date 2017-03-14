@@ -130,7 +130,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	 * */
 	@Override
 	public String getVersion() {
-		return "1.0.2";
+		return "1.0.3";
 	}
 
 	/**
@@ -152,7 +152,8 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	 * */
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsSplitName(), new LimsImportCRS(),
-				new LimsImportBold(), new LimsImportSamples() };
+				new LimsImportBold(), new LimsImportSamples(),
+				new LimsImportSamplesNew() };
 	}
 
 	@Override

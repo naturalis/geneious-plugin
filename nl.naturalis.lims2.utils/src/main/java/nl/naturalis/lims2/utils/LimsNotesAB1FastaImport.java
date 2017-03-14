@@ -57,7 +57,6 @@ public class LimsNotesAB1FastaImport {
 				limsImporterUtil.getPropValues("seqsequencestaff"));
 
 		/* set note for ConsensusSeqPassCode_Seq */
-
 		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
 				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
 				"Pass (Seq)", "Pass (Seq)", null);

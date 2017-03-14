@@ -493,8 +493,9 @@ public class LimsSQL {
 		try {
 
 			final String SQL = "SELECT ID" + "\n" + "FROM annotated_document"
-					+ "\n" + "WHERE document_xml like  '%" + filename + "%' "
-					+ "\n" + "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+					+ "\n" + "WHERE document_xml like  '%<cache_name>"
+					+ filename + "</cache_name>%' " + "\n" + "ORDER BY ID DESC"
+					+ "\n" + "LIMIT 1";
 			try {
 				conn = DriverManager.getConnection(DB_URL, user, password);
 
@@ -546,22 +547,13 @@ public class LimsSQL {
 		String result = "";
 
 		try {
-
-			/*
-			 * final String SQL = " SELECT DISTINCT a.id, a.name" + " FROM " +
-			 * " ( " + " SELECT id as ID, TRIM(EXTRACTVALUE(document_xml,  ' " +
-			 * xmlNotesName + " ')) AS name " + " FROM annotated_document" +
-			 * " ) AS a " + " WHERE a.name =?" + "\n" + " LIMIT 1";
-			 */
 			final String SQL = " SELECT ID as ID, TRIM(EXTRACTVALUE(document_xml, '"
 					+ xmlNotesName
 					+ "')) AS name "
 					+ " FROM annotated_document"
-					+ " WHERE document_xml like  '%"
+					+ " WHERE document_xml like  '%<cache_name>"
 					+ filename
-					+ "%' "
-					+ "\n"
-					+ " LIMIT 1";
+					+ "</cache_name>%' " + "\n" + " LIMIT 1";
 
 			conn = DriverManager.getConnection(DB_URL, user, password);
 			conn.clearWarnings();
@@ -597,4 +589,52 @@ public class LimsSQL {
 		return result;
 	}
 
+	public String getExtractSeqID(Object extractSeqID, String xmlNotesName)
+			throws IOException {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		String result = "";
+
+		try {
+
+			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '"
+					+ xmlNotesName + "')) AS ExtractSeqID" + "\n"
+					+ " FROM annotated_document" + "\n "
+					+ " WHERE document_xml like  '%<ExtractIDCode_Seq>"
+					+ extractSeqID + "</ExtractIDCode_Seq>%' " + "\n"
+					+ " LIMIT 1";
+
+			conn = DriverManager.getConnection(DB_URL, user, password);
+			conn.clearWarnings();
+			pst = conn.prepareStatement(SQL);
+			// pst.setString(1, (String) extractSeqID);
+			rs = pst.executeQuery();
+
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
 }

@@ -3,7 +3,8 @@
  */
 package nl.naturalis.lims2.utils;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -47,7 +48,7 @@ public class LimsFrameProgress {
 	JLabel jlMsgEmpty = new JLabel("", JLabel.CENTER);
 	JLabel jlMsg = new JLabel("", JLabel.CENTER);
 	JLabel jlMsg0 = new JLabel("", JLabel.CENTER);
-	JLabel jlbMsg1 = new JLabel("", JLabel.CENTER);
+	static JLabel jlbMsg1 = new JLabel("", JLabel.CENTER);
 	JLabel jlbMsg2 = new JLabel("", JLabel.CENTER);
 
 	final LimsProgressBar it = new LimsProgressBar();
@@ -59,6 +60,8 @@ public class LimsFrameProgress {
 	 * Create the dialog screen
 	 * */
 	public void createProgressGUI() {
+		frame.setLayout(new FlowLayout());
+		frame.setSize(480, 250);
 		frame.isAlwaysOnTop();
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setContentPane(it);
@@ -66,15 +69,33 @@ public class LimsFrameProgress {
 				JRootPane.INFORMATION_DIALOG);
 		frame.getTitle();
 		jlPercentage.setText("0%");
-		jlFilename.setText("");
-		frame.add(BorderLayout.CENTER, jlPercentage);
-		frame.add(BorderLayout.CENTER, jlFilename);
-		frame.add(BorderLayout.CENTER, jlMsgEmpty);
-		frame.add(BorderLayout.CENTER, jlMsg);
-		frame.add(BorderLayout.CENTER, jlMsg0);
-		frame.add(BorderLayout.CENTER, jlbMsg1);
-		frame.add(BorderLayout.CENTER, jlbMsg2);
-		frame.setBounds(0, 0, 500, 160);
+		jlPercentage.setHorizontalAlignment(jlPercentage.CENTER);
+		jlPercentage.setVerticalAlignment(jlPercentage.CENTER);
+		jlFilename.setText("\n");
+		jlFilename.setPreferredSize(new Dimension(350, 50));
+		jlFilename.setHorizontalTextPosition(jlFilename.CENTER);
+		jlFilename.setVerticalAlignment(jlFilename.CENTER);
+		jlMsg0.setHorizontalAlignment(jlMsg0.CENTER);
+		jlMsg0.setVerticalAlignment(jlMsg0.CENTER);
+		jlbMsg1.setHorizontalAlignment(jlbMsg1.CENTER);
+		jlbMsg1.setVerticalAlignment(jlbMsg1.CENTER);
+		jlbMsg2.setHorizontalAlignment(jlbMsg2.CENTER);
+		jlbMsg2.setVerticalAlignment(jlbMsg2.CENTER);
+		frame.add(jlPercentage);
+		frame.add(jlFilename);
+		frame.add(jlMsgEmpty);
+		frame.add(jlMsg);
+		frame.add(jlMsg0);
+		frame.add(jlbMsg1);
+		frame.add(jlbMsg2);
+		// frame.add(BorderLayout.CENTER, jlPercentage);
+		// frame.add(BorderLayout.CENTER, jlFilename);
+		// frame.add(BorderLayout.CENTER, jlMsgEmpty);
+		// frame.add(BorderLayout.CENTER, jlMsg);
+		// frame.add(BorderLayout.CENTER, jlMsg0);
+		// frame.add(BorderLayout.CENTER, jlbMsg1);
+		// frame.add(BorderLayout.CENTER, jlbMsg2);
+		// frame.setBounds(0, 0, 500, 360);
 		frame.setVisible(true);
 	}
 
@@ -93,7 +114,7 @@ public class LimsFrameProgress {
 					public void run() {
 						it.updateBar(percent);
 						jlPercentage.setText(percent + "%");
-						jlFilename.setText(fileName);
+						jlFilename.setText("\n" + fileName);
 						jlMsgEmpty
 								.setText("                                                  ");
 						jlMsg.setText("Warning:                                               "
@@ -102,7 +123,7 @@ public class LimsFrameProgress {
 								+ "\n");
 						jlbMsg1.setText("Please wait for the import process to finish."
 								+ "\n");
-						jlbMsg2.setText("You should preferably not start another action or change folders.");
+						jlbMsg2.setText("You should preferably not start another action or change maps.");
 					}
 				});
 				java.lang.Thread.sleep(1);

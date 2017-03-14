@@ -58,7 +58,8 @@ public class LimsImportNotes {
 	private static String noteTextConsensus = "Pass (Seq)";
 
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
-			"contamination", "endo-contamination", "exo-contamination", "ND" };
+			"contamination", "endo-contamination", "exo-contamination",
+			"not determined" };
 
 	/**
 	 * Set notes for AB1 and Dummy document(s). Used in Plugin:
