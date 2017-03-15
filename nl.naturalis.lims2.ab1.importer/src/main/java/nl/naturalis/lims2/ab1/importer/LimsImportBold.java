@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
@@ -98,6 +99,7 @@ public class LimsImportBold extends DocumentAction {
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
+	private List<String> columnNames = new ArrayList<String>();
 
 	private String resultRegNum = null;
 	private Object documentFileName = "";
@@ -108,6 +110,8 @@ public class LimsImportBold extends DocumentAction {
 	private String boldFile;
 	private String extractIDfileName;
 	private String regNumber = "";
+	private final String COI6 = "COI-5P Seq. Length";
+	private final String COI9 = "Image Count";
 
 	private boolean isRMNHNumber = false;
 	private boolean isOverrideCacheName = false;
@@ -267,6 +271,7 @@ public class LimsImportBold extends DocumentAction {
 
 					/* Get the rowheader of the csv file. */
 					headerCOI = csvReader.readNext();
+
 					if (headerCOI == null) {
 						JOptionPane
 								.showMessageDialog(
@@ -277,6 +282,11 @@ public class LimsImportBold extends DocumentAction {
 										JOptionPane.INFORMATION_MESSAGE, null);
 						limsFrameProgress.hideFrame();
 					}
+					for (int i = 0; i < headerCOI.length; i++) {
+						columnNames.add(headerCOI[i]);
+					}
+					int col6Index = columnNames.indexOf(COI6);
+					int col9Index = columnNames.indexOf(COI9);
 
 					try {
 
@@ -366,11 +376,32 @@ public class LimsImportBold extends DocumentAction {
 									 * Match only on registration number and
 									 * Marker
 									 */
-									if (headerCOI[6]
-											.equals("COI-5P Seq. Length")) {
-										addBoldNotesMatchRegistrationAndMarker(
-												annotatedDocument, headerCOI,
-												regNumber, cnt);
+									if (col6Index == 6 && col9Index == 9) {
+										if (headerCOI[6]
+												.equals("COI-5P Seq. Length")) {
+											addBoldNotesMatchRegistrationAndMarker(
+													annotatedDocument,
+													headerCOI, regNumber, cnt);
+										}
+									} else {
+										JFrame frame = new JFrame();
+										Object[] options = { "OK" };
+										int n = JOptionPane
+												.showOptionDialog(
+														frame,
+														"The BOLD progress report probably contains information on more than one marker."
+																+ "\n"
+																+ "Please adapt the structure of the report to a one-marker structure. ",
+														"BOLD",
+														JOptionPane.OK_OPTION,
+														JOptionPane.QUESTION_MESSAGE,
+														null, options,
+														options[0]);
+										if (n == 0) {
+											csvReader.close();
+											limsFrameProgress.hideFrame();
+											return;
+										}
 									}
 
 									/*

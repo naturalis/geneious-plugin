@@ -637,4 +637,101 @@ public class LimsSQL {
 		}
 		return result;
 	}
+
+	public String getDocumentCacheName(Object fileName, String xmlNotesName)
+			throws IOException {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		String result = "";
+
+		try {
+
+			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '"
+					+ xmlNotesName + "')) AS CacheName" + "\n"
+					+ " FROM annotated_document" + "\n "
+					+ " WHERE document_xml like  '%<cache_name>" + fileName
+					+ "%' " + "\n" + " LIMIT 1";
+
+			conn = DriverManager.getConnection(DB_URL, user, password);
+			conn.clearWarnings();
+			pst = conn.prepareStatement(SQL);
+			rs = pst.executeQuery();
+
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
+
+	public String getDocumentOverrideCacheName(Object fileName,
+			String xmlNotesName) throws IOException {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		String result = "";
+
+		try {
+
+			final String SQL = "SELECT TRIM(EXTRACTVALUE(document_xml,  '"
+					+ xmlNotesName
+					+ "')) AS CacheName"
+					+ "\n"
+					+ " FROM annotated_document"
+					+ "\n "
+					+ " WHERE document_xml like  '%<override_cache_name>Reads Assembly "
+					+ fileName + "%' " + "\n" + " LIMIT 1";
+
+			conn = DriverManager.getConnection(DB_URL, user, password);
+			conn.clearWarnings();
+			pst = conn.prepareStatement(SQL);
+			rs = pst.executeQuery();
+
+			if (rs.next()) {
+				do {
+					result = rs.getObject(1).toString();
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+		return result;
+	}
 }
