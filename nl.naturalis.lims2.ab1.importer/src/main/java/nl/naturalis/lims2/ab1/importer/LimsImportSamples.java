@@ -1135,9 +1135,8 @@ public class LimsImportSamples extends DocumentAction {
 				+ Integer.toString(dummyRecordsVerwerkt)
 				+ " samples are imported as dummy" + "\n" + "\n"
 				+ "[3] "
-				+ Integer.toString(sampleRecordFailure)
-				// + Integer.toString(dummyRecordsVerwerkt -
-				// sampleRecordFailure)
+				// + Integer.toString(sampleRecordFailure)
+				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
 	}

@@ -510,6 +510,7 @@ public class LimsSQL {
 			if (rs.next()) {
 				do {
 					int cnt = rs.getInt(1);
+					dummyID = rs.getString("ID");
 					if (cnt == 0)
 						truefalse = false;
 					else
@@ -547,12 +548,10 @@ public class LimsSQL {
 		String result = "";
 
 		try {
-			final String SQL = " SELECT ID as ID, TRIM(EXTRACTVALUE(document_xml, '"
-					+ xmlNotesName
-					+ "')) AS name "
+			final String SQL = " SELECT ID, TRIM(EXTRACTVALUE(document_xml, '"
+					+ xmlNotesName + "')) AS name "
 					+ " FROM annotated_document"
-					+ " WHERE document_xml like  '%<cache_name>"
-					+ filename
+					+ " WHERE document_xml like  '%<cache_name>" + filename
 					+ "</cache_name>%' " + "\n" + " LIMIT 1";
 
 			conn = DriverManager.getConnection(DB_URL, user, password);
@@ -565,6 +564,7 @@ public class LimsSQL {
 			if (rs.next()) {
 				do {
 					result = rs.getObject(1).toString();
+					dummyID = rs.getString("ID");
 					dummyName = rs.getObject(2).toString();
 				} while (rs.next());
 			}

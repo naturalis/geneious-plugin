@@ -1094,12 +1094,12 @@ public class LimsReadGeneiousFieldsValues {
 
 					dummy.setId(rs.getInt("id"));
 					dummy.setName(rs.getString("name"));
-					dummy.setExtractID(rs.getString("ExtractID"));
+					dummy.setExtractID(rs.getString("extractID"));
 					dummy.setRegistrationnumber(rs
-							.getString("Registrationnumber"));
-					dummy.setScientificName(rs.getString("ScientificName"));
-					dummy.setSamplePlateId(rs.getString("SamplePlateId"));
-					dummy.setPosition(rs.getString("Position"));
+							.getString("registrationnumber"));
+					dummy.setScientificName(rs.getString("scientificName"));
+					dummy.setSamplePlateId(rs.getString("samplePlateId"));
+					dummy.setPosition(rs.getString("position"));
 					dummy.setSeqStaff(rs.getString("seqStaff"));
 					dummy.setExtractPlateNumberIDSamples(rs
 							.getString("extractPlateNumberIDSamples"));

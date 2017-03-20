@@ -152,8 +152,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	 * */
 	public DocumentAction[] getDocumentActions() {
 		return new DocumentAction[] { new LimsSplitName(), new LimsImportCRS(),
-				new LimsImportBold(), new LimsImportSamples(),
-				new LimsImportSamplesNew() };
+				new LimsImportBold(), new LimsImportSamples() };
 	}
 
 	@Override

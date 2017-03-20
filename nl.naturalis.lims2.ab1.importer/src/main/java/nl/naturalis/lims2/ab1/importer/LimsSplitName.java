@@ -287,7 +287,8 @@ public class LimsSplitName extends DocumentAction {
 			} // end for loop
 
 			logger.info("Total of document(s) updated: "
-					+ DocumentUtilities.getSelectedDocuments().size());
+					+ verwerkingList.size());
+			// + DocumentUtilities.getSelectedDocuments().size());
 			logger.info("------------------------- E N D--------------------------------------");
 			setDefaultAlignmentDocumentLog();
 			setDefaultNucleotideGraphSequenceLog();
@@ -333,7 +334,7 @@ public class LimsSplitName extends DocumentAction {
 								+ defaultNucleotideGraphSequence;
 					}
 					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(selectedDocuments.size())
+							+ Integer.toString(verwerkingList.size())
 							+ " documents are updated.");
 
 					logger.info(defNucleotideGraphSequence.getName()
@@ -350,7 +351,7 @@ public class LimsSplitName extends DocumentAction {
 						msgDocName = "Multiple " + defaultNucleotideSequence;
 					}
 					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(selectedDocuments.size())
+							+ Integer.toString(verwerkingList.size())
 							+ " documents are updated.");
 
 					logger.info(defNucleotideSequence.getName()
@@ -370,7 +371,7 @@ public class LimsSplitName extends DocumentAction {
 						msgDocName = "Multiple " + defaultAlignmentDocument;
 					}
 					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(selectedDocuments.size())
+							+ Integer.toString(verwerkingList.size())
 							+ " documents are updated.");
 
 					logger.info(defaultAlignmentDocument
@@ -387,7 +388,7 @@ public class LimsSplitName extends DocumentAction {
 						msgDocName = "Multiple " + defaultNucleotideSequence;
 					}
 					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(selectedDocuments.size())
+							+ Integer.toString(verwerkingList.size())
 							+ " documents are updated.");
 
 					logger.info(defNucleotideSequence.getName()
@@ -399,11 +400,11 @@ public class LimsSplitName extends DocumentAction {
 				private void showAllSelectedDocumentsDialog() {
 					if (ab1Filename.contains(".dum")) {
 						Dialogs.showMessageDialog(Integer
-								.toString(selectedDocuments.size())
+								.toString(verwerkingList.size())
 								+ " selected documents are not updated.");
 					} else {
 						Dialogs.showMessageDialog(Integer
-								.toString(selectedDocuments.size())
+								.toString(verwerkingList.size())
 								+ " selected documents are updated.");
 					}
 					logger.info("Update: Total imported document(s): "

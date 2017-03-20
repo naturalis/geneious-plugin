@@ -230,7 +230,7 @@ public class LimsImportCRS extends DocumentAction {
 				startTime = new Date().getTime();
 
 				String line = "";
-				String cvsSplitBy = "\t";
+				String cvsSplitBy = "\\t";
 				int recordCount = 0;
 				try {
 					/* read the file in memory */
@@ -257,7 +257,7 @@ public class LimsImportCRS extends DocumentAction {
 						}
 
 						/* Splitting the data */
-						String[] row = line.split(cvsSplitBy);
+						String[] row = line.split(cvsSplitBy, -1);
 
 						/* get the registration number. */
 						registrationNumber = row[0];
