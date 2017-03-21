@@ -24,6 +24,7 @@ public class LimsNotesAB1FastaImport {
 	public String extractID;
 	public String pcrPlateID;
 	public String marker;
+	static final String nd = "not determined";
 
 	public void enrich_AB1_And_Fasta_DocumentsWithNotes(
 			AnnotatedPluginDocument documentAnnotated, String pFileName,
@@ -57,10 +58,14 @@ public class LimsNotesAB1FastaImport {
 				limsImporterUtil.getPropValues("seqsequencestaff"));
 
 		/* set note for ConsensusSeqPassCode_Seq */
-		limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
-				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
-				"Pass (Seq)", "Pass (Seq)", null);
-
+		try {
+			limsNotes.setImportConsensusSeqPassNotes(documentAnnotated,
+					limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
+					"Pass (Seq)", "Pass (Seq)",
+					limsNotes.ConsensusSeqPass[6] = "not determined");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void set_AB1_Fasta_DocumentFileName(String extractAb1FastaFileName) {

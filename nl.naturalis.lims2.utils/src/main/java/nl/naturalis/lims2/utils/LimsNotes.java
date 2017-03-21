@@ -425,7 +425,12 @@ public class LimsNotes {
 
 		/* Create note for Extract-ID */
 		DocumentNote documentNote = documentNoteType.createDocumentNote();
-		documentNote.setFieldValue(this.fieldCode, fieldValue);
+		try {
+			documentNote.setFieldValue(this.fieldCode, fieldValue);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		AnnotatedPluginDocument.DocumentNotes documentNotes = (DocumentNotes) annotatedPluginDocuments[count]
 				.getDocumentNotes(true);

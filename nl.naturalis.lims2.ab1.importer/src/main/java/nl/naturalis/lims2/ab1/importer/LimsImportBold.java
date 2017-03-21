@@ -240,7 +240,7 @@ public class LimsImportBold extends DocumentAction {
 				 * Open a dialog screen to choose a BOLD file
 				 */
 				boldFileSelected = fcd.loadSelectedFile();
-				if (boldFileSelected == null) {
+				if (boldFileSelected == "" && boldFileSelected.isEmpty()) {
 					return;
 				}
 

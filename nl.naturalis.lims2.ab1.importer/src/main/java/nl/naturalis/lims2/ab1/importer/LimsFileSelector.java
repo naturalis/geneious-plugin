@@ -76,11 +76,19 @@ public class LimsFileSelector {
 		/* Set the title for the dialog */
 		chooser.setDialogTitle("Select a file");
 		/* Get the current directory. */
-		chooser.getCurrentDirectory();
+		// chooser.getCurrentDirectory();
+		try {
+			chooser.setCurrentDirectory(new File(limsImporterUtil
+					.getPropValues("lims.import.input.cs_dir")));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 		/* Set filter extension for the type of files to select. */
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"TXT & XLS, CSV Files", "txt", "xls", "csv");
 		chooser.setFileFilter(filter);
+
 		/* Open the dialog */
 		int returnVal = chooser.showOpenDialog(chooser);
 
@@ -96,7 +104,7 @@ public class LimsFileSelector {
 		}
 		case JFileChooser.CANCEL_OPTION: {
 			logger.info("Cancel or the close-dialog icon was clicked.");
-			fileSelected = null;
+			fileSelected = "";
 			break;
 		}
 		case JFileChooser.ERROR_OPTION: {

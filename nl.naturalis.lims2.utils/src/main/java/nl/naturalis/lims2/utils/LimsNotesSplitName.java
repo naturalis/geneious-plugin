@@ -69,13 +69,19 @@ public class LimsNotesSplitName {
 					"Seq-staff (Seq)",
 					limsImporterUtil.getPropValues("seqsequencestaff"), pCount);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		/* Set note ConsensusSeqPassCode_Seq */
-		limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
-				limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
-				"Pass (Seq)", "Pass (Seq)", null, pCount);
+		try {
+			limsNotes.setNoteDropdownFieldToFileName(annotatedPluginDocuments,
+					limsNotes.ConsensusSeqPass, "ConsensusSeqPassCode_Seq",
+					"Pass (Seq)", "Pass (Seq)",
+					limsNotes.ConsensusSeqPass[6] = "not determined", pCount);
+		} catch (Exception e) {
+			limsFrameProgress.hideFrame();
+			throw new RuntimeException(e);
+		}
 
 		/* Show processing dialog */
 		limsFrameProgress.showProgress("Processing: "

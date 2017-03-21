@@ -252,7 +252,8 @@ public class LimsImportSamples extends DocumentAction {
 					fileSelected = fcd.loadSelectedFile();
 
 					/* Add selected documents to a list. */
-					if (fileSelected == null) {
+					if (fileSelected == "" && fileSelected.isEmpty()) {
+						limsFrameProgress.hideFrame();
 						return;
 					}
 
@@ -405,11 +406,15 @@ public class LimsImportSamples extends DocumentAction {
 					startTime = new Date().getTime();
 					limsFrameProgress.createProgressGUI();
 					fileSelected = fcd.loadSelectedFile();
+					if (fileSelected == "" && fileSelected.isEmpty()) {
+						limsFrameProgress.hideFrame();
+						return;
+					}
 					try {
 						createDummyFileWithOutSelection(fileSelected,
 								extractIDfileName);
 					} catch (IOException e) {
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}
 					limsFrameProgress.hideFrame();
 					/* Add failure records to the list */
@@ -472,6 +477,10 @@ public class LimsImportSamples extends DocumentAction {
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					/* Load the Sample CSV file that will be processed */
 					fileSelected = fcd.loadSelectedFile();
+
+					if (fileSelected == "" && fileSelected.isEmpty()) {
+						return;
+					}
 
 					/* Create progressbar GUI */
 					limsFrameProgress.createProgressGUI();
@@ -713,9 +722,6 @@ public class LimsImportSamples extends DocumentAction {
 	private void createDummyFile(String fileName) throws IOException {
 
 		if (fileName != null) {
-			// logger.info("Read samples file: " + fileName);
-
-			// for (int i = 0; i < listDocs.size(); i++) {
 
 			Object cacheNameExists = null;
 			Object overrideCacheNameExists = null;

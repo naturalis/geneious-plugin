@@ -207,7 +207,7 @@ public class LimsImportCRS extends DocumentAction {
 				 * kunnen te lezen.
 				 */
 				fileSelected = fcd.loadSelectedFile();
-				if (fileSelected == null) {
+				if (fileSelected == "" && fileSelected.isEmpty()) {
 					return;
 				}
 
