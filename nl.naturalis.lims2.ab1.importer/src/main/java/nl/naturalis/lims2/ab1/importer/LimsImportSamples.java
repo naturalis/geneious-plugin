@@ -512,8 +512,6 @@ public class LimsImportSamples extends DocumentAction {
 						% TimeUnit.MINUTES.toSeconds(1));
 		logger.info("Import records in : '" + hms
 				+ " hour(s)/minute(s)/second(s).'");
-		// logger.info("Import records in : '"
-		// + TimeUnit.MILLISECONDS.toSeconds(difference) + " minutes.'");
 		logger.info("Totaal records verwerkt: " + recordCount);
 	}
 
@@ -725,12 +723,6 @@ public class LimsImportSamples extends DocumentAction {
 
 			Object cacheNameExists = null;
 			Object overrideCacheNameExists = null;
-			/*
-			 * if (listDocs.toString().contains("ExtractIDCode_Seq")) { Idexists
-			 * = listDocs.getDocumentNotes(true)
-			 * .getNote("DocumentNoteUtilities-Extract ID (Seq)")
-			 * .getFieldValue("ExtractIDCode_Seq"); }
-			 */
 
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
@@ -761,9 +753,6 @@ public class LimsImportSamples extends DocumentAction {
 					}
 
 					boolean dummyExists = false;
-					// limsSQL
-					// .checkIfSampleDocExistsInTableAnnotatedDocument(csvID
-					// + ".dum");
 					if (cacheNameExists != null
 							&& !cacheNameExists.toString().isEmpty()) {
 						dummyExists = true;
