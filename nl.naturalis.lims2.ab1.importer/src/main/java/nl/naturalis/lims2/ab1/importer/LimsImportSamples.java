@@ -796,6 +796,10 @@ public class LimsImportSamples extends DocumentAction {
 	private void createDummyFileWithOutSelection(String fileName,
 			String extractFileID) throws IOException {
 		if (fileName != null) {
+
+			Object cacheNameExists = null;
+			Object overrideCacheNameExists = null;
+
 			logger.info("Read samples file: " + fileName);
 			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
 					'\'', 0);
@@ -816,11 +820,28 @@ public class LimsImportSamples extends DocumentAction {
 								record[2].indexOf("-"));
 					}
 
-					boolean dummyExists = limsSQL
-							.checkIfSampleDocExistsInTableAnnotatedDocument(csvID
-									+ ".dum");
+					cacheNameExists = limsSQL.getDocumentCacheName(csvID,
+							"//document/hiddenFields/cache_name");
 
-					if (!dummyExists) {
+					if (cacheNameExists == "") {
+						overrideCacheNameExists = limsSQL
+								.getDocumentOverrideCacheName(csvID,
+										"//document/hiddenFields/override_cache_name");
+					}
+
+					boolean dummyExists = false;
+					if (cacheNameExists != null
+							&& !cacheNameExists.toString().isEmpty()) {
+						dummyExists = true;
+					} else if (overrideCacheNameExists != null
+							&& !overrideCacheNameExists.toString().isEmpty()) {
+						dummyExists = true;
+					}
+
+					if ((!dummyExists && !cacheNameExists.toString().contains(
+							csvID))
+							|| (!dummyExists && !overrideCacheNameExists
+									.toString().contains(csvID))) {
 
 						limsFrameProgress.showProgress("Creating dummy file: "
 								+ csvID + ".dum");

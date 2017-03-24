@@ -322,39 +322,35 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			documentAnnotatedPlugin = importCallback.addDocument(docs
 					.iterator().next());
 
-			if (!DocumentUtilities.getSelectedDocuments().isEmpty()
-					&& selectedDocs.toString().contains(".dum")) {
-				for (int cnt = 0; cnt < selectedDocs.size(); cnt++) {
-					getDummyName = selectedDocs
-							.get(cnt)
-							.getName()
-							.substring(
-									0,
-									selectedDocs.get(cnt).getName()
-											.indexOf(".dum"));
+			if (file.getName() != null) {
+				setAB1_FastaImportNotes();
+				count = 0;
 
-					if (file.getName() != null
-							&& !selectedDocs.get(cnt).toString()
-									.contains(".dum")) {
-						setAB1_FastaImportNotes();
-						count = 0;
-						// Get dummy values
-					} else if (selectedDocs.get(cnt).toString()
-							.contains(".dum")
-							&& !DocumentUtilities.getSelectedDocuments()
-									.isEmpty()
-							&& getDummyName
-									.equals(limsNotesIAB1FastaImp.extractID)) {
-						Dummy found = searchForDummyRecords(file);
-						enrichAB1_FastaImportDocumentsWithNotes(
-								limsNotesIAB1FastaImp.pcrPlateID,
-								limsNotesIAB1FastaImp.marker, found);
+				for (int cnt = 0; cnt < selectedDocs.size(); cnt++) {
+					if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+						if (selectedDocs.get(cnt).getName().contains(".dum")) {
+							getDummyName = selectedDocs
+									.get(cnt)
+									.getName()
+									.substring(
+											0,
+											selectedDocs.get(cnt).getName()
+													.indexOf(".dum"));
+
+							if (selectedDocs.get(cnt).toString()
+									.contains(".dum")
+									&& !DocumentUtilities
+											.getSelectedDocuments().isEmpty()
+									&& getDummyName
+											.equals(limsNotesIAB1FastaImp.extractID)) {
+								Dummy found = searchForDummyRecords(file);
+								enrichAB1_FastaImportDocumentsWithNotes(
+										limsNotesIAB1FastaImp.pcrPlateID,
+										limsNotesIAB1FastaImp.marker, found);
+								deleteRecordsFromTable();
+							}
+						}
 					}
-					deleteRecordsFromTable();
-				}
-			} else {
-				if (file.getName() != null) {
-					setAB1_FastaImportNotes();
 				}
 			}
 
@@ -367,6 +363,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				docs.clear();
 			}
 		}
+
 	}
 
 	@Override
@@ -467,10 +464,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 */
 	private void deleteRecordsFromTable() {
 		if (cntSelectedDoc >= 1) {
-			if (counter == selectedCount
-					&& isDeleted
-					&& DocumentUtilities.getSelectedDocuments().iterator()
-							.next().getName().contains(".dum")) {
+			if (counter == selectedCount && isDeleted) {
 				try {
 					/*
 					 * Delete dummy records after it match with the AB1
