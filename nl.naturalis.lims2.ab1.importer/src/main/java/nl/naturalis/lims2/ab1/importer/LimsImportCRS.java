@@ -321,9 +321,7 @@ public class LimsImportCRS extends DocumentAction {
 								 * processing
 								 */
 								if (resultRegNum.equals(registrationNumber)
-										&& isRMNHNumber
-										&& !documentFileName.toString()
-												.contains(".dum")) {
+										&& isRMNHNumber) {
 
 									/* Start time of the process */
 									startBeginTime = System.nanoTime();

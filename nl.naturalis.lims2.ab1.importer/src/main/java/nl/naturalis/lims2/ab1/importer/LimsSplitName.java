@@ -401,7 +401,7 @@ public class LimsSplitName extends DocumentAction {
 					if (ab1Filename.contains(".dum")) {
 						Dialogs.showMessageDialog(Integer
 								.toString(verwerkingList.size())
-								+ " selected documents are not updated.");
+								+ " selected documents are updated.");
 					} else {
 						Dialogs.showMessageDialog(Integer
 								.toString(verwerkingList.size())

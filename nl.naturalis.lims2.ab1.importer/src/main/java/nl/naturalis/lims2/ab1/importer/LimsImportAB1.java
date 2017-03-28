@@ -348,6 +348,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 										limsNotesIAB1FastaImp.pcrPlateID,
 										limsNotesIAB1FastaImp.marker, found);
 								deleteRecordsFromTable();
+								if (found != null) {
+									break;
+								}
 							}
 						}
 					}
@@ -384,7 +387,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			String marker, Dummy found) {
 		logger.info("Get dummy notes and enrich notes to ab1/fasta document import.");
 		/* Set version number */
-		setVersionNumber();
+		// setVersionNumber();
 
 		/*
 		 * When Dummy file exists and the AB1 imported document match the Dummy

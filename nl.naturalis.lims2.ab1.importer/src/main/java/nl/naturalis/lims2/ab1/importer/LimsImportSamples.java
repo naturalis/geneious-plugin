@@ -862,6 +862,12 @@ public class LimsImportSamples extends DocumentAction {
 						limsFrameProgress.showProgress(csvID
 								+ " Dummy file already exists. " + '\n'
 								+ " No Dummy file created.");
+
+						if (dummyExists
+								&& DocumentUtilities.getSelectedDocuments()
+										.isEmpty()) {
+							failureList.add(cacheNameExists.toString());
+						}
 					}
 				} // end While
 			} finally {
