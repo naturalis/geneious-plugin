@@ -193,6 +193,21 @@ public class LimsImportBold extends DocumentAction {
 	}
 
 	/*
+	 * Get Marker Seq from selected document
+	 */
+	private String getMarkerSeqFromSelectedDocument(AnnotatedPluginDocument list) {
+		String result = null;
+
+		if (list.toString().contains("MarkerCode_Seq")) {
+			result = (String) (list.getDocumentNotes(true).getNote(
+					"DocumentNoteUtilities-Marker (Seq)")
+					.getFieldValue("MarkerCode_Seq"));
+
+		}
+		return result;
+	}
+
+	/*
 	 * Select one- or more documents and read data from the BOLD cvs file to add
 	 * notes to the document(s).
 	 * 
@@ -227,6 +242,7 @@ public class LimsImportBold extends DocumentAction {
 					 * import data
 					 */
 			if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+				columnNames.clear();
 				/*
 				 * Get the path of the log Uitvallijst from the propertie file:
 				 * lims-import.properties.
@@ -314,6 +330,26 @@ public class LimsImportBold extends DocumentAction {
 							listDocuments = DocumentUtilities
 									.getSelectedDocuments();
 
+							if (col9Index != 9) {
+
+								JFrame frame = new JFrame();
+								Object[] options = { "OK" };
+								int n = JOptionPane
+										.showOptionDialog(
+												frame,
+												"The BOLD progress report probably contains information on more than one marker."
+														+ "\n"
+														+ "Please adapt the structure of the report to a one-marker structure. ",
+												"BOLD", JOptionPane.OK_OPTION,
+												JOptionPane.QUESTION_MESSAGE,
+												null, options, options[0]);
+								if (n == 0) {
+									csvReader.close();
+									limsFrameProgress.hideFrame();
+									return;
+								}
+							}
+
 							int cnt = 0;
 							/* Looping thru the selected documents to add notes. */
 							for (AnnotatedPluginDocument list : listDocuments) {
@@ -366,8 +402,17 @@ public class LimsImportBold extends DocumentAction {
 									continue;
 								}
 
+								/* Get marker seq from selected document */
+								String marker = getMarkerSeqFromSelectedDocument(list);
+								if (!headerCOI[6].contains(marker)) {
+									logger.info(marker
+											+ ": Marker seq doesn't match field index 6 from the CSV file header: "
+											+ headerCOI[6]);
+								}
+
 								if (regNumber.equals(resultRegNum)
-										&& isRMNHNumber) {
+										&& isRMNHNumber
+										&& headerCOI[6].contains(marker)) {
 									/* Match only on registration number */
 									addBoldNotesToDocuments(annotatedDocument,
 											regNumber, cnt);
@@ -376,45 +421,25 @@ public class LimsImportBold extends DocumentAction {
 									 * Match only on registration number and
 									 * Marker
 									 */
-									if (col6Index == 6 && col9Index == 9) {
-										if (headerCOI[6]
-												.equals("COI-5P Seq. Length")) {
-											addBoldNotesMatchRegistrationAndMarker(
-													annotatedDocument,
-													headerCOI, regNumber, cnt);
-										}
-									} else {
-										JFrame frame = new JFrame();
-										Object[] options = { "OK" };
-										int n = JOptionPane
-												.showOptionDialog(
-														frame,
-														"The BOLD progress report probably contains information on more than one marker."
-																+ "\n"
-																+ "Please adapt the structure of the report to a one-marker structure. ",
-														"BOLD",
-														JOptionPane.OK_OPTION,
-														JOptionPane.QUESTION_MESSAGE,
-														null, options,
-														options[0]);
-										if (n == 0) {
-											csvReader.close();
-											limsFrameProgress.hideFrame();
-											return;
-										}
-									}
+
+									// if (headerCOI[6].contains(marker)) {
+									addBoldNotesMatchRegistrationAndMarker(
+											annotatedDocument, headerCOI,
+											regNumber, cnt);
+									// }
 
 									/*
 									 * Add the registration number to the
 									 * document which has been processed.
 									 */
-									if (!processedList.toString().contains(
-											regNumber)) {
-										processedList.add(regNumber);
-										// VerwerktRegMarker++;
+									if (regNumber.equals(resultRegNum)
+											&& headerCOI[6].contains(marker)) {
+										if (!processedList.toString().contains(
+												regNumber)) {
+											processedList.add(regNumber);
+										}
+										setVerwerktReg(getVerwerktReg() + 1);
 									}
-
-									setVerwerktReg(getVerwerktReg() + 1);
 								}
 
 								cnt++;
