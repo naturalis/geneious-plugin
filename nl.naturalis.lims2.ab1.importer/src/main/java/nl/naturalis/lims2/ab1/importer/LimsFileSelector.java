@@ -86,7 +86,8 @@ public class LimsFileSelector {
 
 		/* Set filter extension for the type of files to select. */
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				"TXT & XLS, CSV Files", "txt", "xls", "csv");
+				"TXT, TSV, CSV Files", "txt", "csv", "tsv");
+		// chooser.
 		chooser.setFileFilter(filter);
 
 		/* Open the dialog */

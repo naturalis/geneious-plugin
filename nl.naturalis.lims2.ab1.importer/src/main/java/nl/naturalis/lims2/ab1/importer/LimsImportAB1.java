@@ -115,6 +115,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
+	List selectedDummyList = new ArrayList();
+
 	public LimsImportAB1() {
 
 		if (readGeneiousFieldsValues.activeDB != null) {
@@ -336,6 +338,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 											0,
 											selectedDocs.get(cnt).getName()
 													.indexOf(".dum"));
+							if (ab1FileName[0].equals(getDummyName)) {
+								selectedDummyList.add(getDummyName);
+								System.out.println("Dummy Selected: "
+										+ selectedDummyList.size());
+							}
 
 							if (selectedDocs.get(cnt).toString()
 									.contains(".dum")
@@ -347,7 +354,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 								enrichAB1_FastaImportDocumentsWithNotes(
 										limsNotesIAB1FastaImp.pcrPlateID,
 										limsNotesIAB1FastaImp.marker, found);
-								deleteRecordsFromTable();
+								deleteRecordsFromTable(cnt);
 								if (found != null) {
 									break;
 								}
@@ -364,6 +371,10 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
 			if (docs != null) {
 				docs.clear();
+			}
+
+			if (selectedDummyList.size() == selectedCount) {
+				selectedDummyList.clear();
 			}
 		}
 
@@ -454,7 +465,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						limsNotesIAB1FastaImp.pcrPlateID,
 						limsNotesIAB1FastaImp.marker,
 						limsNotesIAB1FastaImp.extractID);
-				deleteRecordsFromTable();
+				// deleteRecordsFromTable();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -465,9 +476,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	/**
 	 * 
 	 */
-	private void deleteRecordsFromTable() {
+	private void deleteRecordsFromTable(int cnt) {
 		if (cntSelectedDoc >= 1) {
-			if (counter == selectedCount && isDeleted) {
+			if (DocumentUtilities.getSelectedDocuments().get(cnt).getName()
+					.contains("dum")
+					&& isDeleted) {
+				// if (counter == selectedDummyList.size() && isDeleted) {
 				try {
 					/*
 					 * Delete dummy records after it match with the AB1

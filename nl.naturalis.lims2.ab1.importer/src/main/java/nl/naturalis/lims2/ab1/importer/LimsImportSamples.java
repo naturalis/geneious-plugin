@@ -783,8 +783,8 @@ public class LimsImportSamples extends DocumentAction {
 						}
 					} else {
 						limsFrameProgress.showProgress(csvID
-								+ " Dummy file already exists. " + '\n'
-								+ " No Dummy file created.");
+								+ " file already exists. " + '\n'
+								+ " No file created.");
 					}
 				} // end While
 			} finally {
@@ -860,12 +860,12 @@ public class LimsImportSamples extends DocumentAction {
 						}
 					} else {
 						limsFrameProgress.showProgress(csvID
-								+ " Dummy file already exists. " + '\n'
-								+ " No Dummy file created.");
+								+ " file already exists. " + '\n'
+								+ " No file created.");
 
 						if (dummyExists
 								&& DocumentUtilities.getSelectedDocuments()
-										.isEmpty()) {
+										.isEmpty() && !record[0].isEmpty()) {
 							failureList.add(cacheNameExists.toString());
 						}
 					}

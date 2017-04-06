@@ -88,14 +88,6 @@ public class LimsFrameProgress {
 		frame.add(jlMsg0);
 		frame.add(jlbMsg1);
 		frame.add(jlbMsg2);
-		// frame.add(BorderLayout.CENTER, jlPercentage);
-		// frame.add(BorderLayout.CENTER, jlFilename);
-		// frame.add(BorderLayout.CENTER, jlMsgEmpty);
-		// frame.add(BorderLayout.CENTER, jlMsg);
-		// frame.add(BorderLayout.CENTER, jlMsg0);
-		// frame.add(BorderLayout.CENTER, jlbMsg1);
-		// frame.add(BorderLayout.CENTER, jlbMsg2);
-		// frame.setBounds(0, 0, 500, 360);
 		frame.setVisible(true);
 	}
 
@@ -123,7 +115,7 @@ public class LimsFrameProgress {
 								+ "\n");
 						jlbMsg1.setText("Please wait for the import process to finish."
 								+ "\n");
-						jlbMsg2.setText("You should preferably not start another action or change maps.");
+						jlbMsg2.setText("You should preferably not start another action or change folders.");
 					}
 				});
 				java.lang.Thread.sleep(1);
