@@ -115,7 +115,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
 
-	List selectedDummyList = new ArrayList();
+	// List selectedDummyList = new ArrayList();
 
 	public LimsImportAB1() {
 
@@ -338,11 +338,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 											0,
 											selectedDocs.get(cnt).getName()
 													.indexOf(".dum"));
-							if (ab1FileName[0].equals(getDummyName)) {
-								selectedDummyList.add(getDummyName);
-								System.out.println("Dummy Selected: "
-										+ selectedDummyList.size());
-							}
+							// if (ab1FileName[0].equals(getDummyName)) {
+							// selectedDummyList.add(getDummyName);
+							// System.out.println("Dummy Selected: "
+							// + selectedDummyList.size());
+							// }
 
 							if (selectedDocs.get(cnt).toString()
 									.contains(".dum")
@@ -373,9 +373,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				docs.clear();
 			}
 
-			if (selectedDummyList.size() == selectedCount) {
-				selectedDummyList.clear();
-			}
+			// if (selectedDummyList.size() == selectedCount) {
+			// selectedDummyList.clear();
+			// }
 		}
 
 	}
