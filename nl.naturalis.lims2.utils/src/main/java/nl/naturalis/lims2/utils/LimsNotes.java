@@ -10,8 +10,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.Constraint;
@@ -106,9 +104,7 @@ public class LimsNotes {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsNotes.class);
 
-	/**
-	 * Notes values for Consensus Sequence(ComboBox control)
-	 * */
+	/* Notes values for Consensus Sequence(ComboBox control) */
 	public String[] ConsensusSeqPass = { "OK", "medium", "low",
 			"contamination", "endo-contamination", "exo-contamination",
 			"not determined" };
@@ -134,6 +130,7 @@ public class LimsNotes {
 	 *            Set count of the documents
 	 */
 
+	@SuppressWarnings("unchecked")
 	public void setNoteToAB1FileName(
 			AnnotatedPluginDocument[] annotatedPluginDocuments,
 			String pFieldCode, String pTextNoteField, String pNoteTypeCode,
@@ -233,10 +230,12 @@ public class LimsNotes {
 	 * @param fieldValue
 	 *            The field value
 	 * */
+	@SuppressWarnings("unchecked")
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String pFieldCode, String pTextNoteField, String pNoteTypeCode,
 			String pFieldValue) {
 
+		@SuppressWarnings("rawtypes")
 		List listNotesFields = new ArrayList();
 
 		/* "ExtractPlaatNummerCode" */

@@ -82,7 +82,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private String logImportAllNaturalisFiles;
 
 	public static QueryField[] searchFields;
-	private boolean fastaFileExists = false;
 	private int versienummer = 0;
 	private boolean isDeleted = false;
 	private String extractAb1FastaFileName = "";
@@ -229,13 +228,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			versienummer = readGeneiousFieldsValues
 					.getLastVersionFromDocument(extractAb1FastaFileName);
-			if (versienummer == 0) {
-				ab1fileExists = false;
-				fastaFileExists = false;
-			} else {
-				ab1fileExists = true;
-				fastaFileExists = true;
-			}
+
+			ab1fileExists = versienummer != 0;
 
 			if (extractAb1FastaFileName.contains("ab1")) {
 
@@ -542,7 +536,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	private void setVersionNumber() {
 
-		if (ab1fileExists || fastaFileExists) {
+		if (ab1fileExists) {
 			versienummer++;
 		} else {
 			versienummer = 1;
