@@ -35,7 +35,7 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 /**
- * <table>
+ * <table summary="CRS import csv">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

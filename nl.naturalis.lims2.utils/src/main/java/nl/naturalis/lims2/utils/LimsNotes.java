@@ -19,7 +19,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 
 /**
- * <table>
+ * <table summary="Lims notes">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>
@@ -118,15 +118,15 @@ public class LimsNotes {
 	 * 
 	 * @param annotatedPluginDocuments
 	 *            set annotatedPluginDocuments
-	 * @param fieldCode
+	 * @param pFieldCode
 	 *            set fieldCode for the Notes
-	 * @param textNoteField
+	 * @param pTextNoteField
 	 *            set textNoteField for the Notes
-	 * @param noteTypeCode
+	 * @param pNoteTypeCode
 	 *            set NotetTypeCode Label
-	 * @param fieldValue
+	 * @param pFieldValue
 	 *            Set the Value for the Note
-	 * @param count
+	 * @param pCount
 	 *            Set count of the documents
 	 */
 
@@ -221,13 +221,13 @@ public class LimsNotes {
 	 * 
 	 * @param document
 	 *            Document
-	 * @param fieldCode
+	 * @param pFieldCode
 	 *            set fieldcode param
-	 * @param textNoteField
+	 * @param pTextNoteField
 	 *            field of the Note
-	 * @param noteTypeCode
+	 * @param pNoteTypeCode
 	 *            Fieldcode of the note
-	 * @param fieldValue
+	 * @param pFieldValue
 	 *            The field value
 	 * */
 	@SuppressWarnings("unchecked")

@@ -41,7 +41,7 @@ import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 /**
- * <table>
+ * <table summary="Split the filename (extract)">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

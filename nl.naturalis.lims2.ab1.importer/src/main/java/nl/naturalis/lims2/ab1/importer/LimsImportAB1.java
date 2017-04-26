@@ -32,7 +32,7 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
- * <table>
+ * <table summary="Import AB1 and fasta files">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>
@@ -180,8 +180,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * Import AB1 and fasta files
 	 * 
 	 * @param file
+	 *            Name of the selected file
 	 * @param importCallback
-	 * @param progessListener
+	 *            Import the AB1 or fasta
+	 * @param progressListener
+	 *            Show the progress
 	 * */
 	@Override
 	public void importDocuments(File file, ImportCallback importCallback,
@@ -521,7 +524,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	 * Search for a character in a Fasta file
 	 * 
 	 * @param file
+	 *            Name of the Fasta file
 	 * @param fileContentsStart
+	 *            Check if greater sign exists in the content
 	 * */
 	@Override
 	public AutoDetectStatus tentativeAutoDetect(File file,

@@ -18,7 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
- * <table>
+ * <table summary="File dialog screen">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

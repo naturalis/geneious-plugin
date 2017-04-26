@@ -4,7 +4,7 @@
 package nl.naturalis.lims2.ab1.importer;
 
 /**
- * <table>
+ * <table summary="Bolds csv fields">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

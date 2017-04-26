@@ -20,7 +20,7 @@ import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDo
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
 /**
- * <table>
+ * <table summary="Create dummies sequence">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

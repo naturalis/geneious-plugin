@@ -73,14 +73,18 @@ public class LimsImportNotes {
 	 * 
 	 * @param document
 	 *            Document
-	 * @param fieldCode
-	 *            set fieldcode param
-	 * @param textNoteField
-	 *            field of the Note
-	 * @param noteTypeCode
-	 *            Fieldcode of the note
-	 * @param fieldValue
-	 *            The field value
+	 * @param fileName
+	 *            Documentname of the csv file
+	 * @param extractID
+	 *            extractID of the note
+	 * @param pcrPlate
+	 *            The pcrPlate field value
+	 * @param markerCode
+	 *            The markerCode field value
+	 * @param versionNumber
+	 *            The versionNumber field value
+	 * @param seqStaff
+	 *            The seqStaff field value
 	 * */
 	public void setImportNotes(AnnotatedPluginDocument document,
 			String fileName, String extractID, String pcrPlate,

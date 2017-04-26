@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <table>
+ * <table summary="Importer Util class">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

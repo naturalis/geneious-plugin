@@ -15,7 +15,7 @@ import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 /**
- * <table>
+ * <table summary="Database active connection">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

@@ -16,7 +16,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.XMLFormatter;
 
 /**
- * <table>
+ * <table summary="Logger class">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

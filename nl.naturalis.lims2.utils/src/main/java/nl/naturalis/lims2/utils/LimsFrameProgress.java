@@ -12,7 +12,7 @@ import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 
 /**
- * <table>
+ * <table summary="Lims Frame progress">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

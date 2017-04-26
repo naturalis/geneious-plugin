@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <table>
+ * <table summary="utils class">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>
@@ -47,6 +47,7 @@ public class LimsLogList {
 		UitvalList.clear();
 	}
 
+	@SuppressWarnings("unused")
 	private void createLogFile(String fileName, List<String> list) {
 		logFileName = limsImporterUtil.getLogPath() + File.separator + fileName
 				+ limsImporterUtil.getLogFilename();

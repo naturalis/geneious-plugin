@@ -46,7 +46,7 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
 
 /**
- * <table>
+ * <table summary="Import samples csv">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

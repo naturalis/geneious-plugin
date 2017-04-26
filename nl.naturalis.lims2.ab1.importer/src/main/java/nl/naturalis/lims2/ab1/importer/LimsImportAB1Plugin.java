@@ -21,7 +21,7 @@ import com.biomatters.geneious.publicapi.plugin.DocumentType;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 
 /**
- * <table>
+ * <table summary="Show Plugins and version">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

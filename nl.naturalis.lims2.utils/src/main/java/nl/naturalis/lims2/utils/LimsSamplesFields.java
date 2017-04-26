@@ -17,7 +17,7 @@ import com.biomatters.geneious.publicapi.documents.XMLSerializationException;
 import com.biomatters.geneious.publicapi.documents.XMLSerializer;
 
 /**
- * <table>
+ * <table summary="Samples Fields">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
 /**
- * <table>
+ * <table summary="Progress bar">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>

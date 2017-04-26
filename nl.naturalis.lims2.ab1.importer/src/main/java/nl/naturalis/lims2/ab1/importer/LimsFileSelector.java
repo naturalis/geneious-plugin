@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <table>
+ * <table summary="File dialog selector">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>
@@ -127,6 +127,7 @@ public class LimsFileSelector {
 	 *            Set param filepath for the import
 	 * @return Return Filename
 	 * @throws FileNotFoundException
+	 *             if file not found
 	 * @see String
 	 * 
 	 * */
@@ -202,6 +203,7 @@ public class LimsFileSelector {
 	 *            Set param File
 	 * @return Return Fasta filename from the content
 	 * @throws FileNotFoundException
+	 *             If File not found
 	 * @see String
 	 * 
 	 */

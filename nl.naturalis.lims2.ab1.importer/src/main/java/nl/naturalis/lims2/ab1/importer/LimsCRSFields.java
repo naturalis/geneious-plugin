@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * <table>
+ * <table summary="CRS fields">
  * <tr>
  * <td>
  * Date: 24 august 2016</td>
@@ -341,6 +341,7 @@ public class LimsCRSFields {
 	 * Set the value for Determinator
 	 * 
 	 * @param determinator
+	 *            Set the value for Determinator
 	 * */
 	public void setDeterminator(String determinator) {
 		this.determinator = determinator;
@@ -349,7 +350,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Stadium
 	 * 
-	 * @return
+	 * @return Get the value of Stadium
 	 * */
 	public String getStadium() {
 		return stadium;
@@ -359,6 +360,7 @@ public class LimsCRSFields {
 	 * Set the value for Stadium
 	 * 
 	 * @param stadium
+	 *            Set the value for Stadium
 	 * */
 	public void setStadium(String stadium) {
 		this.stadium = stadium;
@@ -367,7 +369,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Species
 	 * 
-	 * @return
+	 * @return Get the value of Species
 	 * */
 	public String getSpecies() {
 		return species;
@@ -377,6 +379,7 @@ public class LimsCRSFields {
 	 * Set the value for Species
 	 * 
 	 * @param species
+	 *            Set species value
 	 * */
 	public void setSpecies(String species) {
 		this.species = species;
@@ -385,7 +388,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Sex
 	 * 
-	 * @return
+	 * @return Get the value of Sex
 	 * */
 	public String getSex() {
 		return sex;
@@ -395,6 +398,7 @@ public class LimsCRSFields {
 	 * Set the value for Sex
 	 * 
 	 * @param sex
+	 *            Set sex value
 	 * */
 	public void setSex(String sex) {
 		this.sex = sex;
@@ -403,7 +407,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Legavit
 	 * 
-	 * @return
+	 * @return legavit value
 	 * */
 	public String getLegavit() {
 		return legavit;
@@ -413,6 +417,7 @@ public class LimsCRSFields {
 	 * Set value for Legavit
 	 * 
 	 * @param legavit
+	 *            set legavit value
 	 * */
 	public void setLegavit(String legavit) {
 		this.legavit = legavit;
@@ -421,7 +426,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Collecting Date
 	 * 
-	 * @return
+	 * @return Get the value of Collecting Date
 	 * */
 	public String getCollectingDate() {
 		String strDateFormat = "yyyyMMdd";
@@ -441,6 +446,7 @@ public class LimsCRSFields {
 	 * Set the value for Collecting Date
 	 * 
 	 * @param collectingDate
+	 *            Set collectingDate value
 	 * */
 	public void setCollectingDate(String collectingDate) {
 		this.collectingDate = collectingDate;
@@ -449,7 +455,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Country
 	 * 
-	 * @return
+	 * @return country value
 	 * */
 	public String getCountry() {
 		return country;
@@ -459,6 +465,7 @@ public class LimsCRSFields {
 	 * Set value for Country
 	 * 
 	 * @param country
+	 *            Set country value
 	 * */
 	public void setCountry(String country) {
 		this.country = country;
@@ -467,7 +474,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of BioRegion
 	 * 
-	 * @return
+	 * @return bioRegion value
 	 * */
 	public String getBioRegion() {
 		return bioRegion;
@@ -497,6 +504,7 @@ public class LimsCRSFields {
 	 * Set the value for City
 	 * 
 	 * @param city
+	 *            Set City value
 	 * */
 	public void setCity(String city) {
 		this.city = city;
@@ -505,7 +513,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of Locality
 	 * 
-	 * @return
+	 * @return Locality value
 	 * */
 	public String getLocality() {
 		return Locality;
@@ -515,6 +523,7 @@ public class LimsCRSFields {
 	 * Set the value for Locality
 	 * 
 	 * @param Locality
+	 *            Set Locality
 	 * */
 	public void setLocality(String Locality) {
 		this.Locality = Locality;
@@ -523,7 +532,7 @@ public class LimsCRSFields {
 	/**
 	 * Get the value of LatitudeDecimal
 	 * 
-	 * @return
+	 * @return latitudeDecimal latitudeDecimal value
 	 * */
 	public String getLatitudeDecimal() {
 		return latitudeDecimal;
@@ -533,6 +542,7 @@ public class LimsCRSFields {
 	 * Set the value for LatitudeDecimal
 	 * 
 	 * @param latitudeDecimal
+	 *            set latitudeDecimal value
 	 * */
 	public void setLatitudeDecimal(String latitudeDecimal) {
 		this.latitudeDecimal = latitudeDecimal;
