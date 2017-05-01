@@ -307,7 +307,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							+ "\n"
 							+ "Please wait for the import process to finish."
 							+ "\n"
-							+ "You should preferably not start another action or change maps.");
+							+ "You should preferably not start another action or change folders.");
 
 			docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
