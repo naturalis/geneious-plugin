@@ -78,7 +78,7 @@ public class LimsDatabaseChecker {
 		if (names.size() == 1 && names.iterator().next().equals(result))
 			return true;
 		names.remove(result);
-		String msg = "Currently Geneious is connected to an unspecified database, or to multiple databases.\n"
+		String msg = "Currently Geneious is either connected to an unspecified database, or to multiple databases.\n"
 				+ "This plugin may only be used on the database server with "
 				+ "database name: "
 				+ result
