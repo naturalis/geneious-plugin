@@ -158,5 +158,4 @@ public class LimsDatabaseChecker {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

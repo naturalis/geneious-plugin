@@ -324,5 +324,4 @@ public class LimsBoldFields {
 	public void setCoi5PAccession(String coi5pAccession) {
 		coi5PAccession = coi5pAccession;
 	}
-
 }

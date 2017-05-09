@@ -784,5 +784,4 @@ public class LimsImportCRS extends DocumentAction {
 		LimsCRSFields.setLongitudeDecimal("");
 		LimsCRSFields.setHeight("");
 	}
-
 }

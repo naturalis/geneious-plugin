@@ -12,8 +12,6 @@ package nl.naturalis.lims2.ab1.importer;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +103,6 @@ public class LimsSplitName extends DocumentAction {
 
 	private final String readsAssemblyConsensusContig = "consensus sequence";
 	private final String readsAssembly = "Reads Assembly";
-	private final String readsAssemblyContig = "Contig";
 	private final String read_Assembly = "_ Assembly";
 
 	private final String defaultNucleotideGraphSequence = "DefaultNucleotideGraphSequence";
@@ -132,7 +129,6 @@ public class LimsSplitName extends DocumentAction {
 	@Override
 	public void actionPerformed(
 			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-
 		/* if no document selected show a message. */
 		isSelectedDocumentEmpty();
 
@@ -140,7 +136,6 @@ public class LimsSplitName extends DocumentAction {
 		 * If documents selected then start the process.
 		 */
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
-
 			// getDatabaseURL();
 			if (!dbchk.checkDBName()) {
 				return;
@@ -211,10 +206,7 @@ public class LimsSplitName extends DocumentAction {
 				// - DefaultNucleotideGraphSequence Document
 				// - DefaultNucleotideSequence Document
 				fastaFilename = getFileNameFromDocument(cnt);
-				// if (selectedDocuments.get(cnt).getName()
-				// .contains(ab1FileExtension)) {
 				ab1Filename = selectedDocuments.get(cnt).getName();
-				// }
 
 				if (fastaFilename != null && !fastaFilename.isEmpty()
 						&& !fastaFilename.contains(ab1FileExtension)) {
@@ -536,19 +528,6 @@ public class LimsSplitName extends DocumentAction {
 				+ DocumentUtilities.getSelectedDocuments().get(cnt).getName());
 	}
 
-	private void createFile(String file, ArrayList<String> arrData)
-			throws IOException {
-		FileWriter writer = new FileWriter(file);
-		int size = arrData.size();
-		for (int i = 0; i < size; i++) {
-			String str = arrData.get(i).toString();
-			writer.write(str);
-			if (i < size - 1)
-				writer.write("\n");
-		}
-		writer.close();
-	}
-
 	/**
 	 * Add plugin 5 Split name to the menubar
 	 * 
@@ -584,7 +563,6 @@ public class LimsSplitName extends DocumentAction {
 	private void extractFastaSequenceDocument() {
 		if (extractAb1FastaFileName != null
 				&& fastaFilename.toString().contains(fastaFileExtension)) {
-
 			logger.info("Start extracting value from file: "
 					+ extractAb1FastaFileName);
 			verwerkingList.add(fastaFilename);
@@ -592,19 +570,11 @@ public class LimsSplitName extends DocumentAction {
 			/* Extract values from the Fasta filename */
 			limsSplitNotes
 					.extractDocumentFileName((String) extractAb1FastaFileName);
-			/*
-			 * if file exists and is not extravalue "ExtractIDCode_Seq" increase
-			 * Version number.
-			 */
-			/*
-			 * if (fileExists && !extractIDValue) { versienummer++; }
-			 */
 		}
 	}
 
 	private void extractAB1Document() {
 		if (ab1Filename.toString().contains(ab1FileExtension)) {
-
 			logger.info("Start extracting value from file: "
 					+ extractAb1FastaFileName);
 			verwerkingList.add(ab1Filename);
@@ -612,13 +582,6 @@ public class LimsSplitName extends DocumentAction {
 			/* Extract values from the Fasta filename */
 			limsSplitNotes
 					.extractDocumentFileName((String) extractAb1FastaFileName);
-			/*
-			 * if file exists and is not extravalue "ExtractIDCode_Seq" increase
-			 * Version number.
-			 */
-			/*
-			 * if (fileExists && !extractIDValue) { versienummer++; }
-			 */
 		}
 	}
 
@@ -729,7 +692,6 @@ public class LimsSplitName extends DocumentAction {
 			versionNumberExists = selectedDocuments.get(pCnt).toString()
 					.contains("DocumentVersionCode_Seq");
 		}
-
 	}
 
 	private Object getVersionNumberFromDocument(int pCnt) {
@@ -832,15 +794,6 @@ public class LimsSplitName extends DocumentAction {
 				versienummer = readGeneiousFieldsValues
 						.getLastVersion_For_AB1_Fasta_ConsensusContig((String) extractAb1FastaFileName);
 			}
-			/*
-			 * if file exists and is not extravalue "ExtractIDCode_Seq" increase
-			 * Version number
-			 */
-
-			/*
-			 * if (fileExists && !extractIDValue) { versienummer++; }
-			 */
-
 		}
 	}
 

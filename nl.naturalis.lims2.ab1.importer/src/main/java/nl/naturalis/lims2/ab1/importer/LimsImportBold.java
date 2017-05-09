@@ -94,41 +94,33 @@ public class LimsImportBold extends DocumentAction {
 	private LimsLogger limsLogger = null;
 	private LimsFileSelector fcd = new LimsFileSelector();
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-
 	private List<String> failureList = new ArrayList<String>();
 	private List<String> processedList = new ArrayList<String>();
 	private List<String> lackList = new ArrayList<String>();
 	private List<AnnotatedPluginDocument> listDocuments = new ArrayList<AnnotatedPluginDocument>();
 	private List<String> columnNames = new ArrayList<String>();
-
-	private String resultRegNum = null;
-	private Object documentFileName = "";
-	private String boldFileSelected = "";
-	private String logBoldFileName = "";
+	private String resultRegNum;
+	private Object documentFileName;
+	private String boldFileSelected;
+	private String logBoldFileName;
 	private String[] record = null;
 	private String boldFilePath;
 	private String boldFile;
 	private String extractIDfileName;
-	private String regNumber = "";
-	private final String COI6 = "COI-5P Seq. Length";
+	private String regNumber;
 	private final String COI9 = "Image Count";
-
 	private boolean isRMNHNumber = false;
 	private boolean isOverrideCacheName = false;
-
 	public int importCounter;
 	private int VerwerktReg;
 	private int VerwerktRegMarker;
 	private int boldTotaalRecords = 0;
-
 	private long startTime;
 	private long lEndTime = 0;
 	private long difference = 0;
 	private long startBeginTime = 0;
-
 	private DefaultAlignmentDocument defaultAlignmentDocument = null;
 	private DefaultNucleotideSequence defaultNucleotideSequence = null;
-	private DefaultNucleotideGraphSequence defaultNucleotideGraphSequence = null;
 
 	/**
 	 * Start the process of import the Bold CSV file and adding notes to the
@@ -301,7 +293,6 @@ public class LimsImportBold extends DocumentAction {
 					for (int i = 0; i < headerCOI.length; i++) {
 						columnNames.add(headerCOI[i]);
 					}
-					int col6Index = columnNames.indexOf(COI6);
 					int col9Index = columnNames.indexOf(COI9);
 
 					try {
@@ -410,37 +401,8 @@ public class LimsImportBold extends DocumentAction {
 											+ headerCOI[6]);
 								}
 
-								if (regNumber.equals(resultRegNum)
-										&& isRMNHNumber
-										&& headerCOI[6].contains(marker)) {
-									/* Match only on registration number */
-									addBoldNotesToDocuments(annotatedDocument,
-											regNumber, cnt);
-
-									/*
-									 * Match only on registration number and
-									 * Marker
-									 */
-
-									// if (headerCOI[6].contains(marker)) {
-									addBoldNotesMatchRegistrationAndMarker(
-											annotatedDocument, headerCOI,
-											regNumber, cnt);
-									// }
-
-									/*
-									 * Add the registration number to the
-									 * document which has been processed.
-									 */
-									if (regNumber.equals(resultRegNum)
-											&& headerCOI[6].contains(marker)) {
-										if (!processedList.toString().contains(
-												regNumber)) {
-											processedList.add(regNumber);
-										}
-										setVerwerktReg(getVerwerktReg() + 1);
-									}
-								}
+								enrichBoldDocuments(annotatedDocument,
+										headerCOI, cnt, marker);
 
 								cnt++;
 							} // end for
@@ -540,6 +502,41 @@ public class LimsImportBold extends DocumentAction {
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
+			}
+		}
+	}
+
+	/**
+	 * @param annotatedDocument
+	 * @param headerCOI
+	 * @param cnt
+	 * @param marker
+	 * @throws IOException
+	 */
+	private void enrichBoldDocuments(
+			AnnotatedPluginDocument[] annotatedDocument, String[] headerCOI,
+			int cnt, String marker) throws IOException {
+		if (regNumber.equals(resultRegNum) && isRMNHNumber
+				&& headerCOI[6].contains(marker)) {
+			/* Match only on registration number */
+			addBoldNotesToDocuments(annotatedDocument, regNumber, cnt);
+
+			/*
+			 * Match only on registration number and Marker
+			 */
+
+			addBoldNotesMatchRegistrationAndMarker(annotatedDocument,
+					headerCOI, regNumber, cnt);
+
+			/*
+			 * Add the registration number to the document which has been
+			 * processed.
+			 */
+			if (regNumber.equals(resultRegNum) && headerCOI[6].contains(marker)) {
+				if (!processedList.toString().contains(regNumber)) {
+					processedList.add(regNumber);
+				}
+				setVerwerktReg(getVerwerktReg() + 1);
 			}
 		}
 	}
@@ -670,11 +667,6 @@ public class LimsImportBold extends DocumentAction {
 	private void addBoldNotesMatchRegistrationAndMarker(
 			AnnotatedPluginDocument[] annotatedDocument, String[] headerCOI,
 			String regNumber, int cnt) {
-
-		/*
-		 * if (regNumber.equals(resultRegNum) &&
-		 * headerCOI[6].equals("COI-5P Seq. Length") && isRMNHNumber) {
-		 */
 
 		/* Get the start time of processing */
 		startBeginTime = System.nanoTime();
@@ -1014,5 +1006,4 @@ public class LimsImportBold extends DocumentAction {
 	public void setVerwerktRegMarker(int verwerktRegMarker) {
 		VerwerktRegMarker = verwerktRegMarker;
 	}
-
 }

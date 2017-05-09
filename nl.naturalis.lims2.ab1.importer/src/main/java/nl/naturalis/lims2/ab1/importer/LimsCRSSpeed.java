@@ -1,3 +1,5 @@
+/* Wordt niet gebruikt in de plugin. */
+
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
@@ -620,29 +622,6 @@ public class LimsCRSSpeed extends DocumentAction {
 		if (missing)
 			return "[3] At least one selected document lacks ExtractID(Seq)";
 		return "";
-	}
-
-	/** Clear fields variables */
-	private void clearFieldValues() {
-		limsCRSFields.setRegistratienummer("");
-		limsCRSFields.setPhylum("");
-		limsCRSFields.setKlasse("");
-		limsCRSFields.setOrder("");
-		limsCRSFields.setFamily("");
-		limsCRSFields.setSubFamily("");
-		limsCRSFields.setGenus("");
-		limsCRSFields.setTaxon("");
-		limsCRSFields.setDeterminator("");
-		limsCRSFields.setSex("");
-		limsCRSFields.setStadium("");
-		limsCRSFields.setLegavit("");
-		limsCRSFields.setCollectingDate("");
-		limsCRSFields.setCountry("");
-		limsCRSFields.setBioRegion("");
-		limsCRSFields.setLocality("");
-		limsCRSFields.setLatitudeDecimal("");
-		limsCRSFields.setLongitudeDecimal("");
-		limsCRSFields.setHeight("");
 	}
 
 }

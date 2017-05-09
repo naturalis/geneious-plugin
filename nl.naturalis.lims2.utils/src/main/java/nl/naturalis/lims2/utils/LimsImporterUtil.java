@@ -49,11 +49,10 @@ import org.slf4j.LoggerFactory;
  */
 public class LimsImporterUtil {
 
-	private String result = "";
+	private String result;
 	private InputStream inputStream;
 	private Properties prop = new Properties();
 	private static String propFileName = "lims-import.properties";
-	private static String workingDatadirectory = System.getProperty("user.dir");
 	private static String absoluteFilePath = null;
 
 	private static final Logger logger = LoggerFactory
@@ -74,10 +73,6 @@ public class LimsImporterUtil {
 
 		if (workingDatadirectory != null) {
 			absoluteFilePath = workingDatadirectory;
-			/*
-			 * absoluteFilePath = workingDatadirectory + File.separator +
-			 * propFileName;
-			 */
 		}
 
 		try {
@@ -112,10 +107,7 @@ public class LimsImporterUtil {
 
 		if (workingDatadirectory != null) {
 			absoluteFilePath = workingDatadirectory;
-			/*
-			 * absoluteFilePath = workingDatadirectory + File.separator +
-			 * propFileName;
-			 */}
+		}
 
 		try {
 			inputStream = new FileInputStream(absoluteFilePath);
@@ -155,13 +147,12 @@ public class LimsImporterUtil {
 				File file = new File(classLoader.getResource(propFileName)
 						.getFile());
 
-				String workingDatadirectory = file.toString(); // System.getProperty("user.dir");
+				String workingDatadirectory = file.toString();
 
 				String absoluteFilePath = null;
 
 				if (workingDatadirectory != null) {
 					absoluteFilePath = workingDatadirectory;
-					// + File.separator + propFileName;
 				}
 
 				inputStream = new FileInputStream(absoluteFilePath);
@@ -372,12 +363,7 @@ public class LimsImporterUtil {
 				teller++;
 				continue;
 			} else {
-
 				teller++;
-				/*
-				 * System.out.println(String.format("Valid line " + teller +
-				 * ": %s", currentLine));
-				 */
 				result = teller;
 			}
 		}
@@ -396,5 +382,4 @@ public class LimsImporterUtil {
 		elapsedTime = 0;
 		endTime = 0;
 	}
-
 }

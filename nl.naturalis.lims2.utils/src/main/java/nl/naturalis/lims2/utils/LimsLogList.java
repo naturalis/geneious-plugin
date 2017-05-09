@@ -54,5 +54,4 @@ public class LimsLogList {
 		LimsLogger limsLogger = new LimsLogger(logFileName);
 		limsLogger.logToFile(logFileName, list.toString());
 	}
-
 }

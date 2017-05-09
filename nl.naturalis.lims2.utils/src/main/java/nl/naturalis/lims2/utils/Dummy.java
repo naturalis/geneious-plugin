@@ -124,5 +124,4 @@ public class Dummy {
 	public void setRegistrationScientificName(String registrationScientificName) {
 		this.registrationScientificName = registrationScientificName;
 	}
-
 }

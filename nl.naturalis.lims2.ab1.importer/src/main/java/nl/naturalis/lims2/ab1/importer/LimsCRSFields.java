@@ -588,5 +588,4 @@ public class LimsCRSFields {
 	public void setHeight(String height) {
 		Height = height;
 	}
-
 }

@@ -81,5 +81,4 @@ public class LimsNotesAB1FastaImport {
 		pcrPlateID = limsAB1Fields.getPcrPlaatID();
 		marker = limsAB1Fields.getMarker();
 	}
-
 }

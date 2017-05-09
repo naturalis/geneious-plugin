@@ -8,11 +8,8 @@
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import nl.naturalis.lims2.utils.Dummy;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -40,7 +36,6 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.opencsv.CSVReader;
@@ -133,8 +128,6 @@ public class LimsImportSamples extends DocumentAction {
 	private int cntRec = 0;
 	private LimsDatabaseChecker dbchk = null;
 	private Object extractIDSeqExists;
-	private boolean dummyExists = false;
-	private AnnotatedPluginDocument listDocs;
 
 	private final String documentTypeNovoAssembly = "NucleotideSequenceDocument";
 	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
@@ -533,10 +526,8 @@ public class LimsImportSamples extends DocumentAction {
 		int cnt = 0;
 
 		for (AnnotatedPluginDocument list : listDocuments) {
-
 			extractIDSeqExists = null;
 
-			listDocs = listDocuments.listIterator().next();
 			/* Check if "ExtractIDCode_Seq" note exists */
 			if (list.toString().contains("ExtractIDCode_Seq")) {
 				extractIDSeqExists = list.getDocumentNotes(true)
@@ -874,7 +865,6 @@ public class LimsImportSamples extends DocumentAction {
 				csvReader.close();
 			}
 		}
-
 	}
 
 	/*
@@ -1190,48 +1180,5 @@ public class LimsImportSamples extends DocumentAction {
 				+ Integer.toString(failureList.size())
 				+ " sample records are ignored." + "\n" + "\n"
 				+ getLackMessage(isLackListNotEmpty()));
-
 	}
-
-	public static List<Dummy> dummyMemory;
-
-	private void saveDummyFile(String filename) throws FileNotFoundException {
-		PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
-		for (Dummy dm : impAB1Fasta.dummiesRecords) {// readGeneiousFieldsValues.dummiesList)
-														// {
-			pw.println(dm.getId() + "," + dm.getName() + ","
-					+ dm.getPcrplateid() + "," + dm.getMarker() + ","
-					+ dm.getRegistrationnumber() + "," + dm.getScientificName()
-					+ "," + dm.getSamplePlateId() + "," + dm.getPosition()
-					+ "," + dm.getExtractID() + "," + dm.getSeqStaff() + ","
-					+ dm.getExtractPlateNumberIDSamples() + ","
-					+ dm.getExtractMethod() + ","
-					+ dm.getRegistrationScientificName());
-		}
-		pw.close();
-	}
-
-	private Object getDocumentType(int cnt) {
-		String docType;
-		try {
-			docType = (String) DocumentUtilities.getSelectedDocuments()
-					.get(cnt).getDocument().getClass().getTypeName();
-			/*
-			 * Documentname bestaat alleen uit Reads Assembly Consensus
-			 * Sequences
-			 */
-			if (docType.contains("DefaultSequenceListDocument")) {
-				logger.info("Documentname only contains: "
-						+ DocumentUtilities.getSelectedDocuments().get(cnt)
-								.getDocument().getName());
-				failureList.add("Documentname only contains: "
-						+ DocumentUtilities.getSelectedDocuments().get(cnt)
-								.getDocument().getName());
-			}
-		} catch (DocumentOperationException e) {
-			throw new RuntimeException(e);
-		}
-		return docType;
-	}
-
 }

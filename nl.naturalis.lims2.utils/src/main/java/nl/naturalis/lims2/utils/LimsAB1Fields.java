@@ -191,5 +191,4 @@ public class LimsAB1Fields {
 	public void setVersieNummer(int versienummer) {
 		this.versieNummer = versienummer;
 	}
-
 }

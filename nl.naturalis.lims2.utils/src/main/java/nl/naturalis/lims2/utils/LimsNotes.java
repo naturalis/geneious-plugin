@@ -510,5 +510,4 @@ public class LimsNotes {
 		if (listNotes != null)
 			listNotes.clear();
 	}
-
 }

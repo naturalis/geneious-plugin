@@ -159,7 +159,5 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	public DocumentType[] getDocumentTypes() {
 		return new DocumentType[] { new DocumentType<LimsSamplesFields>(
 				"Samples document", LimsSamplesFields.class, null) };
-
 	}
-
 }

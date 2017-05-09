@@ -1,6 +1,3 @@
-/**
- * 
- */
 package nl.naturalis.lims2.ab1.importer;
 
 import java.io.BufferedReader;
