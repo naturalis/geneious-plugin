@@ -68,7 +68,8 @@ public class LimsNotesAB1FastaImport {
 		}
 	}
 
-	public void set_AB1_Fasta_DocumentFileName(String extractAb1FastaFileName) {
+	public void set_AB1_Fasta_DocumentFileName(String extractAb1FastaFileName,
+			int count) {
 		limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
 		extractID = limsAB1Fields.getExtractID();
 		pcrPlateID = limsAB1Fields.getPcrPlaatID();

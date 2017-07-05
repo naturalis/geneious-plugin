@@ -7,6 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.lims2.utils.Dummy;
@@ -212,9 +217,51 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			/* Split the filename and extract the ID */
 
-			fastaFileName = file.getName();
-			ab1FileName = StringUtils.split(file.getName(), "_");
+			if (file.getName().contains("_") && file.getName().contains("ab1")) {
+
+				ab1FileName = StringUtils.split(file.getName(), "_");
+
+				for (int i = 0; i < ab1FileName.length; i++) {
+					if (i == 0) {
+						String result = ab1FileName[i].substring(1);
+						Pattern p = Pattern.compile("[a-zA-Z]");
+						Matcher m = p.matcher(result);
+
+						if (m.find()) {
+							System.out.println("The string contains letters");
+							JOptionPane
+									.showMessageDialog(
+											new JFrame(),
+											file.getName()
+													+ " is not correct."
+													+ "\n"
+													+ "ExtractID "
+													+ ab1FileName[0]
+													+ " is not correct and the import will not be continued.",
+											"Dialog", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+					if (i == 4) {
+						if (!ab1FileName[4].contains("-")) {
+							JOptionPane
+									.showMessageDialog(
+											new JFrame(),
+											file.getName()
+													+ " is not correct."
+													+ "\n"
+													+ "Marker "
+													+ ab1FileName[i]
+													+ " is not correct and the import will not be continued.",
+											"Dialog", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+					// System.out.println(ab1FileName[i]);
+				}
+			}
 			if (file.getName().contains(".fas")) {
+				fastaFileName = file.getName();
 				extractAb1FastaFileName = file.getName().substring(0,
 						file.getName().indexOf(".fas"));
 			} else {
@@ -228,8 +275,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			if (extractAb1FastaFileName.contains("ab1")) {
 
-				limsNotesIAB1FastaImp
-						.set_AB1_Fasta_DocumentFileName(extractAb1FastaFileName);
+				limsNotesIAB1FastaImp.set_AB1_Fasta_DocumentFileName(
+						extractAb1FastaFileName, count);
 
 				if (selectedDocs.toString().contains(".dum")) {
 					annotatedDocumentID = limsSQL

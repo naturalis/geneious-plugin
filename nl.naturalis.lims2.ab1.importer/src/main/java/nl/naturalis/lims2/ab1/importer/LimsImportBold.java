@@ -143,8 +143,8 @@ public class LimsImportBold extends DocumentAction {
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("4 Bold").setInPopupMenu(true)
-				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 3.0)
+		return new GeneiousActionOptions("4 Bold", "Bold Import")
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
 	}

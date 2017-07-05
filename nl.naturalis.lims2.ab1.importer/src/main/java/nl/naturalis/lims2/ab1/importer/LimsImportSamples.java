@@ -157,8 +157,8 @@ public class LimsImportSamples extends DocumentAction {
 	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
-		return new GeneiousActionOptions("1 or 2 Samples").setInPopupMenu(true)
-				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 1.0)
+		return new GeneiousActionOptions("1 or 2 Samples", "Samples Import")
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
 	}

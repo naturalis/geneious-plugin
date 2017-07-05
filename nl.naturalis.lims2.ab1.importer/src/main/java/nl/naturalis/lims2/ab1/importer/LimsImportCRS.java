@@ -126,11 +126,9 @@ public class LimsImportCRS extends DocumentAction {
 	@Override
 	public GeneiousActionOptions getActionOptions() {
 		return new GeneiousActionOptions("3 CRS", "CRS Import")
-				.setToolbarName("3 CRS").setInPopupMenu(true)
-				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, 2.0)
+				.setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
 				.setInMainToolbar(true).setInPopupMenu(true)
 				.setAvailableToWorkflows(true);
-
 	}
 
 	/**

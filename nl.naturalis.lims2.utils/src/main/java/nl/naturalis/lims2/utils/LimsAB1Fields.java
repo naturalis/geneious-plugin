@@ -132,42 +132,46 @@ public class LimsAB1Fields {
 			ab1FileName = ab1FileName.replaceAll(regexConsesus, "");
 
 			if (ab1FileName.contains("_") && ab1FileName.contains(".ab1")) {
-				String[] underscore = StringUtils.split(ab1FileName, "_");
-				setExtractID(underscore[0]);
-				setPcrPlaatID(underscore[3]);
-				setMarker(underscore[4]
-						.substring(0, underscore[4].indexOf("-")));
+
+				String[] fileName = StringUtils.split(ab1FileName, "_");
+				for (int i = 0; i < fileName.length; i++) {
+					if (i == 0) {
+						setExtractID(fileName[i]);
+					} else if (i == 3) {
+						setPcrPlaatID(fileName[i]);
+					} else if (i == 4) {
+						if (!fileName[4].contains("-")) {
+							return;
+						} else {
+							setMarker(fileName[i].substring(0,
+									fileName[i].indexOf("-")));
+						}
+					}
+				}
 			} else if (!ab1FileName.contains(".ab1")) {
 
-				String[] underscore = StringUtils.split(ab1FileName, "_");
-				if (underscore[0] != "") {
-					setExtractID(underscore[0]);
-				} else {
-					logger.info("Geen Fasta ExtractID aanwezig? ");
-				}
-				if (underscore[3] != "") {
-					setPcrPlaatID(underscore[3]);
-				} else {
-					logger.info("Geen Fasta PcrPlaatID aanwezig? ");
-				}
-				if (underscore[4] != "" && underscore[4].contains("-")) {
-					setMarker(underscore[4].substring(0,
-							underscore[4].indexOf("-")));
-				} else {
-					if (underscore[4].contains(".fas")) {
-						setMarker(underscore[4].substring(0,
-								underscore[4].indexOf(".")));
+				String[] filename = StringUtils.split(ab1FileName, "_");
+				for (int i = 0; i < filename.length; i++) {
+					if (i == 0) {
+						setExtractID(filename[0]);
+					} else if (i == 3) {
+						setPcrPlaatID(filename[3]);
+					} else if (i == 4 && filename[4].contains("-")) {
+						setMarker(filename[4].substring(0,
+								filename[4].indexOf("-")));
 					} else {
-						int emptySpace = underscore[4].indexOf(" ");
-						if (underscore[4].indexOf(" ") > 0) {
-							setMarker(underscore[4].substring(0,
-									underscore[4].indexOf(" ")));
+						if (filename[4].contains(".fas")) {
+							setMarker(filename[4].substring(0,
+									filename[4].indexOf(".")));
 						} else {
-							setMarker(underscore[4]);
+							if (filename[4].indexOf(" ") > 0) {
+								setMarker(filename[4].substring(0,
+										filename[4].indexOf(" ")));
+							} else {
+								setMarker(filename[4]);
+							}
 						}
-						// setMarker(underscore[(underscore.length - 1)]);
 					}
-					// logger.info("Geen Fasta Marker aanwezig? ");
 				}
 			}
 		}
