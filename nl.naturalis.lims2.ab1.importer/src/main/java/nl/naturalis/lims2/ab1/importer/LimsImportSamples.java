@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.PluginDocument;
@@ -222,12 +221,14 @@ public class LimsImportSamples extends DocumentAction {
 				.getServerDatabaseServiceName();
 
 		if (readGeneiousFieldsValues.activeDB != null) {
-
+			String imageFile = limsImporterUtil.getNaturalisPicture()
+					.getAbsolutePath();
+			ImageIcon icon = new ImageIcon(imageFile);
 			Object[] options = { "Ok", "No", "Cancel" };
-			int n = JOptionPane.showOptionDialog(frame,
+			int n = JOptionPane.showOptionDialog(new JFrame(),
 					"Create dummy sequences for unknown extract ID's?",
 					"Samples", JOptionPane.YES_NO_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+					JOptionPane.QUESTION_MESSAGE, icon, options, options[2]);
 
 			/* If OK Selected */
 			if (n == 0) {
@@ -514,8 +515,12 @@ public class LimsImportSamples extends DocumentAction {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-
-				Dialogs.showMessageDialog("Select at least one document");
+				String Ico = limsImporterUtil.getNaturalisPicture()
+						.getAbsolutePath();
+				ImageIcon icon = new ImageIcon(Ico);
+				JOptionPane.showMessageDialog(new JFrame(),
+						"Select at least one document", "Samples import",
+						JOptionPane.INFORMATION_MESSAGE, icon);
 				return;
 			}
 		});
@@ -1174,6 +1179,7 @@ public class LimsImportSamples extends DocumentAction {
 						+ " sample records are ignored." + "\n" + "\n"
 						+ getLackMessage(isLackListNotEmpty()),
 				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
+		importCounter = 0;
 	}
 
 	private void showFinishedDialogMessageDummyOK() {
