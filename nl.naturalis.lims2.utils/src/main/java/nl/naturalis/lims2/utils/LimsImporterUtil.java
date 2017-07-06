@@ -382,4 +382,10 @@ public class LimsImporterUtil {
 		elapsedTime = 0;
 		endTime = 0;
 	}
+
+	public File getNaturalisPicture() {
+		File resourceDirectory = new File(this.getClass()
+				.getResource("/Naturalis.jpg").getFile());
+		return resourceDirectory;
+	}
 }

@@ -15,6 +15,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
@@ -499,15 +503,22 @@ public class LimsImportCRS extends DocumentAction {
 	 * Show dialog message at the end of processing the document(s)
 	 */
 	private void showMessageDialogEndOfProcessing() {
+		String Ico = limsImporterUtil.getNaturalisPicture().getAbsolutePath();
+		ImageIcon icon = new ImageIcon(Ico);
 		crsTotaalRecords = processedList.size() + crsRecordUitval;
-		Dialogs.showMessageDialog(Integer.toString(crsTotaalRecords)
-				+ " records have been read of which: " + "\n" + "[1] "
-				+ processedList.size() + " records are imported and linked to "
-				+ Integer.toString(crsRecordVerwerkt)
-				+ " existing documents (of " + importCounter + " selected)"
-				+ "\n" + "\n" + "[2] " + Integer.toString(crsRecordUitval)
-				+ " records are ignored." + "\n" + "\n"
-				+ getLackMessage(isLackListNotEmpty()));
+		JOptionPane.showMessageDialog(
+				new JFrame(),
+				Integer.toString(crsTotaalRecords)
+						+ " records have been read of which: " + "\n" + "\n"
+						+ "[1] " + processedList.size()
+						+ " records are imported and linked to "
+						+ Integer.toString(crsRecordVerwerkt)
+						+ " existing documents (of " + importCounter
+						+ " selected)" + "\n" + "\n" + "[2] "
+						+ Integer.toString(crsRecordUitval)
+						+ " records are ignored." + "\n" + "\n"
+						+ getLackMessage(isLackListNotEmpty()), "CRS Import",
+				JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	/*

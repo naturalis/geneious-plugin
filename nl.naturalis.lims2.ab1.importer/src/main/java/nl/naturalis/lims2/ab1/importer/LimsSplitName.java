@@ -14,6 +14,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
@@ -23,6 +29,7 @@ import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotesSplitName;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,6 +220,14 @@ public class LimsSplitName extends DocumentAction {
 					getFastaSelectedDocumentsType(cnt,
 							selectedDocuments.get(cnt).getName());
 				} else {
+					if (checkFileName(ab1Filename)) {
+						/*
+						 * Create the dialog GUI to see the processing of the
+						 * documents
+						 */
+						limsFrameProgress.hideFrame();
+						continue;
+					}
 					getAB1SelectedDocumentsType(cnt, selectedDocuments.get(cnt)
 							.getName());
 				}
@@ -314,21 +329,24 @@ public class LimsSplitName extends DocumentAction {
 					limsFrameProgress.hideFrame();
 				}
 
+				private void getDialogMessage() {
+					String imageName = limsImporterUtil.getNaturalisPicture()
+							.getAbsolutePath();
+					ImageIcon icon = new ImageIcon(imageName);
+					JOptionPane.showMessageDialog(
+							new JFrame(),
+							Integer.toString(verwerkingList.size())
+									+ " documents (of "
+									+ Integer.toString(selectedDocuments.size())
+									+ " selected) are updated.", "Split name",
+							JOptionPane.INFORMATION_MESSAGE, icon);
+				}
+
 				/**
 				 * 
 				 */
 				private void showNucleotideGraphSequenceDialog() {
-					String msgDocName;
-					if (selectedDocuments.size() == 1) {
-						msgDocName = defNucleotideGraphSequence.getName();
-					} else {
-						msgDocName = "Multiple "
-								+ defaultNucleotideGraphSequence;
-					}
-					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(verwerkingList.size())
-							+ " documents are updated.");
-
+					getDialogMessage();
 					logger.info(defNucleotideGraphSequence.getName()
 							+ "-Update: Total imported document(s): "
 							+ verwerkingList.toString());
@@ -336,16 +354,7 @@ public class LimsSplitName extends DocumentAction {
 				}
 
 				private void showNucleotideSequenceDialog() {
-					String msgDocName;
-					if (selectedDocuments.size() == 1) {
-						msgDocName = defNucleotideSequence.getName();
-					} else {
-						msgDocName = "Multiple " + defaultNucleotideSequence;
-					}
-					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(verwerkingList.size())
-							+ " documents are updated.");
-
+					getDialogMessage();
 					logger.info(defNucleotideSequence.getName()
 							+ "-Update: Total imported document(s): "
 							+ verwerkingList.toString());
@@ -356,15 +365,7 @@ public class LimsSplitName extends DocumentAction {
 				 * 
 				 */
 				private void showDefaultAlignmentDialog() {
-					String msgDocName;
-					if (selectedDocuments.size() == 1) {
-						msgDocName = defAlignmentDoc.getName();
-					} else {
-						msgDocName = "Multiple " + defaultAlignmentDocument;
-					}
-					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(verwerkingList.size())
-							+ " documents are updated.");
+					getDialogMessage();
 
 					logger.info(defaultAlignmentDocument
 							+ "-Update: Total imported document(s): "
@@ -373,15 +374,7 @@ public class LimsSplitName extends DocumentAction {
 				}
 
 				private void showFastaDialog() {
-					String msgDocName;
-					if (selectedDocuments.size() == 1) {
-						msgDocName = defNucleotideSequence.getName();
-					} else {
-						msgDocName = "Multiple " + defaultNucleotideSequence;
-					}
-					Dialogs.showMessageDialog(msgDocName + " : "
-							+ Integer.toString(verwerkingList.size())
-							+ " documents are updated.");
+					getDialogMessage();
 
 					logger.info(defNucleotideSequence.getName()
 							+ "-Update: Total imported document(s): "
@@ -391,13 +384,9 @@ public class LimsSplitName extends DocumentAction {
 
 				private void showAllSelectedDocumentsDialog() {
 					if (ab1Filename.contains(".dum")) {
-						Dialogs.showMessageDialog(Integer
-								.toString(verwerkingList.size())
-								+ " selected documents are updated.");
+						getDialogMessage();
 					} else {
-						Dialogs.showMessageDialog(Integer
-								.toString(verwerkingList.size())
-								+ " selected documents are updated.");
+						getDialogMessage();
 					}
 					logger.info("Update: Total imported document(s): "
 							+ verwerkingList.toString());
@@ -428,7 +417,12 @@ public class LimsSplitName extends DocumentAction {
 
 				@Override
 				public void run() {
-					Dialogs.showMessageDialog("Select all documents");
+					String imageName = limsImporterUtil.getNaturalisPicture()
+							.getAbsolutePath();
+					ImageIcon icon = new ImageIcon(imageName);
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Select all documents", "Split name",
+							JOptionPane.INFORMATION_MESSAGE, icon);
 					return;
 				}
 			});
@@ -823,5 +817,42 @@ public class LimsSplitName extends DocumentAction {
 			logger.info("Done with extracting "
 					+ defNucleotideSequence.getName());
 		}
+	}
+
+	public Boolean checkFileName(String fileName) {
+		String imageName = limsImporterUtil.getNaturalisPicture()
+				.getAbsolutePath();
+		ImageIcon icon = new ImageIcon(imageName);
+		String[] ab1FileName = StringUtils.split(fileName, "_");
+		Boolean checked = false;
+		for (int i = 0; i < ab1FileName.length; i++) {
+			if (i == 0) {
+				String result = ab1FileName[i].substring(1);
+				Pattern p = Pattern.compile("[a-zA-Z]");
+				Matcher m = p.matcher(result);
+
+				if (m.find()) {
+					System.out.println("The string contains letters");
+					JOptionPane.showMessageDialog(new JFrame(), fileName
+							+ " is not correct." + "\n" + "ExtractID "
+							+ ab1FileName[0]
+							+ " is not correct and will not be added.",
+							"Dialog", JOptionPane.ERROR_MESSAGE, icon);
+					checked = true;
+					continue;
+				}
+			} else if (i == 4) {
+				if (!ab1FileName[4].contains("-")) {
+					JOptionPane.showMessageDialog(new JFrame(), fileName
+							+ " is not correct." + "\n" + "Marker "
+							+ ab1FileName[i]
+							+ " is not correct and and will not be added.",
+							"Dialog", JOptionPane.ERROR_MESSAGE, icon);
+					checked = true;
+					continue;
+				}
+			}
+		}
+		return checked;
 	}
 }

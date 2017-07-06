@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -468,25 +469,38 @@ public class LimsImportBold extends DocumentAction {
 									int totaalVerwerkt) {
 								boldTotaalRecords = processedList.size()
 										+ (failureList.size() - 1);
-								Dialogs.showMessageDialog(Integer
-										.toString(boldTotaalRecords)
-										+ " records have been read of which: "
-										+ "\n"
-										+ "[1] "
-										+ processedList.size()
-										+ " records are imported and linked to "
-										+ Integer.toString(totaalVerwerkt)
-										+ " existing documents (of "
-										+ importCounter
-										+ " selected)"
-										+ "\n"
-										+ "\n"
-										+ "[2] "
-										+ Integer.toString(failureList.size() - 1)
-										+ " records are ignored."
-										+ "\n"
-										+ "\n"
-										+ getLackMessage(isLackListNotEmpty()));
+								String imageName = limsImporterUtil
+										.getNaturalisPicture()
+										.getAbsolutePath();
+								ImageIcon icon = new ImageIcon(imageName);
+								JOptionPane
+										.showMessageDialog(
+												new JFrame(),
+												Integer.toString(boldTotaalRecords)
+														+ " records have been read of which: "
+														+ "\n"
+														+ "\n"
+														+ "[1] "
+														+ processedList.size()
+														+ " records are imported and linked to "
+														+ Integer
+																.toString(totaalVerwerkt)
+														+ " existing documents (of "
+														+ importCounter
+														+ " selected)"
+														+ "\n"
+														+ "\n"
+														+ "[2] "
+														+ Integer
+																.toString(failureList
+																		.size() - 1)
+														+ " records are ignored."
+														+ "\n"
+														+ "\n"
+														+ getLackMessage(isLackListNotEmpty()),
+												"BOLD Import",
+												JOptionPane.INFORMATION_MESSAGE,
+												icon);
 							}
 						});
 

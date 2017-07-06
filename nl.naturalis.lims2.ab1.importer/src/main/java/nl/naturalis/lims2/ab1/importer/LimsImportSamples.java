@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -1108,25 +1109,31 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageNo(String fileName,
 			List<String> failureList, List<String> exactProcessedList) {
 		sampleTotaalRecords = exactProcessedList.size() + failureList.size();
-
-		Dialogs.showMessageDialog(sampleTotaalRecords // readTotalRecordsOfFileSelected(fileName)
-				+ " sample records have been read of which: "
-				+ "\n"
-				+ "\n"
-				+ "[1] "
-				+ Integer.toString(exactProcessedList.size())
-				+ " samples are imported and linked to "
-				+ Integer.toString(recordCount)
-				+ " existing documents (of "
-				+ listDocuments.size() + " selected)" + "\n" + "\n"
-				+ "[2] "
-				+ "0 samples are imported as dummy." + "\n"
-				+ "\n"
-				+ "[3] "
-				+ Integer.toString(failureList.size())
-				+ " samples records are ignored." + "\n"
-				+ "\n"
-				+ getLackMessage(isLackListNotEmpty()));
+		String imageName = limsImporterUtil.getNaturalisPicture()
+				.getAbsolutePath();
+		ImageIcon icon = new ImageIcon(imageName);
+		JOptionPane.showMessageDialog(
+				new JFrame(),
+				sampleTotaalRecords // readTotalRecordsOfFileSelected(fileName)
+						+ " sample records have been read of which: "
+						+ "\n"
+						+ "\n"
+						+ "[1] "
+						+ Integer.toString(exactProcessedList.size())
+						+ " samples are imported and linked to "
+						+ Integer.toString(recordCount)
+						+ " existing documents (of "
+						+ listDocuments.size()
+						+ " selected)" + "\n" + "\n"
+						+ "[2] "
+						+ "0 samples are imported as dummy." + "\n"
+						+ "\n"
+						+ "[3] "
+						+ Integer.toString(failureList.size())
+						+ " samples are ignored." + "\n"
+						+ "\n"
+						+ getLackMessage(isLackListNotEmpty()),
+				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	/*
@@ -1137,20 +1144,36 @@ public class LimsImportSamples extends DocumentAction {
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
 		sampleExactRecordsVerwerkt = processedList.size();
-
-		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
-				+ " sample records have been read of which: " + "\n" + "\n"
-				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
-				+ " samples are imported and linked to "
-				+ Integer.toString(cntRec) + " existing documents (of "
-				+ importCounter + " selected)" + "\n" + "\n" + "[2] "
-				+ Integer.toString(dummyRecordsVerwerkt)
-				+ " samples are imported as dummy" + "\n" + "\n"
-				+ "[3] "
-				// + Integer.toString(sampleRecordFailure)
-				+ Integer.toString(sampleRecordFailure - dummyRecordsVerwerkt)
-				+ " sample records are ignored." + "\n" + "\n"
-				+ getLackMessage(isLackListNotEmpty()));
+		String imageName = limsImporterUtil.getNaturalisPicture()
+				.getAbsolutePath();
+		ImageIcon icon = new ImageIcon(imageName);
+		JOptionPane.showMessageDialog(
+				new JFrame(),
+				Integer.toString(sampleTotaalRecords)
+						+ " sample records have been read of which: "
+						+ "\n"
+						+ "\n"
+						+ "[1] "
+						+ Integer.toString(sampleExactRecordsVerwerkt)
+						+ " samples are imported and linked to "
+						+ Integer.toString(cntRec)
+						+ " existing documents (of "
+						+ importCounter
+						+ " selected)"
+						+ "\n"
+						+ "\n"
+						+ "[2] "
+						+ Integer.toString(dummyRecordsVerwerkt)
+						+ " samples are imported as dummy"
+						+ "\n"
+						+ "\n"
+						+ "[3] "
+						// + Integer.toString(sampleRecordFailure)
+						+ Integer.toString(sampleRecordFailure
+								- dummyRecordsVerwerkt)
+						+ " sample records are ignored." + "\n" + "\n"
+						+ getLackMessage(isLackListNotEmpty()),
+				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	private void showFinishedDialogMessageDummyOK() {
@@ -1168,17 +1191,23 @@ public class LimsImportSamples extends DocumentAction {
 				.getDummySamplesValues(".dum");
 
 		limsFrameProgress.hideFrame();
-
-		Dialogs.showMessageDialog(Integer.toString(sampleTotaalRecords)
-				+ " sample records have been read of which: " + "\n" + "\n"
-				+ "[1] " + Integer.toString(sampleExactRecordsVerwerkt)
-				+ " samples are imported and linked to "
-				+ Integer.toString(cntRec) + " existing documents (of "
-				+ importCounter + " selected)" + "\n" + "\n" + "[2] "
-				+ Integer.toString(dummyRecordsVerwerkt)
-				+ " samples are imported as dummy" + "\n" + "\n" + "[3] "
-				+ Integer.toString(failureList.size())
-				+ " sample records are ignored." + "\n" + "\n"
-				+ getLackMessage(isLackListNotEmpty()));
+		String imageName = limsImporterUtil.getNaturalisPicture()
+				.getAbsolutePath();
+		ImageIcon icon = new ImageIcon(imageName);
+		JOptionPane.showMessageDialog(
+				new JFrame(),
+				Integer.toString(sampleTotaalRecords)
+						+ " sample records have been read of which: " + "\n"
+						+ "\n" + "[1] "
+						+ Integer.toString(sampleExactRecordsVerwerkt)
+						+ " samples are imported and linked to "
+						+ Integer.toString(cntRec) + " existing documents (of "
+						+ importCounter + " selected)" + "\n" + "\n" + "[2] "
+						+ Integer.toString(dummyRecordsVerwerkt)
+						+ " samples are imported as dummy" + "\n" + "\n"
+						+ "[3] " + Integer.toString(failureList.size())
+						+ " sample records are ignored." + "\n" + "\n"
+						+ getLackMessage(isLackListNotEmpty()),
+				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -222,13 +223,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				ab1FileName = StringUtils.split(file.getName(), "_");
 
 				for (int i = 0; i < ab1FileName.length; i++) {
+					String imageName = limsImporterUtil.getNaturalisPicture()
+							.getAbsolutePath();
+					ImageIcon icon = new ImageIcon(imageName);
 					if (i == 0) {
 						String result = ab1FileName[i].substring(1);
 						Pattern p = Pattern.compile("[a-zA-Z]");
 						Matcher m = p.matcher(result);
 
 						if (m.find()) {
-							System.out.println("The string contains letters");
+							// System.out.println("The string contains letters");
 							JOptionPane
 									.showMessageDialog(
 											new JFrame(),
@@ -237,8 +241,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 													+ "\n"
 													+ "ExtractID "
 													+ ab1FileName[0]
-													+ " is not correct and the import will not be continued.",
-											"Dialog", JOptionPane.ERROR_MESSAGE);
+													+ " is not correct and will not be added.",
+											"Dialog",
+											JOptionPane.ERROR_MESSAGE, icon);
 							return;
 						}
 					}
@@ -252,8 +257,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 													+ "\n"
 													+ "Marker "
 													+ ab1FileName[i]
-													+ " is not correct and the import will not be continued.",
-											"Dialog", JOptionPane.ERROR_MESSAGE);
+													+ " is not correct and and will not be added.",
+											"Dialog",
+											JOptionPane.ERROR_MESSAGE, icon);
 							return;
 						}
 					}
@@ -342,7 +348,9 @@ public class LimsImportAB1 extends DocumentFileImporter {
 							+ "\n"
 							+ "Warning:"
 							+ "\n"
-							+ "Geneious is currently processing the selected file(s)."
+							+ "Geneious is currently processing the selected "
+							+ selectedCount
+							+ " file(s)."
 							+ "\n"
 							+ "Please wait for the import process to finish."
 							+ "\n"
@@ -398,6 +406,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				docs.clear();
 			}
 		}
+		// getDialogMessage(selectedCount);
 	}
 
 	@Override
@@ -434,6 +443,16 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	private void getDialogMessage(int counter) {
+		String imageName = limsImporterUtil.getNaturalisPicture()
+				.getAbsolutePath();
+		ImageIcon icon = new ImageIcon(imageName);
+		JOptionPane.showMessageDialog(new JFrame(), Integer.toString(counter)
+				+ " documents have been imported.",
+				"All Naturalis Files(*) Import",
+				JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	/**
