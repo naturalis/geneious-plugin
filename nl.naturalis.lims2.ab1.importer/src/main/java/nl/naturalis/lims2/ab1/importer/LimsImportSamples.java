@@ -691,7 +691,10 @@ public class LimsImportSamples extends DocumentAction {
 			extractIDfileName = getExtractIDFromAB1FileName(list.getName());
 		} else if (list.toString().contains("consensus sequence")
 				|| list.toString().contains("Contig")) {
-			/* get the file name */
+			/*
+			 * get the file name LIMS-312 Aanmaken dummy voor specifiek
+			 * extractID wil niet
+			 */
 			String result = getExtractIDFromAB1FileName(list.getName())
 					.toString();
 			if (result.toString().length() >= 15) {
