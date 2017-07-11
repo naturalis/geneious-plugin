@@ -127,6 +127,7 @@ public class LimsNotesAB1FastaSamples {
 		// record[6]
 		limsSamplesFields.setSubSample(sampleMethod);
 
+		/* Add underscore to scientificname */
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
 			regScientificname = registrationNumber + "_"
 					+ taxonNaam.replaceAll(" ", "_");

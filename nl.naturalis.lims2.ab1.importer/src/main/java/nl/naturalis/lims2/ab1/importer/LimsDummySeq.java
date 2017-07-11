@@ -169,7 +169,7 @@ public class LimsDummySeq {
 		 * 
 		 * combine Registration number with scientificname
 		 */
-
+		/* Add underscore to scientificname */
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonName.length() > 0) {
 			regScientificname = registrationNumber + "_"

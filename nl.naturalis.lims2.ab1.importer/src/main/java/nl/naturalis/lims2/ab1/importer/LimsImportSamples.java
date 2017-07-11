@@ -675,13 +675,6 @@ public class LimsImportSamples extends DocumentAction {
 		else if (list.getName().toString().contains("dum")) {
 			documentFileName = list.getName();
 		} /* from a imported file */
-		// else if (!(list.toString().contains(documentTypeNovoAssembly)
-		// || list.toString().contains(documentTypeConsensusSequence) || list
-		// .toString().contains("DefaultSequenceListDocument"))) {
-		/* Contig don't have imported filename. */
-		// documentFileName = (String) list.getDocumentNotes(true)
-		// .getNote("importedFrom").getFieldValue("filename");
-		// }
 		else if (list.toString().contains("importedFrom")) {
 			/* Contig don't have imported filename. */
 			documentFileName = (String) list.getDocumentNotes(true)
@@ -698,6 +691,7 @@ public class LimsImportSamples extends DocumentAction {
 			extractIDfileName = getExtractIDFromAB1FileName(list.getName());
 		} else if (list.toString().contains("consensus sequence")
 				|| list.toString().contains("Contig")) {
+			/* get the file name */
 			String result = getExtractIDFromAB1FileName(list.getName())
 					.toString();
 			if (result.toString().length() >= 15) {
