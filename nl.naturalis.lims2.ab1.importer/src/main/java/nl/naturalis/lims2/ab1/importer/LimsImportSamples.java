@@ -483,7 +483,7 @@ public class LimsImportSamples extends DocumentAction {
 					/* Add notes to the documents */
 					extractSamplesRecord_Choose_No(fileSelected, documents);
 					/* Hide the progressbar GUI */
-					limsFrameProgress.hideFrame();
+					// limsFrameProgress.hideFrame();
 
 				} else {
 					showSelectedDocumentsMessage();
@@ -675,9 +675,14 @@ public class LimsImportSamples extends DocumentAction {
 		else if (list.getName().toString().contains("dum")) {
 			documentFileName = list.getName();
 		} /* from a imported file */
-		else if (!(list.toString().contains(documentTypeNovoAssembly)
-				|| list.toString().contains(documentTypeConsensusSequence) || list
-				.toString().contains("DefaultSequenceListDocument"))) {
+		// else if (!(list.toString().contains(documentTypeNovoAssembly)
+		// || list.toString().contains(documentTypeConsensusSequence) || list
+		// .toString().contains("DefaultSequenceListDocument"))) {
+		/* Contig don't have imported filename. */
+		// documentFileName = (String) list.getDocumentNotes(true)
+		// .getNote("importedFrom").getFieldValue("filename");
+		// }
+		else if (list.toString().contains("importedFrom")) {
 			/* Contig don't have imported filename. */
 			documentFileName = (String) list.getDocumentNotes(true)
 					.getNote("importedFrom").getFieldValue("filename");
@@ -693,8 +698,14 @@ public class LimsImportSamples extends DocumentAction {
 			extractIDfileName = getExtractIDFromAB1FileName(list.getName());
 		} else if (list.toString().contains("consensus sequence")
 				|| list.toString().contains("Contig")) {
-			extractIDfileName = getExtractIDFromAB1FileName(list.getName())
-					.toString().substring(15);
+			String result = getExtractIDFromAB1FileName(list.getName())
+					.toString();
+			if (result.toString().length() >= 15) {
+				extractIDfileName = result.toString().substring(15);
+				// getExtractIDFromAB1FileName(list.getName()).toString().substring(15);
+			} else {
+				extractIDfileName = result;
+			}
 		}
 	}
 
@@ -1077,6 +1088,7 @@ public class LimsImportSamples extends DocumentAction {
 					/* Show duration time of the process */
 					showProcessingDuration();
 
+					limsFrameProgress.hideFrame();
 					/* Show result dialog after processing the documents */
 					showFinishedDialogMessageNo(fileName, failureList,
 							exactProcessedList);

@@ -172,7 +172,8 @@ public class LimsDummySeq {
 
 		String regScientificname = "";
 		if (registrationNumber.length() > 0 && taxonName.length() > 0) {
-			regScientificname = registrationNumber + " " + taxonName;
+			regScientificname = registrationNumber + "_"
+					+ taxonName.replaceAll(" ", "_");
 		} else if (registrationNumber.length() > 0) {
 			regScientificname = registrationNumber;
 		} else if (registrationNumber.length() == 0 && taxonName.length() > 0) {

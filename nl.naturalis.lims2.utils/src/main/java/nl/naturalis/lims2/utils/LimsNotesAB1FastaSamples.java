@@ -128,7 +128,8 @@ public class LimsNotesAB1FastaSamples {
 		limsSamplesFields.setSubSample(sampleMethod);
 
 		if (registrationNumber.length() > 0 && taxonNaam.length() > 0) {
-			regScientificname = registrationNumber + " " + taxonNaam;
+			regScientificname = registrationNumber + "_"
+					+ taxonNaam.replaceAll(" ", "_");
 		} else if (registrationNumber.length() > 0) {
 			regScientificname = registrationNumber;
 		} else if (registrationNumber.length() == 0 && taxonNaam.length() > 0) {
