@@ -832,22 +832,31 @@ public class LimsSplitName extends DocumentAction {
 				Matcher m = p.matcher(result);
 
 				if (m.find()) {
-					System.out.println("The string contains letters");
-					JOptionPane.showMessageDialog(new JFrame(), fileName
-							+ " is not correct." + "\n" + "ExtractID "
-							+ ab1FileName[0]
-							+ " is not correct and will not be added.",
-							"Dialog", JOptionPane.ERROR_MESSAGE, icon);
+					logger.info(fileName + " is not correct." + "\n"
+							+ "ExtractID " + ab1FileName[0]
+							+ " is not correct and will not be added.");
+
+					/*
+					 * JOptionPane.showMessageDialog(new JFrame(), fileName +
+					 * " is not correct." + "\n" + "ExtractID " + ab1FileName[0]
+					 * + " is not correct and will not be added.", "Dialog",
+					 * JOptionPane.ERROR_MESSAGE, icon);
+					 */
 					checked = true;
 					continue;
 				}
 			} else if (i == 4) {
 				if (!ab1FileName[4].contains("-")) {
-					JOptionPane.showMessageDialog(new JFrame(), fileName
-							+ " is not correct." + "\n" + "Marker "
-							+ ab1FileName[i]
-							+ " is not correct and and will not be added.",
-							"Dialog", JOptionPane.ERROR_MESSAGE, icon);
+					logger.info(fileName + " is not correct." + "\n"
+							+ "Marker " + ab1FileName[i]
+							+ " is not correct and and will not be added.");
+
+					/*
+					 * JOptionPane.showMessageDialog(new JFrame(), fileName +
+					 * " is not correct." + "\n" + "Marker " + ab1FileName[i] +
+					 * " is not correct and and will not be added.", "Dialog",
+					 * JOptionPane.ERROR_MESSAGE, icon);
+					 */
 					checked = true;
 					continue;
 				}
