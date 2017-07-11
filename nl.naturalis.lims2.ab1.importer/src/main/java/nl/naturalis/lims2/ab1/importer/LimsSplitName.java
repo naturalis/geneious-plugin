@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
@@ -329,6 +328,7 @@ public class LimsSplitName extends DocumentAction {
 					limsFrameProgress.hideFrame();
 				}
 
+				/* Add Image to the dialog */
 				private void getDialogMessage() {
 					String imageName = limsImporterUtil.getNaturalisPicture()
 							.getAbsolutePath();

@@ -9,6 +9,7 @@ import java.awt.FlowLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRootPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 /**
@@ -69,12 +70,12 @@ public class LimsFrameProgress {
 				JRootPane.INFORMATION_DIALOG);
 		frame.getTitle();
 		jlPercentage.setText("0%");
-		jlPercentage.setHorizontalAlignment(jlPercentage.CENTER);
-		jlPercentage.setVerticalAlignment(jlPercentage.CENTER);
+		jlPercentage.setHorizontalAlignment(SwingConstants.CENTER);
+		jlPercentage.setVerticalAlignment(SwingConstants.CENTER);
 		jlFilename.setText("\n");
 		jlFilename.setPreferredSize(new Dimension(350, 50));
-		jlFilename.setHorizontalTextPosition(jlFilename.CENTER);
-		jlFilename.setVerticalAlignment(jlFilename.CENTER);
+		jlFilename.setHorizontalTextPosition(SwingConstants.CENTER);
+		jlFilename.setVerticalAlignment(SwingConstants.CENTER);
 		jlMsg0.setHorizontalAlignment(jlMsg0.CENTER);
 		jlMsg0.setVerticalAlignment(jlMsg0.CENTER);
 		jlbMsg1.setHorizontalAlignment(jlbMsg1.CENTER);
