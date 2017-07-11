@@ -6,6 +6,7 @@ package nl.naturalis.lims2.utils;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRootPane;
@@ -61,6 +62,9 @@ public class LimsFrameProgress {
 	 * Create the dialog screen
 	 * */
 	public void createProgressGUI() {
+		LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+		String Ico = limsImporterUtil.getNaturalisPicture().getAbsolutePath();
+		ImageIcon icon = new ImageIcon(Ico);
 		frame.setLayout(new FlowLayout());
 		frame.setSize(480, 250);
 		frame.isAlwaysOnTop();
@@ -76,12 +80,12 @@ public class LimsFrameProgress {
 		jlFilename.setPreferredSize(new Dimension(350, 50));
 		jlFilename.setHorizontalTextPosition(SwingConstants.CENTER);
 		jlFilename.setVerticalAlignment(SwingConstants.CENTER);
-		jlMsg0.setHorizontalAlignment(jlMsg0.CENTER);
-		jlMsg0.setVerticalAlignment(jlMsg0.CENTER);
-		jlbMsg1.setHorizontalAlignment(jlbMsg1.CENTER);
-		jlbMsg1.setVerticalAlignment(jlbMsg1.CENTER);
-		jlbMsg2.setHorizontalAlignment(jlbMsg2.CENTER);
-		jlbMsg2.setVerticalAlignment(jlbMsg2.CENTER);
+		jlMsg0.setHorizontalAlignment(SwingConstants.CENTER);
+		jlMsg0.setVerticalAlignment(SwingConstants.CENTER);
+		jlbMsg1.setHorizontalAlignment(SwingConstants.CENTER);
+		jlbMsg1.setVerticalAlignment(SwingConstants.CENTER);
+		jlbMsg2.setHorizontalAlignment(SwingConstants.CENTER);
+		jlbMsg2.setVerticalAlignment(SwingConstants.CENTER);
 		frame.add(jlPercentage);
 		frame.add(jlFilename);
 		frame.add(jlMsgEmpty);
