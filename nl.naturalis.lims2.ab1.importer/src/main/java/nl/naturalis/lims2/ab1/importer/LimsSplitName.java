@@ -218,7 +218,7 @@ public class LimsSplitName extends DocumentAction {
 						&& !fastaFilename.contains(ab1FileExtension)) {
 					getFastaSelectedDocumentsType(cnt,
 							selectedDocuments.get(cnt).getName());
-				} else {
+				} else if (!ab1Filename.contains("dum")) {
 					if (checkFileName(ab1Filename)) {
 						/*
 						 * Create the dialog GUI to see the processing of the
