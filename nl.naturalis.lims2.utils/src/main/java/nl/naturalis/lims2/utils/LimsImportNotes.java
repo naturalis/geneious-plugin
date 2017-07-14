@@ -303,13 +303,13 @@ public class LimsImportNotes {
 	 * @return
 	 */
 
-	private ArrayList<DocumentNoteField> addNotesToListNotes(
-			String[] multipleValues) {
-		ArrayList<DocumentNoteField> listNotes = new ArrayList<DocumentNoteField>();
-		/* Extract ID (Seq) */
-
-		return listNotes;
-	}
+	/*
+	 * private ArrayList<DocumentNoteField> addNotesToListNotes( String[]
+	 * multipleValues) { ArrayList<DocumentNoteField> listNotes = new
+	 * ArrayList<DocumentNoteField>(); Extract ID (Seq)
+	 * 
+	 * return listNotes; }
+	 */
 
 	/**
 	 * 

@@ -155,6 +155,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 				new LimsImportBold(), new LimsImportSamples() };
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public DocumentType[] getDocumentTypes() {
 		return new DocumentType[] { new DocumentType<LimsSamplesFields>(

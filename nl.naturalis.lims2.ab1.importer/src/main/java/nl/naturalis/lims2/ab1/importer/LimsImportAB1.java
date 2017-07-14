@@ -445,15 +445,14 @@ public class LimsImportAB1 extends DocumentFileImporter {
 		}
 	}
 
-	private void getDialogMessage(int counter) {
-		String imageName = limsImporterUtil.getNaturalisPicture()
-				.getAbsolutePath();
-		ImageIcon icon = new ImageIcon(imageName);
-		JOptionPane.showMessageDialog(new JFrame(), Integer.toString(counter)
-				+ " documents have been imported.",
-				"All Naturalis Files(*) Import",
-				JOptionPane.INFORMATION_MESSAGE, icon);
-	}
+	/*
+	 * private void getDialogMessage(int counter) { String imageName =
+	 * limsImporterUtil.getNaturalisPicture() .getAbsolutePath(); ImageIcon icon
+	 * = new ImageIcon(imageName); JOptionPane.showMessageDialog(new JFrame(),
+	 * Integer.toString(counter) + " documents have been imported.",
+	 * "All Naturalis Files(*) Import", JOptionPane.INFORMATION_MESSAGE, icon);
+	 * }
+	 */
 
 	/**
 	 * @throws IOException

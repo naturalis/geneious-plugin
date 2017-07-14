@@ -23,6 +23,7 @@ import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
 import nl.naturalis.lims2.utils.LimsLogger;
+import nl.naturalis.lims2.utils.LimsMessages;
 import nl.naturalis.lims2.utils.LimsNotesAB1FastaSamples;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsSQL;
@@ -88,10 +89,8 @@ public class LimsImportSamples extends DocumentAction {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LimsImportSamples.class);
 	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-	private JFrame frame = new JFrame();
 	private LimsLogger limsLogger = null;
 	private LimsSQL limsSQL = new LimsSQL();
-	private LimsImportAB1 impAB1Fasta = new LimsImportAB1();
 
 	private LimsNotesAB1FastaSamples limsNotesAB1FastaSamples = new LimsNotesAB1FastaSamples();
 
@@ -123,14 +122,35 @@ public class LimsImportSamples extends DocumentAction {
 	private int sampleTotaalRecords = 0;
 	private int importCounter = 0;
 	private int sampleRecordFailure = 0;
-	private int sampleExactRecordsVerwerkt = 0;
 	private int recordCount = 0;
 	private int cntRec = 0;
 	private LimsDatabaseChecker dbchk = null;
 	private Object extractIDSeqExists;
 
-	private final String documentTypeNovoAssembly = "NucleotideSequenceDocument";
-	private final String documentTypeConsensusSequence = "DefaultAlignmentDocument";
+	private String imageName;
+	private ImageIcon icon;
+	private int dialogOptions;
+
+	/**
+	 * @return the imageName
+	 */
+	public String getImageName() {
+		return imageName;
+	}
+
+	/**
+	 * @param imageName
+	 *            the imageName to set
+	 */
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
+	/*
+	 * private final String documentTypeNovoAssembly =
+	 * "NucleotideSequenceDocument"; private final String
+	 * documentTypeConsensusSequence = "DefaultAlignmentDocument";
+	 */
 
 	public LimsImportSamples() {
 		dbchk = new LimsDatabaseChecker();
@@ -221,17 +241,18 @@ public class LimsImportSamples extends DocumentAction {
 				.getServerDatabaseServiceName();
 
 		if (readGeneiousFieldsValues.activeDB != null) {
-			String imageFile = limsImporterUtil.getNaturalisPicture()
-					.getAbsolutePath();
-			ImageIcon icon = new ImageIcon(imageFile);
+			setImageName(limsImporterUtil.getNaturalisPicture()
+					.getAbsolutePath());
+			icon = new ImageIcon(getImageName());
+
 			Object[] options = { "Ok", "No", "Cancel" };
-			int n = JOptionPane.showOptionDialog(new JFrame(),
+			dialogOptions = JOptionPane.showOptionDialog(new JFrame(),
 					"Create dummy sequences for unknown extract ID's?",
 					"Samples", JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE, icon, options, options[2]);
 
 			/* If OK Selected */
-			if (n == 0) {
+			if (dialogOptions == 0) {
 				cntRec = 0;
 				/* Check if document(s) has been selected * */
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
@@ -244,21 +265,15 @@ public class LimsImportSamples extends DocumentAction {
 					limsLogger = new LimsLogger(logSamplesFileName);
 
 					logger.info("Start updating selected document(s).");
-					fileSelected = fcd.loadSelectedFile();
 
+					fileSelected = fcd.loadSelectedFile();
 					/* Add selected documents to a list. */
 					if (fileSelected == "" && fileSelected.isEmpty()) {
 						limsFrameProgress.hideFrame();
 						return;
 					}
 
-					/* Get the total of records of the Sample CSV file */
-					try {
-						sampleTotaalRecords = limsImporterUtil
-								.countCsvRecords(fileSelected);
-					} catch (IOException e2) {
-						throw new RuntimeException(e2);
-					}
+					getSampleTotaalCSVRecords();
 
 					/* Create the progressbar */
 					limsFrameProgress.createProgressGUI();
@@ -298,14 +313,12 @@ public class LimsImportSamples extends DocumentAction {
 
 							processSampleDocuments(documents, record,
 									startBeginTime);
-
 							/*
 							 * Add documents that did not match to the
 							 * failureList
 							 */
 							if (!processedList.toString().contains(csvID)
 									&& !match) {
-
 								clearVariables();
 								recordCount++;
 
@@ -313,14 +326,12 @@ public class LimsImportSamples extends DocumentAction {
 									failureList
 											.add("No document(s) match found for Registrationnumber: "
 													+ csvID + "\n");
-
 									limsFrameProgress
 											.showProgress("No match : " + csvID
 													+ "\n" + "  Recordcount: "
 													+ recordCount);
 								}
 							}
-
 						} // end While
 						logger.info("--------------------------------------------------------");
 						logger.info("Total of document(s) updated: "
@@ -383,7 +394,6 @@ public class LimsImportSamples extends DocumentAction {
 								failureList.clear();
 								processedList.clear();
 								lackList.clear();
-								sampleExactRecordsVerwerkt = 0;
 								sampleRecordFailure = 0;
 								dummyRecordsVerwerkt = 0;
 								recordCount = 0;
@@ -397,77 +407,15 @@ public class LimsImportSamples extends DocumentAction {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				} else { // If no document selected then add dummy documents.
-					startTime = new Date().getTime();
-					limsFrameProgress.createProgressGUI();
-					fileSelected = fcd.loadSelectedFile();
-					if (fileSelected == "" && fileSelected.isEmpty()) {
-						limsFrameProgress.hideFrame();
-						return;
-					}
-					try {
-						createDummyFileWithOutSelection(fileSelected,
-								extractIDfileName);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-					limsFrameProgress.hideFrame();
-					/* Add failure records to the list */
-					if (extractIDfileName == null) {
-						failureList.add("Total records not matched: "
-								+ Integer.toString(failureList.size()) + "\n");
-					}
-
-					/* Show duration time of the process */
-					showProcessingDuration();
-
-					limsFrameProgress.createProgressGUI();
-					limsFrameProgress
-							.showProgress("Start collecting dummy values. One moment please....");
-
-					/*
-					 * Show a dialog with the results after processing the
-					 * documents
-					 */
-					EventQueue.invokeLater(new Runnable() {
-
-						/**
-						 * Show Message dialog with information after finished
-						 * adding notes to the document
-						 */
-						@Override
-						public void run() {
-
-							showFinishedDialogMessageDummyOK();
-
-							/*
-							 * logger.info(
-							 * "Sample-method: Total imported document(s): " +
-							 * msgList.toString());
-							 */
-
-							failureList.add("Filename: " + fileSelected + "\n");
-
-							clearSamplesVariablesAndList();
-						}
-
-						private void clearSamplesVariablesAndList() {
-							msgList.clear();
-							failureList.clear();
-							processedList.clear();
-							lackList.clear();
-							sampleExactRecordsVerwerkt = 0;
-							sampleRecordFailure = 0;
-							dummyRecordsVerwerkt = 0;
-							recordCount = 0;
-						}
-					});
+				} else if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+					// If no document selected then add dummy documents.
+					createDummiesDocuments();
 				}
 				/*
 				 * Choose "No" only samples documents will be processed and no
 				 * dummy documents will be created.
 				 */
-			} else if (n == 1) {
+			} else if (dialogOptions == 1) {
 				/* Check if document(s) has been selected * */
 				if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
 					/* Load the Sample CSV file that will be processed */
@@ -488,10 +436,65 @@ public class LimsImportSamples extends DocumentAction {
 				} else {
 					showSelectedDocumentsMessage();
 				}
-			} else if (n == 2) {
+			} else if (dialogOptions == 2) {
 				return;
 			}
 		}
+	}
+
+	private void createDummiesDocuments() {
+		startTime = new Date().getTime();
+		limsFrameProgress.createProgressGUI();
+		fileSelected = fcd.loadSelectedFile();
+		if (fileSelected == "" && fileSelected.isEmpty()) {
+			limsFrameProgress.hideFrame();
+			return;
+		}
+		try {
+			createDummyFileWithOutSelection(fileSelected, extractIDfileName);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		limsFrameProgress.hideFrame();
+		/* Add failure records to the list */
+		if (extractIDfileName == null) {
+			failureList.add("Total records not matched: "
+					+ Integer.toString(failureList.size()) + "\n");
+		}
+
+		/* Show duration time of the process */
+		showProcessingDuration();
+
+		limsFrameProgress.createProgressGUI();
+		limsFrameProgress
+				.showProgress("Start collecting dummy values. One moment please....");
+
+		/*
+		 * Show a dialog with the results after processing the documents
+		 */
+		EventQueue.invokeLater(new Runnable() {
+
+			/**
+			 * Show Message dialog with information after finished adding notes
+			 * to the document
+			 */
+			@Override
+			public void run() {
+				showFinishedDialogMessageDummyOK();
+				failureList.add("Filename: " + fileSelected + "\n");
+				clearSamplesVariablesAndList();
+			}
+
+			private void clearSamplesVariablesAndList() {
+				msgList.clear();
+				failureList.clear();
+				processedList.clear();
+				lackList.clear();
+				sampleRecordFailure = 0;
+				dummyRecordsVerwerkt = 0;
+				recordCount = 0;
+			}
+		});
 	}
 
 	/* Duration process of all selected documents */
@@ -1087,8 +1090,7 @@ public class LimsImportSamples extends DocumentAction {
 
 					limsFrameProgress.hideFrame();
 					/* Show result dialog after processing the documents */
-					showFinishedDialogMessageNo(fileName, failureList,
-							exactProcessedList);
+					showFinishedDialogMessageNo(failureList, exactProcessedList);
 
 					failureList.add("Total records not matched: "
 							+ Integer.toString(failureList.size()) + "\n");
@@ -1120,32 +1122,20 @@ public class LimsImportSamples extends DocumentAction {
 	 * 
 	 * @param fileName , failureList, exactProcessedList
 	 */
-	private void showFinishedDialogMessageNo(String fileName,
-			List<String> failureList, List<String> exactProcessedList) {
+	private void showFinishedDialogMessageNo(List<String> failureList,
+			List<String> exactProcessedList) {
 		sampleTotaalRecords = exactProcessedList.size() + failureList.size();
-		String imageName = limsImporterUtil.getNaturalisPicture()
-				.getAbsolutePath();
-		ImageIcon icon = new ImageIcon(imageName);
 		JOptionPane.showMessageDialog(
 				new JFrame(),
-				sampleTotaalRecords // readTotalRecordsOfFileSelected(fileName)
-						+ " sample records have been read of which: "
-						+ "\n"
-						+ "\n"
-						+ "[1] "
-						+ Integer.toString(exactProcessedList.size())
-						+ " samples are imported and linked to "
-						+ Integer.toString(recordCount)
-						+ " existing documents (of "
-						+ listDocuments.size()
-						+ " selected)" + "\n" + "\n"
-						+ "[2] "
-						+ "0 samples are imported as dummy." + "\n"
-						+ "\n"
-						+ "[3] "
+				sampleTotaalRecords + LimsMessages.haveBeen + "\n" + "\n"
+						+ "[1] " + Integer.toString(exactProcessedList.size())
+						+ LimsMessages.importedLinked
+						+ Integer.toString(recordCount) + LimsMessages.existing
+						+ listDocuments.size() + LimsMessages.selected + "\n"
+						+ "\n" + "[2] " + "0 " + LimsMessages.dummiesImported
+						+ "\n" + "\n" + "[3] "
 						+ Integer.toString(failureList.size())
-						+ " samples are ignored." + "\n"
-						+ "\n"
+						+ LimsMessages.samplesIgnored + "\n" + "\n"
 						+ getLackMessage(isLackListNotEmpty()),
 				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
 	}
@@ -1157,35 +1147,31 @@ public class LimsImportSamples extends DocumentAction {
 	 */
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
-		sampleExactRecordsVerwerkt = processedList.size();
-		String imageName = limsImporterUtil.getNaturalisPicture()
-				.getAbsolutePath();
-		ImageIcon icon = new ImageIcon(imageName);
+
 		JOptionPane.showMessageDialog(
 				new JFrame(),
-				Integer.toString(sampleTotaalRecords)
-						+ " sample records have been read of which: "
+				Integer.toString(getSampleTotaalCSVRecords())
+						+ LimsMessages.haveBeen
 						+ "\n"
 						+ "\n"
 						+ "[1] "
-						+ Integer.toString(sampleExactRecordsVerwerkt)
-						+ " samples are imported and linked to "
+						+ Integer.toString(processedList.size())
+						+ LimsMessages.importedLinked
 						+ Integer.toString(cntRec)
-						+ " existing documents (of "
+						+ LimsMessages.existing
 						+ importCounter
-						+ " selected)"
+						+ LimsMessages.selected
 						+ "\n"
 						+ "\n"
 						+ "[2] "
 						+ Integer.toString(dummyRecordsVerwerkt)
-						+ " samples are imported as dummy"
+						+ LimsMessages.dummiesImported
 						+ "\n"
 						+ "\n"
 						+ "[3] "
-						// + Integer.toString(sampleRecordFailure)
 						+ Integer.toString(sampleRecordFailure
 								- dummyRecordsVerwerkt)
-						+ " sample records are ignored." + "\n" + "\n"
+						+ LimsMessages.samplesIgnored + "\n" + "\n"
 						+ getLackMessage(isLackListNotEmpty()),
 				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
 		importCounter = 0;
@@ -1193,36 +1179,36 @@ public class LimsImportSamples extends DocumentAction {
 
 	private void showFinishedDialogMessageDummyOK() {
 		sampleRecordFailure = failureList.size();
-		sampleExactRecordsVerwerkt = processedList.size();
-		/* Get the total of records of the Sample CSV file */
-		try {
-			sampleTotaalRecords = limsImporterUtil
-					.countCsvRecords(fileSelected);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 
-		impAB1Fasta.dummiesRecords = readGeneiousFieldsValues
+		LimsImportAB1.dummiesRecords = readGeneiousFieldsValues
 				.getDummySamplesValues(".dum");
 
 		limsFrameProgress.hideFrame();
-		String imageName = limsImporterUtil.getNaturalisPicture()
-				.getAbsolutePath();
-		ImageIcon icon = new ImageIcon(imageName);
+
 		JOptionPane.showMessageDialog(
 				new JFrame(),
-				Integer.toString(sampleTotaalRecords)
-						+ " sample records have been read of which: " + "\n"
-						+ "\n" + "[1] "
-						+ Integer.toString(sampleExactRecordsVerwerkt)
-						+ " samples are imported and linked to "
-						+ Integer.toString(cntRec) + " existing documents (of "
-						+ importCounter + " selected)" + "\n" + "\n" + "[2] "
-						+ Integer.toString(dummyRecordsVerwerkt)
-						+ " samples are imported as dummy" + "\n" + "\n"
-						+ "[3] " + Integer.toString(failureList.size())
-						+ " sample records are ignored." + "\n" + "\n"
+				Integer.toString(getSampleTotaalCSVRecords())
+						+ LimsMessages.haveBeen + "\n" + "\n" + "[1] "
+						+ Integer.toString(processedList.size())
+						+ LimsMessages.importedLinked
+						+ Integer.toString(cntRec) + LimsMessages.existing
+						+ importCounter + LimsMessages.selected + "\n" + "\n"
+						+ "[2] " + Integer.toString(dummyRecordsVerwerkt)
+						+ LimsMessages.dummiesImported + "\n" + "\n" + "[3] "
+						+ Integer.toString(failureList.size())
+						+ LimsMessages.samplesIgnored + "\n" + "\n"
 						+ getLackMessage(isLackListNotEmpty()),
 				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
+	}
+
+	/**
+	 * 
+	 */
+	private int getSampleTotaalCSVRecords() {
+		try {
+			return limsImporterUtil.countCsvRecords(fileSelected);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

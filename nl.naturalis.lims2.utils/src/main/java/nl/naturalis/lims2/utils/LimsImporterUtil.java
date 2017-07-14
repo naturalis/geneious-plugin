@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.LineNumberReader;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -303,38 +302,29 @@ public class LimsImporterUtil {
 		}
 	}
 
-	public int getlineNumber(String filename) {
-		String headerline = "";
-		int linenumber = 0;
-		try {
-
-			File file = new File(filename);
-
-			if (file.exists()) {
-
-				FileReader fr = new FileReader(file);
-				LineNumberReader lnr = new LineNumberReader(fr);
-				headerline = lnr.readLine();
-				if ((headerline = lnr.readLine()) != null) {
-					while (lnr.readLine() != null) {
-						linenumber++;
-					}
-				}
-
-				System.out.println("Total number of lines : " + linenumber);
-
-				lnr.close();
-
-			} else {
-				System.out.println("File does not exists!");
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return linenumber;
-	}
+	/*
+	 * public int getlineNumber(String filename) {
+	 * 
+	 * int linenumber = 0; try { //String headerline; File file = new
+	 * File(filename);
+	 * 
+	 * if (file.exists()) {
+	 * 
+	 * FileReader fr = new FileReader(file); LineNumberReader lnr = new
+	 * LineNumberReader(fr); String headerline = lnr.readLine(); if ((headerline
+	 * = lnr.readLine()) != null) { while (lnr.readLine() != null) {
+	 * linenumber++; } }
+	 * 
+	 * System.out.println("Total number of lines : " + linenumber);
+	 * 
+	 * lnr.close();
+	 * 
+	 * } else { System.out.println("File does not exists!"); }
+	 * 
+	 * } catch (IOException e) { e.printStackTrace(); }
+	 * 
+	 * return linenumber; }
+	 */
 
 	private void skipBlankHeader(final BufferedReader reader)
 			throws IOException {
@@ -384,8 +374,22 @@ public class LimsImporterUtil {
 	}
 
 	public File getNaturalisPicture() {
-		File resourceDirectory = new File(this.getClass()
-				.getResource("/Naturalis.jpg").getFile());
+		String pathToImage = "Naturalis.jpg";
+
+		ClassLoader classLoader = getClass().getClassLoader();
+		File resourceDirectory = new File(classLoader.getResource(pathToImage)
+				.getFile());
+
+		/*
+		 * try { BufferedImage img = ImageIO .read(new File(
+		 * "/nl.naturalis.lims2.ab1.importer/src/main/resources/Naturalis.jpg"
+		 * )); } catch (IOException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 */
+
+		System.out.println(resourceDirectory.getAbsolutePath());
+		// File resourceDirectory = new File(this.getClass()
+		// .getResource(pathToImage).getFile());
 		return resourceDirectory;
 	}
 }

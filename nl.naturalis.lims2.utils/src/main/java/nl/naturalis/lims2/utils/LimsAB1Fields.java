@@ -4,8 +4,6 @@
 package nl.naturalis.lims2.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <table summary="Extract filename">
@@ -40,8 +38,10 @@ import org.slf4j.LoggerFactory;
  */
 public class LimsAB1Fields {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(LimsAB1Fields.class);
+	/*
+	 * private static final Logger logger = LoggerFactory
+	 * .getLogger(LimsAB1Fields.class);
+	 */
 	private String extractID;
 	private String pcrPlaatID;
 	private String marker;

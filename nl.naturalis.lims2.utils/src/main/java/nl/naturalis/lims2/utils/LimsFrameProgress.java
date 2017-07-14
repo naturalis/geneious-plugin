@@ -6,7 +6,6 @@ package nl.naturalis.lims2.utils;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRootPane;
@@ -62,9 +61,6 @@ public class LimsFrameProgress {
 	 * Create the dialog screen
 	 * */
 	public void createProgressGUI() {
-		LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-		String Ico = limsImporterUtil.getNaturalisPicture().getAbsolutePath();
-		ImageIcon icon = new ImageIcon(Ico);
 		frame.setLayout(new FlowLayout());
 		frame.setSize(480, 250);
 		frame.isAlwaysOnTop();

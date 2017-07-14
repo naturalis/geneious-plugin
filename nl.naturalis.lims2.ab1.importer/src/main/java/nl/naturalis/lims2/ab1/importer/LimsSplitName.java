@@ -820,9 +820,10 @@ public class LimsSplitName extends DocumentAction {
 	}
 
 	public Boolean checkFileName(String fileName) {
-		String imageName = limsImporterUtil.getNaturalisPicture()
-				.getAbsolutePath();
-		ImageIcon icon = new ImageIcon(imageName);
+		/*
+		 * String imageName = limsImporterUtil.getNaturalisPicture()
+		 * .getAbsolutePath(); ImageIcon icon = new ImageIcon(imageName);
+		 */
 		String[] ab1FileName = StringUtils.split(fileName, "_");
 		Boolean checked = false;
 		for (int i = 0; i < ab1FileName.length; i++) {

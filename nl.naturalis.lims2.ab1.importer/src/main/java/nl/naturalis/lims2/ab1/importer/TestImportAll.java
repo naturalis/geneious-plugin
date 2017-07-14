@@ -5,9 +5,8 @@ import com.biomatters.geneious.publicapi.plugin.TestGeneious;
 public class TestImportAll {
 
 	public static void initialize() {
-		TestGeneious testGeneious = null;
-		testGeneious.initialize();
-		testGeneious.initializePlugins("All Naturalis Files");
+		TestGeneious.initialize();
+		TestGeneious.initializePlugins("All Naturalis Files");
 	}
 
 }
