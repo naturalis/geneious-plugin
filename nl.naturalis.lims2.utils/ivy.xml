@@ -28,7 +28,5 @@
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.10"/>
 		<dependency org="commons-io" name="commons-io" rev="2.4"/>
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.4"/>
-		<!-- https://mvnrepository.com/artifact/org.apache.directory.studio/org.apache.commons.codec -->
-        <dependency org="org.apache.directory.studio" name="org.apache.commons.codec" rev="1.8"/>
     </dependencies>
 </ivy-module>
