@@ -836,13 +836,6 @@ public class LimsSplitName extends DocumentAction {
 					logger.info(fileName + " is not correct." + "\n"
 							+ "ExtractID " + ab1FileName[0]
 							+ " is not correct and will not be added.");
-
-					/*
-					 * JOptionPane.showMessageDialog(new JFrame(), fileName +
-					 * " is not correct." + "\n" + "ExtractID " + ab1FileName[0]
-					 * + " is not correct and will not be added.", "Dialog",
-					 * JOptionPane.ERROR_MESSAGE, icon);
-					 */
 					checked = true;
 					continue;
 				}
@@ -851,13 +844,6 @@ public class LimsSplitName extends DocumentAction {
 					logger.info(fileName + " is not correct." + "\n"
 							+ "Marker " + ab1FileName[i]
 							+ " is not correct and and will not be added.");
-
-					/*
-					 * JOptionPane.showMessageDialog(new JFrame(), fileName +
-					 * " is not correct." + "\n" + "Marker " + ab1FileName[i] +
-					 * " is not correct and and will not be added.", "Dialog",
-					 * JOptionPane.ERROR_MESSAGE, icon);
-					 */
 					checked = true;
 					continue;
 				}

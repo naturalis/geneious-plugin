@@ -232,38 +232,27 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						Matcher m = p.matcher(result);
 
 						if (m.find()) {
-							// System.out.println("The string contains letters");
-							JOptionPane
-									.showMessageDialog(
-											new JFrame(),
-											file.getName()
-													+ " is not correct."
-													+ "\n"
-													+ "ExtractID "
-													+ ab1FileName[0]
-													+ " is not correct and will not be added.",
-											"Dialog",
-											JOptionPane.ERROR_MESSAGE, icon);
+							logger.info("File name " + file.getName()
+									+ " is not properly composed." + "\n"
+									+ "ExtractID name " + ab1FileName[0]
+									+ " is not recognized."
+									+ "File will be ignored.");
 							return;
 						}
 					}
 					if (i == 4) {
 						if (!ab1FileName[4].contains("-")) {
-							JOptionPane
-									.showMessageDialog(
-											new JFrame(),
-											file.getName()
-													+ " is not correct."
-													+ "\n"
-													+ "Marker "
-													+ ab1FileName[i]
-													+ " is not correct and and will not be added.",
-											"Dialog",
-											JOptionPane.ERROR_MESSAGE, icon);
+							JOptionPane.showMessageDialog(new JFrame(),
+									"File name " + file.getName()
+											+ "  is not properly composed"
+											+ "\n" + "Marker name "
+											+ ab1FileName[i]
+											+ " is not recognized." + "\n"
+											+ "File will be ignored.",
+									"Dialog", JOptionPane.ERROR_MESSAGE, icon);
 							return;
 						}
 					}
-					// System.out.println(ab1FileName[i]);
 				}
 			}
 			if (file.getName().contains(".fas")) {
@@ -406,7 +395,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 				docs.clear();
 			}
 		}
-		// getDialogMessage(selectedCount);
 	}
 
 	@Override
@@ -444,15 +432,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			}
 		}
 	}
-
-	/*
-	 * private void getDialogMessage(int counter) { String imageName =
-	 * limsImporterUtil.getNaturalisPicture() .getAbsolutePath(); ImageIcon icon
-	 * = new ImageIcon(imageName); JOptionPane.showMessageDialog(new JFrame(),
-	 * Integer.toString(counter) + " documents have been imported.",
-	 * "All Naturalis Files(*) Import", JOptionPane.INFORMATION_MESSAGE, icon);
-	 * }
-	 */
 
 	/**
 	 * @throws IOException
