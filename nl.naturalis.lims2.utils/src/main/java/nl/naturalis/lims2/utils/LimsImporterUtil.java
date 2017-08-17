@@ -377,19 +377,9 @@ public class LimsImporterUtil {
 		String pathToImage = "Naturalis.jpg";
 
 		ClassLoader classLoader = getClass().getClassLoader();
-		File resourceDirectory = new File(classLoader.getResource(pathToImage)
+		File imageFile = new File(classLoader.getResource(pathToImage)
 				.getFile());
 
-		/*
-		 * try { BufferedImage img = ImageIO .read(new File(
-		 * "/nl.naturalis.lims2.ab1.importer/src/main/resources/Naturalis.jpg"
-		 * )); } catch (IOException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
-
-		System.out.println(resourceDirectory.getAbsolutePath());
-		// File resourceDirectory = new File(this.getClass()
-		// .getResource(pathToImage).getFile());
-		return resourceDirectory;
+		return imageFile;
 	}
 }

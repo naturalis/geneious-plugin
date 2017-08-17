@@ -340,6 +340,7 @@ public class LimsSplitName extends DocumentAction {
 									+ Integer.toString(selectedDocuments.size())
 									+ " selected) are updated.", "Split name",
 							JOptionPane.INFORMATION_MESSAGE, icon);
+					verwerkingList.clear();
 				}
 
 				/**
@@ -466,37 +467,9 @@ public class LimsSplitName extends DocumentAction {
 
 		if (fastaFilename != null
 				&& fastaFilename.toString().contains(fastaFileExtension)) {
-
-			/* Fasta Document */
-			if (docType.contains(defaultNucleotideSequence)
-					&& selectedDocuments.get(cnt).getName()
-							.contains(readsAssemblyConsensusContig)) {
-				processReadAssemblyConsesusContig(cnt, fastaFilename);
-			} else if (docType.contains(defaultNucleotideSequence)
-					&& defNucleotideSequence != null
-					&& !selectedDocuments.get(cnt).getName()
-							.contains(readsAssembly)) {
-				extractFastaSequenceDocument();
-			} else if (docType.contains(defaultAlignmentDocument)
-					&& selectedDocuments.get(cnt).getName()
-							.contains(readsAssembly)) {
-				processReadAssemblyConsesusContig(cnt, fastaFilename);
-			}
-		} else if (defAlignmentDoc != null
-				&& !defAlignmentDoc.toString().isEmpty()) {
-			/* DefaultAlignmentDocument */
-			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
-					.getName());
-		} else if (defNucleotideGraphSequence != null
-				&& !defNucleotideGraphSequence.toString().isEmpty()
-				&& !ab1Filename.contains(ab1FileExtension)) {
-			/* Default */
-			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
-					.getName());
-		} else if (defNucleotideGraphSequence != null
-				&& !defNucleotideGraphSequence.toString().isEmpty()
-				&& ab1Filename.contains(ab1FileExtension)) {
-			extractAB1Document();
+			enrichFastaAndAssemblySequence(cnt);
+		} else {
+			enrichAB1andAssemblySequence(cnt);
 		}
 
 		if (fileExists && !extractIDValue) {
@@ -520,6 +493,51 @@ public class LimsSplitName extends DocumentAction {
 		/* Show processing dialog */
 		limsFrameProgress.showProgress("Processing: "
 				+ DocumentUtilities.getSelectedDocuments().get(cnt).getName());
+	}
+
+	/**
+	 * @param cnt
+	 */
+	private void enrichAB1andAssemblySequence(int cnt) {
+		if (defAlignmentDoc != null && !defAlignmentDoc.toString().isEmpty()) {
+			/* DefaultAlignmentDocument */
+			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
+					.getName());
+		} else if (defNucleotideGraphSequence != null
+				&& !defNucleotideGraphSequence.toString().isEmpty()
+				&& !ab1Filename.contains(ab1FileExtension)) {
+			/* Default */
+			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
+					.getName());
+		} else if (defNucleotideGraphSequence != null
+				&& !defNucleotideGraphSequence.toString().isEmpty()
+				&& ab1Filename.contains(ab1FileExtension)) {
+			extractAB1Document();
+			/* Lims-324 16 aug 2017 */
+		} else if (docType.contains(defaultNucleotideSequence)) {
+			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
+					.getName());
+		}
+	}
+
+	/**
+	 * @param cnt
+	 */
+	private void enrichFastaAndAssemblySequence(int cnt) {
+		/* Fasta Document */
+		if (docType.contains(defaultNucleotideSequence)
+				&& selectedDocuments.get(cnt).getName()
+						.contains(readsAssemblyConsensusContig)) {
+			processReadAssemblyConsesusContig(cnt, fastaFilename);
+		} else if (docType.contains(defaultNucleotideSequence)
+				&& defNucleotideSequence != null
+				&& !selectedDocuments.get(cnt).getName()
+						.contains(readsAssembly)) {
+			extractFastaSequenceDocument();
+		} else if (docType.contains(defaultAlignmentDocument)
+				&& selectedDocuments.get(cnt).getName().contains(readsAssembly)) {
+			processReadAssemblyConsesusContig(cnt, fastaFilename);
+		}
 	}
 
 	/**
@@ -585,7 +603,12 @@ public class LimsSplitName extends DocumentAction {
 				|| selectedDocuments.get(pCnt).getName()
 						.contains(readsAssembly)
 				|| selectedDocuments.get(pCnt).getName()
-						.contains(read_Assembly)) {
+						.contains(read_Assembly)
+				|| selectedDocuments.get(pCnt).toString()
+						.contains(defaultNucleotideSequence)
+				|| selectedDocuments.get(pCnt).toString()
+						.contains(defaultAlignmentDocument)) {
+
 			if (defAlignmentDoc != null || defNucleotideGraphSequence != null
 					|| defNucleotideSequence != null) {
 
@@ -618,6 +641,9 @@ public class LimsSplitName extends DocumentAction {
 						.contains(readsAssemblyConsensusContig))) {
 			// AB1 DefaultNucleotideGraphSequence
 			setDefaultNucleotideGraphSequenceFileName(pCnt);
+		} else if (docType.toString().contains(defaultNucleotideSequence)) {
+			/* DefaultNucleotideSequence */
+			setDefaultNucleotideSequenceFileName(pCnt);
 		}
 	}
 
@@ -840,7 +866,7 @@ public class LimsSplitName extends DocumentAction {
 					continue;
 				}
 			} else if (i == 4) {
-				if (!ab1FileName[4].contains("-")) {
+				if (!ab1FileName[4].contains("COI")) {
 					logger.info(fileName + " is not correct." + "\n"
 							+ "Marker " + ab1FileName[i]
 							+ " is not correct and and will not be added.");
