@@ -609,23 +609,22 @@ public class LimsSplitName extends DocumentAction {
 				|| selectedDocuments.get(pCnt).toString()
 						.contains(defaultAlignmentDocument)) {
 
-			if (defAlignmentDoc != null || defNucleotideGraphSequence != null
-					|| defNucleotideSequence != null) {
+			// if (defAlignmentDoc != null || defNucleotideGraphSequence != null
+			// || defNucleotideSequence != null) {
 
-				logger.info("Start extracting value from file: " + pFilename);
+			logger.info("Start extracting value from file: " + pFilename);
 
-				extractAb1FastaFileName = pFilename;
-				verwerkingList.add(pFilename);
-				limsSplitNotes
-						.extractDocumentFileName((String) extractAb1FastaFileName);
+			extractAb1FastaFileName = pFilename;
+			verwerkingList.add(pFilename);
+			limsSplitNotes.extractDocumentFileName((String) pFilename);
 
-				if (selectedDocuments.get(pCnt).toString()
-						.contains("DocumentVersionCode_Seq")) {
-					versienummer = Integer
-							.parseInt((String) getVersionNumberFromDocument(pCnt));
-				}
-				setVersienummer();
+			if (selectedDocuments.get(pCnt).toString()
+					.contains("DocumentVersionCode_Seq")) {
+				versienummer = Integer
+						.parseInt((String) getVersionNumberFromDocument(pCnt));
 			}
+			setVersienummer();
+			// }
 		}
 	}
 
