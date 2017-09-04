@@ -29,7 +29,6 @@ import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotesSplitName;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +123,22 @@ public class LimsSplitName extends DocumentAction {
 	private String ab1Filename;
 	private String docType;
 	private String logSplitFileName;
+	private String extension;
+
+	/**
+	 * @return the extension
+	 */
+	public String getExtension() {
+		return extension;
+	}
+
+	/**
+	 * @param extension
+	 *            the extension to set
+	 */
+	public void setExtension(String extension) {
+		this.extension = extension;
+	}
 
 	/**
 	 * ActionPerformed start the process of the selected documents and read the
@@ -473,9 +488,14 @@ public class LimsSplitName extends DocumentAction {
 			enrichAB1andAssemblySequence(cnt);
 		}
 
-		String ext = FilenameUtils.getExtension(fastaFilename);
+		// setExtension(FilenameUtils.getExtension(fastaFilename));
 
-		if (fileExists && !extractIDValue && ext.equals("fas")) {
+		int i = fastaFilename.lastIndexOf('.');
+		if (i > 0) {
+			setExtension(fastaFilename.substring(i + 1));
+		}
+
+		if (fileExists && !extractIDValue && getExtension().equals("fas")) {
 			versienummer++;
 			/* Set version number Fasta file and AB1 */
 			limsAB1Fields.setVersieNummer(versienummer);

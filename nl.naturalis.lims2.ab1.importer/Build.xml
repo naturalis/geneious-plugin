@@ -154,7 +154,7 @@
 	
 	<target name='email' >
 	    <mail mailhost='smtp.gmail.com' mailport='465' user='Reinier.Kartowikromo@naturalis.nl'  
-	       password='Karem0635'  messageMimeType='text/html'
+	       password=''  messageMimeType='text/html'
 	       tolist='Reinier.Kartowikromo@naturalis.nl' from='Reinier.Kartowikromo@naturalis.nl'  subject='Build completed.'
 	     >
 	      <message>
