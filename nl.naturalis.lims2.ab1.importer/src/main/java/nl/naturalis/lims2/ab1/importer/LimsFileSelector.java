@@ -179,12 +179,15 @@ public class LimsFileSelector {
 				 * dialog and then throw an exception
 				 */
 				JOptionPane.showMessageDialog(null,
-						"Incorrect Fasta path in the document file: "
-								+ fastaImportFilePath, "InfoBox: "
-								+ "Read Fasta file",
+						"Incorrect Fasta path(extension) in the document file: "
+								+ System.lineSeparator() + fileName,
+						"InfoBox: " + "Read Fasta file",
 						JOptionPane.INFORMATION_MESSAGE);
-				throw new FileNotFoundException("file path '"
-						+ fastaImportFilePath + "' is not correct.");
+
+				/*
+				 * throw new FileNotFoundException("file path '" +
+				 * fastaImportFilePath + "' is not correct.");
+				 */
 			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
