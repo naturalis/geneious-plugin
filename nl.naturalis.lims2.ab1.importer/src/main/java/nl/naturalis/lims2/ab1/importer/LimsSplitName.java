@@ -29,6 +29,7 @@ import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotesSplitName;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -472,7 +473,9 @@ public class LimsSplitName extends DocumentAction {
 			enrichAB1andAssemblySequence(cnt);
 		}
 
-		if (fileExists && !extractIDValue) {
+		String ext = FilenameUtils.getExtension(fastaFilename);
+
+		if (fileExists && !extractIDValue && ext.equals("fas")) {
 			versienummer++;
 			/* Set version number Fasta file and AB1 */
 			limsAB1Fields.setVersieNummer(versienummer);
