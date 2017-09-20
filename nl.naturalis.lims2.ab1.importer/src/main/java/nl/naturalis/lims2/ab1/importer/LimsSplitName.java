@@ -490,9 +490,11 @@ public class LimsSplitName extends DocumentAction {
 
 		// setExtension(FilenameUtils.getExtension(fastaFilename));
 
-		int i = fastaFilename.lastIndexOf('.');
-		if (i > 0) {
-			setExtension(fastaFilename.substring(i + 1));
+		if (fastaFilename != null) {
+			int i = fastaFilename.lastIndexOf('.');
+			if (i > 0) {
+				setExtension(fastaFilename.substring(i + 1));
+			}
 		}
 
 		if (fileExists && !extractIDValue && getExtension().equals("fas")) {
