@@ -451,7 +451,8 @@ public class LimsImportSamples extends DocumentAction {
 			return;
 		}
 		try {
-			createDummyFileWithOutSelection(fileSelected, extractIDfileName);
+			createDummyFile(fileSelected);
+			// createDummyFileWithOutSelection(fileSelected, extractIDfileName);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -742,90 +743,11 @@ public class LimsImportSamples extends DocumentAction {
 						continue;
 					}
 
-					if (record[3].trim() != null) {
-						csvID = "e" + record[3];
-					}
-
-					if (record[2].length() > 0 && record[2].contains("-")) {
-						plateNumber = record[2].substring(0,
-								record[2].indexOf("-"));
-					}
-
-					cacheNameExists = limsSQL.getDocumentCacheName(csvID,
-							"//document/hiddenFields/cache_name");
-
-					if (cacheNameExists == "") {
-						overrideCacheNameExists = limsSQL
-								.getDocumentOverrideCacheName(csvID,
-										"//document/hiddenFields/override_cache_name");
-					}
-
-					boolean dummyExists = false;
-					if (cacheNameExists != null
-							&& !cacheNameExists.toString().isEmpty()) {
-						dummyExists = true;
-					} else if (overrideCacheNameExists != null
-							&& !overrideCacheNameExists.toString().isEmpty()) {
-						dummyExists = true;
-					}
-
-					if ((!dummyExists && !cacheNameExists.toString().contains(
-							csvID))
-							|| (!dummyExists && !overrideCacheNameExists
-									.toString().contains(csvID))) {
-
-						limsFrameProgress.showProgress("Creating dummy file: "
-								+ csvID + ".dum");
-
-						/* extract only the numbers from ID */
-						if (csvID.equals("e")
-								&& LimsImporterUtil.extractNumber(csvID)
-										.isEmpty()) {
-							logger.info("Record is empty: " + csvID + ".dum");
-						} else {
-							/* Create dummy sequence */
-							limsDummySeq.createDummySampleSequence(csvID,
-									csvID, record[0], plateNumber, record[5],
-									record[4], record[1], record[6]);
-							dummyRecordsVerwerkt++;
-						}
+					if (record.length > 6) {
+						extractDummyRecord(fileName, record);
 					} else {
-						limsFrameProgress.showProgress(csvID
-								+ " file already exists. " + '\n'
-								+ " No file created.");
-					}
-				} // end While
-			} finally {
-				csvReader.close();
-			}
-		}
-	}
-
-	private void createDummyFileWithOutSelection(String fileName,
-			String extractFileID) throws IOException {
-		if (fileName != null) {
-
-			Object cacheNameExists = null;
-			Object overrideCacheNameExists = null;
-
-			logger.info("Read samples file: " + fileName);
-			CSVReader csvReader = new CSVReader(new FileReader(fileName), '\t',
-					'\'', 0);
-			try {
-				csvReader.readNext();
-				String[] record = null;
-				while ((record = csvReader.readNext()) != null) {
-					if (record.length == 1 && record[0].isEmpty()) {
-						continue;
-					}
-
-					if (record[3].trim() != null) {
-						csvID = "e" + record[3];
-					}
-
-					if (record[2].length() > 0 && record[2].contains("-")) {
-						plateNumber = record[2].substring(0,
-								record[2].indexOf("-"));
+						showMessageDummyInvalidFile(fileName);
+						return;
 					}
 
 					cacheNameExists = limsSQL.getDocumentCacheName(csvID,
@@ -861,9 +783,20 @@ public class LimsImportSamples extends DocumentAction {
 							logger.info("Record is empty: " + csvID + ".dum");
 						} else {
 							/* Create dummy sequence */
+							/*
+							 * limsDummySeq.createDummySampleSequence(csvID,
+							 * csvID, record[0], plateNumber, record[5],
+							 * record[4], record[1], record[6]);
+							 */
 							limsDummySeq.createDummySampleSequence(csvID,
-									csvID, record[0], plateNumber, record[5],
-									record[4], record[1], record[6]);
+									csvID,
+									limsExcelFields.getExtractPlaatNummer(),
+									plateNumber,
+									limsExcelFields.getTaxonNaam(),
+									limsExcelFields.getRegistrationNumber(),
+									limsExcelFields.getPlaatPositie(),
+									limsExcelFields.getSubSample());
+
 							dummyRecordsVerwerkt++;
 						}
 					} else {
@@ -876,12 +809,121 @@ public class LimsImportSamples extends DocumentAction {
 										.isEmpty() && !record[0].isEmpty()) {
 							failureList.add(cacheNameExists.toString());
 						}
+
 					}
 				} // end While
 			} finally {
 				csvReader.close();
 			}
 		}
+	}
+
+	/*
+	 * private void createDummyFileWithOutSelection(String fileName, String
+	 * extractFileID) throws IOException { if (fileName != null) {
+	 * 
+	 * Object cacheNameExists = null; Object overrideCacheNameExists = null;
+	 * 
+	 * logger.info("Read samples file: " + fileName); CSVReader csvReader = new
+	 * CSVReader(new FileReader(fileName), '\t', '\'', 0); try {
+	 * csvReader.readNext(); String[] record = null; while ((record =
+	 * csvReader.readNext()) != null) { if (record.length == 1 &&
+	 * record[0].isEmpty()) { continue; }
+	 * 
+	 * int index = 0; boolean inBounds = (index >= 0) && (index < record.length
+	 * && record.length > 6);
+	 * 
+	 * if (inBounds) { extractDummyRecord(fileName, record); } else {
+	 * showMessageDummyInvalidFile(fileName); return; }
+	 * 
+	 * cacheNameExists = limsSQL.getDocumentCacheName(csvID,
+	 * "//document/hiddenFields/cache_name");
+	 * 
+	 * if (cacheNameExists == "") { overrideCacheNameExists = limsSQL
+	 * .getDocumentOverrideCacheName(csvID,
+	 * "//document/hiddenFields/override_cache_name"); }
+	 * 
+	 * boolean dummyExists = false; if (cacheNameExists != null &&
+	 * !cacheNameExists.toString().isEmpty()) { dummyExists = true; } else if
+	 * (overrideCacheNameExists != null &&
+	 * !overrideCacheNameExists.toString().isEmpty()) { dummyExists = true; }
+	 * 
+	 * if ((!dummyExists && !cacheNameExists.toString().contains( csvID)) ||
+	 * (!dummyExists && !overrideCacheNameExists .toString().contains(csvID))) {
+	 * 
+	 * limsFrameProgress.showProgress("Creating dummy file: " + csvID + ".dum");
+	 * 
+	 * extract only the numbers from ID if (csvID.equals("e") &&
+	 * LimsImporterUtil.extractNumber(csvID) .isEmpty()) {
+	 * logger.info("Record is empty: " + csvID + ".dum"); } else { Create dummy
+	 * sequence
+	 * 
+	 * limsDummySeq.createDummySampleSequence(csvID, csvID, record[0],
+	 * plateNumber, record[5], record[4], record[1], record[6]);
+	 * 
+	 * limsDummySeq.createDummySampleSequence(csvID, csvID,
+	 * limsExcelFields.getExtractPlaatNummer(), plateNumber,
+	 * limsExcelFields.getTaxonNaam(), limsExcelFields.getRegistrationNumber(),
+	 * limsExcelFields.getPlaatPositie(), limsExcelFields.getSubSample());
+	 * 
+	 * dummyRecordsVerwerkt++; } } else { limsFrameProgress.showProgress(csvID +
+	 * " file already exists. " + '\n' + " No file created.");
+	 * 
+	 * if (dummyExists && DocumentUtilities.getSelectedDocuments() .isEmpty() &&
+	 * !record[0].isEmpty()) { failureList.add(cacheNameExists.toString()); } }
+	 * } // end While } finally { csvReader.close(); } } }
+	 */
+	/**
+	 * @param fileName
+	 * @param record
+	 */
+	private void extractDummyRecord(String fileName, String[] record) {
+
+		/* Sample plaatnummer */
+		if (record[0].length() > 0 && !record[0].toString().isEmpty()) {
+			limsExcelFields.setExtractPlaatNummer(record[0]);
+		}
+
+		/* Plaat positie (POS) */
+		if (record[1].length() > 0 && !record[1].toString().isEmpty()) {
+			limsExcelFields.setPlaatPositie(record[1]);
+		}
+
+		/* Plaat nummer (Extract POS) */
+		if (record[2].length() > 0 && record[2].contains("-")) {
+			plateNumber = record[2].substring(0, record[2].indexOf("-"));
+		}
+
+		/* Extract ID */
+		if (record[3].length() > 0 && record[3].trim() != null) {
+			csvID = "e" + record[3];
+		}
+
+		/* Registrationnumber (registr.code) */
+		if (record[4].length() > 0 && !record[4].toString().isEmpty()) {
+			limsExcelFields.setRegistrationNumber(record[4]);
+		}
+
+		/* Taxon name (Taxon) */
+		if (record[5].length() > 0 && !record[5].toString().isEmpty()) {
+			limsExcelFields.setTaxonNaam(record[5]);
+		}
+
+		/* Taxon name (Taxon) */
+		if (record[6].length() > 0 && !record[6].toString().isEmpty()) {
+			limsExcelFields.setSubSample(record[6]);
+		}
+	}
+
+	/**
+	 * @param fileName
+	 */
+	private void showMessageDummyInvalidFile(String fileName) {
+		JOptionPane.showMessageDialog(new JFrame(),
+				"File: " + System.lineSeparator() + fileName
+						+ " does not meet the requirements of a sample file!",
+				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
+		limsFrameProgress.hideFrame();
 	}
 
 	/*
@@ -1147,30 +1189,19 @@ public class LimsImportSamples extends DocumentAction {
 	 */
 	private void showFinishedDialogMessageOK() {
 		sampleRecordFailure = failureList.size() - 1;
+		int result = sampleRecordFailure - dummyRecordsVerwerkt;
 
 		JOptionPane.showMessageDialog(
 				new JFrame(),
 				Integer.toString(getSampleTotaalCSVRecords())
-						+ LimsMessages.haveBeen
-						+ "\n"
-						+ "\n"
-						+ "[1] "
+						+ LimsMessages.haveBeen + "\n" + "\n" + "[1] "
 						+ Integer.toString(processedList.size())
 						+ LimsMessages.importedLinked
-						+ Integer.toString(cntRec)
-						+ LimsMessages.existing
-						+ importCounter
-						+ LimsMessages.selected
-						+ "\n"
-						+ "\n"
-						+ "[2] "
-						+ Integer.toString(dummyRecordsVerwerkt)
-						+ LimsMessages.dummiesImported
-						+ "\n"
-						+ "\n"
-						+ "[3] "
-						+ Integer.toString(sampleRecordFailure
-								- dummyRecordsVerwerkt)
+						+ Integer.toString(cntRec) + LimsMessages.existing
+						+ importCounter + LimsMessages.selected + "\n" + "\n"
+						+ "[2] " + Integer.toString(dummyRecordsVerwerkt)
+						+ LimsMessages.dummiesImported + "\n" + "\n" + "[3] "
+						+ Integer.toString(result)
 						+ LimsMessages.samplesIgnored + "\n" + "\n"
 						+ getLackMessage(isLackListNotEmpty()),
 				"Samples Import", JOptionPane.INFORMATION_MESSAGE, icon);
