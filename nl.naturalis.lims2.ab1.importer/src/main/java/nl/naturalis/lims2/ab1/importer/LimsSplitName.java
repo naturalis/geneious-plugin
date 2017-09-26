@@ -48,7 +48,7 @@ public class LimsSplitName extends DocumentAction {
 	private Object filePathExists;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(LimsSplitNameNew.class);
+			.getLogger(LimsSplitName.class);
 
 	private ArrayList<AnnotatedPluginDocument> selectedDocuments = new ArrayList<AnnotatedPluginDocument>();
 	private List<String> verwerkingList = new ArrayList<String>();
