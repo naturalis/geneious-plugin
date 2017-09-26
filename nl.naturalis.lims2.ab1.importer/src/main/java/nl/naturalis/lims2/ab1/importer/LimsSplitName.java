@@ -1,21 +1,8 @@
-/**
- * <h1>Lims Split name Plugin</h1> 
- * <p>
- *  category Lims Import Split Name plugin</br>
- *  Date 08 august 2016</br> 
- *  Company Naturalis Biodiversity Center City</br>
- *  Leiden Country Netherlands
- * </p>
- */
 package nl.naturalis.lims2.ab1.importer;
 
 import java.awt.EventQueue;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -25,105 +12,241 @@ import nl.naturalis.lims2.utils.LimsAB1Fields;
 import nl.naturalis.lims2.utils.LimsDatabaseChecker;
 import nl.naturalis.lims2.utils.LimsFrameProgress;
 import nl.naturalis.lims2.utils.LimsImporterUtil;
-import nl.naturalis.lims2.utils.LimsLogger;
 import nl.naturalis.lims2.utils.LimsNotesSplitName;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.DefaultAlignmentDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
-import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
-/**
- * <table summary="Split the filename (extract)">
- * <tr>
- * <td>
- * Date: 24 august 2016</td>
- * </tr>
- * <tr>
- * <td>
- * Company: Naturalis Biodiversity Center</td>
- * </tr>
- * <tr>
- * <td>
- * City: Leiden</td>
- * </tr>
- * <tr>
- * <td>
- * Country: Netherlands</td>
- * </tr>
- * <tr>
- * <td>
- * Description:<br>
- * Extract values from the AB1 and Fasta filename and add the values to the
- * documents notes.<br>
- * </td>
- * </tr>
- * </table>
- * 
- * @author Reinier.Kartowikromo
- * @version: 1.0
- */
 public class LimsSplitName extends DocumentAction {
 
-	private LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
-	private LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
-	private static final Logger logger = LoggerFactory
-			.getLogger(LimsSplitName.class);
-	private LimsNotesSplitName limsSplitNotes = new LimsNotesSplitName();
-	private LimsLogger limsLogger = null;
-
-	private List<String> verwerkingList = new ArrayList<String>();
-	private List<String> uitValList = new ArrayList<String>();
-	private int versienummer = 0;
-	private boolean versionNumberExists = false;
-	private LimsFileSelector fcd = new LimsFileSelector();
-	private LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
-	private LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
-	private Object extractAb1FastaFileName;
-	private boolean fileExists = false;
-	private File file = null;
-	private Boolean extractIDValue = false;
-	private long startBeginTime = 0;
-
-	private DefaultNucleotideGraphSequence defNucleotideGraphSequence = new DefaultNucleotideGraphSequence();
-	private DefaultAlignmentDocument defAlignmentDoc = new DefaultAlignmentDocument();
-
-	/* FASTA */
-	private DefaultNucleotideSequence defNucleotideSequence = new DefaultNucleotideSequence();
-
-	private Object documentFileImportPath = "";
-
-	private LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
-	private ArrayList<AnnotatedPluginDocument> selectedDocuments = new ArrayList<AnnotatedPluginDocument>();
-
-	private final String readsAssemblyConsensusContig = "consensus sequence";
-	private final String readsAssembly = "Reads Assembly";
-	private final String read_Assembly = "_ Assembly";
-
-	private final String defaultNucleotideGraphSequence = "DefaultNucleotideGraphSequence";
-	private final String defaultAlignmentDocument = "DefaultAlignmentDocument";
-	private final String defaultNucleotideSequence = "DefaultNucleotideSequence";
-
-	private Object filePathExists = null;
+	LimsReadGeneiousFieldsValues readGeneiousFieldsValues = new LimsReadGeneiousFieldsValues();
+	LimsAB1Fields limsAB1Fields = new LimsAB1Fields();
+	LimsNotesSplitName limsSplitNotes = new LimsNotesSplitName();
+	LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
+	LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
 
 	private final String ab1FileExtension = "ab1";
 	private final String fastaFileExtension = "fas";
-	private String fastaFilename;
-	private String ab1Filename;
-	private String docType;
-	private String logSplitFileName;
+
+	private boolean extractIDExists = false;
+	private boolean fileExists = false;
+
+	private boolean isContigFile = false;
+
+	private long startBeginTime;
 	private String extension;
+	private String fastaFileName;
+	private String splitFileName;
+	private Object filePathExists;
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(LimsSplitNameNew.class);
+
+	private ArrayList<AnnotatedPluginDocument> selectedDocuments = new ArrayList<AnnotatedPluginDocument>();
+	private List<String> verwerkingList = new ArrayList<String>();
+	private List<String> uitValList = new ArrayList<String>();
+
+	private Object documentFileImportPath;
+
+	private int versienummer;
+	int counter = 0;
+
+	/**
+	 * @return the isContigFile
+	 */
+	public boolean isContigFile() {
+		return isContigFile;
+	}
+
+	/**
+	 * @param isContigFile
+	 *            the isContigFile to set
+	 */
+	public void setContigFile(boolean isContigFile) {
+		this.isContigFile = isContigFile;
+	}
+
+	/**
+	 * @return the versienummer
+	 */
+	public int getVersienummer() {
+		return versienummer;
+	}
+
+	/**
+	 * @param versienummer
+	 *            the versienummer to set
+	 */
+	public void setVersienummer(int versienummer) {
+		this.versienummer = versienummer;
+	}
+
+	/**
+	 * @return the documentFileImportPath
+	 */
+	public Object getDocumentFileImportPath() {
+		return documentFileImportPath;
+	}
+
+	/**
+	 * @param documentFileImportPath
+	 *            the documentFileImportPath to set
+	 */
+	public void setDocumentFileImportPath(Object documentFileImportPath) {
+		this.documentFileImportPath = documentFileImportPath;
+	}
+
+	/**
+	 * @return the filePathExists
+	 */
+	public Object getFilePathExists() {
+		return filePathExists;
+	}
+
+	/**
+	 * @param filePathExists
+	 *            the filePathExists to set
+	 */
+	public void setFilePathExists(Object filePathExists) {
+		this.filePathExists = filePathExists;
+	}
+
+	/**
+	 * @return the ab1FileExtension
+	 */
+	public String getAb1FileExtension() {
+		return ab1FileExtension;
+	}
+
+	/**
+	 * @return the fastaFileExtension
+	 */
+	public String getFastaFileExtension() {
+		return fastaFileExtension;
+	}
+
+	/**
+	 * @return the extractIDExists
+	 */
+	public boolean isExtractIDExists() {
+		return extractIDExists;
+	}
+
+	/**
+	 * @param extractIDExists
+	 *            the extractIDExists to set
+	 */
+	public void setExtractIDExists(boolean extractIDExists) {
+		this.extractIDExists = extractIDExists;
+	}
+
+	/**
+	 * @return the fileExists
+	 */
+	public boolean isFileExists() {
+		return fileExists;
+	}
+
+	/**
+	 * @param fileExists
+	 *            the fileExists to set
+	 */
+	public void setFileExists(boolean fileExists) {
+		this.fileExists = fileExists;
+	}
+
+	/**
+	 * @return the fastaFileName
+	 */
+	public String getFastaFileName() {
+		return fastaFileName;
+	}
+
+	/**
+	 * @param fastaFileName
+	 *            the fastaFileName to set
+	 */
+	public void setFastaFileName(String fastaFileName) {
+		this.fastaFileName = fastaFileName;
+	}
+
+	/**
+	 * @return the ab1FileName
+	 */
+	public String getSplitFileName() {
+		return splitFileName;
+	}
+
+	/**
+	 * @param ab1FileName
+	 *            the ab1FileName to set
+	 */
+	public void setSplitFileName(String ab1FileName) {
+		this.splitFileName = ab1FileName;
+	}
+
+	/**
+	 * @return the versionNumberExists
+	 */
+	public boolean isVersionNumberExists() {
+		return versionNumberExists;
+	}
+
+	/**
+	 * @param versionNumberExists
+	 *            the versionNumberExists to set
+	 */
+	public void setVersionNumberExists(boolean versionNumberExists) {
+		this.versionNumberExists = versionNumberExists;
+	}
+
+	private boolean versionNumberExists = false;
+
+	/**
+	 * @return the startBeginTime
+	 */
+	public long getStartBeginTime() {
+		return startBeginTime;
+	}
+
+	/**
+	 * @param startBeginTime
+	 *            the startBeginTime to set
+	 */
+	public void setStartBeginTime(long startBeginTime) {
+		this.startBeginTime = startBeginTime;
+	}
+
+	/**
+	 * @return the selectedDocuments
+	 */
+	public ArrayList<AnnotatedPluginDocument> getSelectedDocuments() {
+		return selectedDocuments;
+	}
+
+	/**
+	 * @param selectedDocuments
+	 *            the selectedDocuments to set
+	 */
+	public void setSelectedDocuments(
+			ArrayList<AnnotatedPluginDocument> selectedDocuments) {
+		this.selectedDocuments = selectedDocuments;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public static Logger getLogger() {
+		return logger;
+	}
 
 	/**
 	 * @return the extension
@@ -140,24 +263,21 @@ public class LimsSplitName extends DocumentAction {
 		this.extension = extension;
 	}
 
-	/**
-	 * ActionPerformed start the process of the selected documents and read the
-	 * data from the files selected "Samples, CRS and BOLD"
-	 * 
-	 * @param annotatedPluginDocuments
-	 *            Set param annotatedPluginDocuments
-	 * 
-	 * */
+	/* ======================================================= */
+
 	@Override
 	public void actionPerformed(
-			AnnotatedPluginDocument[] annotatedPluginDocuments) {
-		/* if no document selected show a message. */
-		isSelectedDocumentEmpty();
+			AnnotatedPluginDocument[] annotatedPluginDocument) {
 
-		/*
-		 * If documents selected then start the process.
-		 */
+		LimsDatabaseChecker dbchk = new LimsDatabaseChecker();
+
+		LimsFrameProgress limsFrameProgress = new LimsFrameProgress();
+
+		/* No Document select then show a message */
+		messageNoDocumentsSelected();
+
 		if (!DocumentUtilities.getSelectedDocuments().isEmpty()) {
+
 			// getDatabaseURL();
 			if (!dbchk.checkDBName()) {
 				return;
@@ -169,408 +289,135 @@ public class LimsSplitName extends DocumentAction {
 						.getServerDatabaseServiceName();
 			}
 
-			logSplitFileName = limsImporterUtil.getLogPath()
-					+ "Splitname-Uitvallijst-"
-					+ limsImporterUtil.getLogFilename();
-
-			File theDir = new File(limsImporterUtil.getLogPath());
-			if (!theDir.exists()) {
-				theDir.mkdir();
-			}
-
-			/* Create logfile */
-			limsLogger = new LimsLogger(logSplitFileName);
-
 			/* Create the dialog GUI to see the processing of the documents */
 			limsFrameProgress.createProgressGUI();
 			logger.info("----------------------------S T A R T -------------------------------");
-			/*
-			 * Looping thru the selected documents that will be updated with
-			 * data
-			 */
 
-			selectedDocuments = (ArrayList<AnnotatedPluginDocument>) DocumentUtilities
-					.getSelectedDocuments();
+			/* Set the selected documents in a list */
+			setSelectedDocuments((ArrayList<AnnotatedPluginDocument>) DocumentUtilities
+					.getSelectedDocuments());
 
-			for (int cnt = 0; cnt < selectedDocuments.size(); cnt++) {
-				startBeginTime = System.nanoTime();
-				fastaFilename = "";
-				versienummer = 0;
-				versionNumberExists = false;
-				defAlignmentDoc = null;
-				defNucleotideSequence = null;
-				defNucleotideGraphSequence = null;
+			for (int cnt = 0; cnt < getSelectedDocuments().size(); cnt++) {
+				counter = cnt;
 
-				try {
-					docType = (String) DocumentUtilities.getSelectedDocuments()
-							.get(cnt).getDocument().getClass().getTypeName();
-					/*
-					 * Documentname bestaat alleen uit Reads Assembly Consensus
-					 * Sequences
-					 */
-					if (docType.contains("DefaultSequenceListDocument")) {
-						logger.info("Documentname only contains: "
-								+ selectedDocuments.get(cnt).getName());
-						uitValList.add("Documentname only contains: "
-								+ selectedDocuments.get(cnt).getName());
-						continue;
-					}
-				} catch (DocumentOperationException e) {
-					throw new RuntimeException(e);
+				/* Start time split the document name */
+				setStartBeginTime(System.nanoTime());
+
+				/* set Fasta filename */
+				setFastaFileName(LimsNotesSplitName
+						.getFileNameFromDocument(counter));
+
+				/* Set filename */
+				setSplitFileName(getSelectedDocuments().get(cnt).getName());
+
+				/* Skip uncorrected document filename */
+				skipUnCorrectedDocumentFileName(limsFrameProgress);
+
+				/* Search for Contig and consensus/(Read) Assembly documents */
+				if (isOverrideCacheName(getSelectedDocuments().toString())) {
+					setFileExists(readGeneiousFieldsValues
+							.checkIfFileExistsInGeneiousDatabase(
+									getSelectedDocuments().get(counter)
+											.getName(), "override_cache_name"));
+					setContigFile(true);
+					limsFrameProgress.showProgress("Processing: "
+							+ DocumentUtilities.getSelectedDocuments()
+									.get(counter).getName());
+				} else if (isCacheName(getSelectedDocuments().toString())) {
+					setFileExists(readGeneiousFieldsValues
+							.checkIfFileExistsInGeneiousDatabase(
+									getSelectedDocuments().get(counter)
+											.getName(), "cache_name"));
 				}
 
-				/*
-				 * Set selected document content to variable PluginDocument
-				 * documentFileName Bepaal om welk type document het gaat.
-				 */
-				// - Sequence Document
-				// - DefaultAlignmentSequence Document
-				// - DefaultNucleotideGraphSequence Document
-				// - DefaultNucleotideSequence Document
-				fastaFilename = getFileNameFromDocument(cnt);
-				ab1Filename = selectedDocuments.get(cnt).getName();
-
-				if (fastaFilename != null && !fastaFilename.isEmpty()
-						&& !fastaFilename.contains(ab1FileExtension)) {
-					getFastaSelectedDocumentsType(cnt,
-							selectedDocuments.get(cnt).getName());
-				} else if (!ab1Filename.contains("dum")) {
-					if (checkFileName(ab1Filename)) {
-						/*
-						 * Create the dialog GUI to see the processing of the
-						 * documents
-						 */
-						limsFrameProgress.hideFrame();
-						continue;
-					}
-					getAB1SelectedDocumentsType(cnt, selectedDocuments.get(cnt)
-							.getName());
-				}
-
-				/* Check if the file exists in the database */
-				checkIfFileExsistInDatabase(cnt);
-
-				/*
-				 * Get the value from 'ExtractIDCode_Seq' from the selected
-				 * document.
-				 */
-				extractIDValue = readGeneiousFieldsValues
+				/* check if extractId exists */
+				setExtractIDExists(readGeneiousFieldsValues
 						.getValueFromAnnotatedPluginDocument(
-								annotatedPluginDocuments[cnt],
+								annotatedPluginDocument[cnt],
 								"DocumentNoteUtilities-Extract ID (Seq)",
-								"ExtractIDCode_Seq");
+								"ExtractIDCode_Seq"));
 
-				filePathExists = readGeneiousFieldsValues
+				/* check if the filepath exists in the document */
+				setFilePathExists(readGeneiousFieldsValues
 						.getValueFromAnnotatedPluginDocument(
-								annotatedPluginDocuments[cnt], "importedFrom",
-								"path");
+								annotatedPluginDocument[counter],
+								"importedFrom", "path"));
 
-				/*
-				 * Get the import path from the selected document
-				 * "C:\Git\Data\Fasta files"
-				 */
-				if (selectedDocuments.get(cnt).getName().contains("dum")) {
+				if (getSelectedDocuments().get(counter).getName()
+						.contains("dum")) {
 					continue;
-				} else if ((boolean) filePathExists) {
-					documentFileImportPath = getPathFromDocument(cnt);
 				}
 
-				/*
-				 * If true and recordcount > 1 version exists else check in the
-				 * selected document content if version exists
-				 */
-				checkIfVersionExsist(cnt);
-
-				/*
-				 * If there is no Version number in the document(Database) set
-				 * version value to "1".
-				 */
-				if (!versionNumberExists && !fileExists) {
-					versienummer = 1;
+				if ((boolean) getFilePathExists()) {
+					setDocumentFileImportPath(LimsNotesSplitName
+							.getPathFromDocument(counter));
 				}
 
-				/* if file exists in the database */
-				if (fileExists && (boolean) filePathExists) {
-					ExtractFilenameAndVersienumber(annotatedPluginDocuments,
-							cnt);
-				} else {
-					/*
-					 * Bij AB1 Novo Assembly document bevat geen notes Filepath
-					 * en Filename. Wel bij de Fasta Novo Assembly
-					 */
-					ExtractFilenameAndVersienumber(annotatedPluginDocuments,
-							cnt);
-				}
+				getVersion(counter);
 
-				/* AB1 File extracten */
-				enrichAB1AndFastaFileWith_Notes(annotatedPluginDocuments, cnt);
+				/* Show processing dialog */
+				limsFrameProgress.showProgress("Processing: "
+						+ DocumentUtilities.getSelectedDocuments().get(counter)
+								.getName());
+
+				enrichDocumentFileWithNotes(annotatedPluginDocument, counter);
 
 				limsImporterUtil.calculateTimeForAddingNotes(startBeginTime);
-			} // end for loop
 
-			logger.info("Total of document(s) updated: "
-					+ verwerkingList.size());
-			// + DocumentUtilities.getSelectedDocuments().size());
-			logger.info("------------------------- E N D--------------------------------------");
-			setDefaultAlignmentDocumentLog();
-			setDefaultNucleotideGraphSequenceLog();
-			setDefaultNucleotideSequenceLog();
+				versienummer = 0;
+				setContigFile(false);
 
-			EventQueue.invokeLater(new Runnable() {
+			}
 
-				/**
-				 * Show message dialog screen with processed infoof the
-				 * document(s)
-				 * */
-				@Override
-				public void run() {
-					if (defNucleotideSequence != null
-							&& !defNucleotideSequence.getName().contains(
-									readsAssemblyConsensusContig)) {
-						showFastaDialog();
-					} else if (defAlignmentDoc != null) {
-						showDefaultAlignmentDialog();
-					} else if (defNucleotideGraphSequence != null
-							&& docType.contains(defaultNucleotideGraphSequence)) {
-						showNucleotideGraphSequenceDialog();
-					} else if (defNucleotideSequence != null
-							&& defNucleotideSequence.getName().contains(
-									readsAssemblyConsensusContig)) {
-						showNucleotideSequenceDialog();
-					} else {
-						showAllSelectedDocumentsDialog();
-					}
-					verwerkingList.clear();
-					limsFrameProgress.hideFrame();
-				}
+		} // End Selected
 
-				/* Add Image to the dialog */
-				private void getDialogMessage() {
-					String imageName = limsImporterUtil.getNaturalisPicture()
-							.getAbsolutePath();
-					ImageIcon icon = new ImageIcon(imageName);
-					JOptionPane.showMessageDialog(
-							new JFrame(),
-							Integer.toString(verwerkingList.size())
-									+ " documents (of "
-									+ Integer.toString(selectedDocuments.size())
-									+ " selected) are updated.", "Split name",
-							JOptionPane.INFORMATION_MESSAGE, icon);
-					verwerkingList.clear();
-				}
+		logger.info("Total of document(s) updated: " + verwerkingList.size());
+		logger.info("------------------------- E N D--------------------------------------");
 
-				/**
-				 * 
-				 */
-				private void showNucleotideGraphSequenceDialog() {
-					getDialogMessage();
-					logger.info(defNucleotideGraphSequence.getName()
-							+ "-Update: Total imported document(s): "
-							+ verwerkingList.toString());
-					defNucleotideGraphSequence = null;
-				}
+		EventQueue.invokeLater(new Runnable() {
 
-				private void showNucleotideSequenceDialog() {
-					getDialogMessage();
-					logger.info(defNucleotideSequence.getName()
-							+ "-Update: Total imported document(s): "
-							+ verwerkingList.toString());
-					defNucleotideSequence = null;
-				}
+			@Override
+			public void run() {
+				getDialogMessage();
 
-				/**
-				 * 
-				 */
-				private void showDefaultAlignmentDialog() {
-					getDialogMessage();
+			}
 
-					logger.info(defaultAlignmentDocument
-							+ "-Update: Total imported document(s): "
-							+ verwerkingList.toString());
-					defAlignmentDoc = null;
-				}
+			/* Add Image to the dialog */
+			private void getDialogMessage() {
+				String imageName = limsImporterUtil.getNaturalisPicture()
+						.getAbsolutePath();
+				ImageIcon icon = new ImageIcon(imageName);
+				JOptionPane.showMessageDialog(
+						new JFrame(),
+						Integer.toString(verwerkingList.size())
+								+ " documents (of "
+								+ Integer.toString(getSelectedDocuments()
+										.size()) + " selected) are updated.",
+						"Split name", JOptionPane.INFORMATION_MESSAGE, icon);
+				verwerkingList.clear();
+				limsFrameProgress.hideFrame();
+			}
 
-				private void showFastaDialog() {
-					getDialogMessage();
-
-					logger.info(defNucleotideSequence.getName()
-							+ "-Update: Total imported document(s): "
-							+ verwerkingList.toString());
-					defNucleotideSequence = null;
-				}
-
-				private void showAllSelectedDocumentsDialog() {
-					if (ab1Filename.contains(".dum")) {
-						getDialogMessage();
-					} else {
-						getDialogMessage();
-					}
-					logger.info("Update: Total imported document(s): "
-							+ verwerkingList.toString());
-				}
-			});
-		}
+		});
 	}
 
 	/**
-	 * @param annotatedPluginDocuments
-	 * @param cnt
+	 * @param limsFrameProgress
 	 */
-	private void ExtractFilenameAndVersienumber(
-			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
-		if (selectedDocuments.get(cnt).getName() != null) {
-			setDefaultAligmentDocument(cnt);
-			setDefaultNucleotideGraphSequence(cnt);
-			setDefaultNucleotideSequence(cnt);
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void isSelectedDocumentEmpty() {
-		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					String imageName = limsImporterUtil.getNaturalisPicture()
-							.getAbsolutePath();
-					ImageIcon icon = new ImageIcon(imageName);
-					JOptionPane.showMessageDialog(new JFrame(),
-							"Select all documents", "Split name",
-							JOptionPane.INFORMATION_MESSAGE, icon);
-					return;
-				}
-			});
-		}
-	}
-
-	private void setDefaultAlignmentDocumentFileName(int cnt) {
-		try {
-			defAlignmentDoc = (DefaultAlignmentDocument) DocumentUtilities
-					.getSelectedDocuments().get(cnt).getDocument();
-		} catch (DocumentOperationException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void setDefaultNucleotideGraphSequenceFileName(int cnt) {
-		try {
-			defNucleotideGraphSequence = (DefaultNucleotideGraphSequence) DocumentUtilities
-					.getSelectedDocuments().get(cnt).getDocument();
-		} catch (DocumentOperationException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void setDefaultNucleotideSequenceFileName(int cnt) {
-		try {
-			defNucleotideSequence = (DefaultNucleotideSequence) DocumentUtilities
-					.getSelectedDocuments().get(cnt).getDocument();
-		} catch (DocumentOperationException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/*
-	 * Extract AB1 document(s)
-	 * 
-	 * @param annotatedPluginDocuments , int
-	 */
-	private void enrichAB1AndFastaFileWith_Notes(
-			AnnotatedPluginDocument[] annotatedPluginDocuments, int cnt) {
-
-		if (fastaFilename != null
-				&& fastaFilename.toString().contains(fastaFileExtension)) {
-			enrichFastaAndAssemblySequence(cnt);
-		} else {
-			enrichAB1andAssemblySequence(cnt);
-		}
-
-		// setExtension(FilenameUtils.getExtension(fastaFilename));
-
-		if (fastaFilename != null) {
-			int i = fastaFilename.lastIndexOf('.');
-			if (i > 0) {
-				setExtension(fastaFilename.substring(i + 1));
+	private void skipUnCorrectedDocumentFileName(
+			LimsFrameProgress limsFrameProgress) {
+		if (!getSplitFileName().contains("dum")) {
+			/*
+			 * Create the dialog GUI to see the processing of the documents
+			 */
+			LimsImporterUtil limsImporterUtil = new LimsImporterUtil();
+			if (limsImporterUtil.checkFileName(getSplitFileName())) {
+				// limsFrameProgress.hideFrame();
+				return;
 			}
 		}
-
-		if (fileExists && !extractIDValue && getExtension().equals("fas")) {
-			versienummer++;
-			/* Set version number Fasta file and AB1 */
-			limsAB1Fields.setVersieNummer(versienummer);
-		}
-
-		/* Processing the notes */
-		/* Lims 251- Waar is het veld seq quality? */
-
-		limsSplitNotes.enrichSplitDocumentsWithNotes(annotatedPluginDocuments,
-				cnt, fileExists, extractIDValue, versienummer);
-
-		if (limsAB1Fields.getExtractID() == ""
-				&& limsAB1Fields.getExtractID().isEmpty()) {
-			uitValList.add(selectedDocuments.get(cnt).getName());
-			limsLogger.logToFile(logSplitFileName, uitValList.toString());
-		}
-
-		/* Show processing dialog */
-		limsFrameProgress.showProgress("Processing: "
-				+ DocumentUtilities.getSelectedDocuments().get(cnt).getName());
 	}
 
-	/**
-	 * @param cnt
-	 */
-	private void enrichAB1andAssemblySequence(int cnt) {
-		if (defAlignmentDoc != null && !defAlignmentDoc.toString().isEmpty()) {
-			/* DefaultAlignmentDocument */
-			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
-					.getName());
-		} else if (defNucleotideGraphSequence != null
-				&& !defNucleotideGraphSequence.toString().isEmpty()
-				&& !ab1Filename.contains(ab1FileExtension)) {
-			/* Default */
-			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
-					.getName());
-		} else if (defNucleotideGraphSequence != null
-				&& !defNucleotideGraphSequence.toString().isEmpty()
-				&& ab1Filename.contains(ab1FileExtension)) {
-			extractAB1Document();
-			/* Lims-324 16 aug 2017 */
-		} else if (docType.contains(defaultNucleotideSequence)) {
-			processReadAssemblyConsesusContig(cnt, selectedDocuments.get(cnt)
-					.getName());
-		}
-	}
-
-	/**
-	 * @param cnt
-	 */
-	private void enrichFastaAndAssemblySequence(int cnt) {
-		/* Fasta Document */
-		if (docType.contains(defaultNucleotideSequence)
-				&& selectedDocuments.get(cnt).getName()
-						.contains(readsAssemblyConsensusContig)) {
-			processReadAssemblyConsesusContig(cnt, fastaFilename);
-		} else if (docType.contains(defaultNucleotideSequence)
-				&& defNucleotideSequence != null
-				&& !selectedDocuments.get(cnt).getName()
-						.contains(readsAssembly)) {
-			extractFastaSequenceDocument();
-		} else if (docType.contains(defaultAlignmentDocument)
-				&& selectedDocuments.get(cnt).getName().contains(readsAssembly)) {
-			processReadAssemblyConsesusContig(cnt, fastaFilename);
-		}
-	}
-
-	/**
-	 * Add plugin 5 Split name to the menubar
-	 * 
-	 * @return Add the button to the menubar
-	 * @see LimsSplitName
-	 * */
 	@Override
 	public GeneiousActionOptions getActionOptions() {
 		return new GeneiousActionOptions("5 Split name", "Split name")
@@ -584,321 +431,154 @@ public class LimsSplitName extends DocumentAction {
 		return null;
 	}
 
-	/**
-	 * Add the max value of selected document(s)<br>
-	 * public static final int MAX_VALUE = 2147483647;
-	 * 
-	 * @return Return the count value of imported documents
-	 * @see LimsSplitName
-	 * */
 	@Override
 	public DocumentSelectionSignature[] getSelectionSignatures() {
 		return new DocumentSelectionSignature[] { new DocumentSelectionSignature(
 				NucleotideSequenceDocument.class, 0, Integer.MAX_VALUE) };
 	}
 
-	private void extractFastaSequenceDocument() {
-		if (extractAb1FastaFileName != null
-				&& fastaFilename.toString().contains(fastaFileExtension)) {
-			logger.info("Start extracting value from file: "
-					+ extractAb1FastaFileName);
-			verwerkingList.add(fastaFilename);
+	private void messageNoDocumentsSelected() {
+		if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
+			EventQueue.invokeLater(new Runnable() {
 
-			/* Extract values from the Fasta filename */
-			limsSplitNotes
-					.extractDocumentFileName((String) extractAb1FastaFileName);
-		}
-	}
-
-	private void extractAB1Document() {
-		if (ab1Filename.toString().contains(ab1FileExtension)) {
-			logger.info("Start extracting value from file: "
-					+ extractAb1FastaFileName);
-			verwerkingList.add(ab1Filename);
-
-			/* Extract values from the Fasta filename */
-			limsSplitNotes
-					.extractDocumentFileName((String) extractAb1FastaFileName);
-		}
-	}
-
-	private void processReadAssemblyConsesusContig(int pCnt, String pFilename) {
-		if (selectedDocuments.get(pCnt).getName()
-				.contains(readsAssemblyConsensusContig)
-				|| selectedDocuments.get(pCnt).getName()
-						.contains(readsAssembly)
-				|| selectedDocuments.get(pCnt).getName()
-						.contains(read_Assembly)
-				|| selectedDocuments.get(pCnt).toString()
-						.contains(defaultNucleotideSequence)
-				|| selectedDocuments.get(pCnt).toString()
-						.contains(defaultAlignmentDocument)) {
-
-			// if (defAlignmentDoc != null || defNucleotideGraphSequence != null
-			// || defNucleotideSequence != null) {
-
-			logger.info("Start extracting value from file: " + pFilename);
-
-			extractAb1FastaFileName = pFilename;
-			verwerkingList.add(pFilename);
-			limsSplitNotes.extractDocumentFileName((String) pFilename);
-
-			if (selectedDocuments.get(pCnt).toString()
-					.contains("DocumentVersionCode_Seq")) {
-				versienummer = Integer
-						.parseInt((String) getVersionNumberFromDocument(pCnt));
-			}
-			setVersienummer();
-			// }
-		}
-	}
-
-	private void getAB1SelectedDocumentsType(int pCnt, String documentName) {
-		// - DefaultAlignmentSequence Document
-		// - DefaultNucleotideGraphSequence Document
-		if (docType.contains(defaultAlignmentDocument)) {
-			// DefaultAlignmentSequence Document
-			setDefaultAlignmentDocumentFileName(pCnt);
-		} else if ((documentName.toString().contains(ab1FileExtension) && docType
-				.contains(defaultNucleotideGraphSequence))
-				|| (docType.contains(defaultNucleotideGraphSequence) && documentName
-						.contains(readsAssemblyConsensusContig))) {
-			// AB1 DefaultNucleotideGraphSequence
-			setDefaultNucleotideGraphSequenceFileName(pCnt);
-		} else if (docType.toString().contains(defaultNucleotideSequence)) {
-			/* DefaultNucleotideSequence */
-			setDefaultNucleotideSequenceFileName(pCnt);
-		}
-	}
-
-	private void getFastaSelectedDocumentsType(int pCnt, String documentName) {
-		// - DefaultAlignmentSequence Document
-		// - DefaultNucleotideGraphSequence Document
-
-		if (documentName != null && !documentName.isEmpty()) {
-			if (fastaFilename.contains(fastaFileExtension)) {
-				/* Document within the name "Reads Assembly and fasta filename" */
-				if (documentName.contains(readsAssembly)
-						&& docType.toString()
-								.contains(defaultAlignmentDocument)) {
-					// DefaultAlignmentDocument
-					setDefaultAlignmentDocumentFileName(pCnt);
-				} else if (documentName.contains(readsAssembly)
-						&& docType.toString().contains(
-								defaultNucleotideSequence)
-						&& documentName.contains(readsAssemblyConsensusContig)) {
-					/* DefaultNucleotideSequence */
-					setDefaultNucleotideSequenceFileName(pCnt);
-				} else if (!documentName.contains(readsAssembly)
-						&& docType.toString().contains(
-								defaultNucleotideSequence)
-						&& !documentName.contains(readsAssemblyConsensusContig)) {
-					setDefaultNucleotideSequenceFileName(pCnt);
-				}
-			}
-		}
-	}
-
-	/* Check if file exists in the database. */
-	private void checkIfFileExsistInDatabase(int pCnt) {
-
-		if (selectedDocuments.get(pCnt).getName() != null) {
-			fileExists = readGeneiousFieldsValues
-					.fileNameExistsInGeneiousDatabase(selectedDocuments.get(
-							pCnt).getName());
-		}
-	}
-
-	private void checkIfVersionExsist(int pCnt) {
-		String fileName = getFileNameFromDocument(pCnt);
-
-		if (fileExists && readGeneiousFieldsValues.recordcount >= 1) {
-			versionNumberExists = true;
-			/* AB1 */
-		} else if (defNucleotideGraphSequence != null) {
-			versionNumberExists = selectedDocuments.get(pCnt).toString()
-					.contains("DocumentVersionCode_Seq");
-			/* Fasta */
-		} else if (defAlignmentDoc != null) {
-			if (!(fileName != null && fileName.isEmpty())) {
-				versionNumberExists = selectedDocuments.get(pCnt).toString()
-						.contains("DocumentVersionCode_Seq");
-			}
-			/* DefaultAlignmentDocument */
-		} else if (defAlignmentDoc != null) {
-			versionNumberExists = selectedDocuments.get(pCnt).toString()
-					.contains("DocumentVersionCode_Seq");
-			/* DefaultNucleotideGraphSequence for NOVO */
-		} else if (defNucleotideGraphSequence != null) {
-			versionNumberExists = selectedDocuments.get(pCnt).toString()
-					.contains("DocumentVersionCode_Seq");
-		} else if (defNucleotideSequence != null) {
-			versionNumberExists = selectedDocuments.get(pCnt).toString()
-					.contains("DocumentVersionCode_Seq");
-		}
-	}
-
-	private Object getVersionNumberFromDocument(int pCnt) {
-		Object result = null;
-		if (DocumentUtilities.getSelectedDocuments().get(pCnt)
-				.getDocumentNotes(true)
-				.getNote("DocumentNoteUtilities-Document version") != null) {
-			result = DocumentUtilities.getSelectedDocuments().get(pCnt)
-					.getDocumentNotes(true)
-					.getNote("DocumentNoteUtilities-Document version")
-					.getFieldValue("DocumentVersionCode_Seq");
-		}
-		return (String) result;
-	}
-
-	/* Get the filename from the selected document. */
-	private String getFileNameFromDocument(int cnt) {
-		Object result = null;
-		if (DocumentUtilities.getSelectedDocuments().get(cnt)
-				.getDocumentNotes(true).getNote("importedFrom") != null) {
-			result = DocumentUtilities.getSelectedDocuments().get(cnt)
-					.getDocumentNotes(true).getNote("importedFrom")
-					.getFieldValue("filename");
-		}
-		return (String) result;
-	}
-
-	/* Get path value from the document */
-	private String getPathFromDocument(int cnt) {
-		Object result = null;
-		if (DocumentUtilities.getSelectedDocuments().get(cnt)
-				.getDocumentNotes(true).getNote("importedFrom") != null) {
-			result = DocumentUtilities.getSelectedDocuments().get(cnt)
-					.getDocumentNotes(true).getNote("importedFrom")
-					.getFieldValue("path");
-		}
-		return (String) result;
-	}
-
-	private void setFastaNotes(int cnt) {
-		fastaFilename = getFileNameFromDocument(cnt);
-		if (fastaFilename.contains(fastaFileExtension)
-				&& !defNucleotideSequence.getName().contains(
-						readsAssemblyConsensusContig)) {
-			/* Get the filename from the Fasta content */
-			try {
-				file = new File(fcd.loadFastaFile(selectedDocuments.get(cnt)
-						.getName(), (String) documentFileImportPath));
-				if (file.getPath().length() > 0) {
-					extractAb1FastaFileName = file.getName();
-				} else {
+				@Override
+				public void run() {
+					String imageName = limsImporterUtil.getNaturalisPicture()
+							.getAbsolutePath();
+					ImageIcon icon = new ImageIcon(imageName);
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Select all documents", "Split name",
+							JOptionPane.INFORMATION_MESSAGE, icon);
+					limsImporterUtil = null;
 					return;
 				}
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
 
-			/*
-			 * Get the last version number from the last insert fasta file.
-			 */
-			if (versionNumberExists) {
-				versienummer = Integer
-						.parseInt((String) getVersionNumberFromDocument(cnt));
-			} else {
-				versienummer = readGeneiousFieldsValues
-						.getLastVersion_For_AB1_Fasta_ConsensusContig((String) extractAb1FastaFileName);
-			}
+			});
 		}
 	}
 
-	private void setVersienummer() {
-		if (versienummer == 0) {
+	private Boolean isOverrideCacheName(String fileContent) {
+		return fileContent.toString().contains("override_cache_name");
+	}
+
+	private Boolean isCacheName(String fileContent) {
+		return fileContent.toString().contains("cache_name");
+	}
+
+	private void getVersion(int pCnt) {
+		String fileName = LimsNotesSplitName.getFileNameFromDocument(pCnt);
+
+		if (fileName == null) {
+			fileName = DocumentUtilities.getSelectedDocuments().get(pCnt)
+					.getName();
+		}
+
+		if (isFileExists() && !isContigFile()) {
+			String fileContent = getSelectedDocuments().get(pCnt).toString();
+			setVersionNumberExists(fileContent.toString().contains(
+					"DocumentVersionCode_Seq"));
+
+			if (isVersionNumberExists()) {
+				versienummer = Integer.parseInt(LimsNotesSplitName
+						.getVersionNumberFromDocument(pCnt));
+			} else {
+				setVersionNumber(pCnt);
+
+			}
+
+		} else if (isFileExists() && isContigFile()) {
+			String fileContent = getSelectedDocuments().get(pCnt).toString();
+			setVersionNumberExists(fileContent.toString().contains(
+					"DocumentVersionCode_Seq"));
+			if (isVersionNumberExists()) {
+				if (isOverrideCacheName(getSelectedDocuments().toString())) {
+					versienummer = Integer.parseInt(LimsNotesSplitName
+							.getVersionNumberFromDocument(pCnt));
+				}
+			} else {
+				setVersionNumber(pCnt);
+			}
+		}
+
+	}
+
+	/*
+	 * private void getVersionNumber(int cnt) { if (!isVersionNumberExists()) {
+	 * setVersienummer(Integer.parseInt(LimsNotesSplitName
+	 * .getVersionNumberFromDocument(cnt))); } else if
+	 * (isOverrideCacheName(getSelectedDocuments().toString())) { versienummer =
+	 * readGeneiousFieldsValues
+	 * .getLastVersion_From_ContigAssemblyDocuments((String)
+	 * getSelectedDocuments() .get(cnt).getName()); } else if
+	 * (!isVersionNumberExists()) { versienummer = readGeneiousFieldsValues
+	 * .getLastVersionFromDocument((String) getSelectedDocuments()
+	 * .get(cnt).getName()); }
+	 * 
+	 * setVersionNumber(cnt);
+	 * 
+	 * }
+	 */
+
+	private void setVersionNumber(int pCnt) {
+		if (versienummer == 0 && !isFileExists()) {
 			versienummer = 1;
+		} else if (isFileExists() && isContigFile()) {
+			versienummer = readGeneiousFieldsValues
+					.getLastVersion_From_ContigAssemblyDocuments((String) getSelectedDocuments()
+							.get(pCnt).getName());
+			versienummer++;
+		} else if (isFileExists() && !isContigFile()) {
+			versienummer = readGeneiousFieldsValues
+					.getLastVersionFromDocument((String) getSelectedDocuments()
+							.get(pCnt).getName());
+			versienummer++;
 		}
+		/* Set version number Fasta file and AB1 */
+
+		limsAB1Fields.setVersieNummer(versienummer);
 	}
 
-	private void setDefaultAligmentDocument(int cnt) {
-		if (defAlignmentDoc != null
-				&& selectedDocuments.get(cnt).getName() != null) {
-			extractAb1FastaFileName = defAlignmentDoc.getName();
-			if (versionNumberExists) {
-				versienummer = Integer
-						.parseInt((String) getVersionNumberFromDocument(cnt));
-			} else {
-				versienummer = readGeneiousFieldsValues
-						.getLastVersion_From_ContigAssemblyDocuments((String) extractAb1FastaFileName);
+	private void enrichDocumentFileWithNotes(
+			AnnotatedPluginDocument[] annotatedPluginDocument, int cnt) {
+
+		processSplittingTheFileName(cnt, getSelectedDocuments().get(cnt)
+				.getName());
+
+		if (getFastaFileName() != null
+				&& getFastaFileName().toString().contains(fastaFileExtension)) {
+			int i = getFastaFileName().lastIndexOf('.');
+			if (i > 0) {
+				setExtension(getFastaFileName().substring(i + 1));
 			}
-			setVersienummer();
-		}
-	}
 
-	private void setDefaultNucleotideGraphSequence(int cnt) {
-		if (defNucleotideGraphSequence != null
-				&& selectedDocuments.get(cnt).getName() != null) {
-			extractAb1FastaFileName = defNucleotideGraphSequence.getName();
-			if (versionNumberExists) {
-				versienummer = Integer
-						.parseInt((String) getVersionNumberFromDocument(cnt));
-			} else {
-				versienummer = readGeneiousFieldsValues
-						.getLastVersion_For_AB1_Fasta_ConsensusContig((String) extractAb1FastaFileName);
-			}
-		}
-	}
-
-	private void setDefaultNucleotideSequence(int cnt) {
-		if (defNucleotideSequence != null && (boolean) filePathExists) {
-			setFastaNotes(cnt);
-		}
-	}
-
-	private void setDefaultAlignmentDocumentLog() {
-		if (defAlignmentDoc != null) {
-			logger.info("Done with extracting " + defAlignmentDoc.getName());
-		}
-	}
-
-	private void setDefaultNucleotideGraphSequenceLog() {
-		if (defNucleotideGraphSequence != null
-				&& !defNucleotideGraphSequence.toString().isEmpty()) {
-			logger.info("Done with extracting "
-					+ defNucleotideGraphSequence.getName());
-		}
-	}
-
-	private void setDefaultNucleotideSequenceLog() {
-		if (defNucleotideSequence != null
-				&& !defNucleotideSequence.toString().isEmpty()) {
-			logger.info("Done with extracting "
-					+ defNucleotideSequence.getName());
-		}
-	}
-
-	public Boolean checkFileName(String fileName) {
-		/*
-		 * String imageName = limsImporterUtil.getNaturalisPicture()
-		 * .getAbsolutePath(); ImageIcon icon = new ImageIcon(imageName);
-		 */
-		String[] ab1FileName = StringUtils.split(fileName, "_");
-		Boolean checked = false;
-		for (int i = 0; i < ab1FileName.length; i++) {
-			if (i == 0) {
-				String result = ab1FileName[i].substring(1);
-				Pattern p = Pattern.compile("[a-zA-Z]");
-				Matcher m = p.matcher(result);
-
-				if (m.find()) {
-					logger.info(fileName + " is not correct." + "\n"
-							+ "ExtractID " + ab1FileName[0]
-							+ " is not correct and will not be added.");
-					checked = true;
-					continue;
+			if (isFileExists() && !isExtractIDExists()
+					&& getExtension().equals("fas")) {
+				if (!isVersionNumberExists()) {
+					versienummer = readGeneiousFieldsValues
+							.getLastVersionFromDocument((String) getSelectedDocuments()
+									.get(cnt).getName());
 				}
-			} else if (i == 4) {
-				if (!ab1FileName[4].contains("COI")) {
-					logger.info(fileName + " is not correct." + "\n"
-							+ "Marker " + ab1FileName[i]
-							+ " is not correct and and will not be added.");
-					checked = true;
-					continue;
-				}
+				setVersionNumber(cnt);
 			}
 		}
-		return checked;
+
+		/* Processing the notes */
+		/* Lims 251- Waar is het veld seq quality? */
+
+		limsSplitNotes.enrichSplitDocumentsWithNotes(annotatedPluginDocument,
+				cnt, isFileExists(), isExtractIDExists(), versienummer);
+
+		if (limsAB1Fields.getExtractID() == ""
+				&& limsAB1Fields.getExtractID().isEmpty()) {
+			uitValList.add(getSelectedDocuments().get(cnt).getName());
+		}
 	}
+
+	private void processSplittingTheFileName(int pCnt, String pFilename) {
+		logger.info("Start extracting value from file: " + pFilename);
+
+		verwerkingList.add(pFilename);
+		limsSplitNotes.extractDocumentFileName((String) pFilename);
+	}
+
 }

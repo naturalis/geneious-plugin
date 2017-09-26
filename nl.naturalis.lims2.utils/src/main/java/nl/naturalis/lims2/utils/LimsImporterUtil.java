@@ -13,7 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -381,5 +384,38 @@ public class LimsImporterUtil {
 				.getFile());
 
 		return imageFile;
+	}
+
+	public Boolean checkFileName(String fileName) {
+		/*
+		 * String imageName = limsImporterUtil.getNaturalisPicture()
+		 * .getAbsolutePath(); ImageIcon icon = new ImageIcon(imageName);
+		 */
+		String[] ab1FileName = StringUtils.split(fileName, "_");
+		Boolean checked = false;
+		for (int i = 0; i < ab1FileName.length; i++) {
+			if (i == 0) {
+				String result = ab1FileName[i].substring(1);
+				Pattern p = Pattern.compile("[a-zA-Z]");
+				Matcher m = p.matcher(result);
+
+				if (m.find()) {
+					logger.info(fileName + " is not correct." + "\n"
+							+ "ExtractID " + ab1FileName[0]
+							+ " is not correct and will not be added.");
+					checked = true;
+					continue;
+				}
+			} else if (i == 4) {
+				if (!ab1FileName[4].contains("COI")) {
+					logger.info(fileName + " is not correct." + "\n"
+							+ "Marker " + ab1FileName[i]
+							+ " is not correct and and will not be added.");
+					checked = true;
+					continue;
+				}
+			}
+		}
+		return checked;
 	}
 }

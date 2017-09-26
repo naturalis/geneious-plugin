@@ -1177,4 +1177,60 @@ public class LimsReadGeneiousFieldsValues {
 		}
 		return dbResult; // databaseName[0];
 	}
+
+	public boolean checkIfFileExistsInGeneiousDatabase(String filename,
+			String cacheName) {
+		PreparedStatement pst = null;
+		boolean truefalse = false;
+		try {
+			final String SQL = "SELECT ID FROM annotated_document" + "\n"
+					+ "WHERE document_xml like  '%<" + cacheName + ">"
+					+ filename + "</" + cacheName + ">%' " + "\n"
+					+ "ORDER BY ID DESC" + "\n" + "LIMIT 1";
+
+			con = DriverManager.getConnection(url + activeDB + ssl, user,
+					password);
+			con.clearWarnings();
+			pst = con.prepareStatement(SQL);
+			rs = pst.executeQuery();
+			if (rs.next()) {
+				do {
+					int cnt = rs.getInt(1);
+					if (cnt == 0)
+						truefalse = false;
+					else
+						truefalse = true;
+
+				} while (rs.next());
+			}
+		} catch (SQLException ex) {
+			logger.info(ex.getMessage(), ex);
+			exception = ex;
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					Dialogs.showMessageDialog("SQL Exception Information: "
+							+ exception.getMessage());
+				}
+			});
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pst != null) {
+					pst.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException ex) {
+				logger.warn(ex.getMessage(), ex);
+			}
+		}
+		return truefalse;
+	}
 }

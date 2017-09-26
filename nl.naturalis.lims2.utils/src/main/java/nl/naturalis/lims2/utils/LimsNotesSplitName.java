@@ -26,12 +26,12 @@ public class LimsNotesSplitName {
 
 	public void enrichSplitDocumentsWithNotes(
 			AnnotatedPluginDocument[] annotatedPluginDocuments, int pCount,
-			Boolean pFileExists, Boolean pExtract, int pVersienummer) {
+			Boolean pFileExists, Boolean pExtract, int pVersionnumber) {
 
 		logger.info("Extract ID: " + limsAB1Fields.getExtractID());
 		logger.info("PCR plaat ID: " + limsAB1Fields.getPcrPlaatID());
 		logger.info("Marker: " + limsAB1Fields.getMarker());
-		logger.info("Versienummer: " + pVersienummer);
+		logger.info("Versienummer: " + pVersionnumber);
 
 		/* set note for Extract-ID */
 		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -49,19 +49,15 @@ public class LimsNotesSplitName {
 				limsAB1Fields.getMarker(), pCount);
 
 		/* set note for Document version */
+
 		if (pFileExists && pExtract) {
-			limsNotes
-					.setNoteToAB1FileName(annotatedPluginDocuments,
-							"DocumentVersionCode_Seq", "Document version",
-							"Document version",
-							Integer.toString(pVersienummer), pCount);
+			setVersionNumber(annotatedPluginDocuments, pCount, pVersionnumber);
 		} else if (pFileExists && !pExtract) {
-			limsNotes
-					.setNoteToAB1FileName(annotatedPluginDocuments,
-							"DocumentVersionCode_Seq", "Document version",
-							"Document version",
-							Integer.toString(pVersienummer), pCount);
+			setVersionNumber(annotatedPluginDocuments, pCount, pVersionnumber);
+		} else if (!pFileExists && !pExtract) {
+			setVersionNumber(annotatedPluginDocuments, pCount, pVersionnumber);
 		}
+
 		/* set note for SequencingStaffCode_FixedValue_Seq */
 		try {
 			limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
@@ -92,6 +88,51 @@ public class LimsNotesSplitName {
 
 	public void extractDocumentFileName(String extractAb1FastaFileName) {
 		limsAB1Fields.extractAB1_FastaFileName(extractAb1FastaFileName);
+	}
+
+	private void setVersionNumber(
+			AnnotatedPluginDocument[] annotatedPluginDocuments, int pCount,
+			int pVersionnumber) {
+		limsNotes.setNoteToAB1FileName(annotatedPluginDocuments,
+				"DocumentVersionCode_Seq", "Document version",
+				"Document version", Integer.toString(pVersionnumber), pCount);
+	}
+
+	/* Get path value from the document */
+	public static String getPathFromDocument(int cnt) {
+		Object result = null;
+		if (DocumentUtilities.getSelectedDocuments().get(cnt)
+				.getDocumentNotes(true).getNote("importedFrom") != null) {
+			result = DocumentUtilities.getSelectedDocuments().get(cnt)
+					.getDocumentNotes(true).getNote("importedFrom")
+					.getFieldValue("path");
+		}
+		return (String) result;
+	}
+
+	/* Get the filename from the selected document. */
+	public static String getFileNameFromDocument(int cnt) {
+		Object result = null;
+		if (DocumentUtilities.getSelectedDocuments().get(cnt)
+				.getDocumentNotes(true).getNote("importedFrom") != null) {
+			result = DocumentUtilities.getSelectedDocuments().get(cnt)
+					.getDocumentNotes(true).getNote("importedFrom")
+					.getFieldValue("filename");
+		}
+		return (String) result;
+	}
+
+	public static String getVersionNumberFromDocument(int pCnt) {
+		Object result = null;
+		if (DocumentUtilities.getSelectedDocuments().get(pCnt)
+				.getDocumentNotes(true)
+				.getNote("DocumentNoteUtilities-Document version") != null) {
+			result = DocumentUtilities.getSelectedDocuments().get(pCnt)
+					.getDocumentNotes(true)
+					.getNote("DocumentNoteUtilities-Document version")
+					.getFieldValue("DocumentVersionCode_Seq");
+		}
+		return (String) result;
 	}
 
 }
