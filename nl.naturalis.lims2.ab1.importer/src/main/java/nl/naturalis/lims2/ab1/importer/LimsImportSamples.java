@@ -301,7 +301,7 @@ public class LimsImportSamples extends DocumentAction {
 
 						String[] record = null;
 						while ((record = csvReader.readNext()) != null) {
-							if (record.length == 1 && record[0].isEmpty()) {
+							if (record.length == 1 && record[0].length() == 0) {
 								continue;
 							}
 
@@ -788,16 +788,23 @@ public class LimsImportSamples extends DocumentAction {
 							 * csvID, record[0], plateNumber, record[5],
 							 * record[4], record[1], record[6]);
 							 */
-							limsDummySeq.createDummySampleSequence(csvID,
-									csvID,
-									limsExcelFields.getExtractPlaatNummer(),
-									plateNumber,
-									limsExcelFields.getTaxonNaam(),
-									limsExcelFields.getRegistrationNumber(),
-									limsExcelFields.getPlaatPositie(),
-									limsExcelFields.getSubSample());
+							if (record.length > 0 && !record[0].isEmpty()) {
+								limsDummySeq
+										.createDummySampleSequence(
+												csvID,
+												csvID,
+												limsExcelFields
+														.getExtractPlaatNummer(),
+												plateNumber,
+												limsExcelFields.getTaxonNaam(),
+												limsExcelFields
+														.getRegistrationNumber(),
+												limsExcelFields
+														.getPlaatPositie(),
+												limsExcelFields.getSubSample());
 
-							dummyRecordsVerwerkt++;
+								dummyRecordsVerwerkt++;
+							}
 						}
 					} else {
 						limsFrameProgress.showProgress(csvID
