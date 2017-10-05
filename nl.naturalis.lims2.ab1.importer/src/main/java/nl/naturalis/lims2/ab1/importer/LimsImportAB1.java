@@ -219,16 +219,11 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 			cntSelectedDoc = selectedDocs.size();
 
-			// showInfo(selectedCount);
-
 			java.awt.EventQueue.invokeLater(new Runnable() {
-
 				@Override
 				public void run() {
 					createAndShowUI();
-
 				}
-
 			});
 
 			/* Split the filename and extract the ID */
@@ -716,7 +711,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				ShowWaitAction frame = new ShowWaitAction("Test");
+				ShowWaitAction frame = new ShowWaitAction("Samples");
 				frame.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 				frame.pack();
 				frame.setVisible(true);
