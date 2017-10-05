@@ -130,7 +130,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
 	 * */
 	@Override
 	public String getVersion() {
-		return "1.0.16";
+		return "1.0.17";
 	}
 
 	/**
