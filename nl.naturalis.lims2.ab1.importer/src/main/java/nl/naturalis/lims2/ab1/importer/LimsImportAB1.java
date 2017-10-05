@@ -3,6 +3,8 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import nl.naturalis.lims2.utils.LimsNotes;
 import nl.naturalis.lims2.utils.LimsNotesAB1FastaImport;
 import nl.naturalis.lims2.utils.LimsReadGeneiousFieldsValues;
 import nl.naturalis.lims2.utils.LimsSQL;
+import nl.naturalis.lims2.utils.ShowWaitAction;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -100,6 +103,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	private List<AnnotatedPluginDocument> docs = new ArrayList<AnnotatedPluginDocument>(
 			100);
 	private ArrayList<String> listDummy = new ArrayList<String>(100);
+	private List<AnnotatedPluginDocument> selectedDocs;
 
 	private long startBeginTime = 0;
 	private boolean dummyExists = false;
@@ -211,10 +215,21 @@ public class LimsImportAB1 extends DocumentFileImporter {
 			/* Start time of the process */
 			startBeginTime = System.nanoTime();
 
-			List<AnnotatedPluginDocument> selectedDocs = DocumentUtilities
-					.getSelectedDocuments();
+			selectedDocs = DocumentUtilities.getSelectedDocuments();
 
 			cntSelectedDoc = selectedDocs.size();
+
+			// showInfo(selectedCount);
+
+			java.awt.EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					createAndShowUI();
+
+				}
+
+			});
 
 			/* Split the filename and extract the ID */
 
@@ -331,20 +346,6 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						uitValList.toString());
 			}
 
-			progressListener
-					.setMessage("Importing sequence data"
-							+ "\n"
-							+ "\n"
-							+ "Warning:"
-							+ "\n"
-							+ "Geneious is currently processing the selected "
-							+ selectedCount
-							+ " file(s)."
-							+ "\n"
-							+ "Please wait for the import process to finish."
-							+ "\n"
-							+ "You should preferably not start another action or change folders.");
-
 			docs = PluginUtilities
 					.importDocuments(file, ProgressListener.EMPTY);
 
@@ -385,6 +386,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 						}
 					}
 				}
+
 			}
 			logger.info("Total of document(s) filename extracted: " + count);
 			logger.info("----------------------------E N D ---------------------------------");
@@ -489,13 +491,12 @@ public class LimsImportAB1 extends DocumentFileImporter {
 	}
 
 	/**
+	 * @return
 	 * 
 	 */
 	private void deleteRecordsFromTable(int cnt) {
 		if (cntSelectedDoc >= 1) {
-			if (DocumentUtilities.getSelectedDocuments().get(cnt).getName()
-					.contains("dum")
-					&& isDeleted) {
+			if (selectedDocs.get(cnt).getName().contains("dum") && isDeleted) {
 				try {
 					/*
 					 * Delete dummy records after it match with the AB1
@@ -509,7 +510,7 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 					}
 					isDeleted = false;
-					selectedCount = 0;
+					// selectedCount = 0;
 					count = 0;
 					listDummy.clear();
 					deleteDummyList.clear();
@@ -523,6 +524,8 @@ public class LimsImportAB1 extends DocumentFileImporter {
 					try {
 						readGeneiousFieldsValues
 								.DeleteDummyRecordFromTableAnnotatedtDocument(obj);
+						logger.info("Fasta: " + fastaFileName
+								+ " has been deleted.");
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -707,5 +710,19 @@ public class LimsImportAB1 extends DocumentFileImporter {
 
 	public void setDummyFilename(String dummyFilename) {
 		this.dummyFilename = dummyFilename;
+	}
+
+	private static void createAndShowUI() {
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				ShowWaitAction frame = new ShowWaitAction("Test");
+				frame.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+				frame.pack();
+				frame.setVisible(true);
+
+				frame.dispose();
+			}
+		});
 	}
 }
