@@ -133,7 +133,7 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
    * @see LimsImportAB1Plugin
    */
   public DocumentFileImporter[] getDocumentFileImporters() {
-    return new DocumentFileImporter[] {/* new LimsImportAB1() */ new Ab1FileImporter()};
+    return new DocumentFileImporter[] { new LimsImportAB1() /* new Ab1FileImporter() */};
   }
 
   /**
