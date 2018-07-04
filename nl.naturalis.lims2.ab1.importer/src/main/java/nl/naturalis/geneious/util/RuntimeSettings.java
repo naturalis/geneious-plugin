@@ -14,10 +14,12 @@ public class RuntimeSettings {
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
   private static final String LAST_SELECTED_FOLDER = "LAST_SELECTED_FOLDER";
+  private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
 
   private final Properties props;
 
   private File lastSelectedFolder;
+  private Boolean regenerateNoteTypes;
 
   private RuntimeSettings() {
     props = new Properties();
@@ -33,11 +35,8 @@ public class RuntimeSettings {
 
   public File getLastSelectedFolder() {
     if (lastSelectedFolder == null) {
-      String path = props.getProperty(LAST_SELECTED_FOLDER);
-      if (path == null) {
-        path = System.getProperty("user.home");
-      }
-      return (lastSelectedFolder = new File(path));
+      String path = props.getProperty(LAST_SELECTED_FOLDER, System.getProperty("user.home"));
+      lastSelectedFolder = new File(path);
     }
     return lastSelectedFolder;
   }
@@ -52,6 +51,25 @@ public class RuntimeSettings {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  /**
+   * Whether or not document note types should always be regenerated, even if note type already
+   * exists. This should really only be true during development, when the definition of a note type
+   * may change.
+   * 
+   * @return
+   */
+  public boolean regenerateNoteTypes() {
+    if (regenerateNoteTypes == null) {
+      String val = props.getProperty(REGENERATE_NOTE_TYPES);
+      if (val == null) {
+        return (regenerateNoteTypes = Boolean.FALSE);
+      }
+      props.setProperty(REGENERATE_NOTE_TYPES, val);
+      regenerateNoteTypes = Boolean.valueOf(val);
+    }
+    return regenerateNoteTypes.booleanValue();
   }
 
 }
