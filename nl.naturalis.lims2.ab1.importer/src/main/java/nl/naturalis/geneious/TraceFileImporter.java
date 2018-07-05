@@ -1,4 +1,4 @@
-package nl.naturalis.lims2.ab1.importer;
+package nl.naturalis.geneious;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,15 +18,16 @@ import jebl.util.ProgressListener;
 import nl.naturalis.geneious.notes.NaturalisNote;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
-public class ImportAndEnrichOperation extends DocumentOperation {
+public class TraceFileImporter extends DocumentOperation {
 
-  public ImportAndEnrichOperation() {
+  public TraceFileImporter() {
     super();
   }
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Ayco Rocks").setInMainToolbar(true);
+    return new GeneiousActionOptions("AB1/Fasta [V2]").setInMainToolbar(true)
+        .setInPopupMenu(true).setAvailableToWorkflows(true);
   }
 
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs,
@@ -44,7 +45,7 @@ public class ImportAndEnrichOperation extends DocumentOperation {
           if (f.getName().endsWith(".ab1")) {
             if (f.getName().contains("_")) {
               String[] chunks = StringUtils.split(f.getName(), '_');
-              if(chunks.length < 5) {
+              if (chunks.length < 5) {
                 // Do some reporting
                 continue;
               }
@@ -68,8 +69,7 @@ public class ImportAndEnrichOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    // TODO Auto-generated method stub
-    return "Won't tell ya";
+    return "V2 AB1/Fasta import";
   }
 
   @Override

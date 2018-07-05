@@ -14,11 +14,13 @@ public class RuntimeSettings {
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
   private static final String LAST_SELECTED_FOLDER = "LAST_SELECTED_FOLDER";
+  private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
 
   private final Properties props;
 
   private File lastSelectedFolder;
+  private File sampleSheetFolder;
   private Boolean regenerateNoteTypes;
 
   private RuntimeSettings() {
@@ -45,6 +47,26 @@ public class RuntimeSettings {
     if (!lastSelectedFolder.equals(this.lastSelectedFolder)) {
       this.lastSelectedFolder = lastSelectedFolder;
       props.setProperty(LAST_SELECTED_FOLDER, lastSelectedFolder.getAbsolutePath());
+      try {
+        props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  public File getSampleSheetFolder() {
+    if (sampleSheetFolder == null) {
+      String path = props.getProperty(SAMPLE_SHEET_FOLDER, System.getProperty("user.home"));
+      sampleSheetFolder = new File(path);
+    }
+    return sampleSheetFolder;
+  }
+
+  public void setSampleSheetFolder(File sampleSheetFolder) {
+    if (!sampleSheetFolder.equals(this.sampleSheetFolder)) {
+      this.sampleSheetFolder = sampleSheetFolder;
+      props.setProperty(SAMPLE_SHEET_FOLDER, sampleSheetFolder.getAbsolutePath());
       try {
         props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
       } catch (IOException e) {
