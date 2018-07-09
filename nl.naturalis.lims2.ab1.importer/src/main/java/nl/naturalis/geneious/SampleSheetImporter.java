@@ -1,14 +1,15 @@
 package nl.naturalis.geneious;
 
+import java.io.File;
+import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import nl.naturalis.geneious.gui.SampleSheetSelector;
-import nl.naturalis.geneious.gui.SampleSheetSelector.Selection;
 
 public class SampleSheetImporter extends DocumentAction
-    implements SampleSheetSelector.SelectionHandler {
+    implements SampleSheetProcessor {
 
   public SampleSheetImporter() {
     super();
@@ -38,10 +39,12 @@ public class SampleSheetImporter extends DocumentAction
   }
 
   @Override
-  public void processSampleSheet(Selection result) {
-    System.out.println("XXXXXXXXXXXXXXXXXXXXX: " + result.createDummies);
-    System.out.println("XXXXXXXXXXXXXXXXXXXXX: " + result.sampleSheet.getAbsolutePath());
-
+  public void process(File sampleSheet, List<AnnotatedPluginDocument> documentsToEnrich,
+      boolean createDummies) {
+    System.out.println("XXXXXXXXXXXXX sheet: " + sampleSheet.getAbsolutePath());
+    System.out.println("XXXXXXXXXXXXX docs: " + documentsToEnrich.size());
+    System.out.println("XXXXXXXXXXXXX dummies: " + createDummies);
   }
+
 
 }

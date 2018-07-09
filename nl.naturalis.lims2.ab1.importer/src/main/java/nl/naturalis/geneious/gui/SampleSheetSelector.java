@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -13,26 +14,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+import nl.naturalis.geneious.SampleSheetProcessor;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 public class SampleSheetSelector {
 
-  public static class Selection {
-    public File sampleSheet;
-    public boolean createDummies;
-  }
+  private final SampleSheetProcessor sampleSheetProcessor;
 
-  @FunctionalInterface
-  public static interface SelectionHandler {
-    void processSampleSheet(Selection selection);
-  }
-
-  private final SelectionHandler selectionHandler;
-
-  public SampleSheetSelector(SelectionHandler saelectionHandler) {
-    this.selectionHandler = saelectionHandler;
+  public SampleSheetSelector(SampleSheetProcessor sampleSheetProcessor) {
+    this.sampleSheetProcessor = sampleSheetProcessor;
   }
 
   public void show() {
@@ -50,11 +43,15 @@ public class SampleSheetSelector {
     row0.add(createBrowseButton(dialog, sampleSheetLocation));
     root.add(row0);
 
+    List<AnnotatedPluginDocument> docs = DocumentUtilities.getSelectedDocuments();
+
     JPanel row1 = new JPanel();
     JCheckBox createDummiesCheckbox = new JCheckBox();
-    if (DocumentUtilities.getSelectedDocuments().isEmpty()) {
-      row1.add(new JLabel(
-          "No trace files selected. Dummy trace files will be created for unknown Extract IDs"));
+    if (docs.isEmpty()) {
+      createDummiesCheckbox.setEnabled(false);
+      createDummiesCheckbox.setSelected(true);
+      row1.add(
+          new JLabel("No trace files selected. Dummies will be created for unknown Extract IDs"));
     } else {
       row1.add(createDummiesCheckbox);
       row1.add(new JLabel("Create dummies for unknown Extract IDs"));
@@ -63,7 +60,7 @@ public class SampleSheetSelector {
 
     JPanel row2 = new JPanel();
     row2.add(createCancelButton(dialog));
-    row2.add(createOkButton(dialog, sampleSheetLocation, createDummiesCheckbox));
+    row2.add(createOkButton(dialog, sampleSheetLocation, createDummiesCheckbox, docs));
     root.add(row2);
 
     dialog.setContentPane(root);
@@ -102,7 +99,8 @@ public class SampleSheetSelector {
   }
 
   private JButton createOkButton(JDialog dialog, JTextField sampleSheetLocation,
-      JCheckBox checkbox) {
+      JCheckBox createDummiesCheckBox,
+      List<AnnotatedPluginDocument> docs) {
     JButton okButton = new JButton("OK");
     okButton.addActionListener(new ActionListener() {
       @Override
@@ -112,16 +110,13 @@ public class SampleSheetSelector {
               "No sample sheet selected", JOptionPane.ERROR_MESSAGE);
         } else {
           File f = new File(sampleSheetLocation.getText());
-          if (!f.exists() || !f.isFile()) {
+          if (!f.isFile()) {
             JOptionPane.showMessageDialog(dialog, "Invalid file: " + f.getName(), "Invalid file",
                 JOptionPane.ERROR_MESSAGE);
 
           } else {
-            Selection selection = new Selection();
-            selection.sampleSheet = f;
-            selection.createDummies = checkbox.isSelected();
             dialog.dispose();
-            selectionHandler.processSampleSheet(selection);
+            sampleSheetProcessor.process(f, docs, createDummiesCheckBox.isSelected());
           }
         }
       }
