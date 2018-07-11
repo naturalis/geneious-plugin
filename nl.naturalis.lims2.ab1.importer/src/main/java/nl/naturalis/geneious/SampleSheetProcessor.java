@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+@FunctionalInterface
 public interface SampleSheetProcessor {
 
   void process(File sampleSheet, List<AnnotatedPluginDocument> documentsToEnrich,

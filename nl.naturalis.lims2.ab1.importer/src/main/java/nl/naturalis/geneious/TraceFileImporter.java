@@ -51,11 +51,11 @@ public class TraceFileImporter extends DocumentOperation {
               }
               NaturalisNote note = new NaturalisNote();
               note.setExtractId(chunks[0]);
-              note.setPlateId(chunks[3]);
+              note.setPcrPlateId(chunks[3]);
               int i = chunks[4].indexOf('-');
               String marker = i == -1 ? null : chunks[4].substring(0, i);
               note.setMarker(marker);
-              note.saveToDocument(apds.get(0));
+              note.attach(apds.get(0));
             }
           }
           result.addAll(apds);

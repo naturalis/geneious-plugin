@@ -1,14 +1,11 @@
 package nl.naturalis.geneious.notes;
 
-import static nl.naturalis.geneious.notes.NaturalisFieldType.EXTRACT_ID;
-import static nl.naturalis.geneious.notes.NaturalisFieldType.MARKER;
-import static nl.naturalis.geneious.notes.NaturalisFieldType.PLATE_ID;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 public class NoteTypeFactory {
@@ -16,11 +13,12 @@ public class NoteTypeFactory {
   public static final NoteTypeFactory INSTANCE = new NoteTypeFactory();
 
   /*
-   * Whether or not the note type will be regenerated even if it already known to Geneious. During
-   * development (in between Geneious sessions) the definition of the note type may change and we
-   * must inform Geneious about this change. However, even if we want to force Geneious to update
-   * the note type, we still need to do it only once per session, because the changes are made in
-   * the Java code.
+   * Whether or not the note type will be regenerated even if it is already registered with
+   * Geneious. In production this should never be the case, because it is wasteful. During
+   * development though (in between Geneious sessions) the definition of the note type may change
+   * and we must inform Geneious about this change. However, even if we want to force Geneious to
+   * update the note type, we still need to do it only once per session, because the note type
+   * definition is hard-coded.
    */
   private static boolean regenerated = false;
 
@@ -28,19 +26,19 @@ public class NoteTypeFactory {
 
   private NoteTypeFactory() {}
 
-  public DocumentNoteType getNaturalisSequenceNoteType() {
+  public synchronized DocumentNoteType getNaturalisSequenceNoteType() {
     if (naturalisSequenceNoteType == null) {
       DocumentNoteType noteType = DocumentNoteUtilities.getNoteType("naturalis-sequence-note");
       if (noteType == null) {
         noteType = DocumentNoteUtilities.createNewNoteType("Naturalis sequence annotation",
             "naturalis-sequence-note", "Naturalis sequence annotation",
-            createNaturalisSequenceNoteFields(), true);
+            createFields(), true);
       } else if (!regenerated && RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
         List<DocumentNoteField> fields = noteType.getFields();
         for (DocumentNoteField field : fields) {
           noteType.removeField(field.getCode());
         }
-        fields = createNaturalisSequenceNoteFields();
+        fields = createFields();
         for (DocumentNoteField field : fields) {
           noteType.setField(field);
         }
@@ -51,15 +49,17 @@ public class NoteTypeFactory {
     return naturalisSequenceNoteType;
   }
 
-  private static List<DocumentNoteField> createNaturalisSequenceNoteFields() {
-    DocumentNoteField extractID = noteField("Extract ID", "Extract ID", EXTRACT_ID.getCode());
-    DocumentNoteField plateID = noteField("PCR Plate ID", "PCR Plate ID", PLATE_ID.getCode());
-    DocumentNoteField marker = noteField("Marker", "Marker", MARKER.getCode());
-    return Arrays.asList(new DocumentNoteField[] {extractID, plateID, marker});
+  private static List<DocumentNoteField> createFields() {
+    List<DocumentNoteField> result = new ArrayList<>(NaturalisField.values().length);
+    for (NaturalisField f : NaturalisField.values()) {
+      result.add(noteField(f));
+    }
+    return result;
   }
 
-  private static DocumentNoteField noteField(String name, String descr, String code) {
-    return DocumentNoteField.createTextNoteField(name, descr, code, Collections.emptyList(), false);
+  private static DocumentNoteField noteField(NaturalisField field) {
+    return DocumentNoteField.createTextNoteField(field.getName(), field.getDescription(),
+        field.getCode(), Collections.emptyList(), false);
   }
 
 }
