@@ -48,14 +48,10 @@ public class SampleSheetSelector {
     JPanel row1 = new JPanel();
     JCheckBox createDummiesCheckbox = new JCheckBox();
     if (docs.isEmpty()) {
-      createDummiesCheckbox.setEnabled(false);
       createDummiesCheckbox.setSelected(true);
-      row1.add(
-          new JLabel("No trace files selected. Dummies will be created for unknown Extract IDs"));
-    } else {
-      row1.add(createDummiesCheckbox);
-      row1.add(new JLabel("Create dummies for unknown Extract IDs"));
     }
+    row1.add(createDummiesCheckbox);
+    row1.add(new JLabel("Create dummies for unknown Extract IDs"));
     root.add(row1);
 
     JPanel row2 = new JPanel();
@@ -99,8 +95,7 @@ public class SampleSheetSelector {
   }
 
   private JButton createOkButton(JDialog dialog, JTextField sampleSheetLocation,
-      JCheckBox createDummiesCheckBox,
-      List<AnnotatedPluginDocument> docs) {
+      JCheckBox createDummiesCheckBox, List<AnnotatedPluginDocument> docs) {
     JButton okButton = new JButton("OK");
     okButton.addActionListener(new ActionListener() {
       @Override
@@ -108,6 +103,9 @@ public class SampleSheetSelector {
         if (StringUtils.isBlank(sampleSheetLocation.getText())) {
           JOptionPane.showMessageDialog(dialog, "Please select a sample sheet",
               "No sample sheet selected", JOptionPane.ERROR_MESSAGE);
+        } else if (docs.isEmpty() && !createDummiesCheckBox.isSelected()) {
+          JOptionPane.showMessageDialog(dialog, "Please select at lease on document",
+              "No document selected", JOptionPane.ERROR_MESSAGE);
         } else {
           File f = new File(sampleSheetLocation.getText());
           if (!f.isFile()) {

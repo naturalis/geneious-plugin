@@ -8,14 +8,12 @@ import static nl.naturalis.geneious.notes.NaturalisField.EXTRACT_PLATE_ID;
 import static nl.naturalis.geneious.notes.NaturalisField.MARKER;
 import static nl.naturalis.geneious.notes.NaturalisField.PCR_PLATE_ID;
 import static nl.naturalis.geneious.notes.NaturalisField.PLATE_POSITION;
-import static nl.naturalis.geneious.notes.NaturalisField.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.notes.NaturalisField.REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.notes.NaturalisField.REGNO_PLUS_SCI_NAME;
+import static nl.naturalis.geneious.notes.NaturalisField.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.notes.NaturalisField.SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.notes.NaturalisField.SEQUENCING_STAFF;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentNote;
-import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 
 public class NaturalisNote {
 
@@ -36,29 +34,27 @@ public class NaturalisNote {
   public NaturalisNote() {}
 
   public void attach(AnnotatedPluginDocument doc) {
-    DocumentNoteType noteType = NoteTypeFactory.INSTANCE.getNaturalisSequenceNoteType();
-    DocumentNote note = noteType.createDocumentNote();
-    setValueIfNotNull(note, DOCUMENT_VERSION, documentVersion);
-    setValueIfNotNull(note, PCR_PLATE_ID, pcrPlateId);
-    setValueIfNotNull(note, MARKER, marker);
-    setValueIfNotNull(note, EXTRACT_PLATE_ID, extractPlateId);
-    setValueIfNotNull(note, EXTRACT_ID, extractId);
-    setValueIfNotNull(note, SAMPLE_PLATE_ID, samplePlateId);
-    setValueIfNotNull(note, PLATE_POSITION, platePosition);
-    setValueIfNotNull(note, SCIENTIFIC_NAME, scientificName);
-    setValueIfNotNull(note, REGISTRATION_NUMBER, registrationNumber);
-    setValueIfNotNull(note, EXTRACTION_METHOD, extractionMethod);
-    setValueIfNotNull(note, SEQUENCING_STAFF, sequencingStaff);
-    setValueIfNotNull(note, AMPLIFICATION_STAFF, amplificationStaff);
-    setValueIfNotNull(note, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
     AnnotatedPluginDocument.DocumentNotes notes = doc.getDocumentNotes(true);
-    notes.setNote(note);
+    addNoteIfNotNull(notes, DOCUMENT_VERSION, documentVersion);
+    addNoteIfNotNull(notes, PCR_PLATE_ID, pcrPlateId);
+    addNoteIfNotNull(notes, MARKER, marker);
+    addNoteIfNotNull(notes, EXTRACT_PLATE_ID, extractPlateId);
+    addNoteIfNotNull(notes, EXTRACT_ID, extractId);
+    addNoteIfNotNull(notes, SAMPLE_PLATE_ID, samplePlateId);
+    addNoteIfNotNull(notes, PLATE_POSITION, platePosition);
+    addNoteIfNotNull(notes, SCIENTIFIC_NAME, scientificName);
+    addNoteIfNotNull(notes, REGISTRATION_NUMBER, registrationNumber);
+    addNoteIfNotNull(notes, EXTRACTION_METHOD, extractionMethod);
+    addNoteIfNotNull(notes, SEQUENCING_STAFF, sequencingStaff);
+    addNoteIfNotNull(notes, AMPLIFICATION_STAFF, amplificationStaff);
+    addNoteIfNotNull(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
     notes.saveNotes();
   }
 
-  private static void setValueIfNotNull(DocumentNote note, NaturalisField fieldType, Object val) {
+  private static void addNoteIfNotNull(AnnotatedPluginDocument.DocumentNotes notes,
+      NaturalisField nf, Object val) {
     if (val != null) {
-      note.setFieldValue(fieldType.getCode(), val);
+      notes.setNote(nf.newNote(val));
     }
   }
 
