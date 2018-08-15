@@ -22,12 +22,7 @@ import nl.naturalis.geneious.util.RuntimeSettings;
 
 public class SampleSheetSelector {
 
-  private final SampleSheetProcessor sampleSheetProcessor;
-
-  public SampleSheetSelector(SampleSheetProcessor sampleSheetProcessor) {
-    this.sampleSheetProcessor = sampleSheetProcessor;
-  }
-
+  @SuppressWarnings("static-method")
   public void show() {
 
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
@@ -94,27 +89,32 @@ public class SampleSheetSelector {
     return cancelButton;
   }
 
-  private JButton createOkButton(JDialog dialog, JTextField sampleSheetLocation,
+  private static JButton createOkButton(JDialog dialog, JTextField sampleSheetLocation,
       JCheckBox createDummiesCheckBox, List<AnnotatedPluginDocument> docs) {
     JButton okButton = new JButton("OK");
     okButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         if (StringUtils.isBlank(sampleSheetLocation.getText())) {
-          JOptionPane.showMessageDialog(dialog, "Please select a sample sheet",
-              "No sample sheet selected", JOptionPane.ERROR_MESSAGE);
-        } else if (docs.isEmpty() && !createDummiesCheckBox.isSelected()) {
-          JOptionPane.showMessageDialog(dialog, "Please select at lease on document",
-              "No document selected", JOptionPane.ERROR_MESSAGE);
-        } else {
-          File f = new File(sampleSheetLocation.getText());
-          if (!f.isFile()) {
-            JOptionPane.showMessageDialog(dialog, "Invalid file: " + f.getName(), "Invalid file",
+          JOptionPane.showMessageDialog(dialog, "Please select a sample sheet", "No sample sheet selected",
+              JOptionPane.ERROR_MESSAGE);
+        }
+        else if (docs.isEmpty() && !createDummiesCheckBox.isSelected()) {
+          JOptionPane.showMessageDialog(dialog, "Please select at lease on document", "No document selected",
+              JOptionPane.ERROR_MESSAGE);
+        }
+        else {
+          File sampleSheet = new File(sampleSheetLocation.getText());
+          if (!sampleSheet.isFile()) {
+            JOptionPane.showMessageDialog(dialog, "Invalid file: " + sampleSheet.getName(), "Invalid file",
                 JOptionPane.ERROR_MESSAGE);
 
-          } else {
+          }
+          else {
             dialog.dispose();
-            sampleSheetProcessor.process(f, docs, createDummiesCheckBox.isSelected());
+            SampleSheetProcessor ssp =
+                new SampleSheetProcessor(sampleSheet, docs, createDummiesCheckBox.isSelected());
+            ssp.process();
           }
         }
       }

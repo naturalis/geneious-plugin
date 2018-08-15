@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import nl.naturalis.geneious.util.log.LogLevel;
 
 public class RuntimeSettings {
 
@@ -16,6 +17,7 @@ public class RuntimeSettings {
   private static final String LAST_SELECTED_FOLDER = "LAST_SELECTED_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
+  private static final String LOG_LEVEL = "LOG_LEVEL";
 
   private final Properties props;
 
@@ -73,6 +75,10 @@ public class RuntimeSettings {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  public LogLevel getLogLevel() {
+    return LogLevel.valueOf(props.getProperty(LOG_LEVEL, LogLevel.INFO.name()));
   }
 
   /**

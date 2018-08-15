@@ -44,7 +44,7 @@ public enum NaturalisField {
     this.noteType = myNoteType(name, code);
   }
 
-  public Object getValueForDocument(AnnotatedPluginDocument doc) {
+  public Object getValue(AnnotatedPluginDocument doc) {
     String noteTypeCode = noteType.getCode();
     DocumentNotes notes = doc.getDocumentNotes(false);
     DocumentNote note = notes.getNote(noteTypeCode);
