@@ -75,7 +75,8 @@ class SampleSheetProcessor {
     try {
       dummyEnabledExtractIds = getExtractIdsForWhichToCreateDummies(rows, selectedDocLookupTable);
     } catch (DatabaseServiceException e) {
-      throw new RuntimeException(e); // TODO: handle
+      logger.fatal("Error while executing query", e);
+      return;
     }
     List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(rows.size());
     int numValidRows = 0;
@@ -182,7 +183,7 @@ class SampleSheetProcessor {
     DocumentField extractIdField = NaturalisField.EXTRACT_ID.createQueryField();
     for (String[] row : sampleSheetRows) {
       if (StringUtils.isBlank(row[3])) {
-        continue; // TODO: log something
+        continue;
       }
       String extractId = "e" + row[3];
       sampleSheetExtractIds.add(extractId);
@@ -237,7 +238,8 @@ class SampleSheetProcessor {
    * Create a lookup table that maps the extract IDs of the selected documents to the selected
    * documents themselves.
    */
-  private static Map<String, AnnotatedPluginDocument> makeLookupTable(List<AnnotatedPluginDocument> docs) {
+  private Map<String, AnnotatedPluginDocument> makeLookupTable(List<AnnotatedPluginDocument> docs) {
+    logger.debug("Creating lookup table for selected documents");
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(docs.size() + 1, 1.0F);
     for (AnnotatedPluginDocument doc : docs) {
       String val = (String) EXTRACT_ID.getValue(doc);

@@ -99,7 +99,8 @@ class SampleSheetSelector {
               JOptionPane.ERROR_MESSAGE);
         }
         else if (docs.isEmpty() && !createDummiesCheckBox.isSelected()) {
-          JOptionPane.showMessageDialog(dialog, "Please select at lease on document", "No document selected",
+          JOptionPane.showMessageDialog(dialog,
+              "Please select at least one document or choose to create dummies", "No document selected",
               JOptionPane.ERROR_MESSAGE);
         }
         else {
