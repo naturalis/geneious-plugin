@@ -1,18 +1,18 @@
-package nl.naturalis.geneious.notes;
+package nl.naturalis.geneious.note;
 
-import static nl.naturalis.geneious.notes.NaturalisField.AMPLIFICATION_STAFF;
-import static nl.naturalis.geneious.notes.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.notes.NaturalisField.EXTRACTION_METHOD;
-import static nl.naturalis.geneious.notes.NaturalisField.EXTRACT_ID;
-import static nl.naturalis.geneious.notes.NaturalisField.EXTRACT_PLATE_ID;
-import static nl.naturalis.geneious.notes.NaturalisField.MARKER;
-import static nl.naturalis.geneious.notes.NaturalisField.PCR_PLATE_ID;
-import static nl.naturalis.geneious.notes.NaturalisField.PLATE_POSITION;
-import static nl.naturalis.geneious.notes.NaturalisField.REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.notes.NaturalisField.REGNO_PLUS_SCI_NAME;
-import static nl.naturalis.geneious.notes.NaturalisField.SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.notes.NaturalisField.SCIENTIFIC_NAME;
-import static nl.naturalis.geneious.notes.NaturalisField.SEQUENCING_STAFF;
+import static nl.naturalis.geneious.note.NaturalisField.AMPLIFICATION_STAFF;
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.note.NaturalisField.EXTRACTION_METHOD;
+import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.PCR_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.PLATE_POSITION;
+import static nl.naturalis.geneious.note.NaturalisField.REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.note.NaturalisField.REGNO_PLUS_SCI_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.SAMPLE_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.SEQUENCING_STAFF;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 public class NaturalisNote {

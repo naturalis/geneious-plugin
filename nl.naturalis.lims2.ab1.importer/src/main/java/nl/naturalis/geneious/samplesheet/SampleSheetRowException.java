@@ -1,4 +1,4 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.samplesheet;
 
 public class SampleSheetRowException extends Exception {
 

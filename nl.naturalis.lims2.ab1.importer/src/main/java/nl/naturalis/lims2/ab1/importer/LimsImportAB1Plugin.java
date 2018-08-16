@@ -12,8 +12,8 @@
  */
 package nl.naturalis.lims2.ab1.importer;
 
-import nl.naturalis.geneious.SampleSheetImporter;
-import nl.naturalis.geneious.TraceFileImporter;
+import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
+import nl.naturalis.geneious.tracefile.TraceFileDocumentOperation;
 import nl.naturalis.lims2.utils.LimsSamplesFields;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentFileImporter;
@@ -146,12 +146,12 @@ public class LimsImportAB1Plugin extends GeneiousPlugin {
    */
   public DocumentAction[] getDocumentActions() {
     return new DocumentAction[] {new LimsSplitName(), new LimsImportCRS(), new LimsImportBold(),
-        new LimsImportSamples(), new SampleSheetImporter()};
+        new LimsImportSamples(), new SampleSheetDocumentAction()};
   }
 
   @Override
   public DocumentOperation[] getDocumentOperations() {
-    return new DocumentOperation[] {new TraceFileImporter()};
+    return new DocumentOperation[] {new TraceFileDocumentOperation()};
   }
 
   @SuppressWarnings("rawtypes")

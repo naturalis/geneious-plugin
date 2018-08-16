@@ -1,6 +1,6 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.samplesheet;
 
-import static nl.naturalis.geneious.notes.NaturalisField.EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,12 +25,12 @@ import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 import edu.emory.mathcs.backport.java.util.Collections;
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.notes.NaturalisField;
-import nl.naturalis.geneious.notes.NaturalisNote;
+import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisField;
+import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.RuntimeSettings;
-import nl.naturalis.geneious.util.log.GuiLogger;
 
-public class SampleSheetProcessor {
+class SampleSheetProcessor {
 
   private static final String DUMMY_NUCLEOTIDE_SEQUENCE = "NNNNNNNNNN";
   private static final String DUMMY_PLATE_ID = "AA000";
@@ -41,7 +41,7 @@ public class SampleSheetProcessor {
   private final List<AnnotatedPluginDocument> selectedDocuments;
   private final boolean createDummies;
 
-  public SampleSheetProcessor(File sampleSheet, List<AnnotatedPluginDocument> selectedDocuments,
+  SampleSheetProcessor(File sampleSheet, List<AnnotatedPluginDocument> selectedDocuments,
       boolean createDummies) {
     this.logger = new GuiLogger(RuntimeSettings.INSTANCE.getLogLevel());
     this.sampleSheet = sampleSheet;
@@ -55,7 +55,7 @@ public class SampleSheetProcessor {
    * will create dummy documents from sample sheet records IF their extract ID does not exist yet in
    * the database.
    */
-  public void process() {
+  void process() {
     try {
       if (createDummies) {
         processWithDummies();

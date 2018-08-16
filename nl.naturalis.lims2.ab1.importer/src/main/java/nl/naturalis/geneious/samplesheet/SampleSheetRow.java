@@ -1,9 +1,9 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.samplesheet;
 
+import static nl.naturalis.geneious.note.NaturalisField.*;
 import org.apache.commons.lang3.StringUtils;
-import nl.naturalis.geneious.notes.NaturalisField;
-import nl.naturalis.geneious.notes.NaturalisNote;
-import static nl.naturalis.geneious.notes.NaturalisField.*;
+import nl.naturalis.geneious.note.NaturalisField;
+import nl.naturalis.geneious.note.NaturalisNote;
 
 class SampleSheetRow {
   

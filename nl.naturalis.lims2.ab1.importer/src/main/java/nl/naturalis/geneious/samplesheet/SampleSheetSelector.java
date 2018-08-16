@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.gui;
+package nl.naturalis.geneious.samplesheet;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -17,13 +17,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import nl.naturalis.geneious.SampleSheetProcessor;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
-public class SampleSheetSelector {
+class SampleSheetSelector {
 
   @SuppressWarnings("static-method")
-  public void show() {
+  void show() {
 
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle("Select sample sheet");

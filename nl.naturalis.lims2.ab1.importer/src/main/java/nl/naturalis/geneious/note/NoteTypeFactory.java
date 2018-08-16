@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.notes;
+package nl.naturalis.geneious.note;
 
 import java.util.ArrayList;
 import java.util.Collections;

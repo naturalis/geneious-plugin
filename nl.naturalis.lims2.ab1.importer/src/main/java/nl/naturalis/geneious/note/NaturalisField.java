@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.notes;
+package nl.naturalis.geneious.note;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;

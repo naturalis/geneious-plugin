@@ -1,14 +1,13 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.samplesheet;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
-import nl.naturalis.geneious.gui.SampleSheetSelector;
 
-public class SampleSheetImporter extends DocumentAction {
+public class SampleSheetDocumentAction extends DocumentAction {
 
-  public SampleSheetImporter() {
+  public SampleSheetDocumentAction() {
     super();
   }
 

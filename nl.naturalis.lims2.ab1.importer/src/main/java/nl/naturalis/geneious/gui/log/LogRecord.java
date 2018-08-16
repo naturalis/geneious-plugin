@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.util.log;
+package nl.naturalis.geneious.gui.log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

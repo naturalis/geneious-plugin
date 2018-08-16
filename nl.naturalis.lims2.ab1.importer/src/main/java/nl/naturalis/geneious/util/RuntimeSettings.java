@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import nl.naturalis.geneious.util.log.LogLevel;
+import nl.naturalis.geneious.gui.log.LogLevel;
 
 public class RuntimeSettings {
 

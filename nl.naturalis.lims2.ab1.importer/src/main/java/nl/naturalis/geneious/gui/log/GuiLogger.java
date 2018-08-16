@@ -1,10 +1,10 @@
-package nl.naturalis.geneious.util.log;
+package nl.naturalis.geneious.gui.log;
 
-import static nl.naturalis.geneious.util.log.LogLevel.DEBUG;
-import static nl.naturalis.geneious.util.log.LogLevel.ERROR;
-import static nl.naturalis.geneious.util.log.LogLevel.FATAL;
-import static nl.naturalis.geneious.util.log.LogLevel.INFO;
-import static nl.naturalis.geneious.util.log.LogLevel.WARNING;
+import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
+import static nl.naturalis.geneious.gui.log.LogLevel.ERROR;
+import static nl.naturalis.geneious.gui.log.LogLevel.FATAL;
+import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
+import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,7 @@ import javax.swing.JTextArea;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 /**
- * Collects log messages. Not meant as a replacement for a real logging library, but rather to
- * collect a limited number of messages to be displayed in the GUI.
+ * Collects log messages in order to send them to the Geneious UI.
  * 
  * @author Ayco Holleman
  *

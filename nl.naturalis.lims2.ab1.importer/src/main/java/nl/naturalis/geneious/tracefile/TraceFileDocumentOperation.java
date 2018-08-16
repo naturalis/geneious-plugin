@@ -1,4 +1,4 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.tracefile;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,12 +15,12 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.notes.NaturalisNote;
+import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
-public class TraceFileImporter extends DocumentOperation {
+public class TraceFileDocumentOperation extends DocumentOperation {
 
-  public TraceFileImporter() {
+  public TraceFileDocumentOperation() {
     super();
   }
 
