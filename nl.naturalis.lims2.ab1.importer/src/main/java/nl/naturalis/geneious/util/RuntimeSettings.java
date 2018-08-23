@@ -16,13 +16,15 @@ public class RuntimeSettings {
 
   private static final String TRACE_FILE_FOLDER = "TRACE_FILE_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
+  private static final String BOLD_FILE_FOLDER = "BOLD_FILE_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
   private static final String LOG_LEVEL = "LOG_LEVEL";
 
   private final Properties props;
 
-  private File lastSelectedFolder;
+  private File traceFileFolder;
   private File sampleSheetFolder;
+  private File boldFileFolder;
   private Boolean regenerateNoteTypes;
 
   private RuntimeSettings() {
@@ -38,22 +40,18 @@ public class RuntimeSettings {
   }
 
   public File getTraceFileFolder() {
-    if (lastSelectedFolder == null) {
+    if (traceFileFolder == null) {
       String path = props.getProperty(TRACE_FILE_FOLDER, System.getProperty("user.home"));
-      lastSelectedFolder = new File(path);
+      traceFileFolder = new File(path);
     }
-    return lastSelectedFolder;
+    return traceFileFolder;
   }
 
-  public void setTraceFileFolder(File lastSelectedFolder) {
-    if (!lastSelectedFolder.equals(this.lastSelectedFolder)) {
-      this.lastSelectedFolder = lastSelectedFolder;
-      props.setProperty(TRACE_FILE_FOLDER, lastSelectedFolder.getAbsolutePath());
-      try {
-        props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugin settings");
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+  public void setTraceFileFolder(File traceFileFolder) {
+    if (!traceFileFolder.equals(this.traceFileFolder)) {
+      this.traceFileFolder = traceFileFolder;
+      props.setProperty(TRACE_FILE_FOLDER, traceFileFolder.getAbsolutePath());
+      saveSettings();
     }
   }
 
@@ -69,11 +67,23 @@ public class RuntimeSettings {
     if (!sampleSheetFolder.equals(this.sampleSheetFolder)) {
       this.sampleSheetFolder = sampleSheetFolder;
       props.setProperty(SAMPLE_SHEET_FOLDER, sampleSheetFolder.getAbsolutePath());
-      try {
-        props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      saveSettings();
+    }
+  }
+
+  public File getBoldFileFolder() {
+    if (boldFileFolder == null) {
+      String path = props.getProperty(BOLD_FILE_FOLDER, System.getProperty("user.home"));
+      sampleSheetFolder = new File(path);
+    }
+    return boldFileFolder;
+  }
+
+  public void setBoldFileFolder(File boldFileFolder) {
+    if (!boldFileFolder.equals(this.boldFileFolder)) {
+      this.boldFileFolder = boldFileFolder;
+      props.setProperty(BOLD_FILE_FOLDER, boldFileFolder.getAbsolutePath());
+      saveSettings();
     }
   }
 
@@ -98,6 +108,14 @@ public class RuntimeSettings {
       regenerateNoteTypes = Boolean.valueOf(val);
     }
     return regenerateNoteTypes.booleanValue();
+  }
+
+  private void saveSettings() {
+    try {
+      props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }

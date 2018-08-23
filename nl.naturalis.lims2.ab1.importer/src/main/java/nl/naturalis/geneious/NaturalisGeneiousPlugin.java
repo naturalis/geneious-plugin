@@ -3,6 +3,7 @@ package nl.naturalis.geneious;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
+import nl.naturalis.geneious.bold.BOLDImportDocumentAction;
 import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
 import nl.naturalis.geneious.split.CreateNoteFromFileNameDocumentAction;
 import nl.naturalis.geneious.tracefile.TraceFileDocumentOperation;
@@ -11,7 +12,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public DocumentAction[] getDocumentActions() {
-    return new DocumentAction[] {new SampleSheetDocumentAction(),
+    return new DocumentAction[] {new SampleSheetDocumentAction(), new BOLDImportDocumentAction(),
         new CreateNoteFromFileNameDocumentAction()};
   }
 

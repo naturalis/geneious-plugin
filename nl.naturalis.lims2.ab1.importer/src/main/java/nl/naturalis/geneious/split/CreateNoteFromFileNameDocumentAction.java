@@ -11,25 +11,25 @@ import nl.naturalis.geneious.note.NaturalisNote;
 public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
 
   @Override
-  public void actionPerformed(AnnotatedPluginDocument[] docs) {
+  public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
     GuiLogger logger = new GuiLogger();
     int good = 0;
     int bad = 0;
     try {
-      for (AnnotatedPluginDocument apd : docs) {
+      for (AnnotatedPluginDocument doc : selectedDocuments) {
         NaturalisNote note;
         try {
-          note = new FileNameParser(apd.getName()).parse();
+          note = new FileNameParser(doc.getName()).parse();
         } catch (BadFileNameException e) {
           logger.error(e.getMessage());
           bad++;
           continue;
         }
-        note.attach(apd);
+        note.attach(doc);
         good++;
       }
     } finally {
-      logger.info("Number of documents selected: %s", docs.length);
+      logger.info("Number of documents selected: %s", selectedDocuments.length);
       logger.info("Number of documents enriched: %s", good);
       logger.info("Number of unprocessable documents: %s", bad);
       logger.showLog("Split Name log");
