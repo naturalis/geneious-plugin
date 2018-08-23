@@ -14,7 +14,7 @@ public class RuntimeSettings {
 
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
-  private static final String LAST_SELECTED_FOLDER = "LAST_SELECTED_FOLDER";
+  private static final String TRACE_FILE_FOLDER = "TRACE_FILE_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
   private static final String LOG_LEVEL = "LOG_LEVEL";
@@ -37,20 +37,20 @@ public class RuntimeSettings {
     }
   }
 
-  public File getLastSelectedFolder() {
+  public File getTraceFileFolder() {
     if (lastSelectedFolder == null) {
-      String path = props.getProperty(LAST_SELECTED_FOLDER, System.getProperty("user.home"));
+      String path = props.getProperty(TRACE_FILE_FOLDER, System.getProperty("user.home"));
       lastSelectedFolder = new File(path);
     }
     return lastSelectedFolder;
   }
 
-  public void setLastSelectedFolder(File lastSelectedFolder) {
+  public void setTraceFileFolder(File lastSelectedFolder) {
     if (!lastSelectedFolder.equals(this.lastSelectedFolder)) {
       this.lastSelectedFolder = lastSelectedFolder;
-      props.setProperty(LAST_SELECTED_FOLDER, lastSelectedFolder.getAbsolutePath());
+      props.setProperty(TRACE_FILE_FOLDER, lastSelectedFolder.getAbsolutePath());
       try {
-        props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
+        props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugin settings");
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

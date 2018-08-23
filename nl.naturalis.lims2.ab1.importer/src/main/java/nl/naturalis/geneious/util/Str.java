@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.util;
 
+import java.util.ArrayList;
+
 /**
  * String utilities.
  * 
@@ -132,4 +134,87 @@ public class Str {
     sb.append(separator);
     return sb.toString();
   }
+
+  /**
+   * Chop {@code word} from the left of {@code string} and repeat until {@code string} does not
+   * start with {@code word}.
+   * 
+   * @param string
+   * @param word
+   * @return
+   */
+  public static String lchop(String string, String word) {
+    if (string == null) {
+      return null;
+    }
+    if (word == null || word.length() == 0 || word.length() > string.length()) {
+      return string;
+    }
+    int i = 0;
+    while (string.regionMatches(i, word, 0, word.length()))
+      i += word.length();
+    return i == string.length() ? EMPTY : string.substring(i);
+  }
+
+  /**
+   * Chop {@code word} from the right of {@code string} and repeat until {@code string} does not end
+   * with {@code word}.
+   * 
+   * @param string
+   * @param word
+   * @return
+   */
+  public static String rchop(String string, String word) {
+    if (string == null)
+      return null;
+    if (word == null)
+      return string;
+    while (string.endsWith(word))
+      string = string.substring(0, string.length() - word.length());
+    return string;
+  }
+  /**
+   * Null-safe split method hat does not interpret the delimiter as a regular
+   * expression.
+   * 
+   * @param s
+   * @param delim
+   * @return
+   */
+  public static String[] split(String s, String delim)
+  {
+    return split(s, delim, 8);
+  }
+
+  /**
+   * Null-safe split method that does not interpret the delimiter as a regular
+   * expression.
+   * 
+   * @param s
+   *            The string to split
+   * @param delim
+   *            The delimiter around which to split
+   * @param numParts
+   *            The expected number of parts (might end up larger)
+   * @return
+   */
+  public static String[] split(String s, String delim, int numParts)
+  {
+    if (s == null)
+      return null;
+    ArrayList<String> chunks = new ArrayList<>(numParts);
+    int from = 0;
+    int to = 0;
+    while (from < s.length()) {
+      to = s.indexOf(delim, from);
+      if (to == -1) {
+        chunks.add(s.substring(from));
+        break;
+      }
+      chunks.add(s.substring(from, to));
+      from = to + delim.length();
+    }
+    return chunks.toArray(new String[chunks.size()]);
+  }
+
 }

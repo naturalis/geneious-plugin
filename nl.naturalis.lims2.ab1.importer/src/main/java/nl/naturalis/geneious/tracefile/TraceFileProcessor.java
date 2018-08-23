@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.split.BadFileNameException;
+import nl.naturalis.geneious.split.FileNameParser;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 public class TraceFileProcessor {
@@ -39,25 +40,18 @@ public class TraceFileProcessor {
           continue;
         }
         assert (apds.size() == 1);
-        if (f.getName().endsWith(".ab1")) {
-          if (f.getName().contains("_")) {
-            String[] chunks = StringUtils.split(f.getName(), '_');
-            if (chunks.length < 5) {
-              logger.error("Invalid file (not enough underscores in name): %s", f.getName());
-              continue;
-            }
-            NaturalisNote note = new NaturalisNote();
-            note.setExtractId(chunks[0]);
-            note.setPcrPlateId(chunks[3]);
-            int i = chunks[4].indexOf('-');
-            String marker = i == -1 ? null : chunks[4].substring(0, i);
-            note.setMarker(marker);
+        try {
+          NaturalisNote note = new FileNameParser(f.getName()).parse();
+          if (note != null) {
             note.attach(apds.get(0));
             enriched++;
           }
+        } catch (BadFileNameException e) {
+          logger.error(e.getMessage());
+          continue;
         }
-        result.addAll(apds);
         good++;
+        result.addAll(apds);
       }
       logger.info("Number of files selected: %s", files.length);
       logger.info("Number of files successfully imported: %s", good);

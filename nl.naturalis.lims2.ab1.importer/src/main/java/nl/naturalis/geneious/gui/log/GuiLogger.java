@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
  * Collects log messages in order to send them to the Geneious UI.
@@ -26,6 +27,10 @@ public class GuiLogger {
   private final List<LogRecord> records = new ArrayList<>();
   private final LogLevel logLevel;
 
+  public GuiLogger() {
+    this(RuntimeSettings.INSTANCE.getLogLevel());
+  }
+
   public GuiLogger(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
@@ -33,7 +38,7 @@ public class GuiLogger {
   public void showLog(String title) {
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
-    JTextArea textArea = new JTextArea(20, 80);
+    JTextArea textArea = new JTextArea(20, 100);
     textArea.setEditable(false);
     textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
     for (LogRecord r : records) {

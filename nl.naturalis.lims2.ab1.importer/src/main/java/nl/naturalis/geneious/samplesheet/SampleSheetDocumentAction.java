@@ -18,8 +18,9 @@ public class SampleSheetDocumentAction extends DocumentAction {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Samples [V2]").setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
-        .setInMainToolbar(true).setInPopupMenu(true).setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("Sample Sheet")
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools).setInMainToolbar(true)
+        .setInPopupMenu(true).setAvailableToWorkflows(true);
   }
 
   @Override
