@@ -1,31 +1,34 @@
-package nl.naturalis.geneious.bold;
+package nl.naturalis.geneious.crs;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
+import nl.naturalis.geneious.gui.Dialogs;
 
-public class BOLDImportDocumentAction extends DocumentAction {
-
-  public BOLDImportDocumentAction() {
-    super();
-  }
+public class CrsImportDocumentAction extends DocumentAction {
 
   @Override
-  public void actionPerformed(AnnotatedPluginDocument[] docs) {
-    new BOLDFileSelector().show();
+  public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
+    if (selectedDocuments.length == 0) {
+      Dialogs.noDocumentsSelected();
+      return;
+    }
+    CrsProcessor processor = new CrsProcessor();
+    CrsFileSelector fileSelector = new CrsFileSelector(processor, selectedDocuments);
+    fileSelector.show();
   }
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("BOLD Import")
+    return new GeneiousActionOptions("CRS Import")
         .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools).setInMainToolbar(true)
         .setInPopupMenu(true).setAvailableToWorkflows(true);
   }
 
   @Override
   public String getHelp() {
-    return "Enriches Geneious documents with data from BOLD";
+    return "Enriches Geneious documents with data from CRS";
   }
 
   @Override

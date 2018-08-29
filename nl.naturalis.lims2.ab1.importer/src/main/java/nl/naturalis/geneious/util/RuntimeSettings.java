@@ -16,6 +16,7 @@ public class RuntimeSettings {
 
   private static final String TRACE_FILE_FOLDER = "TRACE_FILE_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
+  private static final String CRS_FOLDER = "CRS_FILE_FOLDER";
   private static final String BOLD_FILE_FOLDER = "BOLD_FILE_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
   private static final String LOG_LEVEL = "LOG_LEVEL";
@@ -24,6 +25,7 @@ public class RuntimeSettings {
 
   private File traceFileFolder;
   private File sampleSheetFolder;
+  private File crsFolder;
   private File boldFileFolder;
   private Boolean regenerateNoteTypes;
 
@@ -67,6 +69,22 @@ public class RuntimeSettings {
     if (!sampleSheetFolder.equals(this.sampleSheetFolder)) {
       this.sampleSheetFolder = sampleSheetFolder;
       props.setProperty(SAMPLE_SHEET_FOLDER, sampleSheetFolder.getAbsolutePath());
+      saveSettings();
+    }
+  }
+
+  public File getCrsFolder() {
+    if (crsFolder == null) {
+      String path = props.getProperty(CRS_FOLDER, System.getProperty("user.home"));
+      crsFolder = new File(path);
+    }
+    return crsFolder;
+  }
+
+  public void setCrsFolder(File crsFolder) {
+    if (!crsFolder.equals(this.crsFolder)) {
+      this.crsFolder = crsFolder;
+      props.setProperty(CRS_FOLDER, crsFolder.getAbsolutePath());
       saveSettings();
     }
   }

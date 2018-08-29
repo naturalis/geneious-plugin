@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-class BOLDRow {
+class BoldRow {
   
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
   private static final String ERR_MISSING_VALUE = ERR_BASE + "Missing value for field %s";
@@ -14,7 +14,7 @@ class BOLDRow {
   private final int rowNum;
   private final String[] row;
 
-  BOLDRow(int rowNum, String[] row) {
+  BoldRow(int rowNum, String[] row) {
     this.rowNum = rowNum;
     this.row = row;
   }

@@ -71,9 +71,9 @@ class SampleSheetProcessor {
   private void processWithDummies() {
     Map<String, AnnotatedPluginDocument> selectedDocLookupTable = makeLookupTable(selectedDocuments);
     List<String[]> rows = loadSampleSheet(sampleSheet);
-    Set<String> dummyEnabledExtractIds;
+    Set<String> nonExistentExtractIds;
     try {
-      dummyEnabledExtractIds = getExtractIdsForWhichToCreateDummies(rows, selectedDocLookupTable);
+      nonExistentExtractIds = getNonExistentExtractIds(rows, selectedDocLookupTable);
     } catch (DatabaseServiceException e) {
       logger.fatal("Error while executing query", e);
       return;
@@ -102,7 +102,7 @@ class SampleSheetProcessor {
       note.setMarker(DUMMY_MARKER);
       AnnotatedPluginDocument apd = selectedDocLookupTable.get(note.getExtractId());
       if (apd == null) {
-        if (dummyEnabledExtractIds.contains(note.getExtractId())) {
+        if (nonExistentExtractIds.contains(note.getExtractId())) {
           logger.debug("Creating dummy document for extract ID %s", note.getExtractId());
           NucleotideSequenceDocument nsd = createDummyDocument(note);
           apd = DocumentUtilities.createAnnotatedPluginDocument(nsd);
@@ -175,7 +175,7 @@ class SampleSheetProcessor {
    * hands us the selected records for free, we can discard them when constructing the database query,
    * thus making the query a bit more light-weight.
    */
-  private Set<String> getExtractIdsForWhichToCreateDummies(List<String[]> sampleSheetRows,
+  private Set<String> getNonExistentExtractIds(List<String[]> sampleSheetRows,
       Map<String, AnnotatedPluginDocument> selectedDocuments) throws DatabaseServiceException {
     logger.info("Filtering sample sheet records with non-existent extract IDs (will become dummy documents)");
     Set<String> sampleSheetExtractIds = new HashSet<>(sampleSheetRows.size());

@@ -29,8 +29,22 @@ public enum NaturalisField {
   EXTRACTION_METHOD("SampleMethodCode_Samples", "Extraction method (Samples)"),
   SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)"),
   AMPLIFICATION_STAFF("AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)"),
-  REGNO_PLUS_SCI_NAME("RegistrationNumberCode_TaxonName2Code_Samples",
-      "Registr-nmbr_[Scientific_name] (Samples)");
+  REGNO_PLUS_SCI_NAME(
+      "RegistrationNumberCode_TaxonName2Code_Samples",
+      "Registr-nmbr_[Scientific_name] (Samples)"),
+  /*
+   * CRS fields:
+   */
+  
+  /*
+   * BOLD fields:
+   */
+  BOLD_ID("BOLDIDCode_Bold", "BOLD ID (Bold)"),
+  BOLD_PROJECT_ID("BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)"),
+  BOLD_FIELD_ID("FieldIDCode_Bold", "Field ID (Bold)"),
+  BOLD_BIN_CODE("BOLDBINCode_Bold", "BOLD BIN (Bold)"),
+  BOLD_NUM_IMAGES("NumberOfImagesCode_Bold", "N images (Bold)"),
+  BOLD_URI("BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)");
 
   private static final String NOTE_TYPE_CODE_PREFIX = "DocumentNoteUtilities-";
 
@@ -94,8 +108,7 @@ public enum NaturalisField {
       List<DocumentNoteField> noteFields = Arrays.asList(new DocumentNoteField[] {noteField});
       noteType = createNewNoteType(noteTypeName, noteTypeCode, noteTypeDescr, noteFields, true);
       setNoteType(noteType);
-    }
-    else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
+    } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
       /*
        * Whether or not the note type must be regenerated even if it is already registered with
        * Geneious. In production this should never be the case, because it is wasteful. During

@@ -30,7 +30,14 @@ class BOLDProcessor {
    * will create dummy documents from sample sheet records IF their extract ID does not exist yet in
    * the database.
    */
-  void process() {}
+  void process() {
+    List<String[]> rows = loadBoldFile();
+  }
+
+  private List<String[]> loadBoldFile() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
   /*
    * Create a lookup table that maps the extract IDs of the selected documents to the selected
