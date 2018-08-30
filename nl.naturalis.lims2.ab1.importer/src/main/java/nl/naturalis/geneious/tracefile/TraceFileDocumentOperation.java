@@ -26,10 +26,10 @@ public class TraceFileDocumentOperation extends DocumentOperation {
 
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs,
       ProgressListener progress, Options options) {
-    JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getTraceFileFolder());
+    JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
     fileChooser.setMultiSelectionEnabled(true);
     if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-      RuntimeSettings.INSTANCE.setTraceFileFolder(fileChooser.getCurrentDirectory());
+      RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
       return new TraceFileProcessor(fileChooser.getSelectedFiles()).process();
     }
     return Collections.emptyList();

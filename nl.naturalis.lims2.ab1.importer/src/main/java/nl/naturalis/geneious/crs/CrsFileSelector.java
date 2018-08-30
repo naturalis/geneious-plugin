@@ -1,9 +1,12 @@
 package nl.naturalis.geneious.crs;
 
-import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -12,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
@@ -24,6 +28,9 @@ class CrsFileSelector {
 
   private JDialog dialog;
   private JTextField crsFileTextField;
+  private JTextField sheetNoTextField;
+  private JTextField skipLinesTextField;
+
   private JCheckBox skipHeaderCheckbox;
 
   CrsFileSelector(CrsProcessor processor, AnnotatedPluginDocument[] docs) {
@@ -35,30 +42,125 @@ class CrsFileSelector {
 
     dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle("Select CRS file");
+    dialog.setLayout(new GridBagLayout());
 
-    JPanel root = new JPanel();
-    root.setLayout(new GridLayout(3, 1));
+    // FIRST ROW
 
-    JPanel row0 = new JPanel();
-    row0.add(new JLabel("CRS file"));
-    crsFileTextField = new JTextField(40);
-    row0.add(crsFileTextField);
-    row0.add(createBrowseButton());
-    root.add(row0);
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weighty = 1f;
+    c.anchor = GridBagConstraints.NORTH;
 
-    JPanel row1 = new JPanel();
-    skipHeaderCheckbox = new JCheckBox();
-    skipHeaderCheckbox.setSelected(true);
-    row1.add(skipHeaderCheckbox);
-    row1.add(new JLabel("Skip 1st line (header row) in CRS file"));
-    root.add(row1);
+    JPanel panel0 = new JPanel(new GridBagLayout());
+    panel0.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    dialog.add(panel0, c);
 
-    JPanel row2 = new JPanel();
-    row2.add(createCancelButton());
-    row2.add(createOkButton());
-    root.add(row2);
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.EAST;
+    JLabel label = new JLabel("CRS File", SwingConstants.RIGHT);
+    panel0.add(label, c);
 
-    dialog.setContentPane(root);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    c.weightx = 1f;
+    c.anchor = GridBagConstraints.WEST;
+    JPanel panel1 = new JPanel(new GridBagLayout());
+    panel0.add(panel1, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weightx = 1f;
+    crsFileTextField = new JTextField(50);
+    panel1.add(crsFileTextField, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.WEST;
+    panel1.add(createBrowseButton(), c);
+
+    // SECOND ROW
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 1;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.EAST;
+    label = new JLabel("Start with line", SwingConstants.RIGHT);
+    panel0.add(label, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 1;
+    c.weightx = 1f;
+    c.anchor = GridBagConstraints.WEST;
+    panel1 = new JPanel(new GridBagLayout());
+    panel0.add(panel1, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    skipLinesTextField = new JTextField(4);
+    skipLinesTextField.setText("1");
+    panel1.add(skipLinesTextField, c);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    panel1.add(new JLabel("(Applicable for spreadsheets, CSV, TSV, etc.)"), c);
+
+    // THIRD ROW
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 2;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.EAST;
+    label = new JLabel("Sheet number", SwingConstants.RIGHT);
+    panel0.add(label, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 2;
+    c.weightx = 1f;
+    c.anchor = GridBagConstraints.WEST;
+    panel1 = new JPanel(new GridBagLayout());
+    panel0.add(panel1, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    sheetNoTextField = new JTextField(4);
+    sheetNoTextField.setText("1");
+    sheetNoTextField.setEnabled(false);
+    panel1.add(sheetNoTextField, c);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    panel1.add(new JLabel("(Only applicable when importing from spreadsheet)"), c);
+
+    // OK / CANCEL
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 1;
+    c.weightx = 1f;
+    c.weighty = 0;
+    c.anchor = GridBagConstraints.SOUTH;
+
+    panel0 = new JPanel(new GridBagLayout());
+    panel0.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+    dialog.add(panel0, c);
+
+    panel0.add(createOkButton());
+    panel0.add(createCancelButton());
+
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
     dialog.setVisible(true);
@@ -75,6 +177,11 @@ class CrsFileSelector {
           File f = fc.getSelectedFile();
           if (f != null) {
             crsFileTextField.setText(f.getAbsolutePath());
+            if (f.getName().endsWith(".xls")) {
+              sheetNoTextField.setEnabled(true);
+            } else {
+              sheetNoTextField.setEnabled(false);
+            }
           }
         }
       }
@@ -84,6 +191,7 @@ class CrsFileSelector {
 
   private JButton createCancelButton() {
     JButton cancelButton = new JButton("Cancel");
+    cancelButton.setPreferredSize(new Dimension(100, cancelButton.getPreferredSize().height));
     cancelButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -95,6 +203,7 @@ class CrsFileSelector {
 
   private JButton createOkButton() {
     JButton okButton = new JButton("OK");
+    okButton.setPreferredSize(new Dimension(100, okButton.getPreferredSize().height));
     okButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {

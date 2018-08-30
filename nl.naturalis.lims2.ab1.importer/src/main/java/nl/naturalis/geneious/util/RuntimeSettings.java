@@ -14,19 +14,19 @@ public class RuntimeSettings {
 
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
-  private static final String TRACE_FILE_FOLDER = "TRACE_FILE_FOLDER";
+  private static final String AB1_FASTA_FOLDER = "AB1_FASTA_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
   private static final String CRS_FOLDER = "CRS_FILE_FOLDER";
-  private static final String BOLD_FILE_FOLDER = "BOLD_FILE_FOLDER";
+  private static final String BOLD_FOLDER = "BOLD_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
   private static final String LOG_LEVEL = "LOG_LEVEL";
 
   private final Properties props;
 
-  private File traceFileFolder;
+  private File ab1FastaFolder;
   private File sampleSheetFolder;
   private File crsFolder;
-  private File boldFileFolder;
+  private File boldFolder;
   private Boolean regenerateNoteTypes;
 
   private RuntimeSettings() {
@@ -41,18 +41,18 @@ public class RuntimeSettings {
     }
   }
 
-  public File getTraceFileFolder() {
-    if (traceFileFolder == null) {
-      String path = props.getProperty(TRACE_FILE_FOLDER, System.getProperty("user.home"));
-      traceFileFolder = new File(path);
+  public File getAb1FastaFolder() {
+    if (ab1FastaFolder == null) {
+      String path = props.getProperty(AB1_FASTA_FOLDER, System.getProperty("user.home"));
+      ab1FastaFolder = new File(path);
     }
-    return traceFileFolder;
+    return ab1FastaFolder;
   }
 
-  public void setTraceFileFolder(File traceFileFolder) {
-    if (!traceFileFolder.equals(this.traceFileFolder)) {
-      this.traceFileFolder = traceFileFolder;
-      props.setProperty(TRACE_FILE_FOLDER, traceFileFolder.getAbsolutePath());
+  public void setAb1FastaFolder(File traceFileFolder) {
+    if (!traceFileFolder.equals(this.ab1FastaFolder)) {
+      this.ab1FastaFolder = traceFileFolder;
+      props.setProperty(AB1_FASTA_FOLDER, traceFileFolder.getAbsolutePath());
       saveSettings();
     }
   }
@@ -89,18 +89,18 @@ public class RuntimeSettings {
     }
   }
 
-  public File getBoldFileFolder() {
-    if (boldFileFolder == null) {
-      String path = props.getProperty(BOLD_FILE_FOLDER, System.getProperty("user.home"));
+  public File getBoldFolder() {
+    if (boldFolder == null) {
+      String path = props.getProperty(BOLD_FOLDER, System.getProperty("user.home"));
       sampleSheetFolder = new File(path);
     }
-    return boldFileFolder;
+    return boldFolder;
   }
 
-  public void setBoldFileFolder(File boldFileFolder) {
-    if (!boldFileFolder.equals(this.boldFileFolder)) {
-      this.boldFileFolder = boldFileFolder;
-      props.setProperty(BOLD_FILE_FOLDER, boldFileFolder.getAbsolutePath());
+  public void setBoldFolder(File boldFolder) {
+    if (!boldFolder.equals(this.boldFolder)) {
+      this.boldFolder = boldFolder;
+      props.setProperty(BOLD_FOLDER, boldFolder.getAbsolutePath());
       saveSettings();
     }
   }
