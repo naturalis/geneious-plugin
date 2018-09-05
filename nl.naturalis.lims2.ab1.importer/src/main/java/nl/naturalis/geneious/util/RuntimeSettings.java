@@ -16,10 +16,13 @@ public class RuntimeSettings {
 
   private static final String AB1_FASTA_FOLDER = "AB1_FASTA_FOLDER";
   private static final String SAMPLE_SHEET_FOLDER = "SAMPLE_SHEET_FOLDER";
-  private static final String CRS_FOLDER = "CRS_FILE_FOLDER";
   private static final String BOLD_FOLDER = "BOLD_FOLDER";
+  private static final String CRS_FOLDER = "CRS_FILE_FOLDER";
   private static final String REGENERATE_NOTE_TYPES = "REGENERATE_NOTE_TYPES";
   private static final String LOG_LEVEL = "LOG_LEVEL";
+
+  private static final String CRS_SKIP_LINES = "CRS_SKIP_LINES";
+  private static final String CRS_SHEET_NUM = "CRS_SHEET_NUM";
 
   private final Properties props;
 
@@ -85,6 +88,36 @@ public class RuntimeSettings {
     if (!crsFolder.equals(this.crsFolder)) {
       this.crsFolder = crsFolder;
       props.setProperty(CRS_FOLDER, crsFolder.getAbsolutePath());
+      saveSettings();
+    }
+  }
+
+  public int getCrsSkipLines() {
+    if (props.containsKey(CRS_SKIP_LINES)) {
+      return Integer.parseInt(props.getProperty(CRS_SKIP_LINES));
+    }
+    props.setProperty(CRS_SKIP_LINES, "1");
+    return 1;
+  }
+
+  public void setCrsSkipLines(int linesToSkip) {
+    if (getCrsSkipLines() != linesToSkip) {
+      props.setProperty(CRS_SKIP_LINES, String.valueOf(linesToSkip));
+      saveSettings();
+    }
+  }
+
+  public int getCrsSheetNum() {
+    if (props.containsKey(CRS_SHEET_NUM)) {
+      return Integer.parseInt(props.getProperty(CRS_SHEET_NUM));
+    }
+    props.setProperty(CRS_SHEET_NUM, "0");
+    return 0;
+  }
+
+  public void setCrsSheetNum(int sheetNum) {
+    if (getCrsSheetNum() != sheetNum) {
+      props.setProperty(CRS_SHEET_NUM, String.valueOf(sheetNum));
       saveSettings();
     }
   }

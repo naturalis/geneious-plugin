@@ -1,21 +1,21 @@
 package nl.naturalis.geneious.crs;
 
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addFileSelector;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addLabel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addTextFieldWithComment;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.createFormPanel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.createOKCancelPanel;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
@@ -23,7 +23,6 @@ import nl.naturalis.geneious.util.RuntimeSettings;
 
 class CrsFileSelector {
 
-  private final CrsProcessor processor;
   private final AnnotatedPluginDocument[] selectedDocuments;
 
   private JDialog dialog;
@@ -31,10 +30,7 @@ class CrsFileSelector {
   private JTextField sheetNoTextField;
   private JTextField skipLinesTextField;
 
-  private JCheckBox skipHeaderCheckbox;
-
-  CrsFileSelector(CrsProcessor processor, AnnotatedPluginDocument[] docs) {
-    this.processor = processor;
+  CrsFileSelector(AnnotatedPluginDocument[] docs) {
     this.selectedDocuments = docs;
   }
 
@@ -44,122 +40,29 @@ class CrsFileSelector {
     dialog.setTitle("Select CRS file");
     dialog.setLayout(new GridBagLayout());
 
+    JPanel panel = createFormPanel(dialog);
+
     // FIRST ROW
-
-    GridBagConstraints c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weighty = 1f;
-    c.anchor = GridBagConstraints.NORTH;
-
-    JPanel panel0 = new JPanel(new GridBagLayout());
-    panel0.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    dialog.add(panel0, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 0;
-    c.anchor = GridBagConstraints.EAST;
-    JLabel label = new JLabel("CRS File", SwingConstants.RIGHT);
-    panel0.add(label, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 0;
-    c.weightx = 1f;
-    c.anchor = GridBagConstraints.WEST;
-    JPanel panel1 = new JPanel(new GridBagLayout());
-    panel0.add(panel1, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1f;
+    addLabel(panel, 0, "CRS File");
     crsFileTextField = new JTextField(50);
-    panel1.add(crsFileTextField, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 0;
-    c.weightx = 0;
-    c.anchor = GridBagConstraints.WEST;
-    panel1.add(createBrowseButton(), c);
+    addFileSelector(panel, 0, crsFileTextField, createBrowseButton());
 
     // SECOND ROW
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 1;
-    c.weightx = 0;
-    c.anchor = GridBagConstraints.EAST;
-    label = new JLabel("Start with line", SwingConstants.RIGHT);
-    panel0.add(label, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 1;
-    c.weightx = 1f;
-    c.anchor = GridBagConstraints.WEST;
-    panel1 = new JPanel(new GridBagLayout());
-    panel0.add(panel1, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
+    addLabel(panel, 1, "Skip lines");
     skipLinesTextField = new JTextField(4);
     skipLinesTextField.setText("1");
-    panel1.add(skipLinesTextField, c);
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 0;
-    panel1.add(new JLabel("(Applicable for spreadsheets, CSV, TSV, etc.)"), c);
+    addTextFieldWithComment(panel, 1, skipLinesTextField,
+        "(Applicable for spreadsheets, CSV, TSV, etc.)");
 
     // THIRD ROW
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 2;
-    c.weightx = 0;
-    c.anchor = GridBagConstraints.EAST;
-    label = new JLabel("Sheet number", SwingConstants.RIGHT);
-    panel0.add(label, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 2;
-    c.weightx = 1f;
-    c.anchor = GridBagConstraints.WEST;
-    panel1 = new JPanel(new GridBagLayout());
-    panel0.add(panel1, c);
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
+    addLabel(panel, 2, "Sheet number");
     sheetNoTextField = new JTextField(4);
     sheetNoTextField.setText("1");
     sheetNoTextField.setEnabled(false);
-    panel1.add(sheetNoTextField, c);
-    c = new GridBagConstraints();
-    c.gridx = 1;
-    c.gridy = 0;
-    panel1.add(new JLabel("(Only applicable when importing from spreadsheet)"), c);
+    addTextFieldWithComment(panel, 2, sheetNoTextField,
+        "(Only applicable when importing from spreadsheet)");
 
-    // OK / CANCEL
-
-    c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 1;
-    c.weightx = 1f;
-    c.weighty = 0;
-    c.anchor = GridBagConstraints.SOUTH;
-
-    panel0 = new JPanel(new GridBagLayout());
-    panel0.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-    dialog.add(panel0, c);
-
-    panel0.add(createOkButton());
-    panel0.add(createCancelButton());
+    createOKCancelPanel(dialog, createOkButton());
 
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
@@ -179,7 +82,8 @@ class CrsFileSelector {
             crsFileTextField.setText(f.getAbsolutePath());
             if (f.getName().endsWith(".xls")) {
               sheetNoTextField.setEnabled(true);
-            } else {
+            }
+            else {
               sheetNoTextField.setEnabled(false);
             }
           }
@@ -189,44 +93,54 @@ class CrsFileSelector {
     return browseButton;
   }
 
-  private JButton createCancelButton() {
-    JButton cancelButton = new JButton("Cancel");
-    cancelButton.setPreferredSize(new Dimension(100, cancelButton.getPreferredSize().height));
-    cancelButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        dialog.dispose();
-      }
-    });
-    return cancelButton;
-  }
-
   private JButton createOkButton() {
     JButton okButton = new JButton("OK");
     okButton.setPreferredSize(new Dimension(100, okButton.getPreferredSize().height));
     okButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (StringUtils.isBlank(crsFileTextField.getText())) {
-          JOptionPane.showMessageDialog(dialog, "Please select a CRS file", "No CRS file selected",
-              JOptionPane.ERROR_MESSAGE);
-        } else {
-          File crsFile = new File(crsFileTextField.getText());
-          if (!crsFile.isFile()) {
-            JOptionPane.showMessageDialog(dialog, "Invalid file: " + crsFileTextField.getText(),
-                "Invalid file", JOptionPane.ERROR_MESSAGE);
-
-          } else {
-            dialog.dispose();
-            CrsProcessingOptions options = new CrsProcessingOptions();
-            options.setSkipHeader(skipHeaderCheckbox.isSelected());
-            processor.initialize(crsFile, options, selectedDocuments);
-            processor.process();
-          }
-        }
+        validateAndLaunch();
+        dialog.dispose();
       }
     });
     return okButton;
+  }
+
+  private void validateAndLaunch() {
+    if (StringUtils.isBlank(crsFileTextField.getText())) {
+      JOptionPane.showMessageDialog(dialog, "Please select a CRS file", "No CRS file selected",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    File crsFile = new File(crsFileTextField.getText());
+    if (!crsFile.isFile()) {
+      JOptionPane.showMessageDialog(dialog, "Invalid file: " + crsFileTextField.getText(),
+          "Invalid file", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    CrsProcessingOptions options = new CrsProcessingOptions(selectedDocuments);
+    options.setFile(crsFile);
+    try {
+      int i = Integer.parseInt(skipLinesTextField.getText());
+      options.setSkipLines(i);
+      RuntimeSettings.INSTANCE.setCrsSkipLines(i);
+    } catch (NumberFormatException exc) {
+      JOptionPane.showMessageDialog(dialog, "Invalid number: " + skipLinesTextField.getText(),
+          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    try {
+      int i = Integer.parseInt(sheetNoTextField.getText().trim());
+      options.setSheetNum(i);
+      RuntimeSettings.INSTANCE.setCrsSheetNum(i);
+    } catch (NumberFormatException exc) {
+      JOptionPane.showMessageDialog(dialog, "Invalid number: " + sheetNoTextField.getText(),
+          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    CrsProcessor processor = new CrsProcessor();
+    processor.initialize(options);
+    processor.process();
   }
 
 }

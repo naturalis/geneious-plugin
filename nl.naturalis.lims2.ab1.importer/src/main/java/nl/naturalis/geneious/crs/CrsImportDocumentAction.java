@@ -14,8 +14,7 @@ public class CrsImportDocumentAction extends DocumentAction {
       Dialogs.noDocumentsSelected();
       return;
     }
-    CrsProcessor processor = new CrsProcessor();
-    CrsFileSelector fileSelector = new CrsFileSelector(processor, selectedDocuments);
+    CrsFileSelector fileSelector = new CrsFileSelector(selectedDocuments);
     fileSelector.show();
   }
 
