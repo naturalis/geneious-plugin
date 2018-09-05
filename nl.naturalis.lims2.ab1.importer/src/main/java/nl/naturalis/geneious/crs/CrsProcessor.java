@@ -2,14 +2,14 @@ package nl.naturalis.geneious.crs;
 
 class CrsProcessor {
 
-  private CrsProcessingOptions options;
+  private final CrsProcessInput input;
 
-  void initialize(CrsProcessingOptions options) {
-    this.options = options;
+  CrsProcessor(CrsProcessInput input) {
+    this.input = input;
   }
 
   void process() {
-    System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: " );
+    System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: ");
   }
 
 }

@@ -28,7 +28,6 @@ import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 class SampleSheetProcessor {
 
@@ -36,17 +35,12 @@ class SampleSheetProcessor {
   private static final String DUMMY_PLATE_ID = "AA000";
   private static final String DUMMY_MARKER = "Dum";
 
+  private final SampleSheetProcessInput input;
   private final GuiLogger logger;
-  private final File sampleSheet;
-  private final List<AnnotatedPluginDocument> selectedDocuments;
-  private final boolean createDummies;
 
-  SampleSheetProcessor(File sampleSheet, List<AnnotatedPluginDocument> selectedDocuments,
-      boolean createDummies) {
-    this.logger = new GuiLogger(RuntimeSettings.INSTANCE.getLogLevel());
-    this.sampleSheet = sampleSheet;
-    this.selectedDocuments = selectedDocuments;
-    this.createDummies = createDummies;
+  SampleSheetProcessor(SampleSheetProcessInput input) {
+    this.logger = new GuiLogger();
+    this.input = input;
   }
 
   /**
@@ -57,7 +51,7 @@ class SampleSheetProcessor {
    */
   void process() {
     try {
-      if (createDummies) {
+      if (input.isCreateDummies()) {
         processWithDummies();
       }
       else {
@@ -69,11 +63,11 @@ class SampleSheetProcessor {
   }
 
   private void processWithDummies() {
-    Map<String, AnnotatedPluginDocument> selectedDocLookupTable = makeLookupTable(selectedDocuments);
-    List<String[]> rows = loadSampleSheet(sampleSheet);
+    Map<String, AnnotatedPluginDocument> selectedDocsLookupTable = makeLookupTable();
+    List<String[]> rows = loadSampleSheet(input.getFile());
     Set<String> nonExistentExtractIds;
     try {
-      nonExistentExtractIds = getNonExistentExtractIds(rows, selectedDocLookupTable);
+      nonExistentExtractIds = getNonExistentExtractIds(rows, selectedDocsLookupTable);
     } catch (DatabaseServiceException e) {
       logger.fatal("Error while executing query", e);
       return;
@@ -100,7 +94,7 @@ class SampleSheetProcessor {
       numValidRows++;
       note.setPcrPlateId(DUMMY_PLATE_ID);
       note.setMarker(DUMMY_MARKER);
-      AnnotatedPluginDocument apd = selectedDocLookupTable.get(note.getExtractId());
+      AnnotatedPluginDocument apd = selectedDocsLookupTable.get(note.getExtractId());
       if (apd == null) {
         if (nonExistentExtractIds.contains(note.getExtractId())) {
           logger.debug("Creating dummy document for extract ID %s", note.getExtractId());
@@ -121,16 +115,16 @@ class SampleSheetProcessor {
     DocumentUtilities.addGeneratedDocuments(apds, false);
     logger.info("Number of valid records in sample sheet: %s", numValidRows);
     logger.info("Number of empty/bad records in sample sheet: %s", numBadRows);
-    logger.info("Number of documents selected: %s", selectedDocuments.size());
+    logger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     logger.info("Number of documents enriched: %s", numEnrichments);
     logger.info("Number of dummy documents created: %s", numDummies);
     logger.info("Import completed successfully");
   }
 
   private void processWithoutDummies() {
-    Map<String, AnnotatedPluginDocument> selectedDocLookupTable = makeLookupTable(selectedDocuments);
-    List<String[]> rows = loadSampleSheet(sampleSheet);
-    List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(selectedDocuments.size());
+    Map<String, AnnotatedPluginDocument> selectedDocLookupTable = makeLookupTable();
+    List<String[]> rows = loadSampleSheet(input.getFile());
+    List<AnnotatedPluginDocument> apds = new ArrayList<>(input.getSelectedDocuments().length);
     int numValidRows = 0;
     int numBadRows = 0;
     int numEnrichments = 0;
@@ -162,22 +156,23 @@ class SampleSheetProcessor {
     DocumentUtilities.addGeneratedDocuments(apds, false);
     logger.info("Number of valid records in sample sheet: %s", numValidRows);
     logger.info("Number of empty/bad records in sample sheet: %s", numBadRows);
-    logger.info("Number of documents selected: %s", selectedDocuments.size());
+    logger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     logger.info("Number of documents enriched: %s", numEnrichments);
     logger.info("Import completed successfully");
   }
 
   /*
-   * If the user checks the option to create dummies, we must do so if: [1] the extract id of a sample
-   * sheet record does not exist anywhere in the database; [2] the extract id does not correspond to
-   * one of the records selected by the user in the GUI. The latter is of course implied by the
-   * former, because the selected records obviously also came from the database. But since Geneious
-   * hands us the selected records for free, we can discard them when constructing the database query,
-   * thus making the query a bit more light-weight.
+   * If the user checks the option to create dummies, we must do so if: [1] the extract id of a
+   * sample sheet record does not exist anywhere in the database; [2] the extract id does not
+   * correspond to one of the records selected by the user in the GUI. The latter is of course
+   * implied by the former, because the selected records obviously also came from the database. But
+   * since Geneious hands us the selected records for free, we can discard them when constructing
+   * the database query, thus making the query a bit more light-weight.
    */
   private Set<String> getNonExistentExtractIds(List<String[]> sampleSheetRows,
       Map<String, AnnotatedPluginDocument> selectedDocuments) throws DatabaseServiceException {
-    logger.info("Filtering sample sheet records with non-existent extract IDs (will become dummy documents)");
+    logger.info(
+        "Filtering sample sheet records with non-existent extract IDs (will become dummy documents)");
     Set<String> sampleSheetExtractIds = new HashSet<>(sampleSheetRows.size());
     List<Query> queries = new ArrayList<>(sampleSheetRows.size());
     DocumentField extractIdField = NaturalisField.EXTRACT_ID.createQueryField();
@@ -189,8 +184,8 @@ class SampleSheetProcessor {
       sampleSheetExtractIds.add(extractId);
       if (selectedDocuments.keySet().contains(extractId)) {
         /*
-         * Then we already know we should NOT create a dummy document for this extract ID, so we don't
-         * create a needless WHERE clause for it.
+         * Then we already know we should NOT create a dummy document for this extract ID, so we
+         * don't create a needless WHERE clause for it.
          */
         continue;
       }
@@ -204,8 +199,8 @@ class SampleSheetProcessor {
         .getGeneiousService("geneious@jdbc:mysql:__145.136.241.66:3306_geneious");
     List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
     /*
-     * So these are documents whose extract ID corresonds to at least one sample sheet record. Now get
-     * the remaining sample sheet records for which we DO have to create a dummy document.
+     * So these are documents whose extract ID corresonds to at least one sample sheet record. Now
+     * get the remaining sample sheet records for which we DO have to create a dummy document.
      */
     Set<String> dbExtractIds = new HashSet<>(apds.size());
     for (AnnotatedPluginDocument apd : apds) {
@@ -238,10 +233,11 @@ class SampleSheetProcessor {
    * Create a lookup table that maps the extract IDs of the selected documents to the selected
    * documents themselves.
    */
-  private Map<String, AnnotatedPluginDocument> makeLookupTable(List<AnnotatedPluginDocument> docs) {
+  private Map<String, AnnotatedPluginDocument> makeLookupTable() {
     logger.debug("Creating lookup table for selected documents");
-    Map<String, AnnotatedPluginDocument> map = new HashMap<>(docs.size() + 1, 1.0F);
-    for (AnnotatedPluginDocument doc : docs) {
+    Map<String, AnnotatedPluginDocument> map =
+        new HashMap<>(input.getSelectedDocuments().length + 1, 1.0F);
+    for (AnnotatedPluginDocument doc : input.getSelectedDocuments()) {
       String val = (String) EXTRACT_ID.getValue(doc);
       if (val != null) {
         map.put(val, doc);

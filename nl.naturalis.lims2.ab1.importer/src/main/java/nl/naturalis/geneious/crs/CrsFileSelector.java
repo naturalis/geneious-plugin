@@ -118,11 +118,11 @@ class CrsFileSelector {
           "Invalid file", JOptionPane.ERROR_MESSAGE);
       return;
     }
-    CrsProcessingOptions options = new CrsProcessingOptions(selectedDocuments);
-    options.setFile(crsFile);
+    CrsProcessInput input = new CrsProcessInput(selectedDocuments);
+    input.setFile(crsFile);
     try {
       int i = Integer.parseInt(skipLinesTextField.getText());
-      options.setSkipLines(i);
+      input.setSkipLines(i);
       RuntimeSettings.INSTANCE.setCrsSkipLines(i);
     } catch (NumberFormatException exc) {
       JOptionPane.showMessageDialog(dialog, "Invalid number: " + skipLinesTextField.getText(),
@@ -131,16 +131,14 @@ class CrsFileSelector {
     }
     try {
       int i = Integer.parseInt(sheetNoTextField.getText().trim());
-      options.setSheetNum(i);
+      input.setSheetNum(i);
       RuntimeSettings.INSTANCE.setCrsSheetNum(i);
     } catch (NumberFormatException exc) {
       JOptionPane.showMessageDialog(dialog, "Invalid number: " + sheetNoTextField.getText(),
           "Invalid number", JOptionPane.ERROR_MESSAGE);
       return;
     }
-    CrsProcessor processor = new CrsProcessor();
-    processor.initialize(options);
-    processor.process();
+    new CrsProcessor(input).process();
   }
 
 }

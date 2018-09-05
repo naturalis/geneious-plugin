@@ -1,75 +1,100 @@
 package nl.naturalis.geneious.samplesheet;
 
-import java.awt.GridLayout;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addFileSelector;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addLabel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addTextFieldWithComment;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.createFormPanel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.*;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 class SampleSheetSelector {
 
-  @SuppressWarnings("static-method")
+  private final AnnotatedPluginDocument[] selectedDocuments;
+
+  private JDialog dialog;
+  private JTextField fileTextField;
+  private JCheckBox dummiesCheckBox;
+  private JTextField sheetNoTextField;
+  private JTextField skipLinesTextField;
+
+  SampleSheetSelector(AnnotatedPluginDocument[] docs) {
+    this.selectedDocuments = docs;
+  }
+
   void show() {
 
-    JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
-    dialog.setTitle("Select sample sheet");
+    dialog = new JDialog(GuiUtilities.getMainFrame());
+    dialog.setTitle("Select CRS file");
+    dialog.setLayout(new GridBagLayout());
 
-    JPanel root = new JPanel();
-    root.setLayout(new GridLayout(3, 1));
+    JPanel panel = createFormPanel(dialog);
 
-    JPanel row0 = new JPanel();
-    row0.add(new JLabel("Sample sheet"));
-    JTextField sampleSheetLocation = new JTextField(40);
-    row0.add(sampleSheetLocation);
-    row0.add(createBrowseButton(dialog, sampleSheetLocation));
-    root.add(row0);
+    // FIRST ROW
+    addLabel(panel, 0, "Sample sheet");
+    fileTextField = new JTextField(50);
+    addFileSelector(panel, 0, fileTextField, createBrowseButton());
 
-    List<AnnotatedPluginDocument> docs = DocumentUtilities.getSelectedDocuments();
+    // SECOND ROW
+    addLabel(panel, 1, "Dummies");
+    dummiesCheckBox = new JCheckBox();
+    dummiesCheckBox.setSelected(true);
+    addCheckboxWithComment(panel, 1, dummiesCheckBox,
+        "Create dummy documents for non-existing extract IDs");
 
-    JPanel row1 = new JPanel();
-    JCheckBox createDummiesCheckbox = new JCheckBox();
-    if (docs.isEmpty()) {
-      createDummiesCheckbox.setSelected(true);
-    }
-    row1.add(createDummiesCheckbox);
-    row1.add(new JLabel("Create dummies for unknown Extract IDs"));
-    root.add(row1);
+    // THIRD ROW
+    addLabel(panel, 2, "Skip lines");
+    skipLinesTextField = new JTextField(4);
+    skipLinesTextField.setText("1");
+    addTextFieldWithComment(panel, 2, skipLinesTextField,
+        "(Applicable for spreadsheets, CSV, TSV, etc.)");
 
-    JPanel row2 = new JPanel();
-    row2.add(createCancelButton(dialog));
-    row2.add(createOkButton(dialog, sampleSheetLocation, createDummiesCheckbox, docs));
-    root.add(row2);
+    // FOURTH ROW
+    addLabel(panel, 3, "Sheet number");
+    sheetNoTextField = new JTextField(4);
+    sheetNoTextField.setText("1");
+    sheetNoTextField.setEnabled(false);
+    addTextFieldWithComment(panel, 3, sheetNoTextField,
+        "(Only applicable when importing from spreadsheet)");
 
-    dialog.setContentPane(root);
+    createOKCancelPanel(dialog, createOkButton());
+
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
     dialog.setVisible(true);
   }
 
-  private static JButton createBrowseButton(JDialog dialog, JTextField sampleSheetLocation) {
+  private JButton createBrowseButton() {
     JButton browseButton = new JButton("Browse");
     browseButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        JFileChooser fc = new JFileChooser(RuntimeSettings.INSTANCE.getSampleSheetFolder());
+        JFileChooser fc = new JFileChooser(RuntimeSettings.INSTANCE.getCrsFolder());
         if (fc.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
-          RuntimeSettings.INSTANCE.setSampleSheetFolder(fc.getCurrentDirectory());
+          RuntimeSettings.INSTANCE.setCrsFolder(fc.getCurrentDirectory());
           File f = fc.getSelectedFile();
           if (f != null) {
-            sampleSheetLocation.setText(f.getAbsolutePath());
+            fileTextField.setText(f.getAbsolutePath());
+            if (f.getName().endsWith(".xls")) {
+              sheetNoTextField.setEnabled(true);
+            }
+            else {
+              sheetNoTextField.setEnabled(false);
+            }
           }
         }
       }
@@ -77,49 +102,59 @@ class SampleSheetSelector {
     return browseButton;
   }
 
-  private static JButton createCancelButton(JDialog dialog) {
-    JButton cancelButton = new JButton("Cancel");
-    cancelButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        dialog.dispose();
-      }
-    });
-    return cancelButton;
-  }
-
-  private static JButton createOkButton(JDialog dialog, JTextField sampleSheetLocation,
-      JCheckBox createDummiesCheckBox, List<AnnotatedPluginDocument> docs) {
+  private JButton createOkButton() {
     JButton okButton = new JButton("OK");
+    okButton.setPreferredSize(new Dimension(100, okButton.getPreferredSize().height));
     okButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (StringUtils.isBlank(sampleSheetLocation.getText())) {
-          JOptionPane.showMessageDialog(dialog, "Please select a sample sheet", "No sample sheet selected",
-              JOptionPane.ERROR_MESSAGE);
-        }
-        else if (docs.isEmpty() && !createDummiesCheckBox.isSelected()) {
-          JOptionPane.showMessageDialog(dialog,
-              "Please select at least one document or choose to create dummies", "No document selected",
-              JOptionPane.ERROR_MESSAGE);
-        }
-        else {
-          File sampleSheet = new File(sampleSheetLocation.getText());
-          if (!sampleSheet.isFile()) {
-            JOptionPane.showMessageDialog(dialog, "Invalid file: " + sampleSheet.getName(), "Invalid file",
-                JOptionPane.ERROR_MESSAGE);
-
-          }
-          else {
-            dialog.dispose();
-            SampleSheetProcessor ssp =
-                new SampleSheetProcessor(sampleSheet, docs, createDummiesCheckBox.isSelected());
-            ssp.process();
-          }
-        }
+        validateAndLaunch();
+        dialog.dispose();
       }
     });
     return okButton;
+  }
+
+  private void validateAndLaunch() {
+    if (StringUtils.isBlank(fileTextField.getText())) {
+      JOptionPane.showMessageDialog(dialog, "Please select a Sample sheet", "No sample sheet selected",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    File file = new File(fileTextField.getText());
+    if (!file.isFile()) {
+      JOptionPane.showMessageDialog(dialog, "Invalid file: " + fileTextField.getText(),
+          "Invalid file", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    if (selectedDocuments.length == 0 && !dummiesCheckBox.isSelected()) {
+      JOptionPane.showMessageDialog(dialog,
+          "Please select at least one document or choose to create dummies", "No document selected",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    SampleSheetProcessInput input = new SampleSheetProcessInput(selectedDocuments);
+    input.setFile(file);
+    input.setCreateDummies(dummiesCheckBox.isSelected());
+    try {
+      int i = Integer.parseInt(skipLinesTextField.getText());
+      input.setSkipLines(i);
+      RuntimeSettings.INSTANCE.setCrsSkipLines(i);
+    } catch (NumberFormatException exc) {
+      JOptionPane.showMessageDialog(dialog, "Invalid number: " + skipLinesTextField.getText(),
+          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    try {
+      int i = Integer.parseInt(sheetNoTextField.getText().trim());
+      input.setSheetNum(i);
+      RuntimeSettings.INSTANCE.setCrsSheetNum(i);
+    } catch (NumberFormatException exc) {
+      JOptionPane.showMessageDialog(dialog, "Invalid number: " + sheetNoTextField.getText(),
+          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    new SampleSheetProcessor(input).process();
   }
 
 }

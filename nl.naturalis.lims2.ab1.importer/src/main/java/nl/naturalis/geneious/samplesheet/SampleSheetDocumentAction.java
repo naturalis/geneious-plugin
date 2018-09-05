@@ -13,7 +13,7 @@ public class SampleSheetDocumentAction extends DocumentAction {
 
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] docs) {
-    new SampleSheetSelector().show();
+    new SampleSheetSelector(docs).show();
   }
 
   @Override

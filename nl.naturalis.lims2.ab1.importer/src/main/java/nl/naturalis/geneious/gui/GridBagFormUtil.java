@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -66,7 +67,26 @@ public class GridBagFormUtil {
     c.gridx = 1;
     c.gridy = 0;
     subPanel.add(new JLabel(comment), c);
+  }
 
+  public static void addCheckboxWithComment(JPanel panel, int row, JCheckBox input,
+      String comment) {
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = row;
+    c.weightx = 1f;
+    c.anchor = GridBagConstraints.WEST;
+    JPanel subPanel = new JPanel(new GridBagLayout());
+    panel.add(subPanel, c);
+
+    c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    subPanel.add(input, c);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    subPanel.add(new JLabel(comment), c);
   }
 
   public static JPanel createFormPanel(JDialog dialog) {

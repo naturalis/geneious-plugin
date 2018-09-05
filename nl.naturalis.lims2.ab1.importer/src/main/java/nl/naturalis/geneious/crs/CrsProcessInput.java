@@ -3,14 +3,14 @@ package nl.naturalis.geneious.crs;
 import java.io.File;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-class CrsProcessingOptions {
+class CrsProcessInput {
 
   private AnnotatedPluginDocument[] selectedDocuments;
   private File file;
   private int skipLines;
   private int sheetNum;
 
-  public CrsProcessingOptions(AnnotatedPluginDocument[] selectedDocuments) {
+  public CrsProcessInput(AnnotatedPluginDocument[] selectedDocuments) {
     this.selectedDocuments = selectedDocuments;
   }
 
