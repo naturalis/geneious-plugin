@@ -14,7 +14,12 @@ import static nl.naturalis.geneious.note.NaturalisField.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.note.NaturalisField.SEQUENCING_STAFF;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import static com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 
+/**
+ * A container for all data that we enrich Geneious documents with through the various plugins. Different plugins will populate different
+ * fields of a NaturalisNote instance. This class contains a method for adding all (and only) non-empty fields to a Geneious document.
+ */
 public class NaturalisNote {
 
   private Integer documentVersion;
@@ -33,8 +38,13 @@ public class NaturalisNote {
 
   public NaturalisNote() {}
 
+  /**
+   * Adds all non-empty fields to the provided AnnotatedPluginDocument instance.
+   * 
+   * @param doc
+   */
   public void attach(AnnotatedPluginDocument doc) {
-    AnnotatedPluginDocument.DocumentNotes notes = doc.getDocumentNotes(true);
+    DocumentNotes notes = doc.getDocumentNotes(true);
     addNoteIfNotNull(notes, DOCUMENT_VERSION, documentVersion);
     addNoteIfNotNull(notes, PCR_PLATE_ID, pcrPlateId);
     addNoteIfNotNull(notes, MARKER, marker);
@@ -51,8 +61,7 @@ public class NaturalisNote {
     notes.saveNotes();
   }
 
-  private static void addNoteIfNotNull(AnnotatedPluginDocument.DocumentNotes notes,
-      NaturalisField nf, Object val) {
+  private static void addNoteIfNotNull(DocumentNotes notes, NaturalisField nf, Object val) {
     if (val != null) {
       notes.setNote(nf.newNote(val));
     }

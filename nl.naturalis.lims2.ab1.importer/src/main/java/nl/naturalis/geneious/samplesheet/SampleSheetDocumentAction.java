@@ -5,6 +5,9 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
+/**
+ * The "Sample Sheet Import" plugin class.
+ */
 public class SampleSheetDocumentAction extends DocumentAction {
 
   public SampleSheetDocumentAction() {
@@ -19,8 +22,10 @@ public class SampleSheetDocumentAction extends DocumentAction {
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("Sample Sheet")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools).setInMainToolbar(true)
-        .setInPopupMenu(true).setAvailableToWorkflows(true);
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
+        .setInMainToolbar(true)
+        .setInPopupMenu(true)
+        .setAvailableToWorkflows(true);
   }
 
   @Override
