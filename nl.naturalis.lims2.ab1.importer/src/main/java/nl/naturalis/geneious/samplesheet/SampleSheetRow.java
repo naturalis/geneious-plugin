@@ -85,7 +85,7 @@ class SampleSheetRow {
       EXTRACT_ID);
 
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
-  private static final String ERR_CELL_COUNT = ERR_BASE + "Too few fields (%s). Row must have at least %s fields.";
+  private static final String ERR_CELL_COUNT = ERR_BASE + "Invalid number of columns: %s";
   private static final String ERR_MISSING_VALUE = ERR_BASE + "Missing value for field %s";
   private static final String ERR_INVALID_VALUE = ERR_BASE + "Invalid value for field %s: \"%s\"";
 
@@ -93,7 +93,7 @@ class SampleSheetRow {
   private final String[] cells;
 
   /**
-   * Creates a SampleSheetRow for the specied row number in the sample sheet containing the specified cell values.
+   * Creates a SampleSheetRow for the specied row number and cell values.
    * 
    * @param rowNum
    * @param cells
@@ -120,9 +120,9 @@ class SampleSheetRow {
    * @throws InvalidRowException
    */
   NaturalisNote extractNote() throws InvalidRowException {
-    String[] cells;
-    if ((cells = this.cells).length < 7) {
-      throw new InvalidRowException(String.format(ERR_CELL_COUNT, rowNum, cells.length, 7));
+    String[] cells = this.cells;
+    if (cells.length < 7) {
+      throw invalidColumnCount(rowNum, cells);
     }
     for (NaturalisField nf : required) {
       if (isBlank(get(nf))) {
@@ -146,6 +146,10 @@ class SampleSheetRow {
 
   private String get(NaturalisField nf) {
     return cells[cols.get(nf)];
+  }
+
+  private static InvalidRowException invalidColumnCount(int rowNum, String[] cells) {
+    return new InvalidRowException(String.format(ERR_CELL_COUNT, rowNum, cells.length));
   }
 
   private InvalidRowException missingValue(NaturalisField field) {

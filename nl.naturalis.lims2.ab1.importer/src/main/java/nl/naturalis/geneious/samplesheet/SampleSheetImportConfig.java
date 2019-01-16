@@ -3,15 +3,15 @@ package nl.naturalis.geneious.samplesheet;
 import java.io.File;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-class SampleSheetProcessInput {
+class SampleSheetImportConfig {
 
   private final AnnotatedPluginDocument[] selectedDocuments;
   private File file;
   private boolean createDummies;
   private int skipLines;
-  private int sheetNum;
+  private int sheetNumber;
 
-  SampleSheetProcessInput(AnnotatedPluginDocument[] selectedDocuments) {
+  SampleSheetImportConfig(AnnotatedPluginDocument[] selectedDocuments) {
     this.selectedDocuments = selectedDocuments;
   }
 
@@ -43,12 +43,12 @@ class SampleSheetProcessInput {
     this.skipLines = skipLines;
   }
 
-  int getSheetNum() {
-    return sheetNum;
+  int getSheetNumber() {
+    return sheetNumber;
   }
 
-  void setSheetNum(int sheetNum) {
-    this.sheetNum = sheetNum;
+  void setSheetNumber(int sheetNum) {
+    this.sheetNumber = sheetNum;
   }
 
 }

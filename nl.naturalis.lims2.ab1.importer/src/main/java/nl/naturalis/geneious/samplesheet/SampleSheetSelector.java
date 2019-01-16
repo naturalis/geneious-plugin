@@ -39,7 +39,7 @@ class SampleSheetSelector {
   void show() {
 
     dialog = new JDialog(GuiUtilities.getMainFrame());
-    dialog.setTitle("Select CRS file");
+    dialog.setTitle("Select sample sheet");
     dialog.setLayout(new GridBagLayout());
 
     JPanel panel = createFormPanel(dialog);
@@ -91,8 +91,7 @@ class SampleSheetSelector {
             fileTextField.setText(f.getAbsolutePath());
             if (f.getName().endsWith(".xls")) {
               sheetNoTextField.setEnabled(true);
-            }
-            else {
+            } else {
               sheetNoTextField.setEnabled(false);
             }
           }
@@ -117,23 +116,20 @@ class SampleSheetSelector {
 
   private void validateAndLaunch() {
     if (StringUtils.isBlank(fileTextField.getText())) {
-      JOptionPane.showMessageDialog(dialog, "Please select a Sample sheet", "No sample sheet selected",
-          JOptionPane.ERROR_MESSAGE);
+      showError("No sample sheet selected", "Please select a sample sheet");
       return;
     }
     File file = new File(fileTextField.getText());
     if (!file.isFile()) {
-      JOptionPane.showMessageDialog(dialog, "Invalid file: " + fileTextField.getText(),
-          "Invalid file", JOptionPane.ERROR_MESSAGE);
+      String msg = String.format("No such file: \"%s\"", fileTextField.getText());
+      showError("No such file", msg);
       return;
     }
     if (selectedDocuments.length == 0 && !dummiesCheckBox.isSelected()) {
-      JOptionPane.showMessageDialog(dialog,
-          "Please select at least one document or choose to create dummies", "No document selected",
-          JOptionPane.ERROR_MESSAGE);
+      showError("No documents selected", "Please select at least one document or check to \"Create dummies\"");
       return;
     }
-    SampleSheetProcessInput input = new SampleSheetProcessInput(selectedDocuments);
+    SampleSheetImportConfig input = new SampleSheetImportConfig(selectedDocuments);
     input.setFile(file);
     input.setCreateDummies(dummiesCheckBox.isSelected());
     try {
@@ -141,20 +137,24 @@ class SampleSheetSelector {
       input.setSkipLines(i);
       RuntimeSettings.INSTANCE.setCrsSkipLines(i);
     } catch (NumberFormatException exc) {
-      JOptionPane.showMessageDialog(dialog, "Invalid number: " + skipLinesTextField.getText(),
-          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      String msg = String.format("Invalid number: \"%s\"", skipLinesTextField.getText());
+      showError("Invalid number", msg);
       return;
     }
     try {
       int i = Integer.parseInt(sheetNoTextField.getText().trim());
-      input.setSheetNum(i);
+      input.setSheetNumber(i);
       RuntimeSettings.INSTANCE.setCrsSheetNum(i);
     } catch (NumberFormatException exc) {
-      JOptionPane.showMessageDialog(dialog, "Invalid number: " + sheetNoTextField.getText(),
-          "Invalid number", JOptionPane.ERROR_MESSAGE);
+      String msg = String.format("Invalid number: \"%s\"", sheetNoTextField.getText());
+      showError("Invalid number", msg);
       return;
     }
-    new SampleSheetProcessor(input).process();
+    new SampleSheetImporter(input).process();
+  }
+
+  private void showError(String title, String message) {
+    JOptionPane.showMessageDialog(dialog, message, title, JOptionPane.ERROR_MESSAGE);
   }
 
 }

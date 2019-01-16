@@ -1,26 +1,44 @@
 package nl.naturalis.geneious.gui.log;
 
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+import javax.swing.JDialog;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+
+import nl.naturalis.geneious.util.RuntimeSettings;
+
+import static java.util.Arrays.copyOfRange;
+
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.ERROR;
 import static nl.naturalis.geneious.gui.log.LogLevel.FATAL;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JDialog;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Collects log messages in order to send them to the Geneious UI.
+ * A looger sending its output to the Geneious GUI.
  * 
  * @author Ayco Holleman
  *
  */
 public class GuiLogger {
+
+  /**
+   * Provides some syntactic sugar when using the Supplier-based log methods. The first element is supposed to be the message pattern and
+   * the remaining elements the message arguments passed to String.format.
+   * 
+   * @param messageElements
+   * @return
+   */
+  public static Object[] format(Object... messageElements) {
+    return messageElements;
+  }
 
   private static final String NEWLINE = System.getProperty("line.separator");
 
@@ -56,6 +74,14 @@ public class GuiLogger {
     record(DEBUG, message, null, msgArgs);
   }
 
+  public void debug(Supplier<String> msgSupplier) {
+    record(DEBUG, msgSupplier, null);
+  }
+
+  public void debugf(Supplier<Object[]> msgSupplier) {
+    recordf(DEBUG, msgSupplier, null);
+  }
+
   public void info(String message, Object... msgArgs) {
     record(INFO, message, null, msgArgs);
   }
@@ -83,9 +109,30 @@ public class GuiLogger {
   private void record(LogLevel level, String msg, Throwable t, Object... msgArgs) {
     if (level.ordinal() >= logLevel.ordinal()) {
       if (msgArgs.length > 0) {
-        msg = String.format(msg, msgArgs);
+        records.add(new LogRecord(level, String.format(msg, msgArgs), t));
+      } else {
+        records.add(new LogRecord(level, msg, t));
       }
-      records.add(new LogRecord(level, msg, t));
+    }
+  }
+
+  private void record(LogLevel level, Supplier<String> msgSupplier, Throwable t) {
+    if (level.ordinal() >= logLevel.ordinal()) {
+      records.add(new LogRecord(level, msgSupplier.get(), t));
+    }
+  }
+
+  private void recordf(LogLevel level, Supplier<Object[]> msgSupplier, Throwable t) {
+    if (level.ordinal() >= logLevel.ordinal()) {
+      Object[] chunks = msgSupplier.get();
+      if (chunks.length == 0) {
+        throw new IllegalArgumentException("Supplied string array must contain at least one element");
+      } else if (chunks.length == 1) {
+        records.add(new LogRecord(level, chunks[0].toString(), t));
+      } else {
+        String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length - 1));
+        records.add(new LogRecord(level, msg, t));
+      }
     }
   }
 
