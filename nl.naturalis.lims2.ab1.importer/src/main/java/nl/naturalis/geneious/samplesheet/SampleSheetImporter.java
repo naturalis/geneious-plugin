@@ -81,14 +81,16 @@ class SampleSheetImporter {
       return;
     }
     List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(rows.size());
-    int numValidRows = 0;
-    int numBadRows = 0;
-    int numEnrichments = 0;
-    int numDummies = 0;
+    int good = 0;
+    int bad = 0;
+    int enriched = 0;
+    int dummies = 0;
     SampleSheetRow row;
     for (int i = 1; i < rows.size(); i++) {
       if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
-        numBadRows++;
+        final int rowNum = i;
+        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", rowNum));
+        ++bad;
         continue;
       }
       NaturalisNote note;
@@ -96,10 +98,10 @@ class SampleSheetImporter {
         note = row.extractNote();
       } catch (InvalidRowException e) {
         guiLogger.error(e.getMessage());
-        numBadRows++;
+        ++bad;
         continue;
       }
-      numValidRows++;
+      ++good;
       note.setPcrPlateId(DUMMY_PLATE_ID);
       note.setMarker(DUMMY_MARKER);
       AnnotatedPluginDocument apd = lookups.get(note.getExtractId());
@@ -110,21 +112,21 @@ class SampleSheetImporter {
           apd = DocumentUtilities.createAnnotatedPluginDocument(nsd);
           note.attach(apd);
           apds.add(apd);
-          numDummies++;
+          ++dummies;
         }
       } else {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
         note.attach(apd);
         apds.add(apd);
-        numEnrichments++;
+        ++enriched;
       }
     }
     DocumentUtilities.addGeneratedDocuments(apds, false);
-    guiLogger.info("Number of valid records in sample sheet: %s", numValidRows);
-    guiLogger.info("Number of empty/bad records in sample sheet: %s", numBadRows);
+    guiLogger.info("Number of valid records in sample sheet: %s", good);
+    guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", config.getSelectedDocuments().length);
-    guiLogger.info("Number of documents enriched: %s", numEnrichments);
-    guiLogger.info("Number of dummy documents created: %s", numDummies);
+    guiLogger.info("Number of documents enriched: %s", enriched);
+    guiLogger.info("Number of dummy documents created: %s", dummies);
     guiLogger.info("Import completed successfully");
   }
 
@@ -200,7 +202,7 @@ class SampleSheetImporter {
     // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
     List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
     Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-    apds.forEach(apd->oldIds.add(EXTRACT_ID.getValue(apd).toString()));
+    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
     newIds.removeAll(oldIds);
     newIds.removeAll(selectedDocuments.keySet());
     guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
@@ -244,7 +246,7 @@ class SampleSheetImporter {
    */
   private Map<String, AnnotatedPluginDocument> createLookupTable() {
     int numSelected = config.getSelectedDocuments().length;
-    guiLogger.debugf(()->format("Creating lookup table for %s documents selected by user"));
+    guiLogger.debugf(() -> format("Creating lookup table for %s documents selected by user"));
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(numSelected, 1F);
     for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
       String val = (String) EXTRACT_ID.getValue(doc);

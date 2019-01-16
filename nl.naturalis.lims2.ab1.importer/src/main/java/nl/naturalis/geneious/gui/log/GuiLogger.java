@@ -130,7 +130,7 @@ public class GuiLogger {
       } else if (chunks.length == 1) {
         records.add(new LogRecord(level, chunks[0].toString(), t));
       } else {
-        String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length - 1));
+        String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length));
         records.add(new LogRecord(level, msg, t));
       }
     }

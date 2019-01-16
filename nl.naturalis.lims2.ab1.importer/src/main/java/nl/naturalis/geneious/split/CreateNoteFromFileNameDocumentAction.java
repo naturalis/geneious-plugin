@@ -5,6 +5,7 @@ import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDo
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
+
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 
@@ -15,18 +16,18 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
     GuiLogger logger = new GuiLogger();
     int good = 0;
     int bad = 0;
+    FileNameParser parser = new FileNameParser();
     try {
       for (AnnotatedPluginDocument doc : selectedDocuments) {
         NaturalisNote note;
         try {
-          note = new FileNameParser(doc.getName()).parse();
+          note = parser.parse(doc.getName());
+          note.attach(doc);
+          ++good;
         } catch (BadFileNameException e) {
           logger.error(e.getMessage());
-          bad++;
-          continue;
+          ++bad;
         }
-        note.attach(doc);
-        good++;
       }
     } finally {
       logger.info("Number of documents selected: %s", selectedDocuments.length);
@@ -39,8 +40,10 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("Split Name")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools).setInMainToolbar(true)
-        .setInPopupMenu(true).setAvailableToWorkflows(true);
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
+        .setInMainToolbar(true)
+        .setInPopupMenu(true)
+        .setAvailableToWorkflows(true);
   }
 
   @Override

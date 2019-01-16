@@ -30,7 +30,7 @@ public class TraceFileDocumentOperation extends DocumentOperation {
     fileChooser.setMultiSelectionEnabled(true);
     if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
-      return new TraceFileProcessor(fileChooser.getSelectedFiles()).process();
+      return new TraceFileProcessorImporter(fileChooser.getSelectedFiles()).process();
     }
     return Collections.emptyList();
   }
