@@ -1,10 +1,8 @@
 package nl.naturalis.geneious.note;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
-import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
-import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.setNoteType;
-import static java.util.Collections.emptyList;
+import java.util.Arrays;
 import java.util.List;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
@@ -12,8 +10,14 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
-import edu.emory.mathcs.backport.java.util.Arrays;
+
 import nl.naturalis.geneious.util.RuntimeSettings;
+
+import static java.util.Collections.emptyList;
+
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.setNoteType;
 
 public enum NaturalisField {
 
