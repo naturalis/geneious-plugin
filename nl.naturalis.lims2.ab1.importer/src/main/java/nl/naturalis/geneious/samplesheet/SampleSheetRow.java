@@ -27,6 +27,11 @@ import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
 class SampleSheetRow {
 
   /**
+   * The mininum number of cells a sample sheet row must contain.
+   */
+  static final int MIN_CELL_COUNT;
+
+  /**
    * Column containing the extract plate ID (0).
    */
   static final int COL_EXTRACT_PLATE_ID = 0;
@@ -76,6 +81,8 @@ class SampleSheetRow {
     cols.put(REGISTRATION_NUMBER, COL_REG_NO);
     cols.put(SCIENTIFIC_NAME, COL_SCI_NAME);
     cols.put(EXTRACTION_METHOD, COL_EXTRACTION_METHOD);
+
+    MIN_CELL_COUNT = cols.values().stream().max(Integer::compareTo).get();
   }
 
   private static final EnumSet<NaturalisField> required = EnumSet.of(
@@ -121,7 +128,7 @@ class SampleSheetRow {
    */
   NaturalisNote extractNote() throws InvalidRowException {
     String[] cells = this.cells;
-    if (cells.length < 7) {
+    if (cells.length < MIN_CELL_COUNT) {
       throw invalidColumnCount(rowNum, cells);
     }
     for (NaturalisField nf : required) {
