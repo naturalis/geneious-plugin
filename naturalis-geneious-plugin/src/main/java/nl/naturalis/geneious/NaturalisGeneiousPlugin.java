@@ -18,7 +18,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getAuthors() {
-    return "Wilfred Gerritsen, Denise de Haan, Ayco Holleman, Judith Slaa, Chantal SlegtenHorst Oscar Vorst";
+    return "Rudy Broekhuizen, Wilfred Gerritsen, Ayco Holleman, Judith Slaa, Chantal SlegtenHorst, Nick Stolk, Oscar Vorst";
   }
 
   @Override
