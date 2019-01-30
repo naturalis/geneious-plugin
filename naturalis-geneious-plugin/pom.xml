@@ -89,6 +89,11 @@
             <artifactId>guava-base</artifactId>
             <version>r03</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -143,6 +148,7 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                     <format>properties</format>
+                    <dateFormat>yyyy-MM-dd HH:mm</dateFormat>
                 </configuration>
                 <executions>
                     <execution>

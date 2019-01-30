@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -24,8 +24,7 @@ public class SpreadSheetReader {
     this.file = file;
   }
 
-  public List<String[]> readAllRows()
-      throws EncryptedDocumentException, InvalidFormatException, IOException {
+  public List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
     Workbook workbook = WorkbookFactory.create(file);
     if (sheetNumber > workbook.getNumberOfSheets()) {
       // TODO throw something
