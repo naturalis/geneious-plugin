@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>nl.naturalis.geneious</groupId>
+    <artifactId>naturalis-geneious-plugin</artifactId>
+    <version>1.0</version>
+
+    <name>Naturalis Geneious Plugin</name>
+    <description>Naturalis Geneious Plugin</description>
+
+    <properties>
+
+        <!-- ==================================================================== -->
+        <!-- ***  Build settings                                              *** -->
+        <!-- ==================================================================== -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <GeneiousFiles.dir>/home/ayco/apps/geneious-2019.0.4-devkit/examples/GeneiousFiles</GeneiousFiles.dir>              
+
+        <!-- ==================================================================== -->
+        <!-- ***  Library dependencies                                        *** -->
+        <!-- ***  Check for updates: mvn versions:display-dependency-updates  *** -->
+        <!-- ***  Check dependencies: mvn dependency:analyze                  *** -->
+        <!-- ==================================================================== -->
+        <mysql-connector-java.version>5.1.47</mysql-connector-java.version>
+        <junit.version>4.12</junit.version>       
+
+        <!-- ==================================================================== -->
+        <!-- ***  Maven plugin versions                                       *** -->
+        <!-- ***  Check for updates: mvn versions:display-plugin-updates      *** -->
+        <!-- ==================================================================== -->
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+
+    </properties>
+
+
+    <organization>
+        <name>Naturalis Biodiversity Center</name>
+        <url>http://www.naturalis.nl</url>
+    </organization>
+
+    <dependencies>
+        <dependency>
+            <groupId>geneious</groupId>
+            <artifactId>GeneiousPublicAPI</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>${GeneiousFiles.dir}/lib/GeneiousPublicAPI.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.univocity</groupId>
+            <artifactId>univocity-parsers</artifactId>
+            <version>2.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-base</artifactId>
+            <version>r03</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <showDeprecation>true</showDeprecation>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>echo_hello</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/test.sh</executable>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
