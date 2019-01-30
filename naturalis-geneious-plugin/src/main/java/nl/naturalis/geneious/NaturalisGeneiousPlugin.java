@@ -1,6 +1,7 @@
 package nl.naturalis.geneious;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
@@ -17,13 +18,13 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public Icons getIcons() {
-    return IconUtilities.getIconsFromJar(getClass(), "/naturalis.ico");
+    return IconUtilities.getIconsFromJar(getClass(), "/naturalis.jpg");
   }
 
   @Override
   @SuppressWarnings("rawtypes")
   public List<PluginPreferences> getPluginPreferences() {
-    return super.getPluginPreferences();
+    return Arrays.asList(new NaturalisPluginPreferences());
   }
 
   @Override
