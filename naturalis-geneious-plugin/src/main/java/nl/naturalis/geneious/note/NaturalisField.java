@@ -33,13 +33,11 @@ public enum NaturalisField {
   EXTRACTION_METHOD("SampleMethodCode_Samples", "Extraction method (Samples)"),
   SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)"),
   AMPLIFICATION_STAFF("AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)"),
-  REGNO_PLUS_SCI_NAME(
-      "RegistrationNumberCode_TaxonName2Code_Samples",
-      "Registr-nmbr_[Scientific_name] (Samples)"),
+  REGNO_PLUS_SCI_NAME("RegistrationNumberCode_TaxonName2Code_Samples", "Registr-nmbr_[Scientific_name] (Samples)"),
   /*
    * CRS fields:
    */
-  
+
   /*
    * BOLD fields:
    */
@@ -54,12 +52,13 @@ public enum NaturalisField {
 
   private final String code;
   private final String name;
-  private final DocumentNoteType noteType;
+
+  private DocumentNoteType noteType;
 
   private NaturalisField(String code, String name) {
     this.code = code;
     this.name = name;
-    this.noteType = myNoteType(name, code);
+    // this.noteType = myNoteType(name, code);
   }
 
   public Object getValue(AnnotatedPluginDocument doc) {
@@ -78,6 +77,9 @@ public enum NaturalisField {
   }
 
   public DocumentNoteType getNoteType() {
+    if (noteType == null) {
+      noteType = myNoteType(name, code);
+    }
     return noteType;
   }
 
@@ -92,13 +94,11 @@ public enum NaturalisField {
   }
 
   /*
-   * N.B. The way note types and note fields are named and created here is odd and awkward, but it
-   * is a legacy from the V1 plugins that we cannot change, because query logic depends on it. For
-   * each field a separate note type is created. The name of the note type is the same as the name
-   * of the (single) field within that note type. The code of the note type is NOT the same as the
-   * code of the field. It is the same as the field name but prefixed with "DocumentNoteUtilities-".
-   * The description of the note type and field is basically non-sensical, but we leave it as it
-   * was.
+   * N.B. The way note types and note fields are named and created here is odd and awkward, but it is a legacy from the V1 plugins that we
+   * cannot change. Query logic depends on it. For each field a separate note type is created. The name of the note type is the same as the
+   * name of the (single) field within that note type. The code of the note type is NOT the same as the code of the field. It is the same as
+   * the field name but prefixed with "DocumentNoteUtilities-". The description of the note type and field is basically non-sensical, but we
+   * leave it as it was.
    */
   private static DocumentNoteType myNoteType(String fieldName, String fieldCode) {
     String noteTypeCode = NOTE_TYPE_CODE_PREFIX + fieldName;
@@ -107,16 +107,14 @@ public enum NaturalisField {
       String noteTypeName = fieldName;
       String noteTypeDescr = "Naturalis file " + fieldName + " note";
       String fieldDescr = noteTypeDescr;
-      DocumentNoteField noteField =
-          createTextNoteField(fieldName, fieldDescr, fieldCode, emptyList(), false);
+      DocumentNoteField noteField = createTextNoteField(fieldName, fieldDescr, fieldCode, emptyList(), false);
       List<DocumentNoteField> noteFields = Arrays.asList(new DocumentNoteField[] {noteField});
       noteType = createNewNoteType(noteTypeName, noteTypeCode, noteTypeDescr, noteFields, true);
       setNoteType(noteType);
     } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
       /*
-       * Whether or not the note type must be regenerated even if it is already registered with
-       * Geneious. In production this should never be the case, because it is wasteful. During
-       * development though (in between Geneious sessions) the definition of the note type may
+       * Whether or not the note type must be regenerated even if it is already registered with Geneious. In production this should never be
+       * the case, because it is wasteful. During development though (in between Geneious sessions) the definition of the note type may
        * change and we must inform Geneious about this change.
        */
       List<DocumentNoteField> fields = noteType.getFields();
@@ -124,8 +122,7 @@ public enum NaturalisField {
         noteType.removeField(field.getCode());
       }
       String fieldDescr = fieldCode;
-      DocumentNoteField noteField =
-          createTextNoteField(fieldCode, fieldDescr, fieldCode, emptyList(), false);
+      DocumentNoteField noteField = createTextNoteField(fieldCode, fieldDescr, fieldCode, emptyList(), false);
       noteType.setField(noteField);
       setNoteType(noteType);
     }
