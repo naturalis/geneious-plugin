@@ -23,17 +23,18 @@ public class TraceFileDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("AB1/Fasta Import").setInMainToolbar(true).setInPopupMenu(true)
+    return new GeneiousActionOptions("AB1/Fasta Import")
+        .setInMainToolbar(true)
+        .setInPopupMenu(true)
         .setAvailableToWorkflows(true);
   }
 
-  public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs,
-      ProgressListener progress, Options options) {
+  public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
     fileChooser.setMultiSelectionEnabled(true);
     if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
-      return new TraceFileProcessorImporter(fileChooser.getSelectedFiles()).process();
+      return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
     }
     return Collections.emptyList();
   }

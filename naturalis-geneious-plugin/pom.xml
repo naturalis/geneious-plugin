@@ -32,8 +32,9 @@
         <!-- ***  Check for updates: mvn versions:display-plugin-updates      *** -->
         <!-- ==================================================================== -->
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
 
     </properties>
 
@@ -50,6 +51,13 @@
             <version>1</version>
             <scope>system</scope>
             <systemPath>${GeneiousFiles.dir}/lib/GeneiousPublicAPI.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>geneious</groupId>
+            <artifactId>jebl</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>${GeneiousFiles.dir}/lib/jebl.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -83,13 +91,72 @@
         </dependency>
     </dependencies>
 
-
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/git-dummy</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>${git-commit-id-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <format>properties</format>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-git-properties</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
                     <release>11</release>
@@ -98,7 +165,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>echo_hello</id>
@@ -111,11 +177,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
             </plugin>
         </plugins>
     </build>

@@ -20,12 +20,12 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-public class TraceFileProcessorImporter {
+public class TraceFileImporter {
 
   private final GuiLogger guiLogger;
   private final File[] files;
 
-  public TraceFileProcessorImporter(File[] traceFiles) {
+  public TraceFileImporter(File[] traceFiles) {
     this.guiLogger = new GuiLogger(RuntimeSettings.INSTANCE.getLogLevel());
     this.files = traceFiles;
   }
