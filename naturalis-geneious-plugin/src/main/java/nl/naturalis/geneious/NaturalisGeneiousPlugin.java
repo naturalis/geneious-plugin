@@ -11,6 +11,7 @@ import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
+import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
 import nl.naturalis.geneious.tracefile.TraceFileDocumentOperation;
 
@@ -30,6 +31,9 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public void initialize(File pluginUserDirectory, File pluginDirectory) {
     super.initialize(pluginUserDirectory, pluginDirectory);
+    if (!System.getProperty("file.encoding").equals("UTF-8")) {
+      ShowDialog.invalidEncoding(System.getProperty("file.encoding"));
+    }
   }
 
   @Override
@@ -78,7 +82,13 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getVersion() {
-    return "2.0.0";
+    // Geneious will crash with strings like V2.0.0-ALPHA. Only 2.0.0 allowed.
+    String version = PluginInfo.getInstance().getVersion();
+    int i = version.indexOf('-');
+    if (i == -1) {
+      return version.substring(1);
+    }
+    return version.substring(1, i);
   }
 
 }

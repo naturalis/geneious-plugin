@@ -58,7 +58,7 @@ public enum NaturalisField {
   private NaturalisField(String code, String name) {
     this.code = code;
     this.name = name;
-    // this.noteType = myNoteType(name, code);
+    this.noteType = myNoteType(name, code);
   }
 
   public Object getValue(AnnotatedPluginDocument doc) {
@@ -77,9 +77,6 @@ public enum NaturalisField {
   }
 
   public DocumentNoteType getNoteType() {
-    if (noteType == null) {
-      noteType = myNoteType(name, code);
-    }
     return noteType;
   }
 

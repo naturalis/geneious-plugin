@@ -29,6 +29,7 @@ public class TraceFileDocumentOperation extends DocumentOperation {
         .setAvailableToWorkflows(true);
   }
 
+  @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
     fileChooser.setMultiSelectionEnabled(true);

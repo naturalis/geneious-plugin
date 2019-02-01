@@ -11,7 +11,7 @@ import javax.swing.JTextArea;
 
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
-import nl.naturalis.geneious.util.RuntimeSettings;
+import nl.naturalis.geneious.NaturalisPreferencesOptions;
 
 import static java.util.Arrays.copyOfRange;
 
@@ -46,7 +46,11 @@ public class GuiLogger {
   private final LogLevel logLevel;
 
   public GuiLogger() {
-    this(RuntimeSettings.INSTANCE.getLogLevel());
+    if (NaturalisPreferencesOptions.STATE.isDebug()) {
+      this.logLevel = LogLevel.DEBUG;
+    } else {
+      this.logLevel = LogLevel.INFO;
+    }
   }
 
   public GuiLogger(LogLevel logLevel) {

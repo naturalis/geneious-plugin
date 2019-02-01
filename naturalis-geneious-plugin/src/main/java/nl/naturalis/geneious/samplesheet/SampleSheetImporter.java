@@ -66,6 +66,8 @@ class SampleSheetImporter {
           enrichSelectedDocuments(rows);
         }
       }
+    } catch (Throwable t) {
+      guiLogger.fatal("Unexpected error while importing sample sheet", t);
     } finally {
       guiLogger.showLog("Sample sheet import log");
     }
@@ -197,8 +199,7 @@ class SampleSheetImporter {
     Query[] queryArray = queries.toArray(new Query[queries.size()]);
     Query query = Query.Factory.createOrQuery(queryArray, Collections.emptyMap());
     guiLogger.debug(() -> "Searching database for provided extract IDs");
-    DatabaseService ds = (DatabaseService) PluginUtilities
-        .getGeneiousService("geneious@jdbc:mysql:__145.136.241.66:3306_geneious");
+    DatabaseService ds = (DatabaseService) PluginUtilities.getGeneiousService("geneious@jdbc:mysql:__145.136.241.66:3306_geneious");
     // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
     List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
     Set<String> oldIds = new HashSet<>(apds.size(), 1F);

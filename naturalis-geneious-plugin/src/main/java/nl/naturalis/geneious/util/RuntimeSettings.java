@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.Properties;
 import nl.naturalis.geneious.gui.log.LogLevel;
 
+/**
+ * Stores various kinds of user actions like the most recently selected folder for sample sheets.
+ */
 public class RuntimeSettings {
 
   private static final String SETTING_FILE = System.getProperty("user.home")
@@ -44,6 +47,10 @@ public class RuntimeSettings {
     }
   }
 
+  /**
+   * Get most recently selected AB1/fasta folder.
+   * @return
+   */
   public File getAb1FastaFolder() {
     if (ab1FastaFolder == null) {
       String path = props.getProperty(AB1_FASTA_FOLDER, System.getProperty("user.home"));
@@ -52,6 +59,10 @@ public class RuntimeSettings {
     return ab1FastaFolder;
   }
 
+  /**
+   * Set most recently selected AB1/fasta folder.
+   * @return
+   */
   public void setAb1FastaFolder(File traceFileFolder) {
     if (!traceFileFolder.equals(this.ab1FastaFolder)) {
       this.ab1FastaFolder = traceFileFolder;
@@ -60,6 +71,10 @@ public class RuntimeSettings {
     }
   }
 
+  /**
+   * Get most recently selected sample sheet folder.
+   * @return
+   */
   public File getSampleSheetFolder() {
     if (sampleSheetFolder == null) {
       String path = props.getProperty(SAMPLE_SHEET_FOLDER, System.getProperty("user.home"));
@@ -68,6 +83,10 @@ public class RuntimeSettings {
     return sampleSheetFolder;
   }
 
+  /**
+   * Set most recently selected sample sheet folder.
+   * @return
+   */
   public void setSampleSheetFolder(File sampleSheetFolder) {
     if (!sampleSheetFolder.equals(this.sampleSheetFolder)) {
       this.sampleSheetFolder = sampleSheetFolder;
@@ -143,9 +162,8 @@ public class RuntimeSettings {
   }
 
   /**
-   * Whether or not document note types should always be regenerated, even if note type already
-   * exists. This should really only be true during development, when the definition of a note type
-   * may change.
+   * Whether or not document note types should always be regenerated, even if note type already exists. This should really only be true
+   * during development, when the definition of a note type may change.
    * 
    * @return
    */

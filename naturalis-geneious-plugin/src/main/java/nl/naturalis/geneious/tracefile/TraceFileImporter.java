@@ -13,7 +13,6 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.BadFileNameException;
 import nl.naturalis.geneious.split.FileNameParser;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
@@ -25,18 +24,28 @@ public class TraceFileImporter {
   private final GuiLogger guiLogger;
   private final File[] files;
 
+  /**
+   * Creates a new trace file importer that imports the specified files.
+   * 
+   * @param traceFiles
+   */
   public TraceFileImporter(File[] traceFiles) {
-    this.guiLogger = new GuiLogger(RuntimeSettings.INSTANCE.getLogLevel());
+    this.guiLogger = new GuiLogger();
     this.files = traceFiles;
   }
 
+  /**
+   * Imports the trace files.
+   * 
+   * @return
+   */
   public List<AnnotatedPluginDocument> process() {
     List<AnnotatedPluginDocument> result = new ArrayList<>(files.length);
-    int imported = 0;
-    int rejected = 0;
-    int enriched = 0;
-    FileNameParser parser = new FileNameParser();
     try {
+      int imported = 0;
+      int rejected = 0;
+      int enriched = 0;
+      FileNameParser parser = new FileNameParser();
       for (File f : files) {
         guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
         List<AnnotatedPluginDocument> apds;
@@ -68,6 +77,8 @@ public class TraceFileImporter {
       guiLogger.info("Number of files imported: %s", imported);
       guiLogger.info("Number of files rejected: %s", rejected);
       guiLogger.info("Number of documents enriched using file name: %s", enriched);
+    } catch (Throwable t) {
+      guiLogger.fatal("Unexpected error while importing files", t);
     } finally {
       guiLogger.showLog("Fasta/AB1 import log");
     }

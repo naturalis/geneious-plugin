@@ -4,14 +4,14 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
-import nl.naturalis.geneious.gui.Dialogs;
+import nl.naturalis.geneious.gui.ShowDialog;
 
 public class CrsImportDocumentAction extends DocumentAction {
 
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
     if (selectedDocuments.length == 0) {
-      Dialogs.noDocumentsSelected();
+      ShowDialog.noDocumentsSelected();
       return;
     }
     CrsFileSelector fileSelector = new CrsFileSelector(selectedDocuments);
