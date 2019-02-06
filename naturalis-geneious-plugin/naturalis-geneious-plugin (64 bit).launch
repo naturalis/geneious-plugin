@@ -21,10 +21,11 @@
     </listAttribute>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
     <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-11.0.2"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.biomatters.iseek.application.ISeekMain"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="extraPlugins=&quot;nl.naturalis.geneious.NaturalisGeneiousPlugin&quot;"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="naturalis-geneious-plugin"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseConcMarkSweepGC -ea -Xss512K -Xms256M -Xmx768M -XX:MaxPermSize=256M -Djava.util.logging.config.file=no_logging.properties --add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xss512K&#10;-Xms256M&#10;-Xmx2048M&#10;-XX:+UseConcMarkSweepGC&#10;--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED&#10;-Djava.util.logging.config.file=no_logging.properties"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:GeneiousFiles}"/>
 </launchConfiguration>

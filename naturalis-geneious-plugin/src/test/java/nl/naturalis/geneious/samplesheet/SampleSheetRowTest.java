@@ -5,17 +5,18 @@ import com.biomatters.geneious.publicapi.plugin.TestGeneious;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import static nl.naturalis.geneious.samplesheet.SampleSheetRow.COL_EXTRACTION_METHOD;
 import static nl.naturalis.geneious.samplesheet.SampleSheetRow.MIN_CELL_COUNT;
 
 public class SampleSheetRowTest {
-  
+
   @BeforeClass
   public static void init() {
-    TestGeneious. initialize();
-    //TestGeneious. initializeAllPlugins();    
+    TestGeneious.initializeAllPlugins();
   }
 
   @Test
@@ -26,11 +27,11 @@ public class SampleSheetRowTest {
   @Test
   public void isEmpty_01() {
     String[] cells = new String[] {
-      null,
-      "",
-      " ",
-      "\t",
-      " \t \n"
+        null,
+        "",
+        " ",
+        "\t",
+        " \t \n"
     };
     assertTrue(new SampleSheetRow(1, cells).isEmpty());
   }
@@ -38,11 +39,11 @@ public class SampleSheetRowTest {
   @Test
   public void isEmpty_02() {
     String[] cells = new String[] {
-      null,
-      "",
-      " ",
-      "\t",
-      " \tHello World\n"
+        null,
+        "",
+        " ",
+        "\t",
+        " \tHello World\n"
     };
     assertFalse(new SampleSheetRow(1, cells).isEmpty());
   }

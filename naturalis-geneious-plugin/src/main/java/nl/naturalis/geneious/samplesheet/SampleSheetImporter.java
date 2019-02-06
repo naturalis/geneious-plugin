@@ -20,13 +20,13 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.URN;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
-import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.SpreadSheetReader;
@@ -199,14 +199,14 @@ class SampleSheetImporter {
     Query[] queryArray = queries.toArray(new Query[queries.size()]);
     Query query = Query.Factory.createOrQuery(queryArray, Collections.emptyMap());
     guiLogger.debug(() -> "Searching database for provided extract IDs");
-    DatabaseService ds = (DatabaseService) PluginUtilities.getGeneiousService("geneious@jdbc:mysql:__145.136.241.66:3306_geneious");
-    // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
-    List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
-    Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
-    newIds.removeAll(oldIds);
-    newIds.removeAll(selectedDocuments.keySet());
-    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
+//    DatabaseService ds = NaturalisPreferencesOptions.STATE.getDatabase();
+//    // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
+//    List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
+//    Set<String> oldIds = new HashSet<>(apds.size(), 1F);
+//    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
+//    newIds.removeAll(oldIds);
+//    newIds.removeAll(selectedDocuments.keySet());
+//    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
     return newIds;
   }
 

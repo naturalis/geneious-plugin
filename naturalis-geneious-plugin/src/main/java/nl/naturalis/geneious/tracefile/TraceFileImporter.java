@@ -57,6 +57,12 @@ public class TraceFileImporter {
           ++rejected;
           continue;
         }
+        for(AnnotatedPluginDocument apd:apds) {
+          System.out.println("XXXXX document type: " + apd.getDocumentType());
+          System.out.println("XXXXX document name: " + apd.getName());
+          System.out.println("XXXXX doc name: " + apd.getDocument().getName());
+          System.out.println("XXXXX doc class: " + apd.getDocument().getClass());
+        }
         if (apds.size() != 1) {
           guiLogger.fatal("Unexpected number of documents created from a single file: %s. Aborting.", apds.size());
           break;

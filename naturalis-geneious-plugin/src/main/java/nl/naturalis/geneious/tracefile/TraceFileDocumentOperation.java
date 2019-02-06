@@ -10,6 +10,7 @@ import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
+import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import jebl.util.ProgressListener;
@@ -31,11 +32,15 @@ public class TraceFileDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
+    System.out.println("destination: " + ServiceUtilities.getResultsDestination().getUniqueID());
+    System.out.println("selected: " + ServiceUtilities.getSelectedService().getUniqueID());
     JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
     fileChooser.setMultiSelectionEnabled(true);
     if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
       return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
+     //String path="/home/ayco/Downloads/Demo data setje/Traces/e25918193_Oxy_syl_RL007_COI-H2198.ab1";
+      
     }
     return Collections.emptyList();
   }

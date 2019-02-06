@@ -25,6 +25,15 @@ public class GridBagFormUtil {
     panel.add(new JLabel(label, SwingConstants.RIGHT), c);
   }
 
+  public static void addText(JPanel panel, int row, String label) {
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = row;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.WEST;
+    panel.add(new JLabel(label, SwingConstants.LEFT), c);
+  }
+
   public static void addFileSelector(JPanel panel, int row, JTextField fileField,
       JButton browseButton) {
     GridBagConstraints c = new GridBagConstraints();

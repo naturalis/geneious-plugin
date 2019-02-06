@@ -68,8 +68,7 @@ class SampleSheetSelector {
     sheetNoTextField = new JTextField(4);
     sheetNoTextField.setText("1");
     sheetNoTextField.setEnabled(false);
-    addTextFieldWithComment(panel, 3, sheetNoTextField,
-        "(Only applicable when importing from spreadsheet)");
+    addTextFieldWithComment(panel, 3, sheetNoTextField, "(Only applicable when importing from spreadsheet)");
 
     createOKCancelPanel(dialog, createOkButton());
 
