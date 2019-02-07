@@ -22,6 +22,10 @@ public class PluginInfo {
 
   private PluginInfo() {
     InputStream is = getClass().getResourceAsStream("/git.properties");
+    if (is == null) {
+      // Can only happen during development
+      throw new RuntimeException("Yo, run Maven -> Update Project...");
+    }
     Properties props = new Properties();
     try {
       props.load(is);

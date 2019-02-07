@@ -26,6 +26,9 @@ import nl.naturalis.geneious.gui.ShowDialog;
  */
 public class CommonUtils {
 
+  /*
+   * Dummy database service assigned to AnnotatedPluginDocument instances whose getDatabase() method returns null.
+   */
   private static final DatabaseService NULL_DB = new DatabaseService() {
     @Override
     public String getUniqueID() {

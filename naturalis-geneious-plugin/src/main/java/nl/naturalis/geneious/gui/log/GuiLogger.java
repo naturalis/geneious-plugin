@@ -12,6 +12,7 @@ import javax.swing.JTextArea;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
+import nl.naturalis.geneious.gui.GeneiousGUI;
 
 import static java.util.Arrays.copyOfRange;
 
@@ -27,7 +28,15 @@ import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
  * @author Ayco Holleman
  *
  */
-public class GuiLogger {
+public class GuiLogger implements AutoCloseable {
+
+  private static final ThreadLocal<GuiLogger> threadLocal = ThreadLocal.withInitial(GuiLogger::new);
+
+  private static final String NEWLINE = System.getProperty("line.separator");
+
+  public static GuiLogger getLogger() {
+    return threadLocal.get();
+  }
 
   /**
    * Provides some syntactic sugar when using the Supplier-based log methods. The first element is supposed to be the message pattern and
@@ -39,8 +48,6 @@ public class GuiLogger {
   public static Object[] format(Object... messageElements) {
     return messageElements;
   }
-
-  private static final String NEWLINE = System.getProperty("line.separator");
 
   private final List<LogRecord> records = new ArrayList<>();
   private final LogLevel logLevel;
@@ -69,6 +76,7 @@ public class GuiLogger {
     }
     JScrollPane scrollPane = new JScrollPane(textArea);
     dialog.setContentPane(scrollPane);
+    GeneiousGUI.offsetComponent(dialog);
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
     dialog.setVisible(true);
@@ -108,6 +116,11 @@ public class GuiLogger {
 
   public void fatal(String message, Throwable throwable, Object... msgArgs) {
     record(FATAL, message, throwable, msgArgs);
+  }
+
+  @Override
+  public void close() {
+    threadLocal.remove();
   }
 
   private void record(LogLevel level, String msg, Throwable t, Object... msgArgs) {

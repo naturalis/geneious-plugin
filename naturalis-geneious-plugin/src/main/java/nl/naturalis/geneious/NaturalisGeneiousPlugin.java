@@ -82,7 +82,9 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getVersion() {
-    // Geneious will crash with strings like V2.0.0-ALPHA. Only 2.0.0 allowed.
+    /*
+     * Geneious does not allow version name like V2.0.0-ALPHA. Only 2.0.0 is allowed for this particular example.
+     */
     String version = PluginInfo.getInstance().getVersion();
     int i = version.indexOf('-');
     if (i == -1) {

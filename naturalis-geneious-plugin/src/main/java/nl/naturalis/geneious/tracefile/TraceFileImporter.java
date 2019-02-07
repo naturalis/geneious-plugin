@@ -21,7 +21,8 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
  */
 public class TraceFileImporter {
 
-  private final GuiLogger guiLogger;
+  private static final GuiLogger guiLogger = GuiLogger.getLogger();
+  
   private final File[] files;
 
   /**
@@ -30,7 +31,6 @@ public class TraceFileImporter {
    * @param traceFiles
    */
   public TraceFileImporter(File[] traceFiles) {
-    this.guiLogger = new GuiLogger();
     this.files = traceFiles;
   }
 
@@ -41,53 +41,41 @@ public class TraceFileImporter {
    */
   public List<AnnotatedPluginDocument> process() {
     List<AnnotatedPluginDocument> result = new ArrayList<>(files.length);
-    try {
-      int imported = 0;
-      int rejected = 0;
-      int enriched = 0;
-      FileNameParser parser = new FileNameParser();
-      for (File f : files) {
-        guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
-        List<AnnotatedPluginDocument> apds;
-        try {
-          apds = PluginUtilities.importDocuments(f, null);
-          ++imported;
-        } catch (IOException | DocumentImportException e) {
-          guiLogger.error("Error processing file %s", e, f.getAbsolutePath());
-          ++rejected;
-          continue;
-        }
-        for(AnnotatedPluginDocument apd:apds) {
-          System.out.println("XXXXX document type: " + apd.getDocumentType());
-          System.out.println("XXXXX document name: " + apd.getName());
-          System.out.println("XXXXX doc name: " + apd.getDocument().getName());
-          System.out.println("XXXXX doc class: " + apd.getDocument().getClass());
-        }
-        if (apds.size() != 1) {
-          guiLogger.fatal("Unexpected number of documents created from a single file: %s. Aborting.", apds.size());
-          break;
-        }
-        try {
-          NaturalisNote note = parser.parse(f.getName());
-          if (note != null) {
-            note.attach(apds.get(0));
-            ++enriched;
-          }
-        } catch (BadFileNameException e) {
-          guiLogger.error(e.getMessage());
-          continue;
-        }
-        result.addAll(apds);
+    int imported = 0;
+    int rejected = 0;
+    int enriched = 0;
+    FileNameParser parser = new FileNameParser();
+    for (File f : files) {
+      guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
+      List<AnnotatedPluginDocument> apds;
+      try {
+        apds = PluginUtilities.importDocuments(f, null);
+        ++imported;
+      } catch (IOException | DocumentImportException e) {
+        guiLogger.error("Error processing file %s", e, f.getAbsolutePath());
+        ++rejected;
+        continue;
       }
-      guiLogger.info("Number of files selected: %s", files.length);
-      guiLogger.info("Number of files imported: %s", imported);
-      guiLogger.info("Number of files rejected: %s", rejected);
-      guiLogger.info("Number of documents enriched using file name: %s", enriched);
-    } catch (Throwable t) {
-      guiLogger.fatal("Unexpected error while importing files", t);
-    } finally {
-      guiLogger.showLog("Fasta/AB1 import log");
+      if (apds.size() != 1) {
+        guiLogger.fatal("Unexpected number of documents created from a single file: %s. Aborting.", apds.size());
+        break;
+      }
+      try {
+        NaturalisNote note = parser.parse(f.getName());
+        if (note != null) {
+          note.attach(apds.get(0));
+          ++enriched;
+        }
+      } catch (BadFileNameException e) {
+        guiLogger.error(e.getMessage());
+        continue;
+      }
+      result.addAll(apds);
     }
+    guiLogger.info("Number of files selected: %s", files.length);
+    guiLogger.info("Number of files imported: %s", imported);
+    guiLogger.info("Number of files rejected: %s", rejected);
+    guiLogger.info("Number of documents enriched: %s", enriched);
     return result;
   }
 
