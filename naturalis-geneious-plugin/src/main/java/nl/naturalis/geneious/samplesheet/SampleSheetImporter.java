@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.Query;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -25,8 +24,7 @@ import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jebl.util.ProgressListener;
-import nl.naturalis.geneious.NaturalisPreferencesOptions;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.SpreadSheetReader;
@@ -39,15 +37,15 @@ import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
  */
 class SampleSheetImporter {
 
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
+
   private static final String DUMMY_NUCLEOTIDE_SEQUENCE = "NNNNNNNNNN";
   private static final String DUMMY_PLATE_ID = "AA000";
   private static final String DUMMY_MARKER = "Dum";
 
   private final SampleSheetImportConfig config;
-  private final GuiLogger guiLogger;
 
   SampleSheetImporter(SampleSheetImportConfig input) {
-    this.guiLogger = new GuiLogger();
     this.config = input;
   }
 
@@ -69,7 +67,7 @@ class SampleSheetImporter {
     } catch (Throwable t) {
       guiLogger.fatal("Unexpected error while importing sample sheet", t);
     } finally {
-      guiLogger.showLog("Sample sheet import log");
+      GuiLogManager.showLogAndClose("Sample sheet import log");
     }
   }
 
@@ -199,14 +197,14 @@ class SampleSheetImporter {
     Query[] queryArray = queries.toArray(new Query[queries.size()]);
     Query query = Query.Factory.createOrQuery(queryArray, Collections.emptyMap());
     guiLogger.debug(() -> "Searching database for provided extract IDs");
-//    DatabaseService ds = NaturalisPreferencesOptions.STATE.getDatabase();
-//    // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
-//    List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
-//    Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-//    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
-//    newIds.removeAll(oldIds);
-//    newIds.removeAll(selectedDocuments.keySet());
-//    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
+    // DatabaseService ds = NaturalisPreferencesOptions.STATE.getDatabase();
+    // // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
+    // List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
+    // Set<String> oldIds = new HashSet<>(apds.size(), 1F);
+    // apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
+    // newIds.removeAll(oldIds);
+    // newIds.removeAll(selectedDocuments.keySet());
+    // guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
     return newIds;
   }
 

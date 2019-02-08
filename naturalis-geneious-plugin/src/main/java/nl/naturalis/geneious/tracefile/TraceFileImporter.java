@@ -9,6 +9,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
+import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.BadFileNameException;
@@ -21,7 +22,7 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
  */
 public class TraceFileImporter {
 
-  private static final GuiLogger guiLogger = GuiLogger.getLogger();
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
   
   private final File[] files;
 

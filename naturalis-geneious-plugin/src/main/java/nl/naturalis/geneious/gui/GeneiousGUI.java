@@ -80,8 +80,8 @@ public class GeneiousGUI {
    * @param component
    * @param offset
    */
-  public static void offsetComponent(Component component) {
-    offsetComponent(component, 250);
+  public static void position(Component component) {
+    position(component, 250);
   }
 
   /**
@@ -91,8 +91,8 @@ public class GeneiousGUI {
    * @param component
    * @param offset
    */
-  public static void offsetComponent(Component component, int offset) {
-    offsetComponent(component, offset, offset);
+  public static void position(Component component, int offset) {
+    position(component, offset, offset);
   }
 
   /**
@@ -102,10 +102,10 @@ public class GeneiousGUI {
    * @param fromLeft
    * @param fromTop
    */
-  public static void offsetComponent(Component component, int fromLeft, int fromTop) {
+  public static void position(Component component, int fromLeft, int fromTop) {
     int maxW = GuiUtilities.getMainFrame().getWidth() - (2 * fromLeft);
     int maxH = GuiUtilities.getMainFrame().getHeight() - (2 * fromTop);
-    offsetComponent(component, fromLeft, fromTop, fromLeft, fromTop, maxW, maxH);
+    position(component, fromLeft, fromTop, fromLeft, fromTop, maxW, maxH);
   }
 
   /**
@@ -116,8 +116,8 @@ public class GeneiousGUI {
    * @param fromTop
    * @param maxLen
    */
-  public static void offsetComponent(Component component, int fromLeft, int fromTop, int maxLen) {
-    offsetComponent(component, fromLeft, fromTop, fromLeft, fromTop, maxLen, maxLen);
+  public static void position(Component component, int fromLeft, int fromTop, int maxLen) {
+    position(component, fromLeft, fromTop, fromLeft, fromTop, maxLen, maxLen);
   }
 
   /**
@@ -131,7 +131,7 @@ public class GeneiousGUI {
    * @param maxW
    * @param maxH
    */
-  public static void offsetComponent(Component component, int fromLeft, int fromTop, int fromRight, int fromBottom, int maxW, int maxH) {
+  public static void position(Component component, int fromLeft, int fromTop, int fromRight, int fromBottom, int maxW, int maxH) {
     Preconditions.checkArgument(fromLeft >= 0, "fromLeft must be >= 0");
     Preconditions.checkArgument(fromTop >= 0, "fromTop must be >= 0");
     Preconditions.checkArgument(fromRight >= 0, "fromRight must be >= 0");
@@ -145,9 +145,6 @@ public class GeneiousGUI {
     // Ensure component has a minium width and height;
     w = Math.max(DEFAULT_MIN_WIDTH, w);
     h = Math.max(DEFAULT_MIN_HEIGHT, h);
-    // But also ensure component is never bigger than main window;
-    w = Math.min(GuiUtilities.getMainFrame().getWidth(), w);
-    h = Math.min(GuiUtilities.getMainFrame().getHeight(), h);
     component.setPreferredSize(new Dimension(w, h));
   }
 

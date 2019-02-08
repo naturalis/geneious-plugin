@@ -1,13 +1,16 @@
 package nl.naturalis.geneious.bold;
 
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+
+import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.RuntimeSettings;
+
+import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
 
 class BOLDProcessor {
 
@@ -18,17 +21,16 @@ class BOLDProcessor {
 
   BOLDProcessor(File sampleSheet, List<AnnotatedPluginDocument> selectedDocuments,
       boolean createDummies) {
-    this.logger = new GuiLogger(RuntimeSettings.INSTANCE.getLogLevel());
+    this.logger = GuiLogManager.getLogger(BOLDProcessor.class);
     this.boldFile = sampleSheet;
     this.selectedDocuments = selectedDocuments;
     this.skipHeader = createDummies;
   }
 
   /**
-   * Enriches the selected documents with data from the sample sheet. Documents and sample sheet
-   * records are linked using their extract ID. In addition, if requested by the user, this routine
-   * will create dummy documents from sample sheet records IF their extract ID does not exist yet in
-   * the database.
+   * Enriches the selected documents with data from the sample sheet. Documents and sample sheet records are linked using their extract ID.
+   * In addition, if requested by the user, this routine will create dummy documents from sample sheet records IF their extract ID does not
+   * exist yet in the database.
    */
   void process() {
     List<String[]> rows = loadBoldFile();
@@ -40,8 +42,7 @@ class BOLDProcessor {
   }
 
   /*
-   * Create a lookup table that maps the extract IDs of the selected documents to the selected
-   * documents themselves.
+   * Create a lookup table that maps the extract IDs of the selected documents to the selected documents themselves.
    */
   private Map<String, AnnotatedPluginDocument> makeLookupTable(List<AnnotatedPluginDocument> docs) {
     logger.debug("Creating lookup table for selected documents");

@@ -6,14 +6,16 @@ import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
+import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
 
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CreateNoteFromFileNameDocumentAction.class);
+
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
-    GuiLogger logger = new GuiLogger();
     int good = 0;
     int bad = 0;
     FileNameParser parser = new FileNameParser();
@@ -25,15 +27,15 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
           note.attach(doc);
           ++good;
         } catch (BadFileNameException e) {
-          logger.error(e.getMessage());
+          guiLogger.error(e.getMessage());
           ++bad;
         }
       }
     } finally {
-      logger.info("Number of documents selected: %s", selectedDocuments.length);
-      logger.info("Number of documents enriched: %s", good);
-      logger.info("Number of unprocessable documents: %s", bad);
-      logger.showLog("Split Name log");
+      guiLogger.info("Number of documents selected: %s", selectedDocuments.length);
+      guiLogger.info("Number of documents enriched: %s", good);
+      guiLogger.info("Number of unprocessable documents: %s", bad);
+      GuiLogManager.showLogAndClose("Split Name log");
     }
   }
 

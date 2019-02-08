@@ -13,14 +13,12 @@ import nl.naturalis.geneious.NaturalisPreferencesOptions;
 
 public class Ab1FastaFileFilter extends FileFilter {
 
-  static final Ab1FastaFileFilter INSTANCE = new Ab1FastaFileFilter();
-
   @Override
   public boolean accept(File f) {
-    if (exts.contains("*")) {
+    if (exts.isEmpty()) {
       return true;
     }
-    return exts.stream().filter(ext -> f.getName().endsWith("." + ext)).findFirst().isPresent();
+    return exts.stream().filter(ext -> f.getName().endsWith(ext)).findFirst().isPresent();
   }
 
   @Override
@@ -30,23 +28,35 @@ public class Ab1FastaFileFilter extends FileFilter {
 
   private final Set<String> exts;
 
-  private Ab1FastaFileFilter() {
+  Ab1FastaFileFilter() {
     exts = getFileExtensions();
   }
 
   private static Set<String> getFileExtensions() {
     Set<String> exts = new HashSet<>();
-    String s = NaturalisPreferencesOptions.STATE.getAb1Extensions();
-    if (StringUtils.isBlank(s)) {
-      exts.add("*");
-    } else {
-      Arrays.stream(s.split(",")).forEach(x -> exts.add(x.trim().toLowerCase()));
+    String s = NaturalisPreferencesOptions.getAb1Extensions();
+    if (StringUtils.isNotBlank(s)) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
     }
-    s = NaturalisPreferencesOptions.STATE.getFastaExtensions();
-    if (StringUtils.isBlank(s)) {
-      exts.add("*");
-    } else {
-      Arrays.stream(s.split(",")).forEach(x -> exts.add(x.trim().toLowerCase()));
+    s = NaturalisPreferencesOptions.getFastaExtensions();
+    if (StringUtils.isNotBlank(s)) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
     }
     return exts;
   }

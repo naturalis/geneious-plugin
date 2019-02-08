@@ -14,10 +14,13 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.GeneiousGUI;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 public class TraceFileDocumentOperation extends DocumentOperation {
+
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileDocumentOperation.class);
 
   public TraceFileDocumentOperation() {
     super();
@@ -33,23 +36,26 @@ public class TraceFileDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (GuiLogger guiLogger = GuiLogger.getLogger()) {
-      try {
-        JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
-        fileChooser.setDialogTitle("Choose AB1/fasta files to import");
-        fileChooser.setMultiSelectionEnabled(true);
-        fileChooser.addChoosableFileFilter(Ab1FastaFileFilter.INSTANCE);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        GeneiousGUI.offsetComponent(fileChooser);
-        if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-          RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
-          return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
-        }
-      } catch (Throwable t) {
-        guiLogger.fatal(t.getMessage(), t);
+    boolean cancelled = false;
+    try {
+      JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
+      fileChooser.setDialogTitle("Choose AB1/fasta files to import");
+      fileChooser.setMultiSelectionEnabled(true);
+      fileChooser.addChoosableFileFilter(new Ab1FastaFileFilter());
+      fileChooser.setAcceptAllFileFilterUsed(false);
+      GeneiousGUI.position(fileChooser);
+      if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+        RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
+        return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
       }
-      finally {
-        guiLogger.showLog("Fasta/AB1 import log");       
+      cancelled = true;
+    } catch (Throwable t) {
+      guiLogger.fatal(t.getMessage(), t);
+    } finally {
+      if (cancelled) {
+        GuiLogManager.close();
+      } else {
+        GuiLogManager.showLogAndClose("Fasta/AB1 import log");
       }
     }
     return Collections.emptyList();

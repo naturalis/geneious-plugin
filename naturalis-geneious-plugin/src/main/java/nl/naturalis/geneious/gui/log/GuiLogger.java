@@ -1,7 +1,6 @@
 package nl.naturalis.geneious.gui.log;
 
 import java.awt.Font;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -11,7 +10,6 @@ import javax.swing.JTextArea;
 
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
-import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 
 import static java.util.Arrays.copyOfRange;
@@ -23,20 +21,14 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
 
 /**
- * A looger sending its output to the Geneious GUI.
+ * A logger sending its output to the Geneious GUI.
  * 
  * @author Ayco Holleman
  *
  */
-public class GuiLogger implements AutoCloseable {
-
-  private static final ThreadLocal<GuiLogger> threadLocal = ThreadLocal.withInitial(GuiLogger::new);
+public class GuiLogger {
 
   private static final String NEWLINE = System.getProperty("line.separator");
-
-  public static GuiLogger getLogger() {
-    return threadLocal.get();
-  }
 
   /**
    * Provides some syntactic sugar when using the Supplier-based log methods. The first element is supposed to be the message pattern and
@@ -49,37 +41,14 @@ public class GuiLogger implements AutoCloseable {
     return messageElements;
   }
 
-  private final List<LogRecord> records = new ArrayList<>();
+  private final Class<?> clazz;
+  private final List<LogRecord> records;
   private final LogLevel logLevel;
 
-  public GuiLogger() {
-    if (NaturalisPreferencesOptions.STATE.isDebug()) {
-      this.logLevel = LogLevel.DEBUG;
-    } else {
-      this.logLevel = LogLevel.INFO;
-    }
-  }
-
-  public GuiLogger(LogLevel logLevel) {
-    this.logLevel = logLevel;
-  }
-
-  public void showLog(String title) {
-    JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
-    dialog.setTitle(title);
-    JTextArea textArea = new JTextArea(20, 100);
-    textArea.setEditable(false);
-    textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-    for (LogRecord r : records) {
-      textArea.append(r.toString());
-      textArea.append(NEWLINE);
-    }
-    JScrollPane scrollPane = new JScrollPane(textArea);
-    dialog.setContentPane(scrollPane);
-    GeneiousGUI.offsetComponent(dialog);
-    dialog.pack();
-    dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
-    dialog.setVisible(true);
+  GuiLogger(Class<?> clazz, LogLevel level, List<LogRecord> records) {
+    this.clazz = clazz;
+    this.logLevel = level;
+    this.records = records;
   }
 
   public void debug(String message, Object... msgArgs) {
@@ -118,37 +87,32 @@ public class GuiLogger implements AutoCloseable {
     record(FATAL, message, throwable, msgArgs);
   }
 
-  @Override
-  public void close() {
-    threadLocal.remove();
-  }
-
-  private void record(LogLevel level, String msg, Throwable t, Object... msgArgs) {
-    if (level.ordinal() >= logLevel.ordinal()) {
+  private void record(LogLevel lvl, String msg, Throwable t, Object... msgArgs) {
+    if (lvl.ordinal() >= logLevel.ordinal()) {
       if (msgArgs.length > 0) {
-        records.add(new LogRecord(level, String.format(msg, msgArgs), t));
+        records.add(new LogRecord(clazz, lvl, String.format(msg, msgArgs), t));
       } else {
-        records.add(new LogRecord(level, msg, t));
+        records.add(new LogRecord(clazz, lvl, msg, t));
       }
     }
   }
 
-  private void record(LogLevel level, Supplier<String> msgSupplier, Throwable t) {
-    if (level.ordinal() >= logLevel.ordinal()) {
-      records.add(new LogRecord(level, msgSupplier.get(), t));
+  private void record(LogLevel lvl, Supplier<String> msgSupplier, Throwable t) {
+    if (lvl.ordinal() >= logLevel.ordinal()) {
+      records.add(new LogRecord(clazz, lvl, msgSupplier.get(), t));
     }
   }
 
-  private void recordf(LogLevel level, Supplier<Object[]> msgSupplier, Throwable t) {
-    if (level.ordinal() >= logLevel.ordinal()) {
+  private void recordf(LogLevel lvl, Supplier<Object[]> msgSupplier, Throwable t) {
+    if (lvl.ordinal() >= logLevel.ordinal()) {
       Object[] chunks = msgSupplier.get();
       if (chunks.length == 0) {
         throw new IllegalArgumentException("Supplied string array must contain at least one element");
       } else if (chunks.length == 1) {
-        records.add(new LogRecord(level, chunks[0].toString(), t));
+        records.add(new LogRecord(clazz, lvl, chunks[0].toString(), t));
       } else {
         String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length));
-        records.add(new LogRecord(level, msg, t));
+        records.add(new LogRecord(clazz, lvl, msg, t));
       }
     }
   }

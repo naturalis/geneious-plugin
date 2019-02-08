@@ -4,25 +4,25 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 
 public class NaturalisPreferencesOptions extends Options {
 
-  public static class State {
-    private boolean debug;
-    private String fastaExtensions;
-    private String ab1Extensions;
-
-    public boolean isDebug() {
-      return debug;
-    }
-
-    public String getFastaExtensions() {
-      return fastaExtensions;
-    }
-
-    public String getAb1Extensions() {
-      return ab1Extensions;
-    }
+  private static class State {
+    private boolean debug = false;
+    private String fastaExtensions = "fas,fasta";
+    private String ab1Extensions = "ab1,ab1 (reversed)";
   }
 
-  public static final State STATE = new State();
+  private static final State state = new State();
+
+  public static boolean isDebug() {
+    return state.debug;
+  }
+
+  public static String getFastaExtensions() {
+    return state.fastaExtensions;
+  }
+
+  public static String getAb1Extensions() {
+    return state.ab1Extensions;
+  }
 
   public NaturalisPreferencesOptions() {
     super();
@@ -34,13 +34,13 @@ public class NaturalisPreferencesOptions extends Options {
     addDivider("General Options ");
     BooleanOption bOpt1 = addBooleanOption("nl.naturalis.geneious.log.debug", "Show debug info in plugin logs", false);
     bOpt1.setHelp("Show debug info in plugin logs. Enable when creating support tickets for bugs or perfomance issues.");
-    bOpt1.addChangeListener(() -> STATE.debug = bOpt1.getValue().booleanValue());
+    bOpt1.addChangeListener(() -> state.debug = bOpt1.getValue().booleanValue());
     StringOption sOpt1 = addStringOption("nl.naturalis.geneious.fasta.extension", "Fasta file extensions", "fas,fasta");
     sOpt1.setHelp("A comma-separated list of valid file extensions for Fasta files.");
-    sOpt1.addChangeListener(() -> STATE.fastaExtensions = sOpt1.getValue());
+    sOpt1.addChangeListener(() -> state.fastaExtensions = sOpt1.getValue());
     StringOption sOpt2 = addStringOption("nl.naturalis.geneious.ab1.extension", "AB1 file extendsions", "ab1,ab1 (reversed)");
     sOpt2.setHelp("A comma-separated list of valid file extensions for AB1 files.");
-    sOpt2.addChangeListener(() -> STATE.ab1Extensions = sOpt2.getValue());
+    sOpt2.addChangeListener(() -> state.ab1Extensions = sOpt2.getValue());
 
     addDivider("Version Info ");
     addLabel("Version: " + PluginInfo.getInstance().getVersion());
