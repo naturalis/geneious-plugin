@@ -1,16 +1,7 @@
 package nl.naturalis.geneious.gui.log;
 
-import java.awt.Font;
 import java.util.List;
 import java.util.function.Supplier;
-
-import javax.swing.JDialog;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-
-import nl.naturalis.geneious.gui.GeneiousGUI;
 
 import static java.util.Arrays.copyOfRange;
 
@@ -21,14 +12,12 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
 
 /**
- * A logger sending its output to the Geneious GUI.
+ * A logger implementation that sends messages to the Geneious GUI.
  * 
  * @author Ayco Holleman
  *
  */
 public class GuiLogger {
-
-  private static final String NEWLINE = System.getProperty("line.separator");
 
   /**
    * Provides some syntactic sugar when using the Supplier-based log methods. The first element is supposed to be the message pattern and
@@ -42,11 +31,17 @@ public class GuiLogger {
   }
 
   private final Class<?> clazz;
-  private final List<LogRecord> records;
-  private final LogLevel logLevel;
 
-  GuiLogger(Class<?> clazz, LogLevel level, List<LogRecord> records) {
+  private List<LogRecord> records;
+  private LogLevel logLevel;
+
+  GuiLogger(Class<?> clazz, List<LogRecord> records, LogLevel level) {
     this.clazz = clazz;
+    this.logLevel = level;
+    this.records = records;
+  }
+
+  void reset(LogLevel level, List<LogRecord> records) {
     this.logLevel = level;
     this.records = records;
   }

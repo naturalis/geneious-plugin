@@ -20,72 +20,73 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 
 public class GuiLogManager {
 
-  private static final ThreadLocal<GuiLogManager> tl = ThreadLocal.withInitial(GuiLogManager::new);
   private static final String NEWLINE = System.getProperty("line.separator");
 
+  private static final GuiLogManager instance = new GuiLogManager();
+
   public static GuiLogger getLogger(Class<?> clazz) {
-    GuiLogManager mgr = tl.get();
-    if (mgr.level == null) {
-      LogLevel level = NaturalisPreferencesOptions.isDebug() ? DEBUG : INFO;
-      mgr.initialize(level);
-    }
-    return mgr.get(clazz);
+    return instance.get(clazz);
   }
 
   public static void showLog(String title) {
-    tl.get().show(title);
+    instance.show(title);
   }
 
   public static void showLogAndClose(String title) {
-    tl.get().show(title);
-    tl.remove();
+    instance.show(title);
+    close();
   }
 
   public static void close() {
-    tl.remove();
+    instance.records = new ArrayList<>();
+    instance.logLevel = getLogLevel();
+    instance.loggers.forEach((k, v) -> v.reset(instance.logLevel, instance.records));
   }
 
-  private LogLevel level;
+  private final HashMap<Class<?>, GuiLogger> loggers;
+
   private List<LogRecord> records;
-  private HashMap<Class<?>, GuiLogger> loggers = new HashMap<>();
+  private LogLevel logLevel;
 
-  private GuiLogManager() {};
-
-  private void initialize(LogLevel level) {
-    this.level = level;
-    this.records = new ArrayList<>();
+  private GuiLogManager() {
     this.loggers = new HashMap<>();
-  }
+    this.records = new ArrayList<>();
+    this.logLevel = getLogLevel();
+  };
 
   private GuiLogger get(Class<?> clazz) {
     Preconditions.checkNotNull(clazz, "clazz must not be null");
-    GuiLogger gl = loggers.get(clazz);
-    if (gl == null) {
-      gl = new GuiLogger(clazz, level, records);
+    GuiLogger logger = loggers.get(clazz);
+    if (logger == null) {
+      loggers.put(clazz, logger = new GuiLogger(clazz, records, logLevel));
     }
-    return gl;
+    return logger;
   }
 
   private void show(String title) {
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
-    JTextArea textArea = new JTextArea(20, 100);
+    JTextArea textArea = new JTextArea(20, 140);
     textArea.setEditable(false);
     textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-    if (records == null) {
+    if (records.size() == 0) {
       textArea.append("Nothing has been logged");
     } else {
       for (LogRecord r : records) {
-        textArea.append(r.toString());
+        textArea.append(r.toString(logLevel));
         textArea.append(NEWLINE);
       }
     }
     JScrollPane scrollPane = new JScrollPane(textArea);
     dialog.setContentPane(scrollPane);
-    GeneiousGUI.position(dialog);
+    GeneiousGUI.scale(dialog, .95, .4, 960, 400);
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
     dialog.setVisible(true);
+  }
+
+  private static LogLevel getLogLevel() {
+    return NaturalisPreferencesOptions.isDebug() ? DEBUG : INFO;
   }
 
 }

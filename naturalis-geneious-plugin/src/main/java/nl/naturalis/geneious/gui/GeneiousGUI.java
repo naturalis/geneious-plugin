@@ -21,13 +21,33 @@ public class GeneiousGUI {
   public static final int DEFAULT_MIN_HEIGHT = 300;
 
   /**
+   * Resizes the specified component to a square with the specified side length.
+   * @param component
+   * @param w
+   * @param h
+   */
+  public static void resize(Component component, int len) {
+    component.setPreferredSize(new Dimension(len, len));
+  }
+
+  /**
+   * Resizes the specified component to the specified width and height.
+   * @param component
+   * @param w
+   * @param h
+   */
+  public static void resize(Component component, int w, int h) {
+    component.setPreferredSize(new Dimension(w, h));
+  }
+
+  /**
    * Scales the specified component relative to the main Geneious window as obtained by GuiUtilities.getMainFrame().
    * 
    * @param component
    * @param scale
    */
-  public static void scaleComponent(Component component, float scale) {
-    scaleComponent(component, scale, scale, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT);
+  public static void scale(Component component, double scale) {
+    scale(component, scale, scale, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT);
   }
 
   /**
@@ -37,8 +57,8 @@ public class GeneiousGUI {
    * @param scale
    * @param minLength
    */
-  public static void scaleComponent(Component component, float scale, int minLength) {
-    scaleComponent(component, scale, scale, minLength, minLength);
+  public static void scale(Component component, double scale, int minLength) {
+    scale(component, scale, scale, minLength, minLength);
   }
 
   /**
@@ -48,8 +68,8 @@ public class GeneiousGUI {
    * @param scaleW
    * @param scaleH
    */
-  public static void scaleComponent(Component component, float scaleW, float scaleH) {
-    scaleComponent(component, scaleW, scaleH, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT);
+  public static void scale(Component component, double scaleW, double scaleH) {
+    scale(component, scaleW, scaleH, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT);
   }
 
   /**
@@ -61,7 +81,7 @@ public class GeneiousGUI {
    * @param minW
    * @param minH
    */
-  public static void scaleComponent(Component component, float scaleW, float scaleH, int minW, int minH) {
+  public static void scale(Component component, double scaleW, double scaleH, int minW, int minH) {
     Preconditions.checkArgument(0 < scaleW && scaleW <= 1F, "scaleW must be between 0 and 1");
     Preconditions.checkArgument(0 < scaleH && scaleH <= 1F, "scaleH must be between 0 and 1");
     Preconditions.checkArgument(minW >= 10, "minW must be >= 10");
@@ -114,10 +134,10 @@ public class GeneiousGUI {
    * @param component
    * @param fromLeft
    * @param fromTop
-   * @param maxLen
+   * @param minW
    */
-  public static void position(Component component, int fromLeft, int fromTop, int maxLen) {
-    position(component, fromLeft, fromTop, fromLeft, fromTop, maxLen, maxLen);
+  public static void position(Component component, int fromLeft, int fromTop, int minW, int minH) {
+    position(component, fromLeft, fromTop, fromLeft, fromTop, minW, minH);
   }
 
   /**
@@ -128,23 +148,20 @@ public class GeneiousGUI {
    * @param fromTop
    * @param fromRight
    * @param fromBottom
-   * @param maxW
-   * @param maxH
+   * @param minW
+   * @param minH
    */
-  public static void position(Component component, int fromLeft, int fromTop, int fromRight, int fromBottom, int maxW, int maxH) {
+  public static void position(Component component, int fromLeft, int fromTop, int fromRight, int fromBottom, int minW, int minH) {
     Preconditions.checkArgument(fromLeft >= 0, "fromLeft must be >= 0");
     Preconditions.checkArgument(fromTop >= 0, "fromTop must be >= 0");
     Preconditions.checkArgument(fromRight >= 0, "fromRight must be >= 0");
     Preconditions.checkArgument(fromBottom >= 0, "fromBottom must be >= 0");
-    Preconditions.checkArgument(maxW >= 10, "maxW must be >= 10");
-    Preconditions.checkArgument(maxH >= 10, "maxH must be >= 10");
+    Preconditions.checkArgument(minW >= 10, "maxW must be >= 10");
+    Preconditions.checkArgument(minH >= 10, "maxH must be >= 10");
     int w = GuiUtilities.getMainFrame().getWidth();
     int h = GuiUtilities.getMainFrame().getHeight();
-    w = Math.min(maxW, w - fromLeft - fromRight);
-    h = Math.min(maxH, h - fromTop - fromBottom);
-    // Ensure component has a minium width and height;
-    w = Math.max(DEFAULT_MIN_WIDTH, w);
-    h = Math.max(DEFAULT_MIN_HEIGHT, h);
+    w = Math.min(minW, w - fromLeft - fromRight);
+    h = Math.min(minH, h - fromTop - fromBottom);
     component.setPreferredSize(new Dimension(w, h));
   }
 

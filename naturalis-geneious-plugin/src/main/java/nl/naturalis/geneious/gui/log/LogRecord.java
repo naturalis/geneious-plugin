@@ -32,9 +32,12 @@ public class LogRecord {
     this.throwable = throwable;
   }
 
-  public String toString() {
+  public String toString(LogLevel logLevel) {
     StringBuilder sb = new StringBuilder(50);
     sb.append(Str.rpad(dtf.format(timestamp), 13, "| "));
+    if (logLevel == LogLevel.DEBUG) {
+      sb.append(Str.rpad(clazz.getSimpleName(), 15, "| "));
+    }
     sb.append(Str.rpad(level, 7, "| "));
     sb.append(message);
     if (throwable != null) {
@@ -44,6 +47,10 @@ public class LogRecord {
       sb.append(baos.toString(Charsets.UTF_8));
     }
     return sb.toString();
+  }
+
+  public String toString() {
+    return toString(LogLevel.INFO);
   }
 
 }

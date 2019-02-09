@@ -43,7 +43,7 @@ public class TraceFileDocumentOperation extends DocumentOperation {
       fileChooser.setMultiSelectionEnabled(true);
       fileChooser.addChoosableFileFilter(new Ab1FastaFileFilter());
       fileChooser.setAcceptAllFileFilterUsed(false);
-      GeneiousGUI.position(fileChooser);
+      GeneiousGUI.scale(fileChooser, .6, .5, 800, 560);
       if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
         RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
         return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
