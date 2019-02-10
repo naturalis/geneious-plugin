@@ -17,15 +17,30 @@ import nl.naturalis.geneious.tracefile.TraceFileDocumentOperation;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
+  private NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
+
   @Override
   public Icons getIcons() {
     return IconUtilities.getIconsFromJar(getClass(), "/naturalis.jpg");
   }
 
+  /*
+   * Explainer for the funky code inside this method. We must instantiate a NaturalisPluginPreferences object as soon as possible (which we
+   * do above) and certainly before getDocumentActions() and getDocumentOperations() is called. These methods return our implementation
+   * classes, and these in turn have static initalizers that depend on the preferences being set and readable (see
+   * NaturalisPreferencesOptions). At the same time though, we cannot simply always return that same initial instance. Geneious will throw
+   * an exception if you do not return a new instance of NaturalisPreferences for each and every call.
+   */
   @Override
   @SuppressWarnings("rawtypes")
   public List<PluginPreferences> getPluginPreferences() {
-    return Arrays.asList(new NaturalisPluginPreferences());
+    NaturalisPluginPreferences prefs;
+    if ((prefs = this.prefs) == null) {
+      prefs = new NaturalisPluginPreferences();
+    } else {
+      this.prefs = null;
+    }
+    return Arrays.asList(prefs);
   }
 
   @Override

@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
+import nl.naturalis.geneious.util.Str;
 
 public class Ab1FastaFileFilter extends FileFilter {
 
@@ -35,6 +36,7 @@ public class Ab1FastaFileFilter extends FileFilter {
   private static Set<String> getFileExtensions() {
     Set<String> exts = new HashSet<>();
     String s = NaturalisPreferencesOptions.getAb1Extensions();
+    s = Str.rtrim(s, ',');
     if (StringUtils.isNotBlank(s)) {
       Arrays.stream(s.split(",")).forEach(x -> {
         x = x.trim().toLowerCase();
@@ -47,6 +49,7 @@ public class Ab1FastaFileFilter extends FileFilter {
       });
     }
     s = NaturalisPreferencesOptions.getFastaExtensions();
+    s = Str.rtrim(s, ',');
     if (StringUtils.isNotBlank(s)) {
       Arrays.stream(s.split(",")).forEach(x -> {
         x = x.trim().toLowerCase();

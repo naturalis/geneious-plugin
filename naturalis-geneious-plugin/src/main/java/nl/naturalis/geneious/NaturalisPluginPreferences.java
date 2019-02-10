@@ -5,7 +5,7 @@ import javax.swing.Icon;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 
 public class NaturalisPluginPreferences extends PluginPreferences<NaturalisPreferencesOptions> {
-
+  
   public NaturalisPluginPreferences() {
     super();
   }
@@ -22,7 +22,7 @@ public class NaturalisPluginPreferences extends PluginPreferences<NaturalisPrefe
 
   @Override
   public Icon getTabIcon() {
-    return null; // NaturalisIcons.NATURALIS.getIcon16();
+    return /* NaturalisIcons.NATURALIS.getIcon16() */ null;
   }
 
 }

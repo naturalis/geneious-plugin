@@ -217,4 +217,67 @@ public class Str {
     return chunks.toArray(new String[chunks.size()]);
   }
 
+  /**
+   * Trim the specified character off both sides of the specified
+   * {@code String}. This method returns an empty String if the specified
+   * {@code String} is null.
+   * 
+   * @param s
+   *            The {@code String} to trim
+   * @param c
+   *            The character to trim off the {@code String}
+   * 
+   * @return The trimmed {@code String}.
+   * 
+   */
+  public static String trim(String s, char c)
+  {
+    return ltrim(rtrim(s, c), c);
+  }
+
+  /**
+   * Trim the specified character off the beginning of the specified
+   * {@code String}. This method returns an empty String if the specified
+   * {@code String} is null.
+   * 
+   * @param s
+   *            The {@code String} to trim
+   * @param c
+   *            The character to trim off the {@code String}
+   * 
+   * @return The trimmed {@code String}.
+   * 
+   */
+  public static String ltrim(String s, char c)
+  {
+    if (s == null)
+      return EMPTY;
+    int i;
+    for (i = 0; i < s.length() && s.charAt(i) == c; ++i) {}
+    return i == s.length() ? EMPTY : s.substring(i);
+  }
+
+  /**
+   * Trim the specified character off the end of the specified {@code String}.
+   * This method returns an empty String if the specified {@code String} is
+   * null.
+   * 
+   * @param s
+   *            The {@code String} to trim
+   * @param c
+   *            The character to trim off the {@code String}
+   * 
+   * @return The trimmed {@code String}.
+   * 
+   */
+  public static String rtrim(String s, char c)
+  {
+    if (s == null)
+      return EMPTY;
+    int i;
+    for (i = s.length() - 1; i != -1 && s.charAt(i) == c; --i) {}
+    return i == -1 ? EMPTY : s.substring(0, i + 1);
+  }
+
+
 }
