@@ -12,8 +12,8 @@ import nl.naturalis.geneious.gui.log.LogLevel;
  */
 public class RuntimeSettings {
 
-  private static final String SETTING_FILE = System.getProperty("user.home")
-      + System.getProperty("file.separator") + ".nl.naturalis.genious.properties";
+  public static final String WORK_DIR = System.getProperty("user.home") + File.separator + ".naturalis-geneious-plugin";
+  private static final String CFG_FILE = WORK_DIR + File.separator + "naturalis-geneious-plugin.properties";
 
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
@@ -37,7 +37,7 @@ public class RuntimeSettings {
 
   private RuntimeSettings() {
     props = new Properties();
-    File f = new File(SETTING_FILE);
+    File f = new File(CFG_FILE);
     if (f.exists()) {
       try {
         props.load(new FileInputStream(f));
@@ -49,6 +49,7 @@ public class RuntimeSettings {
 
   /**
    * Get most recently selected AB1/fasta folder.
+   * 
    * @return
    */
   public File getAb1FastaFolder() {
@@ -61,6 +62,7 @@ public class RuntimeSettings {
 
   /**
    * Set most recently selected AB1/fasta folder.
+   * 
    * @return
    */
   public void setAb1FastaFolder(File traceFileFolder) {
@@ -73,6 +75,7 @@ public class RuntimeSettings {
 
   /**
    * Get most recently selected sample sheet folder.
+   * 
    * @return
    */
   public File getSampleSheetFolder() {
@@ -85,6 +88,7 @@ public class RuntimeSettings {
 
   /**
    * Set most recently selected sample sheet folder.
+   * 
    * @return
    */
   public void setSampleSheetFolder(File sampleSheetFolder) {
@@ -180,8 +184,15 @@ public class RuntimeSettings {
   }
 
   private void saveSettings() {
+    File f = new File(CFG_FILE);
+    if (!f.exists()) {
+      File d = new File(WORK_DIR);
+      if (!d.exists()) {
+        d.mkdir();
+      }
+    }
     try {
-      props.store(new FileOutputStream(SETTING_FILE), "Naturalis Geneious Plugins");
+      props.store(new FileOutputStream(CFG_FILE), "Naturalis Geneious Plugins");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

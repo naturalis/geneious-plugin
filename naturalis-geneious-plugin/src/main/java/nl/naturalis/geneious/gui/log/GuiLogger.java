@@ -62,7 +62,7 @@ public class GuiLogger {
     record(INFO, message, null, msgArgs);
   }
 
-  public void warning(String message, Object... msgArgs) {
+  public void warn(String message, Object... msgArgs) {
     record(WARNING, message, null, msgArgs);
   }
 

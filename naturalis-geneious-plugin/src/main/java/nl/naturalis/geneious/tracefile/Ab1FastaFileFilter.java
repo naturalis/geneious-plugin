@@ -12,7 +12,48 @@ import org.apache.commons.lang3.StringUtils;
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.util.Str;
 
-public class Ab1FastaFileFilter extends FileFilter {
+class Ab1FastaFileFilter extends FileFilter {
+
+  static Set<String> getAb1Extensions() {
+    Set<String> exts = new HashSet<>();
+    String s = NaturalisPreferencesOptions.getAb1Extensions();
+    if (s != null && !(s = Str.rtrim(s.trim(), ',')).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
+    }
+    return exts;
+  }
+
+  static Set<String> getFastaExtensions() {
+    Set<String> exts = new HashSet<>();
+    String s = NaturalisPreferencesOptions.getFastaExtensions();
+    if (s != null && !(s = Str.rtrim(s.trim(), ',')).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
+    }
+    return exts;
+  }
+
+  private final Set<String> exts;
+
+  Ab1FastaFileFilter() {
+    exts = getAb1Extensions();
+    exts.addAll(getFastaExtensions());
+  }
 
   @Override
   public boolean accept(File f) {
@@ -25,43 +66,6 @@ public class Ab1FastaFileFilter extends FileFilter {
   @Override
   public String getDescription() {
     return "AB1 and Fasta files";
-  }
-
-  private final Set<String> exts;
-
-  Ab1FastaFileFilter() {
-    exts = getFileExtensions();
-  }
-
-  private static Set<String> getFileExtensions() {
-    Set<String> exts = new HashSet<>();
-    String s = NaturalisPreferencesOptions.getAb1Extensions();
-    s = Str.rtrim(s, ',');
-    if (StringUtils.isNotBlank(s)) {
-      Arrays.stream(s.split(",")).forEach(x -> {
-        x = x.trim().toLowerCase();
-        if (StringUtils.isNotBlank(x)) {
-          if (!x.startsWith(".")) {
-            x = "." + x;
-          }
-          exts.add(x);
-        }
-      });
-    }
-    s = NaturalisPreferencesOptions.getFastaExtensions();
-    s = Str.rtrim(s, ',');
-    if (StringUtils.isNotBlank(s)) {
-      Arrays.stream(s.split(",")).forEach(x -> {
-        x = x.trim().toLowerCase();
-        if (StringUtils.isNotBlank(x)) {
-          if (!x.startsWith(".")) {
-            x = "." + x;
-          }
-          exts.add(x);
-        }
-      });
-    }
-    return exts;
   }
 
 }
