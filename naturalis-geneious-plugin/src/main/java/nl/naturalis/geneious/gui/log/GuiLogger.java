@@ -20,8 +20,8 @@ import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
 public class GuiLogger {
 
   /**
-   * Provides some syntactic sugar when using the Supplier-based log methods. The first element is supposed to be the message pattern and
-   * the remaining elements the message arguments passed to String.format.
+   * Provides some syntactic sugar when using Supplier-based log methods like {@code #debugf(Supplier) debugf}. The first element is assumed
+   * to be the message pattern and the remaining elements the message arguments passed to String.format.
    * 
    * @param messageElements
    * @return

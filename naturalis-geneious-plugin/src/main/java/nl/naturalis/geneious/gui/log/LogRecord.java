@@ -1,18 +1,17 @@
 package nl.naturalis.geneious.gui.log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.google.common.base.Charsets;
+import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.util.Str;
+import static nl.naturalis.common.base.NExceptionUtils.getRootStackTraceAsString;
+import static nl.naturalis.common.base.NStringUtils.rpad;
 
 public class LogRecord {
 
   private static final String NEWLINE = System.getProperty("line.separator");
-  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss [SSS]");
 
   final Class<?> clazz;
   final LocalDateTime timestamp;
@@ -33,18 +32,19 @@ public class LogRecord {
   }
 
   public String toString(LogLevel logLevel) {
-    StringBuilder sb = new StringBuilder(50);
-    sb.append(Str.rpad(dtf.format(timestamp), 13, "| "));
+    String separator = " | ";
+    StringBuilder sb = new StringBuilder(128);
+    sb.append(rpad(dtf.format(timestamp), 25, separator));
     if (logLevel == LogLevel.DEBUG) {
-      sb.append(Str.rpad(clazz.getSimpleName(), 15, "| "));
+      sb.append(rpad(clazz.getSimpleName(), 20, separator));
     }
-    sb.append(Str.rpad(level, 7, "| "));
-    sb.append(message);
+    sb.append(rpad(level, 6, separator));
+    if (!StringUtils.isEmpty(message)) {
+      sb.append(message);
+    }
     if (throwable != null) {
       sb.append(NEWLINE);
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-      throwable.printStackTrace(new PrintStream(baos));
-      sb.append(baos.toString(Charsets.UTF_8));
+      sb.append(getRootStackTraceAsString(throwable));
     }
     return sb.toString();
   }

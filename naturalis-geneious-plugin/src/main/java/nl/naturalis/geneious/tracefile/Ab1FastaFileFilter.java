@@ -10,14 +10,15 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
-import nl.naturalis.geneious.util.Str;
+
+import static nl.naturalis.common.base.NStringUtils.rtrim;
 
 class Ab1FastaFileFilter extends FileFilter {
 
   static Set<String> getAb1Extensions() {
     Set<String> exts = new HashSet<>();
     String s = NaturalisPreferencesOptions.getAb1Extensions();
-    if (s != null && !(s = Str.rtrim(s.trim(), ',')).equals("*")) {
+    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
       Arrays.stream(s.split(",")).forEach(x -> {
         x = x.trim().toLowerCase();
         if (StringUtils.isNotBlank(x)) {
@@ -34,7 +35,7 @@ class Ab1FastaFileFilter extends FileFilter {
   static Set<String> getFastaExtensions() {
     Set<String> exts = new HashSet<>();
     String s = NaturalisPreferencesOptions.getFastaExtensions();
-    if (s != null && !(s = Str.rtrim(s.trim(), ',')).equals("*")) {
+    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
       Arrays.stream(s.split(",")).forEach(x -> {
         x = x.trim().toLowerCase();
         if (StringUtils.isNotBlank(x)) {

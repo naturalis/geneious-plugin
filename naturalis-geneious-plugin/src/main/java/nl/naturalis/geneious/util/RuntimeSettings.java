@@ -1,10 +1,15 @@
 package nl.naturalis.geneious.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
+
+import nl.naturalis.common.io.NFileUtils;
 import nl.naturalis.geneious.gui.log.LogLevel;
 
 /**
@@ -12,8 +17,11 @@ import nl.naturalis.geneious.gui.log.LogLevel;
  */
 public class RuntimeSettings {
 
-  public static final String WORK_DIR = System.getProperty("user.home") + File.separator + ".naturalis-geneious-plugin";
-  private static final String CFG_FILE = WORK_DIR + File.separator + "naturalis-geneious-plugin.properties";
+  private static final String SYSPROP_HOME = System.getProperty("user.home");
+
+  public static final File USER_HOME = new File(SYSPROP_HOME);
+  public static final File WORK_DIR = NFileUtils.newFile(USER_HOME, ".naturalis-geneious-plugin");
+  public static final File CFG_FILE = NFileUtils.newFile(WORK_DIR, "naturalis-geneious-plugin.properties");
 
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 
@@ -37,10 +45,9 @@ public class RuntimeSettings {
 
   private RuntimeSettings() {
     props = new Properties();
-    File f = new File(CFG_FILE);
-    if (f.exists()) {
+    if (CFG_FILE.exists()) {
       try {
-        props.load(new FileInputStream(f));
+        props.load(new FileInputStream(CFG_FILE));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -54,7 +61,7 @@ public class RuntimeSettings {
    */
   public File getAb1FastaFolder() {
     if (ab1FastaFolder == null) {
-      String path = props.getProperty(AB1_FASTA_FOLDER, System.getProperty("user.home"));
+      String path = props.getProperty(AB1_FASTA_FOLDER, SYSPROP_HOME);
       ab1FastaFolder = new File(path);
     }
     return ab1FastaFolder;
@@ -80,7 +87,7 @@ public class RuntimeSettings {
    */
   public File getSampleSheetFolder() {
     if (sampleSheetFolder == null) {
-      String path = props.getProperty(SAMPLE_SHEET_FOLDER, System.getProperty("user.home"));
+      String path = props.getProperty(SAMPLE_SHEET_FOLDER, SYSPROP_HOME);
       sampleSheetFolder = new File(path);
     }
     return sampleSheetFolder;
@@ -101,7 +108,7 @@ public class RuntimeSettings {
 
   public File getCrsFolder() {
     if (crsFolder == null) {
-      String path = props.getProperty(CRS_FOLDER, System.getProperty("user.home"));
+      String path = props.getProperty(CRS_FOLDER, SYSPROP_HOME);
       crsFolder = new File(path);
     }
     return crsFolder;
@@ -111,6 +118,22 @@ public class RuntimeSettings {
     if (!crsFolder.equals(this.crsFolder)) {
       this.crsFolder = crsFolder;
       props.setProperty(CRS_FOLDER, crsFolder.getAbsolutePath());
+      saveSettings();
+    }
+  }
+
+  public File getBoldFolder() {
+    if (boldFolder == null) {
+      String path = props.getProperty(BOLD_FOLDER, SYSPROP_HOME);
+      sampleSheetFolder = new File(path);
+    }
+    return boldFolder;
+  }
+
+  public void setBoldFolder(File boldFolder) {
+    if (!boldFolder.equals(this.boldFolder)) {
+      this.boldFolder = boldFolder;
+      props.setProperty(BOLD_FOLDER, boldFolder.getAbsolutePath());
       saveSettings();
     }
   }
@@ -145,22 +168,6 @@ public class RuntimeSettings {
     }
   }
 
-  public File getBoldFolder() {
-    if (boldFolder == null) {
-      String path = props.getProperty(BOLD_FOLDER, System.getProperty("user.home"));
-      sampleSheetFolder = new File(path);
-    }
-    return boldFolder;
-  }
-
-  public void setBoldFolder(File boldFolder) {
-    if (!boldFolder.equals(this.boldFolder)) {
-      this.boldFolder = boldFolder;
-      props.setProperty(BOLD_FOLDER, boldFolder.getAbsolutePath());
-      saveSettings();
-    }
-  }
-
   public LogLevel getLogLevel() {
     return LogLevel.valueOf(props.getProperty(LOG_LEVEL, LogLevel.INFO.name()));
   }
@@ -184,16 +191,10 @@ public class RuntimeSettings {
   }
 
   private void saveSettings() {
-    File f = new File(CFG_FILE);
-    if (!f.exists()) {
-      File d = new File(WORK_DIR);
-      if (!d.exists()) {
-        d.mkdir();
-      }
-    }
-    try {
+    try (BufferedOutputStream bos = new BufferedOutputStream(FileUtils.openOutputStream(CFG_FILE), 2048)) {
       props.store(new FileOutputStream(CFG_FILE), "Naturalis Geneious Plugins");
     } catch (IOException e) {
+      // TODO: handle this in a better way
       throw new RuntimeException(e);
     }
   }

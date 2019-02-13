@@ -2,8 +2,7 @@ package nl.naturalis.geneious.split;
 
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.util.Str.rchop;
-import static nl.naturalis.geneious.util.Str.split;
+import static nl.naturalis.common.base.NStringUtils.rchop;
 
 /**
  * Extracts information from the name of an ab1/fasta file, used to enrich a Geneious document after it has been created from that file.
@@ -30,7 +29,7 @@ public class FileNameParser {
   }
 
   private static NaturalisNote parseAb1(String fileName, String baseName) throws BadFileNameException {
-    String[] chunks = split(baseName, "_");
+    String[] chunks = baseName.split(" ");
     if (chunks.length < 5) {
       throw BadFileNameException.notEnoughUnderscores(fileName, chunks.length - 1, 4);
     }
@@ -46,7 +45,7 @@ public class FileNameParser {
   }
 
   private static NaturalisNote parseFasta(String fileName, String baseName) throws BadFileNameException {
-    String[] chunks = split(baseName, "_");
+    String[] chunks = baseName.split(" ");
     if (chunks.length < 5) {
       throw BadFileNameException.notEnoughUnderscores(fileName, chunks.length - 1, 4);
     }
