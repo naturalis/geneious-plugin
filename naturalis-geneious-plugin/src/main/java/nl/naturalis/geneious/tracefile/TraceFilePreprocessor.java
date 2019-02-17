@@ -1,25 +1,20 @@
 package nl.naturalis.geneious.tracefile;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import nl.naturalis.common.io.NFileUtils;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * The TraceFilePreprocessor divides the files selected by the user in the file chooser dialog into AB1 files and fasta files, and for each
- * of the selected fasta files it creates one or more temporary fasta files which are guaranteed to contain just a single nucleotide
- * sequence. The actual splitting of a single fasta file into multiple single-nucleotide fasta files is delegated to the
+ * The TraceFilePreprocessor divides the files selected by the user in the file chooser dialog into AB1 files and fasta files.
+ * 
  * {@link FastaFileSplitter}.
  */
 class TraceFilePreprocessor {
@@ -27,21 +22,24 @@ class TraceFilePreprocessor {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileDocumentOperation.class);
 
   private final File[] files;
-  private final FastaFileSplitter splitter;
 
   TraceFilePreprocessor(File[] files) {
     this.files = files;
-    splitter = new FastaFileSplitter();
   }
 
-  List<List<File>> split() {
+  /**
+   * Returns two lists; the first one contains only AB1 files, the second one only fasta files.
+   * 
+   * @return
+   */
+  List<List<File>> divideByFileType() {
     List<File> ab1Files = new ArrayList<>(), fastaFiles = new ArrayList<>();
     for (File file : files) {
       try {
         if (isAb1File(file)) {
           ab1Files.add(file);
         } else if (isFastaFile(file)) {
-          fastaFiles.addAll(splitter.split(file));
+          fastaFiles.add(file);
         }
       } catch (IOException e) {
         guiLogger.error("Error processing file %s", e, file.getName());
@@ -50,7 +48,7 @@ class TraceFilePreprocessor {
     return Arrays.asList(ab1Files, fastaFiles);
   }
 
-  private static boolean isAb1File(File f) throws IOException {
+  static boolean isAb1File(File f) throws IOException {
     Set<String> exts = Ab1FastaFileFilter.getAb1Extensions();
     if (exts.isEmpty()) {
       return firstChar(f) != '>';
@@ -63,7 +61,7 @@ class TraceFilePreprocessor {
     return false;
   }
 
-  private static boolean isFastaFile(File f) throws IOException {
+  static boolean isFastaFile(File f) throws IOException {
     Set<String> exts = Ab1FastaFileFilter.getFastaExtensions();
     if (exts.isEmpty()) {
       return firstChar(f) == '>';
@@ -73,7 +71,7 @@ class TraceFilePreprocessor {
         if (firstChar(f) == '>') {
           return true;
         }
-        guiLogger.warn("Invalid fasta file: %s. It has valid file extension (%s), but does not start with '>'", f.getName(), ext);
+        guiLogger.warn("Invalid fasta file: %s. First character in file must be '>'", f.getName());
         return false;
       }
     }

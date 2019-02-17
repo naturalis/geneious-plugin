@@ -2,28 +2,21 @@ package nl.naturalis.geneious.tracefile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
-import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.BadFileNameException;
-import nl.naturalis.geneious.split.FileNameParser;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-public class TraceFileImporter {
+class TraceFileImporter {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
-  
+
   private final File[] files;
 
   /**
@@ -31,7 +24,7 @@ public class TraceFileImporter {
    * 
    * @param traceFiles
    */
-  public TraceFileImporter(File[] traceFiles) {
+  TraceFileImporter(File[] traceFiles) {
     this.files = traceFiles;
   }
 
@@ -39,44 +32,20 @@ public class TraceFileImporter {
    * Imports the trace files.
    * 
    * @return
+   * @throws IOException
    */
-  public List<AnnotatedPluginDocument> process() {
-    List<AnnotatedPluginDocument> result = new ArrayList<>(files.length);
-    int imported = 0;
-    int rejected = 0;
-    int enriched = 0;
-    FileNameParser parser = new FileNameParser();
-    for (File f : files) {
-      guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
-      List<AnnotatedPluginDocument> apds;
-      try {
-        apds = PluginUtilities.importDocuments(f, null);
-        ++imported;
-      } catch (IOException | DocumentImportException e) {
-        guiLogger.error("Error processing file %s", e, f.getAbsolutePath());
-        ++rejected;
-        continue;
-      }
-      if (apds.size() != 1) {
-        guiLogger.fatal("Unexpected number of documents created from a single file: %s. Aborting.", apds.size());
-        break;
-      }
-      try {
-        NaturalisNote note = parser.parse(f.getName());
-        if (note != null) {
-          note.attach(apds.get(0));
-          ++enriched;
-        }
-      } catch (BadFileNameException e) {
-        guiLogger.error(e.getMessage());
-        continue;
-      }
-      result.addAll(apds);
-    }
-    guiLogger.info("Number of files selected: %s", files.length);
-    guiLogger.info("Number of files imported: %s", imported);
-    guiLogger.info("Number of files rejected: %s", rejected);
-    guiLogger.info("Number of documents enriched: %s", enriched);
+  List<AnnotatedPluginDocument> process() throws IOException {
+    TraceFilePreprocessor preprocessor = new TraceFilePreprocessor(files);
+    List<List<File>> ab1AndFastaFiles = preprocessor.divideByFileType();
+    List<File> ab1Files = ab1AndFastaFiles.get(0);
+    List<File> fastaFiles = ab1AndFastaFiles.get(1);
+    Ab1FileImporter imp0 = new Ab1FileImporter(ab1Files);
+    List<AnnotatedPluginDocument> result = imp0.importFiles();
+    FastaFileImporter imp1 = new FastaFileImporter(fastaFiles);
+    result.addAll(imp1.importFiles());
+//    try (FastaFileImporter imp1 = new FastaFileImporter(fastaFiles)) {
+//      result.addAll(imp1.importFiles());
+//    }
     return result;
   }
 

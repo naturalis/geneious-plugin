@@ -5,7 +5,7 @@ import com.biomatters.geneious.publicapi.plugin.TestGeneious;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class FastaFileSplitterTest {
+public class TraceFilePreprocessorTest {
 
   @BeforeClass
   public static void init() {
@@ -13,7 +13,8 @@ public class FastaFileSplitterTest {
   }
 
   @Test
-  public void split() {
+  public void splitByFileType() {
+
   }
 
 }

@@ -5,21 +5,21 @@ public class BadFileNameException extends Exception {
   public static BadFileNameException invalidNumberOfUnderscores(String fileName, int actual,
       int expected) {
     if (actual < expected) {
-      String fmt = "Not enough underscores in file name \"%s\": %s (expected %s)";
+      String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
       return new BadFileNameException(String.format(fmt, fileName, actual, expected));
     }
-    String fmt = "Too many underscores in file name \"%s\": %s (expected %s)";
+    String fmt = "Too many underscores in name \"%s\": %s (expected %s)";
     return new BadFileNameException(String.format(fmt, fileName, actual, expected));
   }
 
   public static BadFileNameException notEnoughUnderscores(String fileName, int actual,
       int expected) {
-    String fmt = "Not enough underscores in file name \"%s\": %s (expected %s)";
+    String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
     return new BadFileNameException(String.format(fmt, fileName, actual, expected));
   }
 
   public static BadFileNameException missingHyphenInMarkerSegment(String fileName) {
-    String fmt = "Missing hyphen in marker segment of file name \"%s\"";
+    String fmt = "Missing hyphen in marker segment of name \"%s\"";
     return new BadFileNameException(String.format(fmt, fileName));
   }
 

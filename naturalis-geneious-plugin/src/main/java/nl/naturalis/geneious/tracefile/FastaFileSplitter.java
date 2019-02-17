@@ -3,12 +3,12 @@ package nl.naturalis.geneious.tracefile;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,9 +32,7 @@ class FastaFileSplitter {
   private int fileNo = 0;
 
   FastaFileSplitter() {
-    guiLogger.debug("Initializing fasta file splitter");
     tmpDir = NFileUtils.newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
-    guiLogger.debugf(() -> format("Temporary fasta files will be written to %s", tmpDir.getPath()));
   }
 
   List<File> split(File motherFile) throws IOException {
@@ -57,6 +55,14 @@ class FastaFileSplitter {
             break OUTER_LOOP;
           }
           if (chunk.startsWith(">")) {
+            if (chunk.length() == 1) {
+              /*
+               * Only bare-bones validation here, so from here on String.substring(1) won't throw an exception. True validation of the name
+               * will happen downstream
+               */
+              guiLogger.error("Corrupt file: %s. Line may not contain a single '>' character", motherFile);
+              break OUTER_LOOP;
+            }
             saveToNewFile(files, header, sequence.toString());
             header = chunk;
             sequence.setLength(0);
@@ -66,22 +72,31 @@ class FastaFileSplitter {
         }
       } while (true);
     }
-    guiLogger.debugf(() -> format("%s split into %s fasta file(s) containing a single nucleotide sequence", motherFile.getName(), fileNo));
     return files;
   }
 
+  /**
+   * Returns the directory into which the splitter has written the single-sequence fasta files.
+   * 
+   * @return
+   */
   File getFastaTempDirectory() {
     return tmpDir;
   }
 
-  private static boolean isStartOfSequence(String chunk) {
-    return chunk != null && !chunk.startsWith(">") && !StringUtils.isBlank(chunk);
+  /**
+   * Returns the total number of single-sequence fasta files created by the splitter.
+   * 
+   * @return
+   */
+  int getSplitCount() {
+    return fileNo;
   }
 
   private void saveToNewFile(List<File> children, String header, String sequence) throws IOException {
     File f = getTempFile();
-    guiLogger.debugf(() -> format("Saving sequence \"%s\" to %s", header, f.getPath()));
-    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f), 4096)) {
+    guiLogger.debugf(() -> format("Creating intermediate fasta file \"%s\" to %s", header, f.getAbsolutePath()));
+    try (BufferedOutputStream bos = open(f)) {
       bos.write(header.getBytes(UTF_8));
       bos.write(NEWLINE);
       bos.write(sequence.getBytes(UTF_8));
@@ -92,4 +107,13 @@ class FastaFileSplitter {
   private File getTempFile() {
     return NFileUtils.newFile(tmpDir, NStringUtils.zpad(++fileNo, 4, ".fasta"));
   }
+
+  private static boolean isStartOfSequence(String chunk) {
+    return chunk != null && !chunk.startsWith(">") && !StringUtils.isBlank(chunk);
+  }
+
+  private static BufferedOutputStream open(File f) throws IOException {
+    return new BufferedOutputStream(FileUtils.openOutputStream(f), 4096);
+  }
+
 }

@@ -66,6 +66,10 @@ public class GuiLogger {
     record(WARNING, message, null, msgArgs);
   }
 
+  public void warnf(Supplier<Object[]> msgSupplier) {
+    recordf(WARNING, msgSupplier, null);
+  }
+
   public void error(String message, Object... msgArgs) {
     record(ERROR, message, null, msgArgs);
   }

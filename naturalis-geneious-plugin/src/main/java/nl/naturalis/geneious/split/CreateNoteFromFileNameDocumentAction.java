@@ -18,7 +18,7 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
   public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
     int good = 0;
     int bad = 0;
-    FileNameParser parser = new FileNameParser();
+    SequenceNameParser parser = new SequenceNameParser();
     try {
       for (AnnotatedPluginDocument doc : selectedDocuments) {
         NaturalisNote note;
