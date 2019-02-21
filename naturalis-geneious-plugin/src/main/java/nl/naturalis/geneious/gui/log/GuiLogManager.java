@@ -22,10 +22,15 @@ public class GuiLogManager {
 
   private static final String NEWLINE = System.getProperty("line.separator");
 
-  private static final GuiLogManager instance = new GuiLogManager();
+  public static final GuiLogManager instance = new GuiLogManager();
 
   public static GuiLogger getLogger(Class<?> clazz) {
     return instance.get(clazz);
+  }
+
+  public static void setDebug(boolean debug) {
+    instance.logLevel = debug? DEBUG : INFO;
+    instance.loggers.forEach((k, v) -> v.reset(instance.logLevel));
   }
 
   public static void showLog(String title) {

@@ -41,6 +41,10 @@ public class GuiLogger {
     this.records = records;
   }
 
+  void reset(LogLevel level) {
+    this.logLevel = level;
+  }
+
   void reset(LogLevel level, List<LogRecord> records) {
     this.logLevel = level;
     this.records = records;

@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.common.base.NStringUtils.rchop;
+import static nl.naturalis.common.base.NStrings.rchop;
 
 /**
  * Extracts information from the name of an ab1/fasta file c.q. the header line(s) within a fasta File used to enrich a Geneious document
@@ -15,7 +15,7 @@ import static nl.naturalis.common.base.NStringUtils.rchop;
  */
 public class SequenceNameParser {
 
-  public NaturalisNote parse(String fileName) throws BadFileNameException {
+  public NaturalisNote parse(String fileName) throws SequenceNameNotParsableException {
 //    if (fileName.endsWith(".ab1")) {
 //      return parseAb1(fileName, rchop(fileName, ".ab1"));
 //    }
@@ -31,26 +31,26 @@ public class SequenceNameParser {
     return null;
   }
 
-  public NaturalisNote parseAb1(String name) throws BadFileNameException {
+  public static NaturalisNote parseAb1(String name) throws SequenceNameNotParsableException {
     String[] chunks = name.split(Pattern.quote("_"));
     if (chunks.length < 5) {
-      throw BadFileNameException.notEnoughUnderscores(name, chunks.length - 1, 4);
+      throw SequenceNameNotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
     }
     NaturalisNote note = new NaturalisNote();
     note.setExtractId(chunks[0]);
     note.setPcrPlateId(chunks[3]);
     int i = chunks[4].indexOf('-');
     if (i == -1) {
-      throw BadFileNameException.missingHyphenInMarkerSegment(name);
+      throw SequenceNameNotParsableException.missingHyphenInMarkerSegment(name);
     }
     note.setMarker(chunks[4].substring(0, i));
     return note;
   }
 
-  public NaturalisNote parseFasta(String name) throws BadFileNameException {
+  public static NaturalisNote parseFasta(String name) throws SequenceNameNotParsableException {
     String[] chunks = name.split(Pattern.quote("_"));
     if (chunks.length < 5) {
-      throw BadFileNameException.notEnoughUnderscores(name, chunks.length - 1, 4);
+      throw SequenceNameNotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
     }
     NaturalisNote note = new NaturalisNote();
     note.setExtractId(chunks[0]);

@@ -11,9 +11,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.BadFileNameException;
-import nl.naturalis.geneious.split.SequenceNameParser;
+import nl.naturalis.geneious.split.SequenceNameNotParsableException;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
@@ -21,9 +19,9 @@ class Ab1FileImporter {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FileImporter.class);
 
-  private final List<File> ab1Files;
+  private final List<Ab1FileInfo> ab1Files;
 
-  Ab1FileImporter(List<File> ab1Files) {
+  Ab1FileImporter(List<Ab1FileInfo> ab1Files) {
     guiLogger.debug("Initializing AB1 file importer");
     this.ab1Files = ab1Files;
   }
@@ -33,8 +31,8 @@ class Ab1FileImporter {
     int imported = 0;
     int rejected = 0;
     int enriched = 0;
-    SequenceNameParser parser = new SequenceNameParser();
-    for (File f : ab1Files) {
+    for (Ab1FileInfo ab1FileInfo : ab1Files) {
+      File f = ab1FileInfo.getSourceFile();
       guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
       List<AnnotatedPluginDocument> apds;
       try {
@@ -50,12 +48,9 @@ class Ab1FileImporter {
         break;
       }
       try {
-        NaturalisNote note = parser.parseAb1(f.getName());
-        if (note != null) {
-          note.attach(apds.get(0));
-          ++enriched;
-        }
-      } catch (BadFileNameException e) {
+        ab1FileInfo.getNote().attach(apds.get(0));
+        ++enriched;
+      } catch (SequenceNameNotParsableException e) {
         guiLogger.error(e.getMessage());
         continue;
       }

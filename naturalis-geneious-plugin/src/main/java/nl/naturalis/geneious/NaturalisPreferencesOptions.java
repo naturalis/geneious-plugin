@@ -2,6 +2,8 @@ package nl.naturalis.geneious;
 
 import com.biomatters.geneious.publicapi.plugin.Options;
 
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+
 public class NaturalisPreferencesOptions extends Options {
 
   private static class State {
@@ -40,8 +42,12 @@ public class NaturalisPreferencesOptions extends Options {
     BooleanOption bOpt1 = addBooleanOption("nl.naturalis.geneious.log.debug", "Show debug info in plugin logs", Boolean.FALSE);
     bOpt1.setHelp("Provide more detailed information as the Naturalis plugin is working.  Enable when creating "
         + "support tickets for bugs or perfomance issues.");
-    bOpt1.addChangeListener(() -> state.debug = bOpt1.getValue());
+    bOpt1.addChangeListener(() -> {
+      state.debug = bOpt1.getValue();
+      GuiLogManager.setDebug(state.debug.booleanValue());
+    });
     state.debug = bOpt1.getValue();
+    GuiLogManager.setDebug(state.debug.booleanValue());
 
     BooleanOption bOpt2 =
         addBooleanOption("nl.naturalis.geneious.log.deleteTmpFastaFiles", "Delete intermediate fasta files", Boolean.TRUE);

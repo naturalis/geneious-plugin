@@ -13,6 +13,7 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -38,15 +39,16 @@ public class TraceFileDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     boolean cancelled = false;
     try {
-      JFileChooser fileChooser = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
-      fileChooser.setDialogTitle("Choose AB1/fasta files to import");
-      fileChooser.setMultiSelectionEnabled(true);
-      fileChooser.addChoosableFileFilter(new Ab1FastaFileFilter());
-      fileChooser.setAcceptAllFileFilterUsed(true);
-      GeneiousGUI.scale(fileChooser, .6, .5, 800, 560);
-      if (fileChooser.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-        RuntimeSettings.INSTANCE.setAb1FastaFolder(fileChooser.getCurrentDirectory());
-        return new TraceFileImporter(fileChooser.getSelectedFiles()).process();
+      JFileChooser fc = new JFileChooser(RuntimeSettings.INSTANCE.getAb1FastaFolder());
+      fc.setDialogTitle("Choose AB1/fasta files to import");
+      fc.setApproveButtonText("Import files");
+      fc.setMultiSelectionEnabled(true);
+      fc.setFileFilter(new Ab1FastaFileFilter());
+      fc.setAcceptAllFileFilterUsed(false);
+      GeneiousGUI.scale(fc, .6, .5, 800, 560);
+      if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+        RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
+        return new TraceFileImporter(fc.getSelectedFiles()).process();
       }
       cancelled = true;
     } catch (Throwable t) {

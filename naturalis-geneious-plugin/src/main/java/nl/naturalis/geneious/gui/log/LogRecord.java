@@ -5,8 +5,8 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 
-import static nl.naturalis.common.base.NExceptionUtils.getRootStackTraceAsString;
-import static nl.naturalis.common.base.NStringUtils.rpad;
+import static nl.naturalis.common.base.NExceptions.getRootStackTraceAsString;
+import static nl.naturalis.common.base.NStrings.rpad;
 
 public class LogRecord {
 

@@ -19,6 +19,7 @@ import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 import com.google.common.base.Preconditions;
 
+import nl.naturalis.common.base.NOptionals;
 import nl.naturalis.geneious.gui.ShowDialog;
 
 /**
@@ -145,7 +146,7 @@ public class CommonUtils {
     if (db == null || !(db instanceof WritableDatabaseService)) {
       return Optional.empty();
     }
-    return narrow(db);
+    return NOptionals.cast(db);
   }
 
   /**
@@ -170,17 +171,6 @@ public class CommonUtils {
     }
     WritableDatabaseService wdb = ((WritableDatabaseService) db).getPrimaryDatabaseRoot();
     return Optional.of(wdb);
-  }
-
-  /**
-   * Narrow-casts the contents of the specified Optional.
-   * 
-   * @param optional
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  public static <T, U extends T> Optional<U> narrow(Optional<T> optional) {
-    return (Optional<U>) Optional.ofNullable(optional.get());
   }
 
   /**
@@ -220,27 +210,6 @@ public class CommonUtils {
       map.putIfAbsent(db, partition);
     }
     return map;
-  }
-
-  /**
-   * Casts the specfied object to an instance of U and then wraps it into an Optional.
-   * 
-   * @param t
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  public static <T, U extends T> Optional<U> narrow(T t) {
-    return (Optional<U>) Optional.ofNullable(t);
-  }
-
-  /**
-   * Widens the contents of the specified Optional.
-   * 
-   * @param optional
-   * @return
-   */
-  public <U, T extends U> Optional<U> widen(Optional<T> optional) {
-    return Optional.ofNullable(optional.get());
   }
 
   /**

@@ -2,6 +2,7 @@ package nl.naturalis.geneious.tracefile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -37,15 +38,18 @@ class TraceFileImporter {
   List<AnnotatedPluginDocument> process() throws IOException {
     TraceFilePreprocessor preprocessor = new TraceFilePreprocessor(files);
     List<List<File>> ab1AndFastaFiles = preprocessor.divideByFileType();
+    List<AnnotatedPluginDocument> result = new ArrayList<>(64);
     List<File> ab1Files = ab1AndFastaFiles.get(0);
     List<File> fastaFiles = ab1AndFastaFiles.get(1);
-    Ab1FileImporter imp0 = new Ab1FileImporter(ab1Files);
-    List<AnnotatedPluginDocument> result = imp0.importFiles();
-    FastaFileImporter imp1 = new FastaFileImporter(fastaFiles);
-    result.addAll(imp1.importFiles());
-//    try (FastaFileImporter imp1 = new FastaFileImporter(fastaFiles)) {
-//      result.addAll(imp1.importFiles());
-//    }
+    if (ab1Files.size() != 0) {
+      Ab1FileImporter importer = new Ab1FileImporter(ab1Files);
+      result.addAll(importer.importFiles());
+    }
+    if (fastaFiles.size() != 0) {
+      try (FastaFileImporter importer = new FastaFileImporter(fastaFiles)) {
+        result.addAll(importer.importFiles());
+      }
+    }
     return result;
   }
 

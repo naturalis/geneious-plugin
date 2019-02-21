@@ -26,7 +26,7 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
           note = parser.parse(doc.getName());
           note.attach(doc);
           ++good;
-        } catch (BadFileNameException e) {
+        } catch (SequenceNameNotParsableException e) {
           guiLogger.error(e.getMessage());
           ++bad;
         }
