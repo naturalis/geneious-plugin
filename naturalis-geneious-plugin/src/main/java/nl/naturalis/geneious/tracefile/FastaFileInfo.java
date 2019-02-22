@@ -24,7 +24,7 @@ class FastaFileInfo extends TraceFileInfo {
   @Override
   NaturalisNote getNote() throws SequenceNameNotParsableException, IOException {
     if (note == null) {
-      return (note = SequenceNameParser.parseFasta(getFastaHeader()));
+      return (note = SequenceNameParser.parseFasta(getName()));
     }
     return note;
   }
@@ -38,9 +38,9 @@ class FastaFileInfo extends TraceFileInfo {
     return motherFile;
   }
 
-  private String getFastaHeader() throws IOException {
+  private String getName() throws IOException {
     try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile)))) {
-      return br.readLine();
+      return br.readLine().substring(1);
     }
   }
 }

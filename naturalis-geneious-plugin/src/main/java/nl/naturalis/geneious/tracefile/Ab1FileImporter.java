@@ -20,27 +20,28 @@ class Ab1FileImporter {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FileImporter.class);
 
   private final List<Ab1FileInfo> ab1Files;
+  private final TraceFileImportStats stats;
 
-  Ab1FileImporter(List<Ab1FileInfo> ab1Files) {
-    guiLogger.debug("Initializing AB1 file importer");
+  Ab1FileImporter(List<Ab1FileInfo> ab1Files, TraceFileImportStats stats) {
+    guiLogger.info("Starting AB1 file importer");
     this.ab1Files = ab1Files;
+    this.stats = stats;
   }
 
   List<AnnotatedPluginDocument> importFiles() throws IOException {
     List<AnnotatedPluginDocument> result = new ArrayList<>(ab1Files.size());
-    int imported = 0;
-    int rejected = 0;
-    int enriched = 0;
+    TraceFileImportStats myStats = new TraceFileImportStats();
     for (Ab1FileInfo ab1FileInfo : ab1Files) {
+      ++myStats.processed;
       File f = ab1FileInfo.getSourceFile();
       guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
       List<AnnotatedPluginDocument> apds;
       try {
         apds = PluginUtilities.importDocuments(f, null);
-        ++imported;
+        ++myStats.imported;
       } catch (DocumentImportException e) {
         guiLogger.error("Error processing file %s", e, f.getAbsolutePath());
-        ++rejected;
+        ++myStats.rejected;
         continue;
       }
       if (apds.size() != 1) {
@@ -49,7 +50,7 @@ class Ab1FileImporter {
       }
       try {
         ab1FileInfo.getNote().attach(apds.get(0));
-        ++enriched;
+        ++myStats.enriched;
       } catch (SequenceNameNotParsableException e) {
         guiLogger.error(e.getMessage());
         continue;
@@ -57,9 +58,11 @@ class Ab1FileImporter {
       result.addAll(apds);
     }
     guiLogger.info("Number of AB1 files selected: %s", ab1Files.size());
-    guiLogger.info("Number of AB1 files imported: %s", imported);
-    guiLogger.info("Number of AB1 files rejected: %s", rejected);
-    guiLogger.info("Number of AB1 documents enriched: %s", enriched);
+    guiLogger.info("Number of AB1 files processed: %s", myStats.processed);
+    guiLogger.info("Number of AB1 files rejected: %s", myStats.rejected);
+    guiLogger.info("Number of AB1 documents enriched: %s", myStats.enriched);
+    guiLogger.info("Number of AB1 files imported: %s", myStats.imported);
+    stats.merge(myStats);
     return result;
   }
 

@@ -15,7 +15,6 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
  */
 class TraceFileImporter {
 
-  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
 
   private final File[] files;
@@ -36,18 +35,25 @@ class TraceFileImporter {
    * @throws IOException
    */
   List<AnnotatedPluginDocument> process() throws IOException {
-    TraceFilePreprocessor preprocessor = new TraceFilePreprocessor(files);
-    List<List<File>> ab1AndFastaFiles = preprocessor.divideByFileType();
-    List<AnnotatedPluginDocument> result = new ArrayList<>(64);
-    List<File> ab1Files = ab1AndFastaFiles.get(0);
-    List<File> fastaFiles = ab1AndFastaFiles.get(1);
-    if (ab1Files.size() != 0) {
-      Ab1FileImporter importer = new Ab1FileImporter(ab1Files);
-      result.addAll(importer.importFiles());
-    }
-    if (fastaFiles.size() != 0) {
-      try (FastaFileImporter importer = new FastaFileImporter(fastaFiles)) {
+    List<AnnotatedPluginDocument> result = new ArrayList<>();
+    TraceFileImportStats stats = new TraceFileImportStats();
+    try (TraceFileProvider provider = new TraceFileProvider(files)) {
+      List<Ab1FileInfo> ab1Files = provider.getAb1Files();
+      if (ab1Files.size() != 0) {
+        Ab1FileImporter importer = new Ab1FileImporter(ab1Files, stats);
         result.addAll(importer.importFiles());
+      }
+      List<FastaFileInfo> fastaFiles = provider.getFastaFiles();
+      if (fastaFiles.size() != 0) {
+        FastaFileImporter importer = new FastaFileImporter(fastaFiles, stats);
+        result.addAll(importer.importFiles());
+      }
+      if (ab1Files.size() != 0 && fastaFiles.size() != 0) {
+        guiLogger.info("Total Number of files selected: %s", files.length);
+        guiLogger.info("Total Number of files processed: %s", stats.processed);
+        guiLogger.info("Total Number of files rejected: %s", stats.rejected);
+        guiLogger.info("Total Number of documents enriched: %s", stats.enriched);
+        guiLogger.info("Total Number of files imported: %s", result.size());
       }
     }
     return result;

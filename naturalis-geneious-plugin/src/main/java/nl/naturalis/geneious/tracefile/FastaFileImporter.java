@@ -20,27 +20,29 @@ import nl.naturalis.geneious.split.SequenceNameNotParsableException;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
- * Imports the fasta files of the AB1/Fasta import. Note that this is an Autocloseable class, and you should create instances of it using a
- * try-with-resources block. That will ensure that the temporary single-sequence fasta files will be deleted once the import completes.
+ * Imports the fasta files of the AB1/Fasta import.
  */
 class FastaFileImporter {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaFileImporter.class);
 
   private final List<FastaFileInfo> fastaFiles;
+  private final TraceFileImportStats stats;
 
-  FastaFileImporter(List<FastaFileInfo> fastaFiles) {
-    guiLogger.debug("Initializing fasta file importer");
+  FastaFileImporter(List<FastaFileInfo> fastaFiles, TraceFileImportStats stats) {
+    guiLogger.info("Starting fasta file importer");
     this.fastaFiles = fastaFiles;
+    this.stats = stats;
   }
 
   List<AnnotatedPluginDocument> importFiles() throws IOException {
     List<AnnotatedPluginDocument> result = new ArrayList<>();
+    TraceFileImportStats myStats = new TraceFileImportStats();
     LinkedHashMap<File, ArrayList<FastaFileInfo>> fastas = mapMothersToChildren();
-    int enriched = 0;
     for (File mother : fastas.keySet()) {
       guiLogger.debugf(() -> format("Processing file \"%s\"", mother.getName()));
       for (FastaFileInfo info : fastas.get(mother)) {
+        ++myStats.processed;
         File f = info.getSourceFile();
         String[] contents = getFastaContents(f);
         guiLogger.debugf(() -> format("--> Processing sequence \"%s\"", contents[0]));
@@ -49,7 +51,7 @@ class FastaFileImporter {
         result.add(apd);
         try {
           info.getNote().attach(apd);
-          ++enriched;
+          ++myStats.enriched;
         } catch (SequenceNameNotParsableException e) {
           guiLogger.error(e.getMessage());
           continue;
@@ -57,9 +59,11 @@ class FastaFileImporter {
       }
     }
     guiLogger.info("Number of fasta files selected: %s", fastas.size());
-    guiLogger.info("Number of single-sequence fasta files created: %s", fastaFiles.size());
-    guiLogger.info("Number of files imported: %s", result.size());
-    guiLogger.info("Number of documents enriched: %s", enriched);
+    guiLogger.info("Number of fasta files processed: %s", myStats.processed);
+    guiLogger.info("Number of fasta files rejected: %s", 0);
+    guiLogger.info("Number of fasta files imported: %s", result.size());
+    guiLogger.info("Number of fasta documents enriched: %s", myStats.enriched);
+    stats.merge(myStats);
     return result;
   }
 
