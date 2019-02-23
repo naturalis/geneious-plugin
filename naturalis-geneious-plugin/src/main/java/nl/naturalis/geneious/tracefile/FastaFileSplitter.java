@@ -23,7 +23,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
- * Splits a fasta file in a set of new fasta files, each containing just one nucleotide sequence, and saves the newly created fasta files to
+ * Splits a fasta file in a set of new fasta files, each containing a single nucleotide sequence, and saves the newly created fasta files to
  * a temporary directory.
  */
 class FastaFileSplitter {
@@ -31,14 +31,19 @@ class FastaFileSplitter {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaFileSplitter.class);
   private static final byte[] NEWLINE = IOUtils.LINE_SEPARATOR.getBytes(UTF_8);
 
+  private final boolean inMemory;
   private final File tmpDir;
 
   private int fileNo = 0;
 
-  FastaFileSplitter() {
-    tmpDir = NFileUtils.newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
-    guiLogger.debugf(() -> format("Initializing fasta file splitter. Temporary single-sequence fasta files will be saved to %s",
-        tmpDir.getAbsolutePath()));
+  FastaFileSplitter(boolean inMemory) {
+    guiLogger.debug(() -> "Initializing fasta file splitter");
+    if (this.inMemory = inMemory) {
+      this.tmpDir = null;
+    } else {
+      this.tmpDir = inMemory ? null : NFileUtils.newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
+      guiLogger.debugf(() -> format("Sequences will be saved to %s", tmpDir.getPath()));
+    }
   }
 
   /**
@@ -48,8 +53,8 @@ class FastaFileSplitter {
    * @return
    * @throws IOException
    */
-  List<File> split(File motherFile) throws IOException {
-    List<File> files = new ArrayList<>();
+  List<FastaSequenceInfo> split(File motherFile) throws IOException {
+    List<FastaSequenceInfo> files = new ArrayList<>();
     StringBuilder sequence = new StringBuilder(512);
     try (BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
       String header = br.readLine();
@@ -64,16 +69,19 @@ class FastaFileSplitter {
           sequence.append(chunk);
           chunk = br.readLine();
           if (chunk == null) {
-            saveToNewFile(files, header, sequence.toString());
+            if (inMemory) {
+              files.add(new FastaSequenceInfo(header.substring(1), sequence.toString(), motherFile));
+            } else {
+              files.add(new FastaSequenceInfo(saveToNewFile(chunk, sequence.toString()), motherFile));
+            }
             break OUTER_LOOP;
           }
           if (chunk.startsWith(">")) {
-            if (chunk.length() == 1) {
-              // Some bare-bones validation here, so from here on String.substring(1) won't throw an exception
-              guiLogger.error("Corrupt file: \"%s\". Line may not contain a single '>' character", motherFile);
-              break OUTER_LOOP;
+            if (inMemory) {
+              files.add(new FastaSequenceInfo(chunk.substring(1), sequence.toString(), motherFile));
+            } else {
+              files.add(new FastaSequenceInfo(saveToNewFile(chunk, sequence.toString()), motherFile));
             }
-            saveToNewFile(files, header, sequence.toString());
             header = chunk;
             sequence.setLength(0);
             break INNER_LOOP;
@@ -83,7 +91,7 @@ class FastaFileSplitter {
       } while (true);
     }
     if (files.size() > 1) {
-      guiLogger.debugf(() -> format("File \"%s\" was split into %s single-sequence files", motherFile.getName(), files.size()));
+      guiLogger.debugf(() -> format("File \"%s\" was split into %s nucleotide sequences", motherFile.getName(), files.size()));
     }
     return files;
   }
@@ -106,14 +114,14 @@ class FastaFileSplitter {
     return fileNo;
   }
 
-  private void saveToNewFile(List<File> children, String header, String sequence) throws IOException {
+  private File saveToNewFile(String header, String sequence) throws IOException {
     File f = getTempFile();
     try (BufferedOutputStream bos = open(f)) {
       bos.write(header.getBytes(UTF_8));
       bos.write(NEWLINE);
       bos.write(sequence.getBytes(UTF_8));
     }
-    children.add(f);
+    return f;
   }
 
   private File getTempFile() {

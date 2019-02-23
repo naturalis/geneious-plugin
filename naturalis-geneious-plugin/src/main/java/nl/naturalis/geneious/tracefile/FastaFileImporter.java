@@ -1,10 +1,7 @@
 package nl.naturalis.geneious.tracefile;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,10 +40,10 @@ class FastaFileImporter {
       guiLogger.debugf(() -> format("Processing file \"%s\"", mother.getName()));
       for (FastaSequenceInfo info : fastas.get(mother)) {
         ++myStats.processed;
-        File f = info.getSourceFile();
-        String[] contents = getFastaContents(f);
-        guiLogger.debugf(() -> format("--> Processing sequence \"%s\"", contents[0]));
-        DefaultNucleotideSequence seq = new DefaultNucleotideSequence(contents[0], contents[1]);
+        if (guiLogger.isDebugEnabled()) {
+          guiLogger.debug(String.format("--> Processing sequence \"%s\"", info.getName()));
+        }
+        DefaultNucleotideSequence seq = new DefaultNucleotideSequence(info.getName(), info.getSequence());
         AnnotatedPluginDocument apd = DocumentUtilities.createAnnotatedPluginDocument(seq);
         result.add(apd);
         try {
@@ -78,20 +75,6 @@ class FastaFileImporter {
       infos.add(info);
     }
     return map;
-  }
-
-  // Returns the Fasta header as the 1st array elements and the nucleotide sequence as the 2nd.
-  private static String[] getFastaContents(File f) throws IOException {
-    String[] contents = new String[2];
-    StringBuilder sb = new StringBuilder(1024);
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
-      contents[0] = br.readLine().substring(1);
-      for (String line = br.readLine(); line != null; line = br.readLine()) {
-        sb.append(line);
-      }
-      contents[1] = sb.toString();
-    }
-    return contents;
   }
 
 }

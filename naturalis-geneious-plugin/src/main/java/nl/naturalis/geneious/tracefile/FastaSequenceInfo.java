@@ -13,9 +13,10 @@ import nl.naturalis.geneious.split.SequenceNameParser;
 /**
  * Provides information about a fasta-encoded sequence.
  */
-class FastaSequenceInfo extends SequenceIno {
+final class FastaSequenceInfo extends SequenceIno {
 
   private final File motherFile;
+
   private String name;
   private NaturalisNote note;
   private String sequence;
@@ -25,13 +26,11 @@ class FastaSequenceInfo extends SequenceIno {
     this.motherFile = motherFile;
   }
 
-  /**
-   * Returns the fasta file from which the single-sequence file wrapped by this instance was split off.
-   * 
-   * @return
-   */
-  public File getMotherFile() {
-    return motherFile;
+  FastaSequenceInfo(String name, String sequence, File motherFile) {
+    super(null);
+    this.name = name;
+    this.sequence = sequence;
+    this.motherFile = motherFile;
   }
 
   @Override
@@ -42,6 +41,19 @@ class FastaSequenceInfo extends SequenceIno {
     return name;
   }
 
+  /**
+   * Returns the fasta-encoded nucleotide sequence.
+   * 
+   * @return
+   * @throws IOException
+   */
+  public String getSequence() throws IOException {
+    if (sequence == null) {
+      readSourceFile();
+    }
+    return sequence;
+  }
+
   @Override
   NaturalisNote getNote() throws SequenceNameNotParsableException, IOException {
     if (note == null) {
@@ -50,11 +62,13 @@ class FastaSequenceInfo extends SequenceIno {
     return note;
   }
 
-  public String getSequence() throws IOException {
-    if (sequence == null) {
-      readSourceFile();
-    }
-    return sequence;
+  /**
+   * Returns the file from which the nucleotide sequence was extracted.
+   * 
+   * @return
+   */
+  public File getMotherFile() {
+    return motherFile;
   }
 
   private void readSourceFile() throws IOException {

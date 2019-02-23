@@ -37,7 +37,7 @@ class TraceFileImporter {
   List<AnnotatedPluginDocument> process() throws IOException {
     List<AnnotatedPluginDocument> result = new ArrayList<>();
     TraceFileImportStats stats = new TraceFileImportStats();
-    try (TraceFileProvider provider = new TraceFileProvider(files)) {
+    try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<Ab1SequenceInfo> ab1Files = provider.getAb1Files();
       if (ab1Files.size() != 0) {
         Ab1FileImporter importer = new Ab1FileImporter(ab1Files, stats);

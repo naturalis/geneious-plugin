@@ -8,6 +8,7 @@ public class NaturalisPreferencesOptions extends Options {
 
   private static class State {
     private Boolean debug;
+    private Boolean disableFastaCache;
     private Boolean deleteTmpFastaFiles;
     private String fastaExtensions;
     private String ab1Extensions;
@@ -17,6 +18,10 @@ public class NaturalisPreferencesOptions extends Options {
 
   public static boolean isDebug() {
     return state.debug.booleanValue();
+  }
+
+  public static boolean disableFastaCache() {
+    return state.disableFastaCache.booleanValue();
   }
 
   public static boolean deleteTmpFastaFiles() {
@@ -50,14 +55,22 @@ public class NaturalisPreferencesOptions extends Options {
     GuiLogManager.setDebug(state.debug.booleanValue());
 
     BooleanOption bOpt2 =
+        addBooleanOption("nl.naturalis.geneious.log.disableFastaCache", "Disable fasta cache", Boolean.FALSE);
+    bOpt2.setHelp("When importing fasta files, they are first split into single nucleotide sequences. If you import "
+        + "fewer than 500 fasta files, this is all done in-memory; otherwise the nucleotide sequence is written to a "
+        + "temporary file. This option allows you to force the plugin to always create temporary files so you could "
+        + "inspect or use them afterwards");
+    bOpt2.addChangeListener(() -> state.disableFastaCache = bOpt2.getValue());
+    state.disableFastaCache = bOpt2.getValue();
+
+    BooleanOption bOpt3 =
         addBooleanOption("nl.naturalis.geneious.log.deleteTmpFastaFiles", "Delete intermediate fasta files", Boolean.TRUE);
-    bOpt2.setHelp("When importing fasta files, they are first split into intermediate fasta files containing only one "
-        + "nucleotide sequence. Even files that already contain just a single sequence are still copied to a temporary "
-        + "location. Ordinarily the intermediate fasta files are deleted once the import completes. This option allows "
-        + "you to you to leave them hanging around on the file system. You must then manually delete them to prevent "
-        + "clogging up the file system");
-    bOpt2.addChangeListener(() -> state.deleteTmpFastaFiles = bOpt2.getValue());
-    state.deleteTmpFastaFiles = bOpt2.getValue();
+    bOpt3.setHelp("When you import a large number of fasta files at once, a lot of temporary files will be created. "
+        + "Ordinarily these temporary fasta files are deleted once the import is finished. This option allows you to "
+        + "keep them on the file system. The plugin will tell you where they are. Please make sure you delete them "
+        + "yourself when you are done with them!");
+    bOpt3.addChangeListener(() -> state.deleteTmpFastaFiles = bOpt3.getValue());
+    state.deleteTmpFastaFiles = bOpt3.getValue();
 
     StringOption sOpt1 = addStringOption("nl.naturalis.geneious.fasta.extension", "Fasta file extensions", "fas,fasta");
     sOpt1.setHelp("A comma-separated list of valid file extensions for Fasta files. You can leave this field empty or "

@@ -49,6 +49,10 @@ public class GuiLogger {
     this.logLevel = level;
     this.records = records;
   }
+  
+  public boolean isDebugEnabled() {
+    return logLevel.ordinal() >= DEBUG.ordinal();
+  }
 
   public void debug(String message, Object... msgArgs) {
     record(DEBUG, message, null, msgArgs);

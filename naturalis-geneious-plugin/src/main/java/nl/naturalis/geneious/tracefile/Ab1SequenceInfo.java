@@ -11,7 +11,7 @@ import nl.naturalis.geneious.split.SequenceNameParser;
 /**
  * Provides information about an AB1-encoded sequence.
  */
-class Ab1SequenceInfo extends SequenceIno {
+final class Ab1SequenceInfo extends SequenceIno {
 
   private String name;
   private NaturalisNote note;
