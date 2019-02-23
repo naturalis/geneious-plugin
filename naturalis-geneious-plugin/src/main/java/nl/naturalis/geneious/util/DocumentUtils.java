@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
+import org.apache.commons.lang3.StringUtils;
+
+import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+
+import static nl.naturalis.common.base.NStrings.rtrim;
 
 public class DocumentUtils {
 
@@ -22,7 +28,7 @@ public class DocumentUtils {
    * @throws IOException
    */
   public static boolean isAb1File(File f) throws IOException {
-    Set<String> exts = Ab1FastaFileFilter.getAb1Extensions();
+    Set<String> exts = DocumentUtils.getAb1Extensions();
     if (exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) != '>';
     }
@@ -42,7 +48,7 @@ public class DocumentUtils {
    * @throws IOException
    */
   public static boolean isFastaFile(File f) throws IOException {
-    Set<String> exts = Ab1FastaFileFilter.getFastaExtensions();
+    Set<String> exts = DocumentUtils.getFastaExtensions();
     if (exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) == '>';
     }
@@ -58,9 +64,44 @@ public class DocumentUtils {
     return false;
   }
 
+  public static Set<String> getAb1Extensions() {
+    Set<String> exts = new HashSet<>();
+    String s = NaturalisPreferencesOptions.getAb1Extensions();
+    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
+    }
+    return exts;
+  }
+
+  public static Set<String> getFastaExtensions() {
+    Set<String> exts = new HashSet<>();
+    String s = NaturalisPreferencesOptions.getFastaExtensions();
+    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(x -> {
+        x = x.trim().toLowerCase();
+        if (StringUtils.isNotBlank(x)) {
+          if (!x.startsWith(".")) {
+            x = "." + x;
+          }
+          exts.add(x);
+        }
+      });
+    }
+    return exts;
+  }
+
   private static char firstChar(File f) throws IOException {
     try (InputStreamReader isr = new InputStreamReader(new FileInputStream(f))) {
       return (char) isr.read();
     }
   }
+
 }

@@ -28,8 +28,8 @@ class TraceFileProvider implements AutoCloseable {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileProvider.class);
 
   private final FastaFileSplitter splitter;
-  private final List<Ab1FileInfo> ab1Files;
-  private final List<FastaFileInfo> fastaFiles;
+  private final List<Ab1SequenceInfo> ab1Files;
+  private final List<FastaSequenceInfo> fastaFiles;
 
   TraceFileProvider(File[] files) {
     this.splitter = new FastaFileSplitter();
@@ -38,9 +38,9 @@ class TraceFileProvider implements AutoCloseable {
     for (File file : files) {
       try {
         if (isAb1File(file)) {
-          ab1Files.add(new Ab1FileInfo(file));
+          ab1Files.add(new Ab1SequenceInfo(file));
         } else if (isFastaFile(file)) {
-          splitter.split(file).forEach(child -> fastaFiles.add(new FastaFileInfo(child, file)));
+          splitter.split(file).forEach(child -> fastaFiles.add(new FastaSequenceInfo(child, file)));
         } else {
           guiLogger.error("Cannot determine file type of %s (probably a bug)", file.getName());
         }
@@ -50,11 +50,11 @@ class TraceFileProvider implements AutoCloseable {
     }
   }
 
-  public List<Ab1FileInfo> getAb1Files() {
+  public List<Ab1SequenceInfo> getAb1Files() {
     return ab1Files;
   }
 
-  public List<FastaFileInfo> getFastaFiles() {
+  public List<FastaSequenceInfo> getFastaFiles() {
     return fastaFiles;
   }
 

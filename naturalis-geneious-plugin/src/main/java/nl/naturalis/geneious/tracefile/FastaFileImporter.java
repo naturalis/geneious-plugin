@@ -26,10 +26,10 @@ class FastaFileImporter {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaFileImporter.class);
 
-  private final List<FastaFileInfo> fastaFiles;
+  private final List<FastaSequenceInfo> fastaFiles;
   private final TraceFileImportStats stats;
 
-  FastaFileImporter(List<FastaFileInfo> fastaFiles, TraceFileImportStats stats) {
+  FastaFileImporter(List<FastaSequenceInfo> fastaFiles, TraceFileImportStats stats) {
     guiLogger.info("Starting fasta file importer");
     this.fastaFiles = fastaFiles;
     this.stats = stats;
@@ -38,10 +38,10 @@ class FastaFileImporter {
   List<AnnotatedPluginDocument> importFiles() throws IOException {
     List<AnnotatedPluginDocument> result = new ArrayList<>();
     TraceFileImportStats myStats = new TraceFileImportStats();
-    LinkedHashMap<File, ArrayList<FastaFileInfo>> fastas = mapMothersToChildren();
+    LinkedHashMap<File, ArrayList<FastaSequenceInfo>> fastas = mapMothersToChildren();
     for (File mother : fastas.keySet()) {
       guiLogger.debugf(() -> format("Processing file \"%s\"", mother.getName()));
-      for (FastaFileInfo info : fastas.get(mother)) {
+      for (FastaSequenceInfo info : fastas.get(mother)) {
         ++myStats.processed;
         File f = info.getSourceFile();
         String[] contents = getFastaContents(f);
@@ -67,10 +67,10 @@ class FastaFileImporter {
     return result;
   }
 
-  private LinkedHashMap<File, ArrayList<FastaFileInfo>> mapMothersToChildren() {
-    LinkedHashMap<File, ArrayList<FastaFileInfo>> map = new LinkedHashMap<>();
-    for (FastaFileInfo info : fastaFiles) {
-      ArrayList<FastaFileInfo> infos = map.get(info.getMotherFile());
+  private LinkedHashMap<File, ArrayList<FastaSequenceInfo>> mapMothersToChildren() {
+    LinkedHashMap<File, ArrayList<FastaSequenceInfo>> map = new LinkedHashMap<>();
+    for (FastaSequenceInfo info : fastaFiles) {
+      ArrayList<FastaSequenceInfo> infos = map.get(info.getMotherFile());
       if (infos == null) {
         infos = new ArrayList<>();
         map.put(info.getMotherFile(), infos);

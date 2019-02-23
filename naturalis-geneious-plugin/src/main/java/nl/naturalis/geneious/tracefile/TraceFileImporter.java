@@ -38,12 +38,12 @@ class TraceFileImporter {
     List<AnnotatedPluginDocument> result = new ArrayList<>();
     TraceFileImportStats stats = new TraceFileImportStats();
     try (TraceFileProvider provider = new TraceFileProvider(files)) {
-      List<Ab1FileInfo> ab1Files = provider.getAb1Files();
+      List<Ab1SequenceInfo> ab1Files = provider.getAb1Files();
       if (ab1Files.size() != 0) {
         Ab1FileImporter importer = new Ab1FileImporter(ab1Files, stats);
         result.addAll(importer.importFiles());
       }
-      List<FastaFileInfo> fastaFiles = provider.getFastaFiles();
+      List<FastaSequenceInfo> fastaFiles = provider.getFastaFiles();
       if (fastaFiles.size() != 0) {
         FastaFileImporter importer = new FastaFileImporter(fastaFiles, stats);
         result.addAll(importer.importFiles());

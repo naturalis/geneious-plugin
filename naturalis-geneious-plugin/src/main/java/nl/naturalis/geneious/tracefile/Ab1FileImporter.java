@@ -19,10 +19,10 @@ class Ab1FileImporter {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FileImporter.class);
 
-  private final List<Ab1FileInfo> ab1Files;
+  private final List<Ab1SequenceInfo> ab1Files;
   private final TraceFileImportStats stats;
 
-  Ab1FileImporter(List<Ab1FileInfo> ab1Files, TraceFileImportStats stats) {
+  Ab1FileImporter(List<Ab1SequenceInfo> ab1Files, TraceFileImportStats stats) {
     guiLogger.info("Starting AB1 file importer");
     this.ab1Files = ab1Files;
     this.stats = stats;
@@ -31,7 +31,7 @@ class Ab1FileImporter {
   List<AnnotatedPluginDocument> importFiles() throws IOException {
     List<AnnotatedPluginDocument> result = new ArrayList<>(ab1Files.size());
     TraceFileImportStats myStats = new TraceFileImportStats();
-    for (Ab1FileInfo ab1FileInfo : ab1Files) {
+    for (Ab1SequenceInfo ab1FileInfo : ab1Files) {
       ++myStats.processed;
       File f = ab1FileInfo.getSourceFile();
       guiLogger.debugf(() -> format("Processing file: %s", f.getName()));
