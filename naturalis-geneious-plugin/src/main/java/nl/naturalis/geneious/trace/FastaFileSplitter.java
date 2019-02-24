@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -21,6 +21,7 @@ import nl.naturalis.geneious.util.RuntimeSettings;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Splits a fasta file in a set of new fasta files, each containing a single nucleotide sequence, and saves the newly created fasta files to
@@ -42,12 +43,13 @@ class FastaFileSplitter {
       this.tmpDir = null;
     } else {
       this.tmpDir = inMemory ? null : NFileUtils.newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
-      guiLogger.debugf(() -> format("Sequences will be saved to %s", tmpDir.getPath()));
+      guiLogger.debugf(() -> format("Temporary fasta files will be saved to %s", tmpDir.getPath()));
     }
   }
 
   /**
-   * Splits the specified fasta file into one or more new fasta file, each containing just one nucleotide sequence.
+   * Splits the specified fasta file into one or more nucleotide sequences and, if required, saves them to temporary, single-sequence fasta
+   * files.
    * 
    * @param motherFile
    * @return
@@ -55,7 +57,7 @@ class FastaFileSplitter {
    */
   List<FastaSequenceInfo> split(File motherFile) throws IOException {
     List<FastaSequenceInfo> files = new ArrayList<>();
-    StringBuilder sequence = new StringBuilder(512);
+    StringBuilder sequence = new StringBuilder(672); // they actually contain 659 chars
     try (BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
       String header = br.readLine();
       String chunk;
@@ -70,17 +72,17 @@ class FastaFileSplitter {
           chunk = br.readLine();
           if (chunk == null) {
             if (inMemory) {
-              files.add(new FastaSequenceInfo(header.substring(1), sequence.toString(), motherFile));
+              files.add(new FastaSequenceInfo(substring(header, 1), sequence.toString(), motherFile));
             } else {
-              files.add(new FastaSequenceInfo(saveToNewFile(chunk, sequence.toString()), motherFile));
+              files.add(new FastaSequenceInfo(saveSequence(chunk, sequence.toString()), motherFile));
             }
             break OUTER_LOOP;
           }
           if (chunk.startsWith(">")) {
             if (inMemory) {
-              files.add(new FastaSequenceInfo(chunk.substring(1), sequence.toString(), motherFile));
+              files.add(new FastaSequenceInfo(substring(chunk, 1), sequence.toString(), motherFile));
             } else {
-              files.add(new FastaSequenceInfo(saveToNewFile(chunk, sequence.toString()), motherFile));
+              files.add(new FastaSequenceInfo(saveSequence(chunk, sequence.toString()), motherFile));
             }
             header = chunk;
             sequence.setLength(0);
@@ -114,7 +116,7 @@ class FastaFileSplitter {
     return fileNo;
   }
 
-  private File saveToNewFile(String header, String sequence) throws IOException {
+  private File saveSequence(String header, String sequence) throws IOException {
     File f = getTempFile();
     try (BufferedOutputStream bos = open(f)) {
       bos.write(header.getBytes(UTF_8));

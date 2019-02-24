@@ -13,7 +13,7 @@ import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
-import nl.naturalis.geneious.tracefile.TraceFileDocumentOperation;
+import nl.naturalis.geneious.trace.TraceFileDocumentOperation;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,7 @@ import nl.naturalis.geneious.split.SequenceNameParser;
 /**
  * Provides information about a fasta-encoded sequence.
  */
-final class FastaSequenceInfo extends SequenceIno {
+final class FastaSequenceInfo extends SequenceInfo {
 
   private final File motherFile;
 

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.File;
 import java.io.IOException;

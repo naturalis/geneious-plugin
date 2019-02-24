@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 /**
  * Maintains counters for the AB1/Fasta import process

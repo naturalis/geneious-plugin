@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import nl.naturalis.geneious.split.SequenceNameParser;
 /**
  * Provides information about an AB1-encoded sequence.
  */
-final class Ab1SequenceInfo extends SequenceIno {
+final class Ab1SequenceInfo extends SequenceInfo {
 
   private String name;
   private NaturalisNote note;

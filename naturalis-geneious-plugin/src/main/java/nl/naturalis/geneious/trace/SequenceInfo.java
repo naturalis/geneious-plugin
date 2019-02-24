@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,11 +9,11 @@ import nl.naturalis.geneious.split.SequenceNameNotParsableException;
 /**
  * Abstract base class for classes providing information about a single nucleotide sequence.
  */
-abstract class SequenceIno {
+abstract class SequenceInfo {
 
   private final File sourceFile;
 
-  SequenceIno(File sourceFile) {
+  SequenceInfo(File sourceFile) {
     this.sourceFile = sourceFile;
   }
 

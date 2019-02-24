@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.trace;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -35,6 +36,8 @@ class TraceFileImporter {
    * @throws IOException
    */
   List<AnnotatedPluginDocument> process() throws IOException {
+    System.out.println("XXXXXXXXXXXX: " + ServiceUtilities.getResultsDestination().getFolderName());
+    System.out.println("XXXXXXXXXXXX: " + ServiceUtilities.getSelectedService());
     List<AnnotatedPluginDocument> result = new ArrayList<>();
     TraceFileImportStats stats = new TraceFileImportStats();
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
