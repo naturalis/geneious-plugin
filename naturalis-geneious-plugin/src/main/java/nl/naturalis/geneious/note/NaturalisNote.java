@@ -43,7 +43,7 @@ public class NaturalisNote {
    * 
    * @param doc
    */
-  public void attach(AnnotatedPluginDocument doc) {
+  public void attachTo(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     addNoteIfNotNull(notes, DOCUMENT_VERSION, documentVersion);
     addNoteIfNotNull(notes, PCR_PLATE_ID, pcrPlateId);

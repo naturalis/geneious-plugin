@@ -24,9 +24,9 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
         NaturalisNote note;
         try {
           note = parser.parse(doc.getName());
-          note.attach(doc);
+          note.attachTo(doc);
           ++good;
-        } catch (SequenceNameNotParsableException e) {
+        } catch (NotParsableException e) {
           guiLogger.error(e.getMessage());
           ++bad;
         }

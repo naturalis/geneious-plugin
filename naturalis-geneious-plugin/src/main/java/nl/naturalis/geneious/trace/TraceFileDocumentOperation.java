@@ -43,7 +43,9 @@ public class TraceFileDocumentOperation extends DocumentOperation {
       fc.setDialogTitle("Choose AB1/fasta files to import");
       fc.setApproveButtonText("Import files");
       fc.setMultiSelectionEnabled(true);
-      fc.setFileFilter(new Ab1FastaFileFilter());
+      fc.addChoosableFileFilter(new Ab1FastaFileFilter(true, true));
+      fc.addChoosableFileFilter(new Ab1FastaFileFilter(true, false));
+      fc.addChoosableFileFilter(new Ab1FastaFileFilter(false, true));
       fc.setAcceptAllFileFilterUsed(false);
       GeneiousGUI.scale(fc, .6, .5, 800, 560);
       if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {

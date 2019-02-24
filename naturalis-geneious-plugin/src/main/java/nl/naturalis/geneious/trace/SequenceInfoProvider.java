@@ -3,13 +3,16 @@ package nl.naturalis.geneious.trace;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.split.NotParsableException;
 
 import static nl.naturalis.geneious.NaturalisPreferencesOptions.disableFastaCache;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -39,6 +42,7 @@ class SequenceInfoProvider implements AutoCloseable {
   private final FastaFileSplitter splitter;
   private final List<Ab1SequenceInfo> ab1Sequences;
   private final List<FastaSequenceInfo> fastaSequences;
+  private final Set<String> extractIDs;
 
   /**
    * Creates a new {@code SequenceInfoProvider} for the specified AB1/fasta files. Ordinarily these files would come from a file chooser
@@ -51,12 +55,18 @@ class SequenceInfoProvider implements AutoCloseable {
     this.splitter = new FastaFileSplitter(inMemory);
     this.ab1Sequences = new ArrayList<>();
     this.fastaSequences = new ArrayList<>();
+    this.extractIDs = new HashSet<>(files.length);
     for (File file : files) {
       try {
         if (isAb1File(file)) {
-          ab1Sequences.add(new Ab1SequenceInfo(file));
+          Ab1SequenceInfo info = new Ab1SequenceInfo(file);
+          ab1Sequences.add(info);
+          addExtractId(extractIDs, info);
         } else if (isFastaFile(file)) {
-          splitter.split(file).forEach(fastaSequences::add);
+          splitter.split(file).forEach(info -> {
+            fastaSequences.add(info);
+            addExtractId(extractIDs, info);
+          });
         } else {
           guiLogger.error("Cannot determine file type of %s (probably a bug)", file.getName());
         }
@@ -84,6 +94,15 @@ class SequenceInfoProvider implements AutoCloseable {
     return fastaSequences;
   }
 
+  /**
+   * Returns the unique extractIDs of the selected files.
+   * 
+   * @return
+   */
+  Set<String> getExtractIDs() {
+    return extractIDs;
+  }
+
   @Override
   public void close() throws IOException {
     if (!inMemory) {
@@ -94,6 +113,14 @@ class SequenceInfoProvider implements AutoCloseable {
       } else {
         guiLogger.warnf(() -> format("Please remember to delete temporary fasta files in %s", dir.getAbsolutePath()));
       }
+    }
+  }
+
+  private static void addExtractId(Set<String> ids, SequenceInfo info) {
+    try {
+      ids.add(info.getNote().getExtractId());
+    } catch (NotParsableException | IOException e) {
+      // Will be dealt with later on (in AB1Importer/FastaImporter)
     }
   }
 

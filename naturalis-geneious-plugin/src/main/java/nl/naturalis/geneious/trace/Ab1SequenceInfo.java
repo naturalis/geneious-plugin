@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import nl.naturalis.common.base.NStrings;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.SequenceNameNotParsableException;
+import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.split.SequenceNameParser;
 
 /**
@@ -23,13 +23,13 @@ final class Ab1SequenceInfo extends SequenceInfo {
   @Override
   String getName() {
     if (name == null) {
-      name = NStrings.deleteFrom(getSourceFile().getName(), '.');
+      name = NStrings.substr(getSourceFile().getName(), '.');
     }
     return name;
   }
 
   @Override
-  NaturalisNote getNote() throws SequenceNameNotParsableException, IOException {
+  NaturalisNote getNote() throws NotParsableException, IOException {
     if (note == null) {
       return (note = SequenceNameParser.parseAb1(getName()));
     }

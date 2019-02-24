@@ -11,7 +11,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.split.SequenceNameNotParsableException;
+import nl.naturalis.geneious.split.NotParsableException;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
@@ -49,19 +49,19 @@ class Ab1FileImporter {
         break;
       }
       try {
-        ab1FileInfo.getNote().attach(apds.get(0));
+        ab1FileInfo.getNote().attachTo(apds.get(0));
         ++myStats.enriched;
-      } catch (SequenceNameNotParsableException e) {
+      } catch (NotParsableException e) {
         guiLogger.error(e.getMessage());
         continue;
       }
       result.addAll(apds);
     }
     guiLogger.info("Number of AB1 files selected: %s", ab1Files.size());
-    guiLogger.info("Number of AB1 files processed: %s", myStats.processed);
-    guiLogger.info("Number of AB1 files rejected: %s", myStats.rejected);
-    guiLogger.info("Number of AB1 documents enriched: %s", myStats.enriched);
-    guiLogger.info("Number of AB1 files imported: %s", myStats.imported);
+    guiLogger.info("Number of AB1 sequences processed: %s", myStats.processed);
+    guiLogger.info("Number of AB1 sequences rejected: %s", myStats.rejected);
+    guiLogger.info("Number of AB1 sequences imported: %s", myStats.imported);
+    guiLogger.info("Number of AB1 sequences annotated: %s", myStats.enriched);
     stats.merge(myStats);
     return result;
   }

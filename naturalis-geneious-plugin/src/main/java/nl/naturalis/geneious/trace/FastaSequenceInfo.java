@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.SequenceNameNotParsableException;
+import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.split.SequenceNameParser;
 
 /**
@@ -55,7 +55,7 @@ final class FastaSequenceInfo extends SequenceInfo {
   }
 
   @Override
-  NaturalisNote getNote() throws SequenceNameNotParsableException, IOException {
+  NaturalisNote getNote() throws NotParsableException, IOException {
     if (note == null) {
       return (note = SequenceNameParser.parseFasta(getName()));
     }

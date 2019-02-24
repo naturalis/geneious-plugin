@@ -15,7 +15,7 @@ import static nl.naturalis.common.base.NStrings.rchop;
  */
 public class SequenceNameParser {
 
-  public NaturalisNote parse(String fileName) throws SequenceNameNotParsableException {
+  public NaturalisNote parse(String fileName) throws NotParsableException {
 //    if (fileName.endsWith(".ab1")) {
 //      return parseAb1(fileName, rchop(fileName, ".ab1"));
 //    }
@@ -31,26 +31,26 @@ public class SequenceNameParser {
     return null;
   }
 
-  public static NaturalisNote parseAb1(String name) throws SequenceNameNotParsableException {
+  public static NaturalisNote parseAb1(String name) throws NotParsableException {
     String[] chunks = name.split(Pattern.quote("_"));
     if (chunks.length < 5) {
-      throw SequenceNameNotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
+      throw NotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
     }
     NaturalisNote note = new NaturalisNote();
     note.setExtractId(chunks[0]);
     note.setPcrPlateId(chunks[3]);
     int i = chunks[4].indexOf('-');
     if (i == -1) {
-      throw SequenceNameNotParsableException.missingHyphenInMarkerSegment(name);
+      throw NotParsableException.missingHyphenInMarkerSegment(name);
     }
     note.setMarker(chunks[4].substring(0, i));
     return note;
   }
 
-  public static NaturalisNote parseFasta(String name) throws SequenceNameNotParsableException {
+  public static NaturalisNote parseFasta(String name) throws NotParsableException {
     String[] chunks = name.split(Pattern.quote("_"));
     if (chunks.length < 5) {
-      throw SequenceNameNotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
+      throw NotParsableException.notEnoughUnderscores(name, chunks.length - 1, 4);
     }
     NaturalisNote note = new NaturalisNote();
     note.setExtractId(chunks[0]);

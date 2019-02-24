@@ -29,7 +29,7 @@ public class GuiLogManager {
   }
 
   public static void setDebug(boolean debug) {
-    instance.logLevel = debug? DEBUG : INFO;
+    instance.logLevel = debug ? DEBUG : INFO;
     instance.loggers.forEach((k, v) -> v.reset(instance.logLevel));
   }
 
@@ -69,6 +69,7 @@ public class GuiLogManager {
   }
 
   private void show(String title) {
+    this.logLevel = getLogLevel();
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
     JTextArea textArea = new JTextArea(20, 140);

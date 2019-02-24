@@ -53,10 +53,10 @@ class TraceFileImporter {
       }
       if (ab1Files.size() != 0 && fastaFiles.size() != 0) {
         guiLogger.info("Total Number of files selected: %s", files.length);
-        guiLogger.info("Total Number of files processed: %s", stats.processed);
-        guiLogger.info("Total Number of files rejected: %s", stats.rejected);
-        guiLogger.info("Total Number of documents enriched: %s", stats.enriched);
-        guiLogger.info("Total Number of files imported: %s", result.size());
+        guiLogger.info("Total Number of sequences processed: %s", stats.processed);
+        guiLogger.info("Total Number of sequences rejected: %s", stats.rejected);
+        guiLogger.info("Total Number of sequences imported: %s", result.size());
+        guiLogger.info("Total Number of sequences annotated: %s", stats.enriched);
       }
     }
     return result;

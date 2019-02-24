@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.SequenceNameNotParsableException;
+import nl.naturalis.geneious.split.NotParsableException;
 
 /**
  * Abstract base class for classes providing information about a single nucleotide sequence.
@@ -38,9 +38,9 @@ abstract class SequenceInfo {
    * Returns the Naturalis annotation, obtained by parsing the name.
    * 
    * @return
-   * @throws SequenceNameNotParsableException
+   * @throws NotParsableException
    * @throws IOException
    */
-  abstract NaturalisNote getNote() throws SequenceNameNotParsableException, IOException;
+  abstract NaturalisNote getNote() throws NotParsableException, IOException;
 
 }

@@ -35,9 +35,9 @@ public class GuiLogger {
   private List<LogRecord> records;
   private LogLevel logLevel;
 
-  GuiLogger(Class<?> clazz, List<LogRecord> records, LogLevel level) {
+  GuiLogger(Class<?> clazz, List<LogRecord> records, LogLevel logLevel) {
     this.clazz = clazz;
-    this.logLevel = level;
+    this.logLevel = logLevel;
     this.records = records;
   }
 
@@ -45,8 +45,8 @@ public class GuiLogger {
     this.logLevel = level;
   }
 
-  void reset(LogLevel level, List<LogRecord> records) {
-    this.logLevel = level;
+  void reset(LogLevel logLevel, List<LogRecord> records) {
+    this.logLevel = logLevel;
     this.records = records;
   }
   

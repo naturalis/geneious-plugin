@@ -1,9 +1,12 @@
 package nl.naturalis.geneious.gui;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
+
+import com.google.common.base.Preconditions;
 
 import nl.naturalis.geneious.util.DocumentUtils;
 
@@ -14,10 +17,23 @@ import nl.naturalis.geneious.util.DocumentUtils;
 public class Ab1FastaFileFilter extends FileFilter {
 
   private final Set<String> exts;
+  private final String description;
 
-  public Ab1FastaFileFilter() {
-    exts = DocumentUtils.getAb1Extensions();
-    exts.addAll(DocumentUtils.getFastaExtensions());
+  public Ab1FastaFileFilter(boolean showAB1Files, boolean showFastaFiles) {
+    Preconditions.checkArgument(showAB1Files || showFastaFiles, "Either filter AB1 files or fasta files or both");
+    exts = new HashSet<>();
+    if (showAB1Files) {
+      exts.addAll(DocumentUtils.getAb1Extensions());
+      if (showFastaFiles) {
+        exts.addAll(DocumentUtils.getFastaExtensions());
+        description = "AB1 and fasta files";
+      } else {
+        description = "AB1 files";
+      }
+    } else {
+      exts.addAll(DocumentUtils.getFastaExtensions());
+      description = "Fasta files";
+    }
   }
 
   @Override
@@ -30,7 +46,7 @@ public class Ab1FastaFileFilter extends FileFilter {
 
   @Override
   public String getDescription() {
-    return "AB1 and Fasta files";
+    return description;
   }
 
 }
