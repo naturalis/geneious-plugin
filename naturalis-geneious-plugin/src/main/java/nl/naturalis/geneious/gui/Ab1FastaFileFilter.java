@@ -20,7 +20,7 @@ public class Ab1FastaFileFilter extends FileFilter {
   private final String description;
 
   public Ab1FastaFileFilter(boolean showAB1Files, boolean showFastaFiles) {
-    Preconditions.checkArgument(showAB1Files || showFastaFiles, "Either filter AB1 files or fasta files or both");
+    Preconditions.checkArgument(showAB1Files || showFastaFiles, "Either show AB1 files or fasta files or both");
     exts = new HashSet<>();
     if (showAB1Files) {
       exts.addAll(DocumentUtils.getAb1Extensions());

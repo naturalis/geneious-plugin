@@ -105,7 +105,7 @@ public enum NaturalisField {
       String noteTypeDescr = "Naturalis file " + fieldName + " note";
       String fieldDescr = noteTypeDescr;
       DocumentNoteField noteField = createTextNoteField(fieldName, fieldDescr, fieldCode, emptyList(), false);
-      List<DocumentNoteField> noteFields = Arrays.asList(new DocumentNoteField[] {noteField});
+      List<DocumentNoteField> noteFields = Arrays.asList(noteField);
       noteType = createNewNoteType(noteTypeName, noteTypeCode, noteTypeDescr, noteFields, true);
       setNoteType(noteType);
     } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {

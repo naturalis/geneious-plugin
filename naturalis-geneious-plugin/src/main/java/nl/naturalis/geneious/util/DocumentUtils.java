@@ -8,20 +8,30 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static nl.naturalis.common.base.NStrings.rtrim;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.stripEnd;
 
+/**
+ * Various methods related to Geneious documents.
+ */
 public class DocumentUtils {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentUtils.class);
 
+  private DocumentUtils() {}
+
+  public static boolean isDummyDocument(AnnotatedPluginDocument doc) {
+    return false;
+  }
+
   /**
-   * Whether or not the specified file is an AB1 file given the user-provided file extensions in the Geneious Preferences panel.
+   * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences panel.
    * 
    * @param f
    * @return
@@ -41,7 +51,7 @@ public class DocumentUtils {
   }
 
   /**
-   * Whether or not the specified file is a Fasta file given the user-provided file extensions in the Geneious Preferences panel.
+   * Whether or not the specified file is a fasta file as per the user-provided file extensions in the Geneious Preferences panel.
    * 
    * @param f
    * @return
@@ -64,34 +74,44 @@ public class DocumentUtils {
     return false;
   }
 
+  /**
+   * Returns the AB1 file extensions in the Geneious Preferences panel.
+   * 
+   * @return
+   */
   public static Set<String> getAb1Extensions() {
     Set<String> exts = new HashSet<>();
     String s = NaturalisPreferencesOptions.getAb1Extensions();
-    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
-      Arrays.stream(s.split(",")).forEach(x -> {
-        x = x.trim().toLowerCase();
-        if (StringUtils.isNotBlank(x)) {
-          if (!x.startsWith(".")) {
-            x = "." + x;
+    if (s != null && !(s = stripEnd(s, ", ")).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(ext -> {
+        ext = ext.trim().toLowerCase();
+        if (isNotBlank(ext)) {
+          if (!ext.startsWith(".")) {
+            ext = "." + ext;
           }
-          exts.add(x);
+          exts.add(ext);
         }
       });
     }
     return exts;
   }
 
+  /**
+   * Returns the fasta file extensions in the Geneious Preferences panel.
+   * 
+   * @return
+   */
   public static Set<String> getFastaExtensions() {
     Set<String> exts = new HashSet<>();
     String s = NaturalisPreferencesOptions.getFastaExtensions();
-    if (s != null && !(s = rtrim(s.trim(), ',')).equals("*")) {
-      Arrays.stream(s.split(",")).forEach(x -> {
-        x = x.trim().toLowerCase();
-        if (StringUtils.isNotBlank(x)) {
-          if (!x.startsWith(".")) {
-            x = "." + x;
+    if (s != null && !(s = stripEnd(s, ", ")).equals("*")) {
+      Arrays.stream(s.split(",")).forEach(ext -> {
+        ext = ext.trim().toLowerCase();
+        if (isNotBlank(ext)) {
+          if (!ext.startsWith(".")) {
+            ext = "." + ext;
           }
-          exts.add(x);
+          exts.add(ext);
         }
       });
     }
