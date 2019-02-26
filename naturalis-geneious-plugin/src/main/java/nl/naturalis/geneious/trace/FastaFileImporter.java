@@ -50,7 +50,7 @@ class FastaFileImporter {
         document = createAnnotatedPluginDocument(sequence);
         result.add(document);
         try {
-          info.getNote().attachTo(document);
+          info.getNote().overwrite(document);
           ++myStats.enriched;
         } catch (NotParsableException e) {
           guiLogger.error(e.getMessage());

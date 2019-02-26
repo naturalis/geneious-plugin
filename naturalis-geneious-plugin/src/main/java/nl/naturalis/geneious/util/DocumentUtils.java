@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -25,10 +23,6 @@ public class DocumentUtils {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentUtils.class);
 
   private DocumentUtils() {}
-
-  public static boolean isDummyDocument(AnnotatedPluginDocument doc) {
-    return false;
-  }
 
   /**
    * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences panel.

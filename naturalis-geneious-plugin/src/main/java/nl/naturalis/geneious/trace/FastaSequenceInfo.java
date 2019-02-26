@@ -57,7 +57,7 @@ final class FastaSequenceInfo extends SequenceInfo {
   @Override
   NaturalisNote getNote() throws NotParsableException, IOException {
     if (note == null) {
-      return (note = SequenceNameParser.parseFasta(getName()));
+      note = SequenceNameParser.parseFasta(getName());
     }
     return note;
   }

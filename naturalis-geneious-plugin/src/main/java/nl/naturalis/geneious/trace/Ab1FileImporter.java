@@ -49,7 +49,7 @@ class Ab1FileImporter {
         break;
       }
       try {
-        ab1FileInfo.getNote().attachTo(apds.get(0));
+        ab1FileInfo.getNote().overwrite(apds.get(0));
         ++myStats.enriched;
       } catch (NotParsableException e) {
         guiLogger.error(e.getMessage());

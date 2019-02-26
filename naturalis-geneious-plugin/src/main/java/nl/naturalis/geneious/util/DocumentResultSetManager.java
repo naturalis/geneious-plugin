@@ -8,13 +8,13 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import static com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 
-public class DocumentResultSetInspector {
+public class DocumentResultSetManager {
 
   private final Collection<AnnotatedPluginDocument> documents;
 
   private HashMap<String, ArrayList<AnnotatedPluginDocument>> docsByExtractId;
 
-  public DocumentResultSetInspector(Collection<AnnotatedPluginDocument> documents) {
+  public DocumentResultSetManager(Collection<AnnotatedPluginDocument> documents) {
     this.documents = documents;
   }
 
