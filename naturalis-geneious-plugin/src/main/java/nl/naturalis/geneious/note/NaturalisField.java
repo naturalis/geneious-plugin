@@ -1,10 +1,7 @@
 package nl.naturalis.geneious.note;
 
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
@@ -141,7 +138,7 @@ public enum NaturalisField {
    */
   public DocumentField createQueryField() {
     if (queryField == null) {
-      queryField = DocumentField.createStringField("", "", noteType.getCode() + "." + code);
+      queryField = DocumentField.createStringField("", "", getNoteType().getCode() + "." + code);
     }
     return queryField;
   }
@@ -184,8 +181,8 @@ public enum NaturalisField {
     } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
       /*
        * Whether or not the note type must be regenerated even if it is already registered with Geneious. In production this should never be
-       * the case, because it is wasteful. During development though (in between Geneious sessions) the definition of the note type may
-       * change and we must inform Geneious about this change.
+       * the case, because it is wasteful. During development though (in between Geneious sessions) the definition of a note type may change
+       * and we must inform Geneious about this change.
        */
       List<DocumentNoteField> fields = noteType.getFields();
       for (DocumentNoteField field : fields) {

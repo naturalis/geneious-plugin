@@ -12,6 +12,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.util.DocumentResultSetManager;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
@@ -20,11 +21,13 @@ class Ab1FileImporter {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FileImporter.class);
 
   private final List<Ab1SequenceInfo> ab1Files;
+  private final DocumentResultSetManager drsm;
   private final TraceFileImportStats stats;
 
-  Ab1FileImporter(List<Ab1SequenceInfo> ab1Files, TraceFileImportStats stats) {
+  Ab1FileImporter(List<Ab1SequenceInfo> ab1Files, DocumentResultSetManager drsm, TraceFileImportStats stats) {
     guiLogger.info("Starting AB1 file importer");
     this.ab1Files = ab1Files;
+    this.drsm = drsm;
     this.stats = stats;
   }
 
@@ -49,7 +52,7 @@ class Ab1FileImporter {
         break;
       }
       try {
-        ab1FileInfo.getNote().overwrite(apds.get(0));
+        ab1FileInfo.getNote().replace(apds.get(0));
         ++myStats.enriched;
       } catch (NotParsableException e) {
         guiLogger.error(e.getMessage());

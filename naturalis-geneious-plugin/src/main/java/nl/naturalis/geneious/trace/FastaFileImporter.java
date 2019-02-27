@@ -12,6 +12,7 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.util.DocumentResultSetManager;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.createAnnotatedPluginDocument;
 
@@ -25,11 +26,13 @@ class FastaFileImporter {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaFileImporter.class);
 
   private final List<FastaSequenceInfo> fastaFiles;
+  private final DocumentResultSetManager drsm;
   private final TraceFileImportStats stats;
 
-  FastaFileImporter(List<FastaSequenceInfo> fastaFiles, TraceFileImportStats stats) {
+  FastaFileImporter(List<FastaSequenceInfo> fastaFiles, DocumentResultSetManager drsm, TraceFileImportStats stats) {
     guiLogger.info("Starting fasta file importer");
     this.fastaFiles = fastaFiles;
+    this.drsm = drsm;
     this.stats = stats;
   }
 
@@ -50,7 +53,7 @@ class FastaFileImporter {
         document = createAnnotatedPluginDocument(sequence);
         result.add(document);
         try {
-          info.getNote().overwrite(document);
+          info.getNote().replace(document);
           ++myStats.enriched;
         } catch (NotParsableException e) {
           guiLogger.error(e.getMessage());
@@ -70,10 +73,10 @@ class FastaFileImporter {
   private LinkedHashMap<File, ArrayList<FastaSequenceInfo>> mapMothersToChildren() {
     LinkedHashMap<File, ArrayList<FastaSequenceInfo>> map = new LinkedHashMap<>();
     for (FastaSequenceInfo info : fastaFiles) {
-      ArrayList<FastaSequenceInfo> infos = map.get(info.getMotherFile());
+      ArrayList<FastaSequenceInfo> infos = map.get(info.getSourceFile());
       if (infos == null) {
         infos = new ArrayList<>();
-        map.put(info.getMotherFile(), infos);
+        map.put(info.getSourceFile(), infos);
       }
       infos.add(info);
     }

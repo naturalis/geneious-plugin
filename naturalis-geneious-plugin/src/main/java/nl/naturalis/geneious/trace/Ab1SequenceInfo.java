@@ -3,7 +3,8 @@ package nl.naturalis.geneious.trace;
 import java.io.File;
 import java.io.IOException;
 
-import nl.naturalis.common.base.NStrings;
+import org.apache.commons.lang3.StringUtils;
+
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.split.SequenceNameParser;
@@ -13,18 +14,17 @@ import nl.naturalis.geneious.split.SequenceNameParser;
  */
 final class Ab1SequenceInfo extends SequenceInfo {
 
-  private String name;
+  private final String name;
+
   private NaturalisNote note;
 
   Ab1SequenceInfo(File sourceFile) {
     super(sourceFile);
+    this.name = StringUtils.substringBefore(getSourceFile().getName(), ".");
   }
 
   @Override
   String getName() {
-    if (name == null) {
-      name = NStrings.substr(getSourceFile().getName(), '.');
-    }
     return name;
   }
 

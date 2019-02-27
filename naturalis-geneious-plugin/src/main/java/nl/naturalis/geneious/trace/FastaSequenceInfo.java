@@ -15,28 +15,29 @@ import nl.naturalis.geneious.split.SequenceNameParser;
  */
 final class FastaSequenceInfo extends SequenceInfo {
 
-  private final File motherFile;
+  private final File child;
 
   private String name;
-  private NaturalisNote note;
   private String sequence;
 
-  FastaSequenceInfo(File sourceFile, File motherFile) {
-    super(sourceFile);
-    this.motherFile = motherFile;
+  private NaturalisNote note;
+
+  FastaSequenceInfo(File mother, File child) {
+    super(mother);
+    this.child = child;
   }
 
-  FastaSequenceInfo(String name, String sequence, File motherFile) {
-    super(null);
+  FastaSequenceInfo(File mother, String name, String sequence) {
+    super(mother);
+    this.child = null;
     this.name = name;
     this.sequence = sequence;
-    this.motherFile = motherFile;
   }
 
   @Override
   public String getName() throws IOException {
     if (name == null) {
-      readSourceFile();
+      readChildFile();
     }
     return name;
   }
@@ -49,7 +50,7 @@ final class FastaSequenceInfo extends SequenceInfo {
    */
   public String getSequence() throws IOException {
     if (sequence == null) {
-      readSourceFile();
+      readChildFile();
     }
     return sequence;
   }
@@ -67,14 +68,14 @@ final class FastaSequenceInfo extends SequenceInfo {
    * 
    * @return
    */
-  public File getMotherFile() {
-    return motherFile;
+  public File getChildFile() {
+    return child;
   }
 
-  private void readSourceFile() throws IOException {
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(getSourceFile())))) {
+  private void readChildFile() throws IOException {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(child)))) {
       name = br.readLine().substring(1);
-      StringBuilder sb = new StringBuilder(1024);
+      StringBuilder sb = new StringBuilder(768); // sequences seem to be always 659 chars long
       for (String line = br.readLine(); line != null; line = br.readLine()) {
         sb.append(line);
       }

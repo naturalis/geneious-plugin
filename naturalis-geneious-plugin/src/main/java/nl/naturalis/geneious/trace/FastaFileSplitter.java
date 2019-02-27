@@ -72,17 +72,17 @@ class FastaFileSplitter {
           chunk = br.readLine();
           if (chunk == null) {
             if (inMemory) {
-              files.add(new FastaSequenceInfo(substring(header, 1), sequence.toString(), motherFile));
+              files.add(new FastaSequenceInfo(motherFile, substring(header, 1), sequence.toString()));
             } else {
-              files.add(new FastaSequenceInfo(saveSequence(chunk, sequence.toString()), motherFile));
+              files.add(new FastaSequenceInfo(motherFile, saveSequence(chunk, sequence.toString())));
             }
             break OUTER_LOOP;
           }
           if (chunk.startsWith(">")) {
             if (inMemory) {
-              files.add(new FastaSequenceInfo(substring(chunk, 1), sequence.toString(), motherFile));
+              files.add(new FastaSequenceInfo(motherFile, substring(chunk, 1), sequence.toString()));
             } else {
-              files.add(new FastaSequenceInfo(saveSequence(chunk, sequence.toString()), motherFile));
+              files.add(new FastaSequenceInfo(motherFile, saveSequence(chunk, sequence.toString())));
             }
             header = chunk;
             sequence.setLength(0);

@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.util.DocumentResultSetManager;
+import static nl.naturalis.geneious.util.QueryUtils.*;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
@@ -34,21 +37,24 @@ class TraceFileImporter {
    * 
    * @return
    * @throws IOException
+   * @throws DatabaseServiceException 
    */
-  List<AnnotatedPluginDocument> process() throws IOException {
+  List<AnnotatedPluginDocument> process() throws IOException, DatabaseServiceException {
     System.out.println("XXXXXXXXXXXX: " + ServiceUtilities.getResultsDestination().getFolderName());
     System.out.println("XXXXXXXXXXXX: " + ServiceUtilities.getSelectedService());
     List<AnnotatedPluginDocument> result = new ArrayList<>();
     TraceFileImportStats stats = new TraceFileImportStats();
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
+      List<AnnotatedPluginDocument> oldDocuments = findByExtractID(provider.getExtractIDs());
+      DocumentResultSetManager drsm = new DocumentResultSetManager(oldDocuments);
       List<Ab1SequenceInfo> ab1Files = provider.getAb1Files();
       if (ab1Files.size() != 0) {
-        Ab1FileImporter importer = new Ab1FileImporter(ab1Files, stats);
+        Ab1FileImporter importer = new Ab1FileImporter(ab1Files, drsm, stats);
         result.addAll(importer.importFiles());
       }
       List<FastaSequenceInfo> fastaFiles = provider.getFastaFiles();
       if (fastaFiles.size() != 0) {
-        FastaFileImporter importer = new FastaFileImporter(fastaFiles, stats);
+        FastaFileImporter importer = new FastaFileImporter(fastaFiles, drsm, stats);
         result.addAll(importer.importFiles());
       }
       if (ab1Files.size() != 0 && fastaFiles.size() != 0) {

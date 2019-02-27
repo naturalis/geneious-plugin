@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.PluginDataSource;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import static nl.naturalis.geneious.PluginDataSource.AUTO;
@@ -40,8 +40,8 @@ import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.note.NaturalisField.SEQUENCING_STAFF;
 
 /**
- * A container for all data that we enrich Geneious documents with through the various plugins. Different plugins will populate different
- * fields of a NaturalisNote instance. This class contains a method for adding all (and only) non-empty fields to a Geneious document.
+ * A container for all data that we enrich Geneious documents with through the various plugin actions. Different plugins will populate
+ * different fields of a NaturalisNote instance.
  */
 public class NaturalisNote {
 
@@ -94,11 +94,11 @@ public class NaturalisNote {
 
   /**
    * Copies the entire content of this note to the provided document, overwriting any previous values. Fields within this note that have
-   * null values willbe ignored though.
+   * null values will not be copied.
    * 
    * @param doc
    */
-  public void overwrite(AnnotatedPluginDocument doc) {
+  public void replace(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     boolean modified = overwrite(notes, DOCUMENT_VERSION, documentVersion);
     modified = modified || overwrite(notes, PCR_PLATE_ID, pcrPlateId);
@@ -120,13 +120,13 @@ public class NaturalisNote {
   }
 
   /**
-   * Copies only the content of this note that came from the specified datasource to the provided document, overwriting any previous values.
-   * Fields within this note that have null values willbe ignored though.
+   * Copies fields within this note that came from the specified datasource to the provided document, overwriting any previous values.
+   * Fields within this note that have null values will not be copied.
    * 
    * @param doc
    * @param src
    */
-  public void overwrite(AnnotatedPluginDocument doc, PluginDataSource src) {
+  public void replace(AnnotatedPluginDocument doc, PluginDataSource src) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     boolean modified = false;
     for (NaturalisField field : fieldsPerDataSource.get(src)) {
@@ -183,8 +183,8 @@ public class NaturalisNote {
   }
 
   /**
-   * Copies the entire content of this note to the provided document, without overwriting previous values. Fields within this note that have
-   * null values willbe ignored though.
+   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
+   * have null values will not be copied.
    * 
    * @param doc
    */
@@ -210,8 +210,8 @@ public class NaturalisNote {
   }
 
   /**
-   * Copies only the content of this note that came from the specified datasource to the provided document, without overwriting previous
-   * values. Fields within this note that have null values willbe ignored though.
+   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
+   * have null will not be copied.
    * 
    * @param doc
    * @param src
@@ -271,6 +271,9 @@ public class NaturalisNote {
   }
 
   public void setValue(NaturalisField field, Object value) {
+    if (value == null) {
+      return;
+    }
     String sval = value.toString();
     switch (field) {
       case AMPLIFICATION_STAFF:
@@ -289,40 +292,40 @@ public class NaturalisNote {
       case BOLD_URI:
         break;
       case DOCUMENT_VERSION:
-        setDocumentVersion(Integer.valueOf(sval));
+        documentVersion = Integer.valueOf(sval);
         break;
       case EXTRACTION_METHOD:
-        setExtractionMethod(sval);
+        extractionMethod = sval;
         break;
       case EXTRACT_ID:
-        setExtractId(sval);
+        extractId = sval;
         break;
       case EXTRACT_PLATE_ID:
-        setExtractPlateId(sval);
+        extractPlateId = sval;
         break;
       case MARKER:
-        setMarker(sval);
+        marker = sval;
         break;
       case PCR_PLATE_ID:
-        setPcrPlateId(sval);
+        pcrPlateId = sval;
         break;
       case PLATE_POSITION:
-        setPlatePosition(sval);
+        platePosition = sval;
         break;
       case REGISTRATION_NUMBER:
-        setRegistrationNumber(sval);
+        registrationNumber = sval;
         break;
       case REGNO_PLUS_SCI_NAME:
-        setRegnoPlusSciName(sval);
+        regnoPlusSciName = sval;
         break;
       case SAMPLE_PLATE_ID:
-        setSamplePlateId(sval);
+        samplePlateId = sval;
         break;
       case SCIENTIFIC_NAME:
-        setScientificName(sval);
+        scientificName = sval;
         break;
       case SEQUENCING_STAFF:
-        setSequencingStaff(sval);
+        sequencingStaff = sval;
         break;
     }
   }
@@ -344,30 +347,30 @@ public class NaturalisNote {
       case BOLD_URI:
         return "TO DO";
       case DOCUMENT_VERSION:
-        return getDocumentVersion();
+        return documentVersion;
       case EXTRACTION_METHOD:
-        return getExtractionMethod();
+        return extractionMethod;
       case EXTRACT_ID:
-        return getExtractId();
+        return extractId;
       case EXTRACT_PLATE_ID:
-        return getExtractPlateId();
+        return extractPlateId;
       case MARKER:
-        return getMarker();
+        return marker;
       case PCR_PLATE_ID:
-        return getPcrPlateId();
+        return pcrPlateId;
       case PLATE_POSITION:
-        return getPlatePosition();
+        return platePosition;
       case REGISTRATION_NUMBER:
-        return getRegistrationNumber();
+        return registrationNumber;
       case REGNO_PLUS_SCI_NAME:
-        return getRegnoPlusSciName();
+        return regnoPlusSciName;
       case SAMPLE_PLATE_ID:
-        return getSamplePlateId();
+        return samplePlateId;
       case SCIENTIFIC_NAME:
-        return getSamplePlateId();
+        return scientificName;
       case SEQUENCING_STAFF:
       default:
-        return getSequencingStaff();
+        return sequencingStaff;
     }
   }
 
@@ -509,20 +512,20 @@ public class NaturalisNote {
     this.regnoPlusSciName = regnoPlusSciName;
   }
 
-  public boolean isEmpty() {
+  public boolean isEmptyNote() {
     return documentVersion == null
-        && StringUtils.isEmpty(pcrPlateId)
-        && StringUtils.isEmpty(marker)
-        && StringUtils.isEmpty(extractPlateId)
-        && StringUtils.isEmpty(extractId)
-        && StringUtils.isEmpty(samplePlateId)
-        && StringUtils.isEmpty(platePosition)
-        && StringUtils.isEmpty(scientificName)
-        && StringUtils.isEmpty(registrationNumber)
-        && StringUtils.isEmpty(extractionMethod)
-        && StringUtils.isEmpty(sequencingStaff)
-        && StringUtils.isEmpty(amplificationStaff)
-        && StringUtils.isEmpty(regnoPlusSciName);
+        && isEmpty(pcrPlateId)
+        && isEmpty(marker)
+        && isEmpty(extractPlateId)
+        && isEmpty(extractId)
+        && isEmpty(samplePlateId)
+        && isEmpty(platePosition)
+        && isEmpty(scientificName)
+        && isEmpty(registrationNumber)
+        && isEmpty(extractionMethod)
+        && isEmpty(sequencingStaff)
+        && isEmpty(amplificationStaff)
+        && isEmpty(regnoPlusSciName);
   }
 
   public boolean equals(Object obj) {
