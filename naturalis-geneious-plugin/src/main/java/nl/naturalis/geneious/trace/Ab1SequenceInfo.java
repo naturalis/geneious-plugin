@@ -31,7 +31,7 @@ final class Ab1SequenceInfo extends SequenceInfo {
   @Override
   NaturalisNote getNote() throws NotParsableException, IOException {
     if (note == null) {
-      return (note = SequenceNameParser.parseAb1(getName()));
+      note = SequenceNameParser.parseAb1(getName());
     }
     return note;
   }

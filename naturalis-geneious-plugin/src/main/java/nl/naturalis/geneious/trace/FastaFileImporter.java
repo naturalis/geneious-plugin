@@ -42,9 +42,9 @@ class FastaFileImporter {
     LinkedHashMap<File, ArrayList<FastaSequenceInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument document;
-    for (File mother : fastas.keySet()) {
-      guiLogger.debugf(() -> format("Processing file \"%s\"", mother.getName()));
-      for (FastaSequenceInfo info : fastas.get(mother)) {
+    for (File motherFile : fastas.keySet()) {
+      guiLogger.debugf(() -> format("Processing file \"%s\"", motherFile.getName()));
+      for (FastaSequenceInfo info : fastas.get(motherFile)) {
         ++myStats.processed;
         if (guiLogger.isDebugEnabled()) {
           guiLogger.debug(String.format("--> Processing sequence \"%s\"", info.getName()));
