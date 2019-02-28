@@ -3,7 +3,7 @@ package nl.naturalis.geneious.trace;
 /**
  * Maintains counters for the AB1/Fasta import process
  */
-class TraceFileImportStats {
+class ImportStats {
 
   /**
    * Number of files processed.
@@ -22,9 +22,9 @@ class TraceFileImportStats {
    */
   int enriched;
 
-  TraceFileImportStats() {}
+  ImportStats() {}
 
-  void merge(TraceFileImportStats other) {
+  void merge(ImportStats other) {
     processed += other.processed;
     imported += other.imported;
     rejected += other.rejected;

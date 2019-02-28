@@ -9,6 +9,7 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.SequenceNameParser;
 
 public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
 
@@ -24,7 +25,7 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
         NaturalisNote note;
         try {
           note = parser.parse(doc.getName());
-          note.replace(doc);
+          note.overwrite(doc);
           ++good;
         } catch (NotParsableException e) {
           guiLogger.error(e.getMessage());

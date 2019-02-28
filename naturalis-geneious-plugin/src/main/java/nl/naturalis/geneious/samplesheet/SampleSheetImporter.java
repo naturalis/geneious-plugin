@@ -110,13 +110,13 @@ class SampleSheetImporter {
           guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
           NucleotideSequenceDocument nsd = createDummyDocument(note);
           apd = DocumentUtilities.createAnnotatedPluginDocument(nsd);
-          note.replace(apd);
+          note.overwrite(apd);
           apds.add(apd);
           ++dummies;
         }
       } else {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
-        note.replace(apd);
+        note.overwrite(apd);
         apds.add(apd);
         ++enriched;
       }
@@ -156,7 +156,7 @@ class SampleSheetImporter {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
         note.setPcrPlateId(DUMMY_PLATE_ID);
         note.setMarker(DUMMY_MARKER);
-        note.replace(apd);
+        note.overwrite(apd);
         apds.add(apd);
         numEnrichments++;
       }

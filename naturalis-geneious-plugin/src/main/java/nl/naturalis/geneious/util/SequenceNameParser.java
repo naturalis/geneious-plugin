@@ -1,8 +1,9 @@
-package nl.naturalis.geneious.split;
+package nl.naturalis.geneious.util;
 
 import java.util.regex.Pattern;
 
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.split.NotParsableException;
 
 import static nl.naturalis.common.base.NStrings.rchop;
 

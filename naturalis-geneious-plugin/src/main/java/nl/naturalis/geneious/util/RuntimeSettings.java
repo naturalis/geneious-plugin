@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
-import nl.naturalis.common.io.NFileUtils;
+import nl.naturalis.common.io.NFiles;
 import nl.naturalis.geneious.gui.log.LogLevel;
 
 /**
@@ -20,8 +20,8 @@ public class RuntimeSettings {
   private static final String SYSPROP_HOME = System.getProperty("user.home");
 
   public static final File USER_HOME = new File(SYSPROP_HOME);
-  public static final File WORK_DIR = NFileUtils.newFile(USER_HOME, ".naturalis-geneious-plugin");
-  public static final File CFG_FILE = NFileUtils.newFile(WORK_DIR, "naturalis-geneious-plugin.properties");
+  public static final File WORK_DIR = NFiles.newFile(USER_HOME, ".naturalis-geneious-plugin");
+  public static final File CFG_FILE = NFiles.newFile(WORK_DIR, "naturalis-geneious-plugin.properties");
 
   public static final RuntimeSettings INSTANCE = new RuntimeSettings();
 

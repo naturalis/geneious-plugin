@@ -26,6 +26,7 @@ public class NotParsableException extends Exception {
     return new NotParsableException(String.format(fmt, fileName));
   }
 
+  @Deprecated
   public static NotParsableException unknownExtension(String fileName) {
     int i = fileName.lastIndexOf('.');
     if (i == -1 || i == fileName.length() - 1) {

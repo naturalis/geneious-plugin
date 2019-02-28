@@ -98,7 +98,7 @@ public class NaturalisNote {
    * 
    * @param doc
    */
-  public void replace(AnnotatedPluginDocument doc) {
+  public void overwrite(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     boolean modified = overwrite(notes, DOCUMENT_VERSION, documentVersion);
     modified = modified || overwrite(notes, PCR_PLATE_ID, pcrPlateId);
@@ -126,7 +126,7 @@ public class NaturalisNote {
    * @param doc
    * @param src
    */
-  public void replace(AnnotatedPluginDocument doc, PluginDataSource src) {
+  public void overwrite(AnnotatedPluginDocument doc, PluginDataSource src) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     boolean modified = false;
     for (NaturalisField field : fieldsPerDataSource.get(src)) {

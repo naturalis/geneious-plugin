@@ -1,12 +1,17 @@
 package nl.naturalis.geneious.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
+
+import org.apache.commons.io.FileUtils;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -23,6 +28,28 @@ public class DocumentUtils {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentUtils.class);
 
   private DocumentUtils() {}
+
+  /**
+   * Whether or not the specified Geneious document was created by importing an AB1 file. This is considered to be the case if the class of
+   * the document is {@link DefaultNucleotideGraphSequence}.
+   * 
+   * @param document
+   * @return
+   */
+  public static boolean wasCreatedFromAb1File(AnnotatedPluginDocument document) {
+    return document.getDocumentClass() == DefaultNucleotideGraphSequence.class;
+  }
+
+  /**
+   * Whether or not the specified Geneious document was created by importing a fasta file. This is considered to be the case if the class of
+   * the document is {@link DefaultNucleotideSequence}.
+   * 
+   * @param document
+   * @return
+   */
+  public static boolean wasCreatedFromFastaFile(AnnotatedPluginDocument document) {
+    return document.getDocumentClass() == DefaultNucleotideSequence.class;
+  }
 
   /**
    * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences panel.
@@ -113,7 +140,7 @@ public class DocumentUtils {
   }
 
   private static char firstChar(File f) throws IOException {
-    try (InputStreamReader isr = new InputStreamReader(new FileInputStream(f))) {
+    try (InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
       return (char) isr.read();
     }
   }

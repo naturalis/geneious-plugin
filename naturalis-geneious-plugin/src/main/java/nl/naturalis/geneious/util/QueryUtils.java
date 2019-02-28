@@ -25,12 +25,18 @@ public class QueryUtils {
 
   private QueryUtils() {}
 
+  public static WritableDatabaseService getTargetDatabase() {
+    return ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
+  }
+
+  public static String getTargetDatabaseName() {
+    return getTargetDatabase().getName();
+  }
+
   public static List<AnnotatedPluginDocument> findByExtractID(Set<String> extractIds) throws DatabaseServiceException {
-    WritableDatabaseService svc = ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
-    List<AnnotatedPluginDocument> docs = svc.retrieve(query, ProgressListener.EMPTY);
-    return docs;
+    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
   }
 
 }

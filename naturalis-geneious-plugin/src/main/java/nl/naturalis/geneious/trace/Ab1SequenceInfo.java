@@ -1,13 +1,13 @@
 package nl.naturalis.geneious.trace;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
-
+import nl.naturalis.geneious.TraceFileType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.split.SequenceNameParser;
+
+import static nl.naturalis.common.io.NFiles.basename;
+import static nl.naturalis.geneious.util.SequenceNameParser.parseAb1;
 
 /**
  * Provides information about an AB1-encoded sequence.
@@ -20,7 +20,12 @@ final class Ab1SequenceInfo extends SequenceInfo {
 
   Ab1SequenceInfo(File sourceFile) {
     super(sourceFile);
-    this.name = StringUtils.substringBefore(getSourceFile().getName(), ".");
+    name = basename(getSourceFile());
+  }
+
+  @Override
+  TraceFileType getTraceFileType() {
+    return TraceFileType.AB1;
   }
 
   @Override
@@ -29,10 +34,12 @@ final class Ab1SequenceInfo extends SequenceInfo {
   }
 
   @Override
-  NaturalisNote getNote() throws NotParsableException, IOException {
-    if (note == null) {
-      note = SequenceNameParser.parseAb1(getName());
-    }
+  void createNote() throws NotParsableException {
+    note = parseAb1(name);
+  }
+
+  @Override
+  NaturalisNote getNote() {
     return note;
   }
 

@@ -3,7 +3,6 @@ package nl.naturalis.geneious.trace;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * fasta files, or if he/she has disabled fasta file caching in the Prefences panel, the individual nucleotide sequences will be written
    * to temporary files.
    */
-  static final int MAX_FILES_IN_MEMORY = 500;
+  static final int MAX_FASTAS_IN_MEMORY = 500;
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceInfoProvider.class);
 
@@ -42,36 +41,31 @@ class SequenceInfoProvider implements AutoCloseable {
   private final FastaFileSplitter splitter;
   private final List<Ab1SequenceInfo> ab1Sequences;
   private final List<FastaSequenceInfo> fastaSequences;
-  private final Set<String> extractIDs;
 
   /**
    * Creates a new {@code SequenceInfoProvider} for the specified AB1/fasta files. Ordinarily these files would come from a file chooser
    * dialog presented to the user.
    * 
    * @param files
+   * @throws NotParsableException
    */
   SequenceInfoProvider(File[] files) {
-    this.inMemory = !disableFastaCache() && files.length <= MAX_FILES_IN_MEMORY;
+    this.inMemory = !disableFastaCache() && files.length <= MAX_FASTAS_IN_MEMORY;
     this.splitter = new FastaFileSplitter(inMemory);
     this.ab1Sequences = new ArrayList<>();
     this.fastaSequences = new ArrayList<>();
-    this.extractIDs = new HashSet<>(files.length);
-    for (File file : files) {
+    guiLogger.debug(() -> "Separating AB1 files from fasta files");
+    for (File f : files) {
       try {
-        if (isAb1File(file)) {
-          Ab1SequenceInfo info = new Ab1SequenceInfo(file);
-          ab1Sequences.add(info);
-          addExtractId(extractIDs, info);
-        } else if (isFastaFile(file)) {
-          splitter.split(file).forEach(info -> {
-            fastaSequences.add(info);
-            addExtractId(extractIDs, info);
-          });
+        if (isAb1File(f)) {
+          ab1Sequences.add(new Ab1SequenceInfo(f));
+        } else if (isFastaFile(f)) {
+          fastaSequences.addAll(splitter.split(f));
         } else {
-          guiLogger.error("Cannot determine file type of %s (probably a bug)", file.getName());
+          guiLogger.error("Cannot determine file type of %s", f.getName());
         }
       } catch (IOException e) {
-        guiLogger.error("Error processing file %s", e, file.getName());
+        guiLogger.error("Error processing %s: %s", f.getPath(), e.getMessage());
       }
     }
   }
@@ -81,7 +75,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * 
    * @return
    */
-  List<Ab1SequenceInfo> getAb1Files() {
+  List<Ab1SequenceInfo> getAb1Sequences() {
     return ab1Sequences;
   }
 
@@ -90,7 +84,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * 
    * @return
    */
-  List<FastaSequenceInfo> getFastaFiles() {
+  List<FastaSequenceInfo> getFastaSequences() {
     return fastaSequences;
   }
 
@@ -100,7 +94,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * @return
    */
   Set<String> getExtractIDs() {
-    return extractIDs;
+    return null;
   }
 
   @Override
@@ -113,14 +107,6 @@ class SequenceInfoProvider implements AutoCloseable {
       } else {
         guiLogger.warnf(() -> format("Please remember to delete temporary fasta files in %s", dir.getAbsolutePath()));
       }
-    }
-  }
-
-  private static void addExtractId(Set<String> ids, SequenceInfo info) {
-    try {
-      ids.add(info.getNote().getExtractId());
-    } catch (NotParsableException | IOException e) {
-      // Will be dealt with later on (in AB1Importer/FastaImporter)
     }
   }
 
