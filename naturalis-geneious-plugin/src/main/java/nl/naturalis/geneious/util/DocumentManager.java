@@ -12,7 +12,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.TraceFileType;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.TraceFileType.AB1;
+import static nl.naturalis.geneious.TraceFileType.*;
 import static nl.naturalis.geneious.util.DocumentUtils.wasCreatedFromAb1File;
 
 public class DocumentManager {
@@ -38,6 +38,14 @@ public class DocumentManager {
     NaturalisNote note = new NaturalisNote(document);
     byTypeByExtractId
         .computeIfAbsent(AB1, (k) -> new HashMap<>())
+        .computeIfAbsent(note.getExtractId(), (k) -> new ArrayList<>())
+        .add(document);
+  }
+
+  private void addFasta(AnnotatedPluginDocument document) {
+    NaturalisNote note = new NaturalisNote(document);
+    byTypeByExtractId
+        .computeIfAbsent(FASTA, (k) -> new HashMap<>())
         .computeIfAbsent(note.getExtractId(), (k) -> new ArrayList<>())
         .add(document);
   }

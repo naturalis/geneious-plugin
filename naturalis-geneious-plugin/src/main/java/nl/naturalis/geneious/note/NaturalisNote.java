@@ -8,11 +8,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 
-import org.apache.commons.lang3.StringUtils;
-
 import nl.naturalis.geneious.PluginDataSource;
 
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import static nl.naturalis.geneious.PluginDataSource.AUTO;
@@ -100,41 +98,46 @@ public class NaturalisNote {
    */
   public void overwrite(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
-    boolean modified = overwrite(notes, DOCUMENT_VERSION, documentVersion);
-    modified = modified || overwrite(notes, PCR_PLATE_ID, pcrPlateId);
-    modified = modified || overwrite(notes, MARKER, marker);
-    modified = modified || overwrite(notes, EXTRACT_PLATE_ID, extractPlateId);
-    modified = modified || overwrite(notes, EXTRACT_ID, extractId);
-    modified = modified || overwrite(notes, SAMPLE_PLATE_ID, samplePlateId);
-    modified = modified || overwrite(notes, PLATE_POSITION, platePosition);
-    modified = modified || overwrite(notes, SCIENTIFIC_NAME, scientificName);
-    modified = modified || overwrite(notes, REGISTRATION_NUMBER, registrationNumber);
-    modified = modified || overwrite(notes, EXTRACTION_METHOD, extractionMethod);
-    modified = modified || overwrite(notes, SEQUENCING_STAFF, sequencingStaff);
-    modified = modified || overwrite(notes, AMPLIFICATION_STAFF, amplificationStaff);
-    modified = modified || overwrite(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
+    overwrite(notes, DOCUMENT_VERSION, documentVersion);
+    overwrite(notes, PCR_PLATE_ID, pcrPlateId);
+    overwrite(notes, MARKER, marker);
+    overwrite(notes, EXTRACT_PLATE_ID, extractPlateId);
+    overwrite(notes, EXTRACT_ID, extractId);
+    overwrite(notes, SAMPLE_PLATE_ID, samplePlateId);
+    overwrite(notes, PLATE_POSITION, platePosition);
+    overwrite(notes, SCIENTIFIC_NAME, scientificName);
+    overwrite(notes, REGISTRATION_NUMBER, registrationNumber);
+    overwrite(notes, EXTRACTION_METHOD, extractionMethod);
+    overwrite(notes, SEQUENCING_STAFF, sequencingStaff);
+    overwrite(notes, AMPLIFICATION_STAFF, amplificationStaff);
+    overwrite(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
     // TODO: CRS & BOLD
-    if (modified) {
-      notes.saveNotes();
-    }
+    notes.saveNotes();
   }
 
   /**
-   * Copies fields within this note that came from the specified datasource to the provided document, overwriting any previous values.
-   * Fields within this note that have null values will not be copied.
+   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
+   * have null values will not be copied.
    * 
    * @param doc
-   * @param src
    */
-  public void overwrite(AnnotatedPluginDocument doc, PluginDataSource src) {
+  public void merge(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
-    boolean modified = false;
-    for (NaturalisField field : fieldsPerDataSource.get(src)) {
-      modified = modified || merge(notes, field, getValue(field));
-    }
-    if (modified) {
-      notes.saveNotes();
-    }
+    merge(notes, DOCUMENT_VERSION, documentVersion);
+    merge(notes, PCR_PLATE_ID, pcrPlateId);
+    merge(notes, MARKER, marker);
+    merge(notes, EXTRACT_PLATE_ID, extractPlateId);
+    merge(notes, EXTRACT_ID, extractId);
+    merge(notes, SAMPLE_PLATE_ID, samplePlateId);
+    merge(notes, PLATE_POSITION, platePosition);
+    merge(notes, SCIENTIFIC_NAME, scientificName);
+    merge(notes, REGISTRATION_NUMBER, registrationNumber);
+    merge(notes, EXTRACTION_METHOD, extractionMethod);
+    merge(notes, SEQUENCING_STAFF, sequencingStaff);
+    merge(notes, AMPLIFICATION_STAFF, amplificationStaff);
+    merge(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
+    // TODO: CRS & BOLD
+    notes.saveNotes();
   }
 
   /**
@@ -180,49 +183,6 @@ public class NaturalisNote {
       other.amplificationStaff = amplificationStaff;
     }
     // TODO: CRS & BOLD
-  }
-
-  /**
-   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
-   * have null values will not be copied.
-   * 
-   * @param doc
-   */
-  public void merge(AnnotatedPluginDocument doc) {
-    DocumentNotes notes = doc.getDocumentNotes(true);
-    boolean modified = merge(notes, DOCUMENT_VERSION, documentVersion);
-    modified = modified || merge(notes, PCR_PLATE_ID, pcrPlateId);
-    modified = modified || merge(notes, MARKER, marker);
-    modified = modified || merge(notes, EXTRACT_PLATE_ID, extractPlateId);
-    modified = modified || merge(notes, EXTRACT_ID, extractId);
-    modified = modified || merge(notes, SAMPLE_PLATE_ID, samplePlateId);
-    modified = modified || merge(notes, PLATE_POSITION, platePosition);
-    modified = modified || merge(notes, SCIENTIFIC_NAME, scientificName);
-    modified = modified || merge(notes, REGISTRATION_NUMBER, registrationNumber);
-    modified = modified || merge(notes, EXTRACTION_METHOD, extractionMethod);
-    modified = modified || merge(notes, SEQUENCING_STAFF, sequencingStaff);
-    modified = modified || merge(notes, AMPLIFICATION_STAFF, amplificationStaff);
-    modified = modified || merge(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
-    // TODO: CRS & BOLD
-    if (modified) {
-      notes.saveNotes();
-    }
-  }
-
-  /**
-   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
-   * have null will not be copied.
-   * 
-   * @param doc
-   * @param src
-   */
-  public void merge(AnnotatedPluginDocument doc, PluginDataSource src) {
-    DocumentNotes notes = doc.getDocumentNotes(true);
-    boolean modified = false;
-    for (NaturalisField field : fieldsPerDataSource.get(src)) {
-      modified = modified || merge(notes, field, getValue(field));
-    }
-    notes.saveNotes();
   }
 
   /**

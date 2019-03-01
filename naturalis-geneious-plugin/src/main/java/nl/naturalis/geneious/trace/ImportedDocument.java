@@ -27,7 +27,7 @@ class ImportedDocument {
 
   void annotate(DocumentManager dm) {
     NaturalisNote note = info.getNote();
-    AnnotatedPluginDocument oldDoc = dm.findLatestVersion(note.getExtractId(), info.getTraceFileType());
+    info.getNote().overwrite(doc);
   }
 
 }

@@ -38,8 +38,8 @@ class FastaImporter {
    * @return
    * @throws IOException
    */
-  List<AnnotatedPluginDocument> importFiles() throws IOException {
-    List<AnnotatedPluginDocument> result = new ArrayList<>();
+  List<ImportedDocument> importFiles() throws IOException {
+    List<ImportedDocument> result = new ArrayList<>();
     LinkedHashMap<File, ArrayList<FastaSequenceInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument document;
@@ -50,7 +50,7 @@ class FastaImporter {
         guiLogger.debugf(() -> format("--> Importing sequence \"%s\"", info.getName()));
         sequence = new DefaultNucleotideSequence(info.getName(), info.getSequence());
         document = createAnnotatedPluginDocument(sequence);
-        result.add(document);
+        result.add(new ImportedDocument(info, document));
       }
     }
     return result;

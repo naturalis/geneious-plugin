@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.PluginDocument;
+import com.biomatters.geneious.publicapi.documents.sequence.NucleotideGraph;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
@@ -37,7 +39,12 @@ public class DocumentUtils {
    * @return
    */
   public static boolean wasCreatedFromAb1File(AnnotatedPluginDocument document) {
-    return document.getDocumentClass() == DefaultNucleotideGraphSequence.class;
+    Class<? extends PluginDocument> clazz = document.getDocumentClass();
+    boolean yes = clazz == DefaultNucleotideGraphSequence.class;
+    if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
+      guiLogger.warn("Encountered non-default document class: %s; the document will be ignored", clazz);
+    }
+    return yes;
   }
 
   /**
@@ -48,6 +55,11 @@ public class DocumentUtils {
    * @return
    */
   public static boolean wasCreatedFromFastaFile(AnnotatedPluginDocument document) {
+    Class<? extends PluginDocument> clazz = document.getDocumentClass();
+    boolean yes = clazz == DefaultNucleotideGraphSequence.class;
+    if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
+      guiLogger.warn("Encountered non-default document class: %s; the document will be ignored", clazz);
+    }
     return document.getDocumentClass() == DefaultNucleotideSequence.class;
   }
 
