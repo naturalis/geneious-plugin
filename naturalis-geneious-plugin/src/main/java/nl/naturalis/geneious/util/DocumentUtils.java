@@ -42,7 +42,7 @@ public class DocumentUtils {
     Class<? extends PluginDocument> clazz = document.getDocumentClass();
     boolean yes = clazz == DefaultNucleotideGraphSequence.class;
     if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
-      guiLogger.warn("Encountered non-default document class: %s; the document will be ignored", clazz);
+      guiLogger.warn("Encountered non-default implementation: %s; the document will be ignored", clazz);
     }
     return yes;
   }
@@ -58,9 +58,9 @@ public class DocumentUtils {
     Class<? extends PluginDocument> clazz = document.getDocumentClass();
     boolean yes = clazz == DefaultNucleotideGraphSequence.class;
     if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
-      guiLogger.warn("Encountered non-default document class: %s; the document will be ignored", clazz);
+      guiLogger.warn("Encountered non-default implementation: %s; the document will be ignored", clazz);
     }
-    return document.getDocumentClass() == DefaultNucleotideSequence.class;
+    return yes;
   }
 
   /**

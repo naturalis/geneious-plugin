@@ -2,7 +2,7 @@ package nl.naturalis.geneious.trace;
 
 import java.io.File;
 
-import nl.naturalis.geneious.TraceFileType;
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.util.SequenceNameParser;
@@ -35,7 +35,7 @@ abstract class SequenceInfo {
    * 
    * @return
    */
-  abstract TraceFileType getTraceFileType();
+  abstract DocumentType getDocumentType();
 
   /**
    * Returns the name associated with the nucleotide sequence. For AB1 files it is the file name minus the file extension. For Fasta files

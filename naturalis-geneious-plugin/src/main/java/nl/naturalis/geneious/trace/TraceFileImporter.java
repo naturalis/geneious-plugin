@@ -17,6 +17,7 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
  */
 class TraceFileImporter {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
 
   private final File[] files;
@@ -38,22 +39,22 @@ class TraceFileImporter {
    * @throws DatabaseServiceException
    */
   List<AnnotatedPluginDocument> process() throws IOException, DatabaseServiceException {
-    List<ImportedDocument> result = new ArrayList<>();
+    List<ImportedDocument> importedDocuments = new ArrayList<>();
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
         AB1Importer importer = new AB1Importer(ab1s);
-        result.addAll(importer.importFiles());
+        importedDocuments.addAll(importer.importFiles());
       }
       List<FastaSequenceInfo> fastas = provider.getFastaSequences();
       if (fastas.size() != 0) {
         FastaImporter importer = new FastaImporter(fastas);
-        result.addAll(importer.importFiles());
+        importedDocuments.addAll(importer.importFiles());
       }
-      DocumentAnnotator annotator = new DocumentAnnotator(result);
+      DocumentAnnotator annotator = new DocumentAnnotator(importedDocuments);
       annotator.annotateImportedDocuments();
     }
-    return result.stream().map(ImportedDocument::getDocument).collect(Collectors.toList());
+    return importedDocuments.stream().map(ImportedDocument::getDocument).collect(Collectors.toList());
   }
 
 }

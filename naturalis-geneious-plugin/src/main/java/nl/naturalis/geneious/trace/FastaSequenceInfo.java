@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import nl.naturalis.geneious.TraceFileType;
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
 
@@ -38,8 +38,8 @@ final class FastaSequenceInfo extends SequenceInfo {
   }
 
   @Override
-  TraceFileType getTraceFileType() {
-    return TraceFileType.FASTA;
+  DocumentType getDocumentType() {
+    return DocumentType.FASTA;
   }
 
 

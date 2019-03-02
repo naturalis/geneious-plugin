@@ -41,17 +41,17 @@ class DocumentAnnotator {
 
   private List<ImportedDocument> createDocumentNotes() {
     guiLogger.debug(() -> "Creating document notes");
-    List<ImportedDocument> annotables = new ArrayList<>(docs.size());
+    List<ImportedDocument> annotatable = new ArrayList<>(docs.size());
     for (ImportedDocument doc : docs) {
       try {
         doc.getSequenceInfo().createNote();
-        annotables.add(doc);
+        annotatable.add(doc);
       } catch (NotParsableException e) {
         String file = doc.getSequenceInfo().getSourceFile().getName();
         guiLogger.error("Error processing file %s: %s", file, e.getMessage());
       }
     }
-    return annotables;
+    return annotatable;
   }
 
   private static DocumentManager createDocumentManager(Set<String> extractIDs) throws DatabaseServiceException {

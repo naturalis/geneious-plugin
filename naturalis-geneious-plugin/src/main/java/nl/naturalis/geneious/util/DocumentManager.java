@@ -6,32 +6,34 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import static nl.naturalis.geneious.DocumentType.*;
 
-import nl.naturalis.geneious.TraceFileType;
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.TraceFileType.*;
+import static nl.naturalis.geneious.DocumentType.*;
 import static nl.naturalis.geneious.util.DocumentUtils.wasCreatedFromAb1File;
 
 public class DocumentManager {
 
   private final Collection<AnnotatedPluginDocument> documents;
 
-  private final EnumMap<TraceFileType, Map<String, List<AnnotatedPluginDocument>>> byTypeByExtractId;
+  private final EnumMap<DocumentType, Map<String, List<AnnotatedPluginDocument>>> byTypeByExtractId;
 
   public DocumentManager(Collection<AnnotatedPluginDocument> documents) {
     this.documents = documents;
-    byTypeByExtractId = new EnumMap<>(TraceFileType.class);
+    byTypeByExtractId = new EnumMap<>(DocumentType.class);
     HashMap<String, ArrayList<AnnotatedPluginDocument>> ab1s;
     HashMap<String, ArrayList<AnnotatedPluginDocument>> fastas;
     for (AnnotatedPluginDocument document : documents) {
-      if (wasCreatedFromAb1File(document)) {
-        addAb1(document);
+      NaturalisNote note = new NaturalisNote(document);
+      switch(getType(document,note)) {
+        
       }
     }
-
   }
 
   private void addAb1(AnnotatedPluginDocument document) {
@@ -50,7 +52,20 @@ public class DocumentManager {
         .add(document);
   }
 
-  public AnnotatedPluginDocument findLatestVersion(String extractID, TraceFileType fileType) {
+  private static DocumentType getType(AnnotatedPluginDocument doc, NaturalisNote note) {
+    if (note.getMarker() != null && note.getMarker().equals("Dum")) {
+      return DUMMY;
+    }
+    if (doc.getDocumentClass() == AB1.getGeneiousType()) {
+      return AB1;
+    }
+    if (doc.getDocumentClass() == FASTA.getGeneiousType()) {
+      return FASTA;
+    }
+    return null;
+  }
+
+  public AnnotatedPluginDocument findLatestVersion(String extractID, DocumentType fileType) {
     // TODO Auto-generated method stub
     return null;
   }

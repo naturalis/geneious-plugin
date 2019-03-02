@@ -2,7 +2,7 @@ package nl.naturalis.geneious.trace;
 
 import java.io.File;
 
-import nl.naturalis.geneious.TraceFileType;
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
 
@@ -24,8 +24,8 @@ final class Ab1SequenceInfo extends SequenceInfo {
   }
 
   @Override
-  TraceFileType getTraceFileType() {
-    return TraceFileType.AB1;
+  DocumentType getDocumentType() {
+    return DocumentType.AB1;
   }
 
   @Override
