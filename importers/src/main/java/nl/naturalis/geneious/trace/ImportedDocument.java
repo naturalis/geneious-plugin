@@ -5,7 +5,7 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.DocumentManager;
+import nl.naturalis.geneious.util.DocumentResultSetInspector;
 
 class ImportedDocument {
 
@@ -25,7 +25,7 @@ class ImportedDocument {
     return doc;
   }
 
-  void annotate(DocumentManager dm) {
+  void annotate(DocumentResultSetInspector dm) {
     NaturalisNote note = info.getNote();
     info.getNote().overwrite(doc);
   }

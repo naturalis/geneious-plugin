@@ -12,7 +12,8 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 public enum DocumentType {
 
   /**
-   * Used for Geneious document types that the plugin doesn't know how to handle.
+   * Used for Geneious document types that the plugin doesn't know how to handle. The Naturalis plugin will emit a warning when it
+   * unexpectedly encounters documents of an unknown type.
    */
   UNKNOWN(null),
   /**

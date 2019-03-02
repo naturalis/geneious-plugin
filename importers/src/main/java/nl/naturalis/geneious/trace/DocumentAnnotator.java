@@ -11,7 +11,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.util.DocumentManager;
+import nl.naturalis.geneious.util.DocumentResultSetInspector;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
@@ -33,7 +33,7 @@ class DocumentAnnotator {
     Set<String> ids = annotables.stream()
         .map(d -> d.getSequenceInfo().getNote().getExtractId())
         .collect(Collectors.toSet());
-    DocumentManager dm = createDocumentManager(ids);
+    DocumentResultSetInspector dm = createDocumentManager(ids);
     for (ImportedDocument doc : annotables) {
       doc.annotate(dm);
     }
@@ -54,11 +54,11 @@ class DocumentAnnotator {
     return annotatable;
   }
 
-  private static DocumentManager createDocumentManager(Set<String> extractIDs) throws DatabaseServiceException {
+  private static DocumentResultSetInspector createDocumentManager(Set<String> extractIDs) throws DatabaseServiceException {
     guiLogger.debugf(() -> format("Searching database \"%s\" for documents with the provided extract IDs", getTargetDatabaseName()));
     List<AnnotatedPluginDocument> docs = findByExtractID(extractIDs);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
-    return new DocumentManager(docs);
+    return new DocumentResultSetInspector(docs);
   }
 
 }
