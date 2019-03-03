@@ -21,28 +21,28 @@ class DocumentAnnotator {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentAnnotator.class);
 
-  private final List<ImportedDocument> docs;
+  private final List<ImportableDocument> docs;
 
-  DocumentAnnotator(List<ImportedDocument> docs) {
+  DocumentAnnotator(List<ImportableDocument> docs) {
     this.docs = docs;
   }
 
   void annotateImportedDocuments() throws DatabaseServiceException {
-    List<ImportedDocument> annotables = createDocumentNotes();
+    List<ImportableDocument> annotables = createDocumentNotes();
     guiLogger.debug(() -> "Collecting extract IDs from document notes");
     Set<String> ids = annotables.stream()
-        .map(d -> d.getSequenceInfo().getNote().getExtractId())
+        .map(d -> d.getSequenceInfo().getNaturalisNote().getExtractId())
         .collect(Collectors.toSet());
     DocumentResultSetInspector dm = createDocumentManager(ids);
-    for (ImportedDocument doc : annotables) {
+    for (ImportableDocument doc : annotables) {
       doc.annotate(dm);
     }
   }
 
-  private List<ImportedDocument> createDocumentNotes() {
+  private List<ImportableDocument> createDocumentNotes() {
     guiLogger.debug(() -> "Creating document notes");
-    List<ImportedDocument> annotatable = new ArrayList<>(docs.size());
-    for (ImportedDocument doc : docs) {
+    List<ImportableDocument> annotatable = new ArrayList<>(docs.size());
+    for (ImportableDocument doc : docs) {
       try {
         doc.getSequenceInfo().createNote();
         annotatable.add(doc);

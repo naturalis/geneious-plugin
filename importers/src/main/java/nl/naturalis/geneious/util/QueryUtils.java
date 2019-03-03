@@ -34,6 +34,9 @@ public class QueryUtils {
   }
 
   public static List<AnnotatedPluginDocument> findByExtractID(Set<String> extractIds) throws DatabaseServiceException {
+    if (extractIds.size() == 0) {
+      return Collections.emptyList();
+    }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
     return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);

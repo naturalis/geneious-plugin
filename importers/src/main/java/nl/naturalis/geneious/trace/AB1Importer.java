@@ -36,8 +36,8 @@ class AB1Importer {
    * @return
    * @throws IOException
    */
-  List<ImportedDocument> importFiles() throws IOException {
-    List<ImportedDocument> imported = new ArrayList<>(sequences.size());
+  List<ImportableDocument> importFiles() throws IOException {
+    List<ImportableDocument> imported = new ArrayList<>(sequences.size());
     for (Ab1SequenceInfo info : sequences) {
       ++stats.processed;
       File f = info.getSourceFile();
@@ -49,7 +49,9 @@ class AB1Importer {
           String msg = String.format(fmt, f.getName(), apds.size());
           throw new AssertionError(msg);
         }
-        imported.add(new ImportedDocument(info, apds.get(0)));
+        AnnotatedPluginDocument doc = apds.get(0);
+        doc.setName(info.getName());
+        imported.add(new ImportableDocument(doc, info));
         ++stats.imported;
       } catch (DocumentImportException e) {
         guiLogger.error("Error processing file %s", e, f.getAbsolutePath());

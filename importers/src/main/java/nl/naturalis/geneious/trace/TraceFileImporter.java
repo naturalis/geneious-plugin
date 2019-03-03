@@ -39,7 +39,7 @@ class TraceFileImporter {
    * @throws DatabaseServiceException
    */
   List<AnnotatedPluginDocument> process() throws IOException, DatabaseServiceException {
-    List<ImportedDocument> importedDocuments = new ArrayList<>();
+    List<ImportableDocument> importedDocuments = new ArrayList<>();
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
@@ -54,7 +54,7 @@ class TraceFileImporter {
       DocumentAnnotator annotator = new DocumentAnnotator(importedDocuments);
       annotator.annotateImportedDocuments();
     }
-    return importedDocuments.stream().map(ImportedDocument::getDocument).collect(Collectors.toList());
+    return importedDocuments.stream().map(ImportableDocument::getGeneiousDocument).collect(Collectors.toList());
   }
 
 }

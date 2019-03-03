@@ -121,7 +121,7 @@ public class NaturalisNote {
    * 
    * @param doc
    */
-  public void merge(AnnotatedPluginDocument doc) {
+  public void complete(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     merge(notes, DOCUMENT_VERSION, documentVersion);
     merge(notes, PCR_PLATE_ID, pcrPlateId);
@@ -190,7 +190,7 @@ public class NaturalisNote {
    * 
    * @param other
    */
-  public void merge(NaturalisNote other) {
+  public void complete(NaturalisNote other) {
     if (documentVersion != null && other.documentVersion == null) {
       other.documentVersion = documentVersion;
     }

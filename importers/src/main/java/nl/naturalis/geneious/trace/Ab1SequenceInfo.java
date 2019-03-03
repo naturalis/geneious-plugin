@@ -39,7 +39,7 @@ final class Ab1SequenceInfo extends SequenceInfo {
   }
 
   @Override
-  NaturalisNote getNote() {
+  NaturalisNote getNaturalisNote() {
     return note;
   }
 

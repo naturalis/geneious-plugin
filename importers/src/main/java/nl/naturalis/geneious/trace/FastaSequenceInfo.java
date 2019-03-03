@@ -54,7 +54,7 @@ final class FastaSequenceInfo extends SequenceInfo {
   }
 
   @Override
-  NaturalisNote getNote() {
+  NaturalisNote getNaturalisNote() {
     return note;
   }
 

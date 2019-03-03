@@ -47,7 +47,7 @@ abstract class SequenceInfo {
 
   /**
    * Creates a {@link NaturalisNote} instance containing the annotations that were parsed out of the sequence name. This method must be
-   * called before {@link #getNote() getNote}.
+   * called before {@link #getNaturalisNote() getNote}.
    */
   abstract void createNote() throws NotParsableException;
 
@@ -57,6 +57,6 @@ abstract class SequenceInfo {
    * @return
    * @throws NotParsableException
    */
-  abstract NaturalisNote getNote();
+  abstract NaturalisNote getNaturalisNote();
 
 }
