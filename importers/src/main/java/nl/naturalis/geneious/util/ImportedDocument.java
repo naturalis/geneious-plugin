@@ -12,9 +12,10 @@ import static nl.naturalis.geneious.DocumentType.UNKNOWN;
 
 /**
  * A simple combination of an instance of Geneious's own {@code AnnotatedPluginDocument} class and an instance of a {@code NaturalisNote}
- * extracted from the Geneious document. The Geneious document is generally obtained through some sort of database query; in other words
- * it has already been imported in some previous run of the plugin (or Geneious's own import functionality). Since it is not clear whether extracting the note implicitly involves a database query everytime you do it,
- * we err on the cautious side and chain the two together (immediately and just once) within this class.
+ * extracted from the Geneious document. The Geneious document is generally obtained through some sort of database query; in other words it
+ * has already been imported in some previous run of the plugin (or Geneious's own import functionality). Since it is not clear whether
+ * extracting the note implicitly involves a database query everytime you do it, we err on the cautious side and chain the two together
+ * (immediately and just once) within this class.
  */
 public class ImportedDocument {
 

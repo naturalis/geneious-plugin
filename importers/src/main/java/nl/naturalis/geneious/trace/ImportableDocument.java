@@ -10,16 +10,16 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.DocumentResultSetInspector;
 import nl.naturalis.geneious.util.ImportedDocument;
 
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+
 /**
- * A simple combination of an instance of Geneious's own {@code AnnotatedPluginDocument} class and a{@code SequenceInfo} instance that will
- * be used to provide the Geneious document with Naturalis-specific annotations. The Geneious document has not yet been imported, but is
- * about to be.
+ * A simple combination of an {@link AnnotatedPluginDocument} class and a {@code SequenceInfo} object that will be used to supply the
+ * annotations for it. The Geneious document has not yet been imported, but is about to be.
  * 
  * @see ImportedDocument
  */
 class ImportableDocument {
 
-  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(ImportableDocument.class);
 
   private final SequenceInfo sequenceInfo;
@@ -39,32 +39,24 @@ class ImportableDocument {
   }
 
   /**
-   * Attach the {@link NaturalisNote} contained within this instance to the Geneious document that is also contained within it. Before doing
-   * so, it will ask the {@code DocumentResultSetInspector} if the database already contained a document with the same extract ID and type
-   * as the importable document.
+   * Attaches the {@link NaturalisNote} within the {@code SequenceInfo} object to the {@code AnnotatedPluginDocument}. The provided
+   * {@code DocumentResultSetInspector} will be used to look up a document (dummy or "real") with the same extract ID. If found, that
+   * document's annotations will be merged into the {@code NaturalisNote}.
    * 
-   * @param dm
+   * @param inspector
    */
-  void annotate(DocumentResultSetInspector dm) {
+  void annotate(DocumentResultSetInspector inspector) {
+    guiLogger.debugf(() -> format("Annotating \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
-    Optional<ImportedDocument> opt = dm.getLatestVersion(note.getExtractId(), sequenceInfo.getDocumentType());
+    Optional<ImportedDocument> opt = inspector.findLatestVersion(note.getExtractId(), sequenceInfo.getDocumentType());
     if (opt.isPresent()) {
-      incrementDocumentVersion(opt.get());
+      opt.get().getNaturalisNote().complete(note);
+      note.setDocumentVersion(note.getDocumentVersion() + 1);
     } else {
-      dm.getDummy(note.getExtractId()).ifPresent(dummy -> {
-        dummy.getNaturalisNote().complete(note);
-      });
+      sequenceInfo.getNaturalisNote().setDocumentVersion(1);
+      inspector.findDummy(note.getExtractId()).ifPresent(dummy -> dummy.getNaturalisNote().complete(note));
     }
     note.overwrite(document);
-  }
-
-  private void incrementDocumentVersion(ImportedDocument oldDocument) {
-    Integer version = oldDocument.getNaturalisNote().getDocumentVersion();
-    if (version == null) { // Document must have been imported through Geneious own import facility (not with plugin)
-      sequenceInfo.getNaturalisNote().setDocumentVersion(1);
-    } else {
-      sequenceInfo.getNaturalisNote().setDocumentVersion(version + 1);
-    }
   }
 
 }

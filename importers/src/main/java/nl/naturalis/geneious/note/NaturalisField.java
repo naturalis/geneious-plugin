@@ -12,10 +12,13 @@ import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 
 import nl.naturalis.geneious.PluginDataSource;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 import static java.util.Collections.emptyList;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createIntegerNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.setNoteType;
@@ -60,6 +63,8 @@ public enum NaturalisField {
   BOLD_BIN_CODE("BOLDBINCode_Bold", "BOLD BIN (Bold)", BOLD),
   BOLD_NUM_IMAGES("NumberOfImagesCode_Bold", "N images (Bold)", BOLD),
   BOLD_URI("BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)", BOLD);
+
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisField.class);
 
   private static final String NOTE_TYPE_CODE_PREFIX = "DocumentNoteUtilities-";
 
@@ -181,15 +186,22 @@ public enum NaturalisField {
     } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
       /*
        * Whether or not the note type must be regenerated even if it is already registered with Geneious. In production this should never be
-       * the case, because it is wasteful. During development though (in between Geneious sessions) the definition of a note type may change
-       * and we must inform Geneious about this change.
+       * the case, but during development though (in between Geneious sessions) the definition of a note type may change and we must inform
+       * Geneious about this change.
        */
+      guiLogger.warn("Regenerating note type definition of \"%s\". This should not happen in production!", code);
       List<DocumentNoteField> fields = noteType.getFields();
-      for (DocumentNoteField field : fields) {
+      for (DocumentNoteField field : fields) { // In V1 plugin there's always just 1 field per note type, but let's iterate anyhow ...
         noteType.removeField(field.getCode());
       }
       String fieldDescr = name + " (Naturalis)";
-      DocumentNoteField noteField = createTextNoteField(name, fieldDescr, code, emptyList(), false);
+      DocumentNoteField noteField;
+      if (type == Integer.class) {
+        noteField = createIntegerNoteField(name, fieldDescr, code, emptyList(), false);
+
+      } else {
+        noteField = createTextNoteField(name, fieldDescr, code, emptyList(), false);
+      }
       noteType.setField(noteField);
       setNoteType(noteType);
     }

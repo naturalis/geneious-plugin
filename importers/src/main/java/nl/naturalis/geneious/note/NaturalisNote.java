@@ -9,6 +9,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.Docum
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
 
 import nl.naturalis.geneious.PluginDataSource;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -37,11 +39,15 @@ import static nl.naturalis.geneious.note.NaturalisField.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.note.NaturalisField.SEQUENCING_STAFF;
 
+import static nl.naturalis.geneious.gui.log.GuiLogger.*;
+
 /**
- * A container for all data that we enrich Geneious documents with through the various plugin actions. Different plugins will populate
+ * A container for all data that we enrich Geneious documents with through the various plugin actions. Different actions will populate
  * different fields of a NaturalisNote instance.
  */
 public class NaturalisNote {
+
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisNote.class);
 
   private static final EnumMap<PluginDataSource, EnumSet<NaturalisField>> fieldsPerDataSource;
 
@@ -91,8 +97,8 @@ public class NaturalisNote {
   }
 
   /**
-   * Copies the entire content of this note to the provided document, overwriting any previous values. Fields within this note that have
-   * null values will not be copied.
+   * Copies the entire contents of this note to the provided document, overwriting any previous values. Empty fields within this note will
+   * not be copied. In other words this method will never set fields to null in the provided document.
    * 
    * @param doc
    */
@@ -116,8 +122,8 @@ public class NaturalisNote {
   }
 
   /**
-   * Copies all fields within this note that do not have a value yet in the provided document to that document. Fields within this note that
-   * have null values will not be copied.
+   * Copies all fields within this note that do not have a value yet in the provided document to that document.Empty fields within this note
+   * will not be copied. In other words this method will never set fields to null in the provided document.
    * 
    * @param doc
    */
@@ -192,42 +198,58 @@ public class NaturalisNote {
    */
   public void complete(NaturalisNote other) {
     if (documentVersion != null && other.documentVersion == null) {
+      copying("documentVersion", documentVersion);
       other.documentVersion = documentVersion;
     }
     if (isNotEmpty(pcrPlateId) && isEmpty(other.pcrPlateId)) {
+      copying("pcrPlateId", pcrPlateId);
       other.pcrPlateId = pcrPlateId;
     }
     if (isNotEmpty(marker) && isEmpty(other.marker)) {
+      copying("marker", marker);
       other.marker = marker;
     }
     if (isNotEmpty(extractPlateId) && isEmpty(other.extractPlateId)) {
+      copying("extractPlateId", extractPlateId);
       other.extractPlateId = extractPlateId;
     }
     if (isNotEmpty(extractId) && isEmpty(other.extractId)) {
+      copying("extractId", extractId);
       other.extractId = extractId;
     }
     if (isNotEmpty(samplePlateId) && isEmpty(other.samplePlateId)) {
+      copying("samplePlateId", samplePlateId);
       other.samplePlateId = samplePlateId;
     }
     if (isNotEmpty(platePosition) && isEmpty(other.platePosition)) {
+      copying("platePosition", platePosition);
       other.platePosition = platePosition;
     }
     if (isNotEmpty(scientificName) && isEmpty(other.scientificName)) {
+      copying("scientificName", scientificName);
       other.scientificName = scientificName;
     }
     if (isNotEmpty(registrationNumber) && isEmpty(other.registrationNumber)) {
+      copying("registrationNumber", registrationNumber);
       other.registrationNumber = registrationNumber;
     }
     if (isNotEmpty(extractionMethod) && isEmpty(other.extractionMethod)) {
+      copying("extractionMethod", extractionMethod);
       other.extractionMethod = extractionMethod;
     }
     if (isNotEmpty(sequencingStaff) && isEmpty(other.sequencingStaff)) {
+      copying("sequencingStaff", sequencingStaff);
       other.sequencingStaff = sequencingStaff;
     }
     if (isNotEmpty(amplificationStaff) && isEmpty(other.amplificationStaff)) {
+      copying("amplificationStaff", amplificationStaff);
       other.amplificationStaff = amplificationStaff;
     }
     // TODO: CRS & BOLD
+  }
+
+  private static void copying(String field, Object value) {
+    guiLogger.debugf(() -> format("Copying value of %s to new document: \"%s\"", field, value));
   }
 
   public void setValue(NaturalisField field, Object value) {

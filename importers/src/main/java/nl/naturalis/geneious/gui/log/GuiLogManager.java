@@ -74,7 +74,7 @@ public class GuiLogManager {
     dialog.setTitle(title);
     JTextArea textArea = new JTextArea(20, 140);
     textArea.setEditable(false);
-    textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+    textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
     if (records.size() == 0) {
       textArea.append("Nothing has been logged");
     } else {

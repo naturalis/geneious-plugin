@@ -17,48 +17,78 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
+/**
+ * Responsible for creating the Naturalis-specific annotations and adding them to Geneious documents.
+ *
+ * @author Ayco Holleman
+ */
 class DocumentAnnotator {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentAnnotator.class);
 
   private final List<ImportableDocument> docs;
 
+  private int successCount;
+  private int failureCount;
+
   DocumentAnnotator(List<ImportableDocument> docs) {
     this.docs = docs;
   }
 
+  /**
+   * Creates the annotations and adds them to the Geneious documents.
+   * 
+   * @throws DatabaseServiceException
+   */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    List<ImportableDocument> annotables = createDocumentNotes();
-    guiLogger.debug(() -> "Collecting extract IDs from document notes");
+    guiLogger.info("Creating annotations");
+    List<ImportableDocument> annotables = getAnnotatableDocuments();
+    guiLogger.debug(() -> "Collecting extract IDs");
     Set<String> ids = annotables.stream()
         .map(d -> d.getSequenceInfo().getNaturalisNote().getExtractId())
         .collect(Collectors.toSet());
-    DocumentResultSetInspector dm = createDocumentManager(ids);
+    guiLogger.debugf(() -> format("Searching database \"%s\" for older documents with the same extract IDs", getTargetDatabaseName()));
+    List<AnnotatedPluginDocument> docs = findByExtractID(ids);
+    guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
+    DocumentResultSetInspector dm = new DocumentResultSetInspector(docs);
     for (ImportableDocument doc : annotables) {
       doc.annotate(dm);
     }
   }
 
-  private List<ImportableDocument> createDocumentNotes() {
-    guiLogger.debug(() -> "Creating document notes");
+  /**
+   * Returns the number of successfully annotated documents.
+   * 
+   * @return
+   */
+  int getSuccessCount() {
+    return successCount;
+  }
+
+  /**
+   * Returns the number of documents which could not be annotated (most likely because the sequence name could not be parsed).
+   * 
+   * @return
+   */
+  int getFailureCount() {
+    return failureCount;
+  }
+
+  private List<ImportableDocument> getAnnotatableDocuments() {
+    successCount = failureCount = 0;
     List<ImportableDocument> annotatable = new ArrayList<>(docs.size());
     for (ImportableDocument doc : docs) {
       try {
         doc.getSequenceInfo().createNote();
+        ++successCount;
         annotatable.add(doc);
       } catch (NotParsableException e) {
+        ++failureCount;
         String file = doc.getSequenceInfo().getSourceFile().getName();
-        guiLogger.error("Error processing file %s: %s", file, e.getMessage());
+        guiLogger.error("Error processing %s: %s", file, e.getMessage());
       }
     }
     return annotatable;
-  }
-
-  private static DocumentResultSetInspector createDocumentManager(Set<String> extractIDs) throws DatabaseServiceException {
-    guiLogger.debugf(() -> format("Searching database \"%s\" for documents with the provided extract IDs", getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> docs = findByExtractID(extractIDs);
-    guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
-    return new DocumentResultSetInspector(docs);
   }
 
 }

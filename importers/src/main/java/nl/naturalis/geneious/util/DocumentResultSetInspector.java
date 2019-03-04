@@ -4,15 +4,15 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeSet;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+
+import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
 
 /**
  * Provides various types of lookups on a collection of Geneious documents (presumably fetched from the database).
@@ -21,21 +21,25 @@ public class DocumentResultSetInspector {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentResultSetInspector.class);
 
-  // Sorts descending on document version
-  private static Comparator<ImportedDocument> versionComparator = (v1, v2) -> {
-    if (v1.getNaturalisNote().getDocumentVersion() == null) {
-      if (v2.getNaturalisNote().getDocumentVersion() == null) {
-        return 0;
+  // Sort descending on document version or creation date
+  private static Comparator<ImportedDocument> comparator = (doc1, doc2) -> {
+    Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
+    Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
+    if (v1 == null) {
+      if (v2 != null) {
+        return -1; // Prefer anything over null
       }
-      return -1;
     }
-    if (v2.getNaturalisNote().getDocumentVersion() == null) {
+    if (v2 == null) {
       return 1;
     }
-    return v2.getNaturalisNote().getDocumentVersion() - v1.getNaturalisNote().getDocumentVersion();
+    if (v1.equals(v2)) {
+      return getDateModifield(doc2.getGeneiousDocument()).compareTo(getDateModifield(doc1.getGeneiousDocument()));
+    }
+    return v2.compareTo(v1);
   };
 
-  private final EnumMap<DocumentType, HashMap<String, TreeSet<ImportedDocument>>> byTypeByExtractId;
+  private final EnumMap<DocumentType, HashMap<String, ImportedDocument>> byTypeByExtractId;
 
   /**
    * Creates a new DocumentResultSetInspector for the specified documents.
@@ -55,48 +59,41 @@ public class DocumentResultSetInspector {
    * @param type
    * @return
    */
-  public Optional<ImportedDocument> getLatestVersion(String extractID, DocumentType type) {
-    Map<String, TreeSet<ImportedDocument>> subcache = byTypeByExtractId.get(type);
+  public Optional<ImportedDocument> findLatestVersion(String extractID, DocumentType type) {
+    HashMap<String, ImportedDocument> subcache = byTypeByExtractId.get(type);
     if (subcache != null) {
-      TreeSet<ImportedDocument> values = subcache.get(extractID);
-      if (values != null) {
-        return Optional.of(values.first());
-      }
+      return Optional.ofNullable(subcache.get(extractID));
     }
     return Optional.empty();
   }
 
   /**
-   * Convenience method, equivalent to calling {@code getDocumentWithHighestVersion(extractID, DocumentType.DUMMY)}.
+   * Convenience method, equivalent to calling {@code findLatestVersion(extractID, DocumentType.DUMMY)}.
    * 
    * @param extractID
    * @return
    */
-  public Optional<ImportedDocument> getDummy(String extractID) {
-    return getLatestVersion(extractID, DocumentType.DUMMY);
+  public Optional<ImportedDocument> findDummy(String extractID) {
+    return findLatestVersion(extractID, DocumentType.DUMMY);
   }
 
   private void cacheDocuments(Collection<AnnotatedPluginDocument> documents) {
     for (AnnotatedPluginDocument document : documents) {
       ImportedDocument doc = new ImportedDocument(document);
+      String extractId = doc.getNaturalisNote().getExtractId();
       switch (doc.getType()) {
         case AB1:
         case FASTA:
         case DUMMY:
-          cacheDocument(doc);
+          byTypeByExtractId
+              .computeIfAbsent(doc.getType(), (k) -> new HashMap<>())
+              .merge(extractId, doc, (d1, d2) -> comparator.compare(d1, d2) < 0 ? d2 : d1);
           break;
         case UNKNOWN:
         default:
-          guiLogger.warn("Unexpected Geneious document type: %s (document ignored!)", document.getDocumentClass());
+          guiLogger.warn("Unexpected Geneious document type: %s (document ignored)", document.getDocumentClass());
       }
     }
-  }
-
-  private void cacheDocument(ImportedDocument doc) {
-    byTypeByExtractId
-        .computeIfAbsent(doc.getType(), (k) -> new HashMap<>())
-        .computeIfAbsent(doc.getNaturalisNote().getExtractId(), (k) -> new TreeSet<>(versionComparator))
-        .add(doc);
   }
 
 }

@@ -30,7 +30,7 @@ public class QueryUtils {
   }
 
   public static String getTargetDatabaseName() {
-    return getTargetDatabase().getName();
+    return getTargetDatabase().getFolderName();
   }
 
   public static List<AnnotatedPluginDocument> findByExtractID(Set<String> extractIds) throws DatabaseServiceException {

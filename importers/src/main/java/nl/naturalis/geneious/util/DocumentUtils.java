@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.PluginDocument;
-import com.biomatters.geneious.publicapi.documents.sequence.NucleotideGraph;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
+import com.biomatters.geneious.publicapi.documents.DocumentField;
 
 import org.apache.commons.io.FileUtils;
 
@@ -31,36 +29,12 @@ public class DocumentUtils {
 
   private DocumentUtils() {}
 
-  /**
-   * Whether or not the specified Geneious document was created by importing an AB1 file. This is considered to be the case if the class of
-   * the document is {@link DefaultNucleotideGraphSequence}.
-   * 
-   * @param document
-   * @return
-   */
-  public static boolean wasCreatedFromAb1File(AnnotatedPluginDocument document) {
-    Class<? extends PluginDocument> clazz = document.getDocumentClass();
-    boolean yes = clazz == DefaultNucleotideGraphSequence.class;
-    if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
-      guiLogger.warn("Encountered non-default implementation: %s; the document will be ignored", clazz);
+  public static Date getDateModifield(AnnotatedPluginDocument doc) {
+    Date d = (Date) doc.getFieldValue(DocumentField.MODIFIED_DATE_FIELD);
+    if (d == null) {
+      throw new NullPointerException("Did not expect document modification date to be null");
     }
-    return yes;
-  }
-
-  /**
-   * Whether or not the specified Geneious document was created by importing a fasta file. This is considered to be the case if the class of
-   * the document is {@link DefaultNucleotideSequence}.
-   * 
-   * @param document
-   * @return
-   */
-  public static boolean wasCreatedFromFastaFile(AnnotatedPluginDocument document) {
-    Class<? extends PluginDocument> clazz = document.getDocumentClass();
-    boolean yes = clazz == DefaultNucleotideGraphSequence.class;
-    if (!yes && NucleotideGraph.class.isAssignableFrom(clazz)) {
-      guiLogger.warn("Encountered non-default implementation: %s; the document will be ignored", clazz);
-    }
-    return yes;
+    return d;
   }
 
   /**

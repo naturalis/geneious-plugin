@@ -9,10 +9,10 @@ import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.ERROR;
 import static nl.naturalis.geneious.gui.log.LogLevel.FATAL;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
-import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
+import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
 
 /**
- * A logger implementation that sends messages to the Geneious GUI.
+ * Sends log messages to the Geneious GUI. 
  * 
  * @author Ayco Holleman
  *
@@ -20,14 +20,17 @@ import static nl.naturalis.geneious.gui.log.LogLevel.WARNING;
 public class GuiLogger {
 
   /**
-   * Provides some syntactic sugar when using Supplier-based log methods like {@code #debugf(Supplier) debugf}. The first element is assumed
-   * to be the message pattern and the remaining elements the message arguments passed to String.format.
+   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the message pattern and the
+   * remaining arguments the message arguments passed to String.format.
    * 
-   * @param messageElements
+   * @param args
    * @return
    */
-  public static Object[] format(Object... messageElements) {
-    return messageElements;
+  public static Object[] format(String pattern, Object... args) {
+    Object[] objs = new Object[args.length + 1];
+    objs[0] = pattern;
+    System.arraycopy(args, 0, objs, 1, args.length);
+    return objs;
   }
 
   private final Class<?> clazz;
@@ -49,9 +52,32 @@ public class GuiLogger {
     this.logLevel = logLevel;
     this.records = records;
   }
-  
+
+  /**
+   * Whether or not DEBUG messages will be logged.
+   * 
+   * @return
+   */
   public boolean isDebugEnabled() {
     return logLevel.ordinal() >= DEBUG.ordinal();
+  }
+
+  /**
+   * Whether or not INFO messages will be logged.
+   * 
+   * @return
+   */
+  public boolean isInfoEnabled() {
+    return logLevel.ordinal() >= INFO.ordinal();
+  }
+
+  /**
+   * Whether or not WARN messages will be logged.
+   * 
+   * @return
+   */
+  public boolean isWarnEnabled() {
+    return logLevel.ordinal() >= WARN.ordinal();
   }
 
   public void debug(String message, Object... msgArgs) {
@@ -70,12 +96,16 @@ public class GuiLogger {
     record(INFO, message, null, msgArgs);
   }
 
+  public void infof(Supplier<Object[]> msgSupplier) {
+    recordf(INFO, msgSupplier, null);
+  }
+
   public void warn(String message, Object... msgArgs) {
-    record(WARNING, message, null, msgArgs);
+    record(WARN, message, null, msgArgs);
   }
 
   public void warnf(Supplier<Object[]> msgSupplier) {
-    recordf(WARNING, msgSupplier, null);
+    recordf(WARN, msgSupplier, null);
   }
 
   public void error(String message, Object... msgArgs) {
@@ -94,32 +124,30 @@ public class GuiLogger {
     record(FATAL, message, throwable, msgArgs);
   }
 
-  private void record(LogLevel lvl, String msg, Throwable t, Object... msgArgs) {
-    if (lvl.ordinal() >= logLevel.ordinal()) {
+  private void record(LogLevel level, String msg, Throwable exc, Object... msgArgs) {
+    if (level.ordinal() >= logLevel.ordinal()) {
       if (msgArgs.length > 0) {
-        records.add(new LogRecord(clazz, lvl, String.format(msg, msgArgs), t));
+        records.add(new LogRecord(clazz, level, String.format(msg, msgArgs), exc));
       } else {
-        records.add(new LogRecord(clazz, lvl, msg, t));
+        records.add(new LogRecord(clazz, level, msg, exc));
       }
     }
   }
 
-  private void record(LogLevel lvl, Supplier<String> msgSupplier, Throwable t) {
-    if (lvl.ordinal() >= logLevel.ordinal()) {
-      records.add(new LogRecord(clazz, lvl, msgSupplier.get(), t));
+  private void record(LogLevel level, Supplier<String> msgSupplier, Throwable exc) {
+    if (level.ordinal() >= logLevel.ordinal()) {
+      records.add(new LogRecord(clazz, level, msgSupplier.get(), exc));
     }
   }
 
-  private void recordf(LogLevel lvl, Supplier<Object[]> msgSupplier, Throwable t) {
-    if (lvl.ordinal() >= logLevel.ordinal()) {
+  private void recordf(LogLevel level, Supplier<Object[]> msgSupplier, Throwable exc) {
+    if (level.ordinal() >= logLevel.ordinal()) {
       Object[] chunks = msgSupplier.get();
-      if (chunks.length == 0) {
-        throw new IllegalArgumentException("Supplied string array must contain at least one element");
-      } else if (chunks.length == 1) {
-        records.add(new LogRecord(clazz, lvl, chunks[0].toString(), t));
+      if (chunks.length == 1) {
+        records.add(new LogRecord(clazz, level, chunks[0].toString(), exc));
       } else {
         String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length));
-        records.add(new LogRecord(clazz, lvl, msg, t));
+        records.add(new LogRecord(clazz, level, msg, exc));
       }
     }
   }

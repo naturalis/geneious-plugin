@@ -11,7 +11,7 @@ import static nl.naturalis.common.base.NStrings.rpad;
 public class LogRecord {
 
   private static final String NEWLINE = System.getProperty("line.separator");
-  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss [SSS]");
+  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss SSS");
 
   final Class<?> clazz;
   final LocalDateTime timestamp;
@@ -32,13 +32,13 @@ public class LogRecord {
   }
 
   public String toString(LogLevel logLevel) {
-    String separator = " | ";
+    String terminator = " | ";
     StringBuilder sb = new StringBuilder(128);
-    sb.append(rpad(dtf.format(timestamp), 25, separator));
+    sb.append(rpad(dtf.format(timestamp), 23, terminator));
     if (logLevel == LogLevel.DEBUG) {
-      sb.append(rpad(clazz.getSimpleName(), 20, separator));
+      sb.append(rpad(clazz.getSimpleName(), 32, terminator));
     }
-    sb.append(rpad(level, 6, separator));
+    sb.append(rpad(level, 6, terminator));
     if (!StringUtils.isEmpty(message)) {
       sb.append(message);
     }

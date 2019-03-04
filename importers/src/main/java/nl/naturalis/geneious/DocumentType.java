@@ -19,11 +19,11 @@ public enum DocumentType {
   /**
    * The type of document created by Geneious when importing an AB1 file.
    */
-  AB1(DefaultNucleotideSequence.class),
+  AB1(DefaultNucleotideGraphSequence.class),
   /**
    * The type of document created by Geneious when importing a fasta file.
    */
-  FASTA(DefaultNucleotideGraphSequence.class),
+  FASTA(DefaultNucleotideSequence.class),
   /**
    * The type of document created by the sample sheet importer when confronted with extract IDs for which no Geneious documents exist yet.
    * Note that the corresponding Geneious type is the same as it is for FASTA, because V1 of the Naturalis plugin <b>did</b> create a
