@@ -37,4 +37,9 @@ public class ShowDialog {
     showMessageDialog(GuiUtilities.getMainFrame(), msg, "Selecting documents from different databases not allowed", ERROR_MESSAGE);
   }
 
+  public static void pleaseSelectTargetFolder() {
+    String msg = "Please select a target folder for your documents";
+    showMessageDialog(GuiUtilities.getMainFrame(), msg, "No target folder selected", ERROR_MESSAGE);
+  }
+
 }

@@ -105,8 +105,8 @@ class SequenceInfoProvider implements AutoCloseable {
         guiLogger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getPath()));
         FileUtils.deleteDirectory(dir);
       } else {
-        guiLogger.infof(() -> format("Temporary fasta files were saved in %s", dir.getPath()));
-        guiLogger.info(() -> "Please remember to delete the directory");
+        guiLogger.info("Temporary fasta files were saved in %s", dir.getPath());
+        guiLogger.info("Please remember to delete the directory");
       }
     }
   }

@@ -75,6 +75,14 @@ public class CommonUtils {
     }
   };
 
+  public static boolean checkTargetFolder() {
+    if (ServiceUtilities.getResultsDestination() == null) {
+      ShowDialog.pleaseSelectTargetFolder();
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Whether or not all of the selected documents are in exactly the same folder.
    * 

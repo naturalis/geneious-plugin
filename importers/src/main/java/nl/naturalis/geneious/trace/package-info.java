@@ -1,7 +1,6 @@
 /**
+ * Implements the AB1/Fasta Import functionality.
  * 
- */
-/**
  * @author Ayco Holleman
  *
  */
