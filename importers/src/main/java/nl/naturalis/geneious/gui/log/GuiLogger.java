@@ -12,7 +12,7 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
 
 /**
- * Sends log messages to the Geneious GUI. 
+ * Sends log messages to the Geneious GUI.
  * 
  * @author Ayco Holleman
  *
@@ -94,6 +94,10 @@ public class GuiLogger {
 
   public void info(String message, Object... msgArgs) {
     record(INFO, message, null, msgArgs);
+  }
+
+  public void info(Supplier<String> msgSupplier) {
+    record(INFO, msgSupplier, null);
   }
 
   public void infof(Supplier<Object[]> msgSupplier) {

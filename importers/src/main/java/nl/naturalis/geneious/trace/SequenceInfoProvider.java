@@ -102,10 +102,11 @@ class SequenceInfoProvider implements AutoCloseable {
     if (!inMemory) {
       File dir = splitter.getFastaTempDirectory();
       if (NaturalisPreferencesOptions.deleteTmpFastaFiles()) {
-        guiLogger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getAbsolutePath()));
+        guiLogger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getPath()));
         FileUtils.deleteDirectory(dir);
       } else {
-        guiLogger.warnf(() -> format("Please remember to delete temporary fasta files in %s", dir.getAbsolutePath()));
+        guiLogger.infof(() -> format("Temporary fasta files were saved in %s", dir.getPath()));
+        guiLogger.info(() -> "Please remember to delete the directory");
       }
     }
   }

@@ -41,7 +41,7 @@ class DocumentAnnotator {
    * @throws DatabaseServiceException
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    guiLogger.info("Creating annotations");
+    guiLogger.info("Annotating documents");
     List<ImportableDocument> annotables = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
     Set<String> ids = annotables.stream()
@@ -50,10 +50,8 @@ class DocumentAnnotator {
     guiLogger.debugf(() -> format("Searching database \"%s\" for older documents with the same extract IDs", getTargetDatabaseName()));
     List<AnnotatedPluginDocument> docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
-    DocumentResultSetInspector dm = new DocumentResultSetInspector(docs);
-    for (ImportableDocument doc : annotables) {
-      doc.annotate(dm);
-    }
+    DocumentResultSetInspector inspector = new DocumentResultSetInspector(docs);
+    annotables.forEach(doc -> doc.annotate(inspector));
   }
 
   /**

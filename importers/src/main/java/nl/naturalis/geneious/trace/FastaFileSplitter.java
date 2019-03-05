@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.common.base.NStrings;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.RuntimeSettings;
@@ -50,7 +50,6 @@ class FastaFileSplitter {
       this.tmpDir = null;
     } else {
       this.tmpDir = inMemory ? null : newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
-      guiLogger.debugf(() -> format("Temporary fasta files will be saved to %s", tmpDir.getPath()));
     }
   }
 
@@ -63,34 +62,26 @@ class FastaFileSplitter {
    */
   List<FastaSequenceInfo> split(File motherFile) throws IOException {
     List<FastaSequenceInfo> files = new ArrayList<>();
-    StringBuilder seq = new StringBuilder(672); // fasta sequences actually contain 659 chars
+    StringBuilder buf = new StringBuilder(672); // fasta sequences actually contain 659 chars
     try (BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
       String header = br.readLine();
-      String chunk;
+      String line;
       OUTER_LOOP: do {
-        chunk = br.readLine();
-        if (!isStartOfSequence(chunk)) {
+        line = br.readLine();
+        if (!isStartOfSequence(line)) {
           guiLogger.error("Corrupt file: \"%s\". Expected start of nucleotide sequence below \"%s\"", motherFile, header);
           break OUTER_LOOP;
         }
         INNER_LOOP: while (true) {
-          seq.append(chunk);
-          chunk = br.readLine();
-          if (chunk == null || chunk.startsWith(">")) {
-            String seqName = substring(header, 1);
-            String sequence = seq.toString();
-            if (inMemory) {
-              files.add(new FastaSequenceInfo(motherFile, seqName, sequence));
-            } else {
-              File childFile = createTempFile();
-              saveSequence(childFile, chunk, sequence);
-              files.add(new FastaSequenceInfo(motherFile, seqName, childFile));
-            }
-            if (chunk == null) { // end of file
-              break OUTER_LOOP;
-            }
-            header = chunk;
-            seq.setLength(0);
+          buf.append(line);
+          line = br.readLine();
+          if (line == null) { // end of file
+            files.add(newSequenceInfo(motherFile, header, buf.toString()));
+            break OUTER_LOOP;
+          } else if (line.startsWith(">")) { // start of new sequence
+            files.add(newSequenceInfo(motherFile, header, buf.toString()));
+            header = line;
+            buf.setLength(0);
             break INNER_LOOP;
           }
         }
@@ -100,6 +91,28 @@ class FastaFileSplitter {
       guiLogger.debugf(() -> format("File \"%s\" was split into %s nucleotide sequences", motherFile.getName(), files.size()));
     }
     return files;
+  }
+
+  private FastaSequenceInfo newSequenceInfo(File mother, String header, String sequence) throws IOException {
+    if (inMemory) {
+      return new FastaSequenceInfo(mother, substring(header, 1), sequence);
+    }
+    String base = FilenameUtils.getBaseName(mother.getName());
+    String ext = FilenameUtils.getExtension(mother.getName());
+    String childName = new StringBuilder(base.length() + 10)
+        .append(base)
+        .append('_')
+        .append(++fileNo)
+        .append('.')
+        .append(ext)
+        .toString();
+    File child = newFile(tmpDir, childName);
+    try (BufferedOutputStream bos = open(child)) {
+      bos.write(header.getBytes(UTF_8));
+      bos.write(NEWLINE);
+      bos.write(sequence.getBytes(UTF_8));
+    }
+    return new FastaSequenceInfo(mother, substring(header, 1), child);
   }
 
   /**
@@ -118,18 +131,6 @@ class FastaFileSplitter {
    */
   int getSplitCount() {
     return fileNo;
-  }
-
-  private File createTempFile() {
-    return newFile(tmpDir, NStrings.zpad(++fileNo, 4, ".fasta"));
-  }
-
-  private static void saveSequence(File f, String header, String sequence) throws IOException {
-    try (BufferedOutputStream bos = open(f)) {
-      bos.write(header.getBytes(UTF_8));
-      bos.write(NEWLINE);
-      bos.write(sequence.getBytes(UTF_8));
-    }
   }
 
   private static BufferedOutputStream open(File f) throws IOException {

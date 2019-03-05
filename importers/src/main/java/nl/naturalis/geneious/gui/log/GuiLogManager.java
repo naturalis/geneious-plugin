@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JDialog;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -83,11 +84,14 @@ public class GuiLogManager {
         textArea.append(NEWLINE);
       }
     }
+    textArea.setCaretPosition(textArea.getDocument().getLength());
     JScrollPane scrollPane = new JScrollPane(textArea);
     dialog.setContentPane(scrollPane);
     GeneiousGUI.scale(dialog, .95, .4, 960, 400);
     dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
+    JScrollBar vertical = scrollPane.getVerticalScrollBar();
+    vertical.setValue(vertical.getMaximum());
     dialog.setVisible(true);
   }
 
