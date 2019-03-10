@@ -46,12 +46,13 @@ public class QueryUtils {
   }
 
   public static void deleteDocuments(Set<ImportedDocument> dummies) throws DatabaseServiceException {
-    String tmpFolderName = getTmpFolderName();
-    WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
+    //String tmpFolderName = getTmpFolderName();
+    //WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
     for (ImportedDocument d : dummies) {
-      dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
+      getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
+      //dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
-    getTargetDatabase().removeChildFolder(tmpFolderName);
+    //getTargetDatabase().removeChildFolder(tmpFolderName);
   }
 
   private static NaturalisDatabaseService getNaturalisDbService() {

@@ -2,7 +2,6 @@ package nl.naturalis.geneious.samplesheet;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,12 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.databaseservice.Query;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.Condition;
-import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.documents.URN;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
@@ -25,7 +20,6 @@ import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
@@ -84,10 +78,7 @@ class SampleSheetImporter {
       return;
     }
     List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(rows.size());
-    int good = 0;
-    int bad = 0;
-    int enriched = 0;
-    int dummies = 0;
+    int good = 0, bad = 0, enriched = 0, dummies = 0;
     SampleSheetRow row;
     for (int i = 1; i < rows.size(); i++) {
       if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
@@ -136,13 +127,11 @@ class SampleSheetImporter {
   private void enrichSelectedDocuments(List<String[]> rows) {
     Map<String, AnnotatedPluginDocument> lookups = createLookupTable();
     List<AnnotatedPluginDocument> apds = new ArrayList<>(config.getSelectedDocuments().length);
-    int numValidRows = 0;
-    int numBadRows = 0;
-    int numEnrichments = 0;
+    int good = 0, bad = 0, enriched = 0;
     SampleSheetRow row;
     for (int i = 1; i < rows.size(); i++) {
       if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
-        numBadRows++;
+        ++bad;
         continue;
       }
       NaturalisNote note;
@@ -150,10 +139,10 @@ class SampleSheetImporter {
         note = row.extractNote();
       } catch (InvalidRowException e) {
         guiLogger.error(e.getMessage());
-        numBadRows++;
+        ++bad;
         continue;
       }
-      numValidRows++;
+      ++good;
       AnnotatedPluginDocument apd = lookups.get(note.getExtractId());
       if (apd != null) {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
@@ -161,54 +150,47 @@ class SampleSheetImporter {
         note.setMarker(DUMMY_MARKER);
         note.overwrite(apd);
         apds.add(apd);
-        numEnrichments++;
+        ++enriched;
       }
     }
-    DocumentUtilities.addGeneratedDocuments(apds, false);
-    guiLogger.info("Number of valid records in sample sheet: %s", numValidRows);
-    guiLogger.info("Number of empty/bad records in sample sheet: %s", numBadRows);
+    DocumentUtilities.addGeneratedDocuments(apds, true);
+    guiLogger.info("Number of valid records in sample sheet: %s", good);
+    guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", config.getSelectedDocuments().length);
-    guiLogger.info("Number of documents enriched: %s", numEnrichments);
+    guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Import completed successfully");
   }
 
   /*
    * Scans the sample sheet for new extract IDs. If the user had chosen to create dummies, we must do so if: [1] the extract ID of a sample
-   * sheet row does not exist anywhere in the database; [2] the extract ID does not correspond to any of the documents selected by the user
-   * in the GUI. The second condition is implied by the first condition, because the selected documents obviously were retrieved from the
-   * database. But since Geneious hands us the selected records for free, we can discard them when constructing the database query, thus
-   * making the query a bit more light-weight.
+   * sheet row does not exist anywhere in the target database; [2] the extract ID does not correspond to any of the documents selected by
+   * the user in the GUI. The second condition is implied by the first condition, because the selected documents obviously were somewhre in
+   * the target database. But since Geneious hands us the selected records for free, we can discard them when constructing the database
+   * query, thus making the query a bit more light-weight.
    */
   private static Set<String> getNewExtractIds(List<String[]> rows,
-      Map<String, AnnotatedPluginDocument> selectedDocuments) throws DatabaseServiceException {
-    guiLogger.debug(() -> "Marking sample sheet records with new extract IDs (will become dummy documents)");
-    Set<String> newIds = new HashSet<>(rows.size(), 1F);
-    List<Query> queries = new ArrayList<>(rows.size());
-    DocumentField extractIdField = EXTRACT_ID.createQueryField();
+      Map<String, AnnotatedPluginDocument> selected) throws DatabaseServiceException {
+    guiLogger.debug(() -> "Marking rows with new extract IDs (will become dummy documents)");
+    Set<String> allIdsInSheet = new HashSet<>(rows.size(), 1F);
+    Set<String> nonSelectedIds = new HashSet<>(rows.size(), 1F);
     int colno = SampleSheetRow.getColumnNumber(EXTRACT_ID);
     for (String[] row : rows) {
       if (colno < row.length && StringUtils.isNotBlank(row[colno])) {
-        String extractId = "e" + row[colno];
-        newIds.add(extractId);
-        if (!selectedDocuments.keySet().contains(extractId)) {
-          Query query = Query.Factory.createFieldQuery(extractIdField, Condition.EQUAL, extractId);
-          queries.add(query);
+        String id = "e" + row[colno];
+        allIdsInSheet.add(id);
+        if (!selected.keySet().contains(id)) {
+          nonSelectedIds.add(id);
         }
       }
     }
-    // Create a big, fat OR query containing the individual queries
-    Query[] queryArray = queries.toArray(new Query[queries.size()]);
-    Query query = Query.Factory.createOrQuery(queryArray, Collections.emptyMap());
     guiLogger.debug(() -> "Searching database for the provided extract IDs");
-    DatabaseService ds = QueryUtils.getTargetDatabase();
-    // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
-    List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
+    List<AnnotatedPluginDocument> apds = QueryUtils.findByExtractID(nonSelectedIds);
     Set<String> oldIds = new HashSet<>(apds.size(), 1F);
     apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
-    newIds.removeAll(oldIds);
-    newIds.removeAll(selectedDocuments.keySet());
-    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
-    return newIds;
+    allIdsInSheet.removeAll(oldIds);
+    allIdsInSheet.removeAll(selected.keySet());
+    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", allIdsInSheet.size()));
+    return allIdsInSheet;
   }
 
   private static NucleotideSequenceDocument createDummyDocument(NaturalisNote note) {
