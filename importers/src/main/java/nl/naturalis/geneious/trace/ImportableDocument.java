@@ -30,33 +30,54 @@ class ImportableDocument {
     this.document = doc;
   }
 
+  /**
+   * Returns the {@code SequenceInfo} object containing the annotations for the Geneious document.
+   * 
+   * @return
+   */
   SequenceInfo getSequenceInfo() {
     return sequenceInfo;
   }
 
+  /**
+   * Returns the Geneious document.
+   * 
+   * @return
+   */
   AnnotatedPluginDocument getGeneiousDocument() {
     return document;
   }
 
   /**
-   * Attaches the {@link NaturalisNote} within the {@code SequenceInfo} object to the {@code AnnotatedPluginDocument}. The provided
-   * {@code DocumentResultSetInspector} will be used to look up a document (dummy or "real") with the same extract ID. If found, that
-   * document's annotations will be merged into the {@code NaturalisNote}.
+   * Attaches the {@link NaturalisNote} to the Geneious document. The provided {@code DocumentResultSetInspector} is used to look up a
+   * previous version of the Geneious document (dummy or "real"). If found, the {@code NaturalisNote} acquire the annotations from that
+   * document before being attached. If there are multiple previous versions, the most recent one will be chosen for its annotations.
    * 
    * @param inspector
+   * @return An {@code ImportedDocument} that contains the version immediately preceding the document inside this
+   *         {@code ImportableDocument}, or null if this {@code ImportableDocument} contains a new Geneious document (based on the extract
+   *         ID).
    */
-  void annotate(DocumentResultSetInspector inspector) {
+  ImportedDocument annotate(DocumentResultSetInspector inspector) {
     guiLogger.debugf(() -> format("Annotating \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
     Optional<ImportedDocument> opt = inspector.findLatestVersion(note.getExtractId(), sequenceInfo.getDocumentType());
+    ImportedDocument previous = null;
     if (opt.isPresent()) {
-      opt.get().getNaturalisNote().complete(note);
+      previous = opt.get();
+      previous.getNaturalisNote().complete(note);
       note.setDocumentVersion(note.getDocumentVersion() + 1);
+
     } else {
       sequenceInfo.getNaturalisNote().setDocumentVersion(1);
-      inspector.findDummy(note.getExtractId()).ifPresent(dummy -> dummy.getNaturalisNote().complete(note));
+      opt = inspector.findDummy(note.getExtractId());
+      if (opt.isPresent()) {
+        previous = opt.get();
+        previous.getNaturalisNote().complete(note);
+      }
     }
     note.overwrite(document);
+    return previous;
   }
 
 }

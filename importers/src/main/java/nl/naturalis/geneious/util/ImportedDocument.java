@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.util;
 
+import java.util.Comparator;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.DocumentType;
@@ -19,17 +21,25 @@ import static nl.naturalis.geneious.DocumentType.UNKNOWN;
  */
 public class ImportedDocument {
 
+  /**
+   * Compares 2 Geneious documents using their URN.
+   */
+  public static Comparator<ImportedDocument> URN_COMPARATOR = (o1, o2) -> {
+    return o1.doc.getURN().toString().compareTo(o2.doc.getURN().toString());
+  };
+
   private final AnnotatedPluginDocument doc;
   private final NaturalisNote note;
+  private final DocumentType type;
+
+  ImportedDocument(AnnotatedPluginDocument doc) {
+    this(doc, new NaturalisNote(doc));
+  }
 
   ImportedDocument(AnnotatedPluginDocument doc, NaturalisNote note) {
     this.doc = doc;
     this.note = note;
-  }
-
-  ImportedDocument(AnnotatedPluginDocument doc) {
-    this.doc = doc;
-    this.note = new NaturalisNote(doc);
+    this.type = type();
   }
 
   public AnnotatedPluginDocument getGeneiousDocument() {
@@ -41,6 +51,22 @@ public class ImportedDocument {
   }
 
   public DocumentType getType() {
+    return type;
+  }
+
+  public boolean isAB1() {
+    return type == AB1;
+  }
+
+  public boolean isFasta() {
+    return type == FASTA;
+  }
+
+  public boolean isDummy() {
+    return type == DUMMY;
+  }
+
+  private DocumentType type() {
     if (note.getMarker() != null && note.getMarker().equals("Dum")) {
       return DUMMY;
     }

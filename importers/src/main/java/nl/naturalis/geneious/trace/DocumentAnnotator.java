@@ -3,6 +3,7 @@ package nl.naturalis.geneious.trace;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
@@ -12,6 +13,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.util.DocumentResultSetInspector;
+import nl.naturalis.geneious.util.ImportedDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
@@ -30,6 +32,8 @@ class DocumentAnnotator {
 
   private int successCount;
   private int failureCount;
+
+  private Set<ImportedDocument> dummies;
 
   DocumentAnnotator(List<ImportableDocument> docs) {
     this.docs = docs;
@@ -51,7 +55,14 @@ class DocumentAnnotator {
     List<AnnotatedPluginDocument> docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
     DocumentResultSetInspector inspector = new DocumentResultSetInspector(docs);
-    annotables.forEach(doc -> doc.annotate(inspector));
+    Set<ImportedDocument> dummies = new TreeSet<>(ImportedDocument.URN_COMPARATOR);
+    annotables.forEach(doc -> {
+      ImportedDocument previousVersion = doc.annotate(inspector);
+      if (previousVersion != null && previousVersion.isDummy()) {
+        dummies.add(previousVersion);
+      }
+    });
+    this.dummies = dummies;
   }
 
   /**
@@ -72,21 +83,30 @@ class DocumentAnnotator {
     return failureCount;
   }
 
+  /**
+   * Returns all dummy documents that were found and used for their annotations. They have served their purpose and should now be deleted.
+   * 
+   * @return
+   */
+  Set<ImportedDocument> getObsoleteDummyDocuments() {
+    return dummies;
+  }
+
   private List<ImportableDocument> getAnnotatableDocuments() {
     successCount = failureCount = 0;
-    List<ImportableDocument> annotatable = new ArrayList<>(docs.size());
+    List<ImportableDocument> annotatables = new ArrayList<>(docs.size());
     for (ImportableDocument doc : docs) {
       try {
         doc.getSequenceInfo().createNote();
         ++successCount;
-        annotatable.add(doc);
+        annotatables.add(doc);
       } catch (NotParsableException e) {
         ++failureCount;
         String file = doc.getSequenceInfo().getSourceFile().getName();
         guiLogger.error("Error processing %s: %s", file, e.getMessage());
       }
     }
-    return annotatable;
+    return annotatables;
   }
 
 }

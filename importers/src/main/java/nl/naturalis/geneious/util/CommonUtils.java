@@ -33,12 +33,12 @@ public class CommonUtils {
   private static final DatabaseService NULL_DB = new DatabaseService() {
     @Override
     public String getUniqueID() {
-      return "_______[*]_______";
+      return "null_db";
     }
 
     @Override
     public String getName() {
-      return "_______[*]_______";
+      return "null_db";
     }
 
     @Override

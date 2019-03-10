@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.Query;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -24,9 +25,11 @@ import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
+import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.SpreadSheetReader;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -176,9 +179,9 @@ class SampleSheetImporter {
    * database. But since Geneious hands us the selected records for free, we can discard them when constructing the database query, thus
    * making the query a bit more light-weight.
    */
-  private Set<String> getNewExtractIds(List<String[]> rows,
+  private static Set<String> getNewExtractIds(List<String[]> rows,
       Map<String, AnnotatedPluginDocument> selectedDocuments) throws DatabaseServiceException {
-    guiLogger.debug(() -> "Marking sample sheet records with new extract IDs (will be turned into dummy documents)");
+    guiLogger.debug(() -> "Marking sample sheet records with new extract IDs (will become dummy documents)");
     Set<String> newIds = new HashSet<>(rows.size(), 1F);
     List<Query> queries = new ArrayList<>(rows.size());
     DocumentField extractIdField = EXTRACT_ID.createQueryField();
@@ -196,15 +199,15 @@ class SampleSheetImporter {
     // Create a big, fat OR query containing the individual queries
     Query[] queryArray = queries.toArray(new Query[queries.size()]);
     Query query = Query.Factory.createOrQuery(queryArray, Collections.emptyMap());
-    guiLogger.debug(() -> "Searching database for provided extract IDs");
-    // DatabaseService ds = NaturalisPreferencesOptions.STATE.getDatabase();
-    // // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
-    // List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
-    // Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-    // apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
-    // newIds.removeAll(oldIds);
-    // newIds.removeAll(selectedDocuments.keySet());
-    // guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
+    guiLogger.debug(() -> "Searching database for the provided extract IDs");
+    DatabaseService ds = QueryUtils.getTargetDatabase();
+    // Get alldocuments whose extract ID corresonds to at least one sample sheet record:
+    List<AnnotatedPluginDocument> apds = ds.retrieve(query, ProgressListener.EMPTY);
+    Set<String> oldIds = new HashSet<>(apds.size(), 1F);
+    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
+    newIds.removeAll(oldIds);
+    newIds.removeAll(selectedDocuments.keySet());
+    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", newIds.size()));
     return newIds;
   }
 
@@ -245,7 +248,6 @@ class SampleSheetImporter {
    */
   private Map<String, AnnotatedPluginDocument> createLookupTable() {
     int numSelected = config.getSelectedDocuments().length;
-    guiLogger.debugf(() -> format("Creating lookup table for %s documents selected by user"));
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(numSelected, 1F);
     for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
       String val = (String) EXTRACT_ID.getValue(doc);

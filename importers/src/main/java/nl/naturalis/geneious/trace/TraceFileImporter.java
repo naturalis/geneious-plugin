@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
@@ -11,6 +12,10 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.util.ImportedDocument;
+import nl.naturalis.geneious.util.QueryUtils;
+
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
@@ -56,6 +61,12 @@ class TraceFileImporter {
       if (docs.size() != 0) {
         annotator = new DocumentAnnotator(docs);
         annotator.annotateImportedDocuments();
+        Set<ImportedDocument> dummies = annotator.getObsoleteDummyDocuments();
+        if (!dummies.isEmpty()) {
+          guiLogger.info("Deleting obsolete dummy documents");
+          QueryUtils.deleteDocuments(dummies);
+          guiLogger.debugf(() -> format("Deleted %s obsolete dummy document(s)", dummies.size()));
+        }
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {

@@ -6,12 +6,13 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
+import com.biomatters.geneious.publicapi.plugin.Geneious;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
+import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
-import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
 import nl.naturalis.geneious.trace.TraceFileDocumentOperation;
 
@@ -25,17 +26,16 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   }
 
   /*
-   * Explainer for the funky code inside this method. We must instantiate a NaturalisPluginPreferences object as soon as possible (which we
-   * do above) and certainly before getDocumentActions() and getDocumentOperations() is called. These methods return our implementation
-   * classes, and these in turn have static initalizers that depend on the preferences being set and readable (see
-   * NaturalisPreferencesOptions). At the same time though, we cannot simply always return that same initial instance. Geneious will throw
-   * an exception if you do not return a new instance of NaturalisPreferences for each and every call.
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible (which we do above) and certainly before
+   * getDocumentActions() and getDocumentOperations() is called. These methods return our implementation classes, and these in turn have
+   * static initalizers that depend on the preferences being set and readable (see NaturalisPreferencesOptions).But we must always a new
+   * instance of NaturalisPluginPreferences. Geneious will throw an exception if you don't.
    */
   @Override
   @SuppressWarnings("rawtypes")
   public List<PluginPreferences> getPluginPreferences() {
-    NaturalisPluginPreferences prefs;
-    if ((prefs = this.prefs) == null) {
+    NaturalisPluginPreferences prefs = this.prefs;
+    if (prefs == null) {
       prefs = new NaturalisPluginPreferences();
     } else {
       this.prefs = null;
@@ -46,9 +46,6 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public void initialize(File pluginUserDirectory, File pluginDirectory) {
     super.initialize(pluginUserDirectory, pluginDirectory);
-    if (!System.getProperty("file.encoding").equals("UTF-8")) {
-      ShowDialog.invalidEncoding(System.getProperty("file.encoding"));
-    }
   }
 
   @Override
@@ -63,6 +60,11 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
     return new DocumentOperation[] {
         new TraceFileDocumentOperation()
     };
+  }
+
+  @Override
+  public GeneiousService[] getServices() {
+    return new GeneiousService[] {new NaturalisDatabaseService()};
   }
 
   @Override
@@ -82,12 +84,12 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public int getMaximumApiVersion() {
-    return 0;
+    return Geneious.getMajorApiVersion();
   }
 
   @Override
   public String getMinimumApiVersion() {
-    return "4.1";
+    return Geneious.getApiVersion();
   }
 
   @Override
@@ -107,5 +109,4 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
     }
     return version.substring(1, i);
   }
-
 }

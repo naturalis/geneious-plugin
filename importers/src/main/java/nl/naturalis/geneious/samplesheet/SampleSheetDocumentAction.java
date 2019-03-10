@@ -1,20 +1,25 @@
 package nl.naturalis.geneious.samplesheet;
 
-import java.util.List;
+import java.util.Collections;
 
-import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
-import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
-import static nl.naturalis.geneious.util.CommonUtils.*;
+
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.util.CommonUtils;
+
+import static nl.naturalis.geneious.util.CommonUtils.allDocumentsWritableAndInSameFolder;
 
 /**
  * The "Sample Sheet Import" plugin class.
  */
 public class SampleSheetDocumentAction extends DocumentAction {
+
+  @SuppressWarnings("unused")
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentAction.class);
 
   public SampleSheetDocumentAction() {
     super();
@@ -22,17 +27,16 @@ public class SampleSheetDocumentAction extends DocumentAction {
 
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] docs) {
-    if(allDocumentsWritableAndInSameFolder(docs)) {
-      new SampleSheetSelector(docs).show();    
-    }
-    System.out.println("selected id: " + ServiceUtilities.getSelectedService().getUniqueID());
-    System.out.println("selected id: " + ServiceUtilities.getSelectedService().getFullPath());
-    List<WritableDatabaseService> svcs = PluginUtilities.getWritableDatabaseServiceRoots();
-    for(WritableDatabaseService svc:svcs) {
-      System.out.println("***** getFolderName: " + svc.getFolderName());
-      System.out.println("***** getName: " + svc.getName());
-      System.out.println("***** getUniqueID: " + svc.getUniqueID());
-      System.out.println("***** getFullPath: " + svc.getFullPath());
+    try {
+      if (!CommonUtils.checkTargetFolder()) {
+        return;
+      }
+//      if (allDocumentsWritableAndInSameFolder(docs)) {
+        new SampleSheetSelector(docs).show();
+//      }
+    } catch (Throwable t) {
+    } finally {
+      GuiLogManager.close();
     }
   }
 
