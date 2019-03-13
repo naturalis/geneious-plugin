@@ -35,23 +35,23 @@ class BoldRow {
       throw new SampleSheetRowException(msg);
     }
     if(StringUtils.isBlank(row[0])) {
-      throw missingValue(EXTRACT_PLATE_ID);
+      throw missingValue(SMPL_EXTRACT_PLATE_ID);
     }
     if(StringUtils.isBlank(row[1])) {
-      throw missingValue(PLATE_POSITION);
+      throw missingValue(SMPL_PLATE_POSITION);
     }
     if(StringUtils.isBlank(row[2])) {
-      throw missingValue(SAMPLE_PLATE_ID);
+      throw missingValue(SMPL_SAMPLE_PLATE_ID);
     }
     if(StringUtils.isBlank(row[3])) {
-      throw missingValue(EXTRACT_ID);
+      throw missingValue(SMPL_EXTRACT_ID);
     }
     NaturalisNote note = new NaturalisNote();
     note.setExtractPlateId(row[0]);
     note.setPlatePosition(row[1]);
     int i = row[2].indexOf('-');
     if (i == -1) {
-       throw invalidValue(SAMPLE_PLATE_ID, row[2]);
+       throw invalidValue(SMPL_SAMPLE_PLATE_ID, row[2]);
     }
     note.setSamplePlateId(row[2].substring(0, i));
     note.setExtractId("e" + row[3]);

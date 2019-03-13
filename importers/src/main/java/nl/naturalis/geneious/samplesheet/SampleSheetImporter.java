@@ -27,7 +27,7 @@ import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.SpreadSheetReader;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -173,7 +173,7 @@ class SampleSheetImporter {
     guiLogger.debug(() -> "Marking rows with new extract IDs (will become dummy documents)");
     Set<String> allIdsInSheet = new HashSet<>(rows.size(), 1F);
     Set<String> nonSelectedIds = new HashSet<>(rows.size(), 1F);
-    int colno = SampleSheetRow.getColumnNumber(EXTRACT_ID);
+    int colno = SampleSheetRow.getColumnNumber(SMPL_EXTRACT_ID);
     for (String[] row : rows) {
       if (colno < row.length && StringUtils.isNotBlank(row[colno])) {
         String id = "e" + row[colno];
@@ -186,7 +186,7 @@ class SampleSheetImporter {
     guiLogger.debug(() -> "Searching database for the provided extract IDs");
     List<AnnotatedPluginDocument> apds = QueryUtils.findByExtractID(nonSelectedIds);
     Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-    apds.forEach(apd -> oldIds.add(EXTRACT_ID.getValue(apd).toString()));
+    apds.forEach(apd -> oldIds.add(SMPL_EXTRACT_ID.getValue(apd).toString()));
     allIdsInSheet.removeAll(oldIds);
     allIdsInSheet.removeAll(selected.keySet());
     guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", allIdsInSheet.size()));
@@ -232,7 +232,7 @@ class SampleSheetImporter {
     int numSelected = config.getSelectedDocuments().length;
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(numSelected, 1F);
     for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
-      String val = (String) EXTRACT_ID.getValue(doc);
+      String val = (String) SMPL_EXTRACT_ID.getValue(doc);
       if (val != null) {
         map.put(val, doc);
       }

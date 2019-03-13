@@ -19,7 +19,7 @@ import static nl.naturalis.geneious.PluginDataSource.AUTO;
 import static nl.naturalis.geneious.PluginDataSource.BOLD;
 import static nl.naturalis.geneious.PluginDataSource.SAMPLE_SHEET;
 import static nl.naturalis.geneious.PluginDataSource.SEQUENCE_NAME;
-import static nl.naturalis.geneious.note.NaturalisField.AMPLIFICATION_STAFF;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_AMPLIFICATION_STAFF;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_BIN_CODE;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_FIELD_ID;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_ID;
@@ -27,17 +27,17 @@ import static nl.naturalis.geneious.note.NaturalisField.BOLD_NUM_IMAGES;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_PROJECT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_URI;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACTION_METHOD;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.MARKER;
-import static nl.naturalis.geneious.note.NaturalisField.PCR_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.PLATE_POSITION;
-import static nl.naturalis.geneious.note.NaturalisField.REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.note.NaturalisField.REGNO_PLUS_SCI_NAME;
-import static nl.naturalis.geneious.note.NaturalisField.SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
-import static nl.naturalis.geneious.note.NaturalisField.SEQUENCING_STAFF;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACTION_METHOD;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGNO_PLUS_SCI_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SEQUENCING_STAFF;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.*;
 
@@ -54,9 +54,9 @@ public class NaturalisNote {
   static {
     fieldsPerDataSource = new EnumMap<>(PluginDataSource.class);
     fieldsPerDataSource.put(AUTO, EnumSet.of(DOCUMENT_VERSION));
-    fieldsPerDataSource.put(SEQUENCE_NAME, EnumSet.of(EXTRACT_ID, PCR_PLATE_ID, MARKER));
-    fieldsPerDataSource.put(SAMPLE_SHEET, EnumSet.of(EXTRACT_ID, PCR_PLATE_ID, MARKER, EXTRACT_PLATE_ID, SAMPLE_PLATE_ID, PLATE_POSITION,
-        SCIENTIFIC_NAME, REGISTRATION_NUMBER, EXTRACTION_METHOD));
+    fieldsPerDataSource.put(SEQUENCE_NAME, EnumSet.of(SMPL_EXTRACT_ID, SEQ_PCR_PLATE_ID, SEQ_MARKER));
+    fieldsPerDataSource.put(SAMPLE_SHEET, EnumSet.of(SMPL_EXTRACT_ID, SEQ_PCR_PLATE_ID, SEQ_MARKER, SMPL_EXTRACT_PLATE_ID, SMPL_SAMPLE_PLATE_ID, SMPL_PLATE_POSITION,
+        SMPL_SCIENTIFIC_NAME, SMPL_REGISTRATION_NUMBER, SMPL_EXTRACTION_METHOD));
     fieldsPerDataSource.put(BOLD, EnumSet.of(BOLD_ID, BOLD_PROJECT_ID, BOLD_FIELD_ID, BOLD_BIN_CODE, BOLD_NUM_IMAGES, BOLD_URI));
   }
 
@@ -105,18 +105,18 @@ public class NaturalisNote {
   public void overwrite(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     overwrite(notes, DOCUMENT_VERSION, documentVersion);
-    overwrite(notes, PCR_PLATE_ID, pcrPlateId);
-    overwrite(notes, MARKER, marker);
-    overwrite(notes, EXTRACT_PLATE_ID, extractPlateId);
-    overwrite(notes, EXTRACT_ID, extractId);
-    overwrite(notes, SAMPLE_PLATE_ID, samplePlateId);
-    overwrite(notes, PLATE_POSITION, platePosition);
-    overwrite(notes, SCIENTIFIC_NAME, scientificName);
-    overwrite(notes, REGISTRATION_NUMBER, registrationNumber);
-    overwrite(notes, EXTRACTION_METHOD, extractionMethod);
-    overwrite(notes, SEQUENCING_STAFF, sequencingStaff);
-    overwrite(notes, AMPLIFICATION_STAFF, amplificationStaff);
-    overwrite(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
+    overwrite(notes, SEQ_PCR_PLATE_ID, pcrPlateId);
+    overwrite(notes, SEQ_MARKER, marker);
+    overwrite(notes, SMPL_EXTRACT_PLATE_ID, extractPlateId);
+    overwrite(notes, SMPL_EXTRACT_ID, extractId);
+    overwrite(notes, SMPL_SAMPLE_PLATE_ID, samplePlateId);
+    overwrite(notes, SMPL_PLATE_POSITION, platePosition);
+    overwrite(notes, SMPL_SCIENTIFIC_NAME, scientificName);
+    overwrite(notes, SMPL_REGISTRATION_NUMBER, registrationNumber);
+    overwrite(notes, SMPL_EXTRACTION_METHOD, extractionMethod);
+    overwrite(notes, SMPL_SEQUENCING_STAFF, sequencingStaff);
+    overwrite(notes, SMPL_AMPLIFICATION_STAFF, amplificationStaff);
+    overwrite(notes, SMPL_REGNO_PLUS_SCI_NAME, regnoPlusSciName);
     // TODO: CRS & BOLD
     notes.saveNotes();
   }
@@ -130,18 +130,18 @@ public class NaturalisNote {
   public void complete(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(true);
     merge(notes, DOCUMENT_VERSION, documentVersion);
-    merge(notes, PCR_PLATE_ID, pcrPlateId);
-    merge(notes, MARKER, marker);
-    merge(notes, EXTRACT_PLATE_ID, extractPlateId);
-    merge(notes, EXTRACT_ID, extractId);
-    merge(notes, SAMPLE_PLATE_ID, samplePlateId);
-    merge(notes, PLATE_POSITION, platePosition);
-    merge(notes, SCIENTIFIC_NAME, scientificName);
-    merge(notes, REGISTRATION_NUMBER, registrationNumber);
-    merge(notes, EXTRACTION_METHOD, extractionMethod);
-    merge(notes, SEQUENCING_STAFF, sequencingStaff);
-    merge(notes, AMPLIFICATION_STAFF, amplificationStaff);
-    merge(notes, REGNO_PLUS_SCI_NAME, regnoPlusSciName);
+    merge(notes, SEQ_PCR_PLATE_ID, pcrPlateId);
+    merge(notes, SEQ_MARKER, marker);
+    merge(notes, SMPL_EXTRACT_PLATE_ID, extractPlateId);
+    merge(notes, SMPL_EXTRACT_ID, extractId);
+    merge(notes, SMPL_SAMPLE_PLATE_ID, samplePlateId);
+    merge(notes, SMPL_PLATE_POSITION, platePosition);
+    merge(notes, SMPL_SCIENTIFIC_NAME, scientificName);
+    merge(notes, SMPL_REGISTRATION_NUMBER, registrationNumber);
+    merge(notes, SMPL_EXTRACTION_METHOD, extractionMethod);
+    merge(notes, SMPL_SEQUENCING_STAFF, sequencingStaff);
+    merge(notes, SMPL_AMPLIFICATION_STAFF, amplificationStaff);
+    merge(notes, SMPL_REGNO_PLUS_SCI_NAME, regnoPlusSciName);
     // TODO: CRS & BOLD
     notes.saveNotes();
   }
@@ -258,7 +258,7 @@ public class NaturalisNote {
     }
     String sval = value.toString();
     switch (field) {
-      case AMPLIFICATION_STAFF:
+      case SMPL_AMPLIFICATION_STAFF:
         setAmplificationStaff(sval);
         break;
       case BOLD_BIN_CODE:
@@ -276,37 +276,37 @@ public class NaturalisNote {
       case DOCUMENT_VERSION:
         documentVersion = Integer.valueOf(sval);
         break;
-      case EXTRACTION_METHOD:
+      case SMPL_EXTRACTION_METHOD:
         extractionMethod = sval;
         break;
-      case EXTRACT_ID:
+      case SMPL_EXTRACT_ID:
         extractId = sval;
         break;
-      case EXTRACT_PLATE_ID:
+      case SMPL_EXTRACT_PLATE_ID:
         extractPlateId = sval;
         break;
-      case MARKER:
+      case SEQ_MARKER:
         marker = sval;
         break;
-      case PCR_PLATE_ID:
+      case SEQ_PCR_PLATE_ID:
         pcrPlateId = sval;
         break;
-      case PLATE_POSITION:
+      case SMPL_PLATE_POSITION:
         platePosition = sval;
         break;
-      case REGISTRATION_NUMBER:
+      case SMPL_REGISTRATION_NUMBER:
         registrationNumber = sval;
         break;
-      case REGNO_PLUS_SCI_NAME:
+      case SMPL_REGNO_PLUS_SCI_NAME:
         regnoPlusSciName = sval;
         break;
-      case SAMPLE_PLATE_ID:
+      case SMPL_SAMPLE_PLATE_ID:
         samplePlateId = sval;
         break;
-      case SCIENTIFIC_NAME:
+      case SMPL_SCIENTIFIC_NAME:
         scientificName = sval;
         break;
-      case SEQUENCING_STAFF:
+      case SMPL_SEQUENCING_STAFF:
         sequencingStaff = sval;
         break;
     }
@@ -314,7 +314,7 @@ public class NaturalisNote {
 
   public Object getValue(NaturalisField field) {
     switch (field) {
-      case AMPLIFICATION_STAFF:
+      case SMPL_AMPLIFICATION_STAFF:
         return getAmplificationStaff();
       case BOLD_BIN_CODE:
         return "TO DO";
@@ -330,27 +330,27 @@ public class NaturalisNote {
         return "TO DO";
       case DOCUMENT_VERSION:
         return documentVersion;
-      case EXTRACTION_METHOD:
+      case SMPL_EXTRACTION_METHOD:
         return extractionMethod;
-      case EXTRACT_ID:
+      case SMPL_EXTRACT_ID:
         return extractId;
-      case EXTRACT_PLATE_ID:
+      case SMPL_EXTRACT_PLATE_ID:
         return extractPlateId;
-      case MARKER:
+      case SEQ_MARKER:
         return marker;
-      case PCR_PLATE_ID:
+      case SEQ_PCR_PLATE_ID:
         return pcrPlateId;
-      case PLATE_POSITION:
+      case SMPL_PLATE_POSITION:
         return platePosition;
-      case REGISTRATION_NUMBER:
+      case SMPL_REGISTRATION_NUMBER:
         return registrationNumber;
-      case REGNO_PLUS_SCI_NAME:
+      case SMPL_REGNO_PLUS_SCI_NAME:
         return regnoPlusSciName;
-      case SAMPLE_PLATE_ID:
+      case SMPL_SAMPLE_PLATE_ID:
         return samplePlateId;
-      case SCIENTIFIC_NAME:
+      case SMPL_SCIENTIFIC_NAME:
         return scientificName;
-      case SEQUENCING_STAFF:
+      case SMPL_SEQUENCING_STAFF:
       default:
         return sequencingStaff;
     }

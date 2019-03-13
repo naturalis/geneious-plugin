@@ -13,13 +13,13 @@ import nl.naturalis.geneious.note.NaturalisNote;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACTION_METHOD;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.PLATE_POSITION;
-import static nl.naturalis.geneious.note.NaturalisField.REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.note.NaturalisField.SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACTION_METHOD;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
 
 /**
  * Represents a single row within a sample sheet and functions as a producer of {@link NaturalisNote} instances.
@@ -74,22 +74,22 @@ class SampleSheetRow {
   private static final EnumMap<NaturalisField, Integer> cols = new EnumMap<>(NaturalisField.class);
 
   static {
-    cols.put(EXTRACT_PLATE_ID, COL_EXTRACT_PLATE_ID);
-    cols.put(PLATE_POSITION, COL_PLATE_POSITION);
-    cols.put(SAMPLE_PLATE_ID, COL_SAMPLE_PLATE_ID);
-    cols.put(EXTRACT_ID, COL_EXTRACT_ID);
-    cols.put(REGISTRATION_NUMBER, COL_REG_NO);
-    cols.put(SCIENTIFIC_NAME, COL_SCI_NAME);
-    cols.put(EXTRACTION_METHOD, COL_EXTRACTION_METHOD);
+    cols.put(SMPL_EXTRACT_PLATE_ID, COL_EXTRACT_PLATE_ID);
+    cols.put(SMPL_PLATE_POSITION, COL_PLATE_POSITION);
+    cols.put(SMPL_SAMPLE_PLATE_ID, COL_SAMPLE_PLATE_ID);
+    cols.put(SMPL_EXTRACT_ID, COL_EXTRACT_ID);
+    cols.put(SMPL_REGISTRATION_NUMBER, COL_REG_NO);
+    cols.put(SMPL_SCIENTIFIC_NAME, COL_SCI_NAME);
+    cols.put(SMPL_EXTRACTION_METHOD, COL_EXTRACTION_METHOD);
 
     MIN_CELL_COUNT = cols.values().stream().max(Integer::compareTo).get();
   }
 
   private static final EnumSet<NaturalisField> required = EnumSet.of(
-      EXTRACT_PLATE_ID,
-      PLATE_POSITION,
-      SAMPLE_PLATE_ID,
-      EXTRACT_ID);
+      SMPL_EXTRACT_PLATE_ID,
+      SMPL_PLATE_POSITION,
+      SMPL_SAMPLE_PLATE_ID,
+      SMPL_EXTRACT_ID);
 
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
   private static final String ERR_CELL_COUNT = ERR_BASE + "Invalid number of columns: %s";
@@ -137,17 +137,17 @@ class SampleSheetRow {
       }
     }
     NaturalisNote note = new NaturalisNote();
-    note.setExtractPlateId(get(EXTRACT_PLATE_ID));
-    note.setPlatePosition(get(PLATE_POSITION));
-    int i = get(SAMPLE_PLATE_ID).indexOf('-');
+    note.setExtractPlateId(get(SMPL_EXTRACT_PLATE_ID));
+    note.setPlatePosition(get(SMPL_PLATE_POSITION));
+    int i = get(SMPL_SAMPLE_PLATE_ID).indexOf('-');
     if (i == -1) {
-      throw invalidValue(SAMPLE_PLATE_ID, cells[COL_SAMPLE_PLATE_ID]);
+      throw invalidValue(SMPL_SAMPLE_PLATE_ID, cells[COL_SAMPLE_PLATE_ID]);
     }
-    note.setSamplePlateId(get(SAMPLE_PLATE_ID).substring(0, i));
-    note.setExtractId("e" + get(EXTRACT_ID));
-    note.setRegistrationNumber(get(REGISTRATION_NUMBER));
-    note.setScientificName(get(SCIENTIFIC_NAME));
-    note.setExtractionMethod(get(EXTRACTION_METHOD));
+    note.setSamplePlateId(get(SMPL_SAMPLE_PLATE_ID).substring(0, i));
+    note.setExtractId("e" + get(SMPL_EXTRACT_ID));
+    note.setRegistrationNumber(get(SMPL_REGISTRATION_NUMBER));
+    note.setScientificName(get(SMPL_SCIENTIFIC_NAME));
+    note.setExtractionMethod(get(SMPL_EXTRACTION_METHOD));
     return note;
   }
 

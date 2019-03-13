@@ -7,7 +7,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 public class NaturalisPreferencesOptions extends Options {
 
   private static class State {
-    private Boolean debug;
+    private Boolean debug = Boolean.FALSE;
     private Boolean disableFastaCache;
     private Boolean deleteTmpFastaFiles;
     private String fastaExtensions;

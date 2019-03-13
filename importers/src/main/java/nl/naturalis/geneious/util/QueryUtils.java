@@ -20,11 +20,11 @@ import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.cr
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
 
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 public class QueryUtils {
 
-  private static final DocumentField QF_EXTRACT_ID = EXTRACT_ID.createQueryField();
+  private static final DocumentField QF_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
 
   private QueryUtils() {}
 

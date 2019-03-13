@@ -10,7 +10,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static nl.naturalis.geneious.note.NaturalisField.EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 class BOLDProcessor {
 
@@ -48,7 +48,7 @@ class BOLDProcessor {
     logger.debug("Creating lookup table for selected documents");
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(docs.size() + 1, 1.0F);
     for (AnnotatedPluginDocument doc : docs) {
-      String val = (String) EXTRACT_ID.getValue(doc);
+      String val = (String) SMPL_EXTRACT_ID.getValue(doc);
       if (val != null) {
         map.put(val, doc);
       }
