@@ -66,10 +66,14 @@ class ImportableDocument {
     if (opt.isPresent()) {
       previous = opt.get();
       previous.getNaturalisNote().complete(note);
-      note.setDocumentVersion(note.getDocumentVersion() + 1);
-
+      if (note.getDocumentVersion() == null) {
+        sequenceInfo.getNaturalisNote().setDocumentVersion("1");
+      } else {
+        int next = Integer.parseInt(note.getDocumentVersion()) + 1;
+        note.setDocumentVersion(String.valueOf(next));
+      }
     } else {
-      sequenceInfo.getNaturalisNote().setDocumentVersion(1);
+      sequenceInfo.getNaturalisNote().setDocumentVersion("0");
       opt = inspector.findDummy(note.getExtractId());
       if (opt.isPresent()) {
         previous = opt.get();

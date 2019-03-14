@@ -60,7 +60,7 @@ public class NaturalisNote {
     fieldsPerDataSource.put(BOLD, EnumSet.of(BOLD_ID, BOLD_PROJECT_ID, BOLD_FIELD_ID, BOLD_BIN_CODE, BOLD_NUM_IMAGES, BOLD_URI));
   }
 
-  private Integer documentVersion;
+  private String documentVersion;
   private String pcrPlateId;
   private String marker;
   private String extractPlateId;
@@ -274,7 +274,7 @@ public class NaturalisNote {
       case BOLD_URI:
         break;
       case DOCUMENT_VERSION:
-        documentVersion = Integer.valueOf(sval);
+        documentVersion = sval;
         break;
       case SMPL_EXTRACTION_METHOD:
         extractionMethod = sval;
@@ -390,11 +390,11 @@ public class NaturalisNote {
     return false;
   }
 
-  public Integer getDocumentVersion() {
+  public String getDocumentVersion() {
     return documentVersion;
   }
 
-  public void setDocumentVersion(Integer documentVersion) {
+  public void setDocumentVersion(String documentVersion) {
     this.documentVersion = documentVersion;
   }
 

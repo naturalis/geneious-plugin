@@ -21,17 +21,17 @@ public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
     int bad = 0;
     SequenceNameParser parser = new SequenceNameParser();
     try {
-      for (AnnotatedPluginDocument doc : selectedDocuments) {
-        NaturalisNote note;
-        try {
-          note = parser.parse(doc.getName());
-          note.overwrite(doc);
-          ++good;
-        } catch (NotParsableException e) {
-          guiLogger.error(e.getMessage());
-          ++bad;
-        }
-      }
+//      for (AnnotatedPluginDocument doc : selectedDocuments) {
+//        NaturalisNote note;
+//        try {
+//          note = parser.parse(doc.getName());
+//          note.overwrite(doc);
+//          ++good;
+//        } catch (NotParsableException e) {
+//          guiLogger.error(e.getMessage());
+//          ++bad;
+//        }
+//      }
     } finally {
       guiLogger.info("Number of documents selected: %s", selectedDocuments.length);
       guiLogger.info("Number of documents enriched: %s", good);

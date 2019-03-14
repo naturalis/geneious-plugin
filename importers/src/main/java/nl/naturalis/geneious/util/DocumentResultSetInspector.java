@@ -23,8 +23,8 @@ public class DocumentResultSetInspector {
 
   // Sort descending on document version or creation date
   private static Comparator<ImportedDocument> comparator = (doc1, doc2) -> {
-    Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
-    Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
+    String v1 = doc1.getNaturalisNote().getDocumentVersion();
+    String v2 = doc2.getNaturalisNote().getDocumentVersion();
     if (v1 == null) {
       if (v2 != null) {
         return -1; // Prefer anything over null
@@ -33,10 +33,12 @@ public class DocumentResultSetInspector {
     if (v2 == null) {
       return 1;
     }
-    if (v1.equals(v2)) {
+    int i1 = Integer.parseInt(v1.toString());
+    int i2 = Integer.parseInt(v2.toString());
+    if (i1 == i2) {
       return getDateModifield(doc2.getGeneiousDocument()).compareTo(getDateModifield(doc1.getGeneiousDocument()));
     }
-    return v2.compareTo(v1);
+    return i2 - i1;
   };
 
   private final EnumMap<DocumentType, HashMap<String, ImportedDocument>> byTypeByExtractId;
