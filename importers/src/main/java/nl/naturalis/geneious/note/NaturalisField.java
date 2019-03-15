@@ -12,6 +12,8 @@ import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import nl.naturalis.geneious.PluginDataSource;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -20,9 +22,10 @@ import nl.naturalis.geneious.util.RuntimeSettings;
 import static java.util.Collections.emptyList;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createBooleanNoteField;
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createDecimalNoteField;
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createIntegerNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
-import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.setNoteType;
 
 import static nl.naturalis.geneious.PluginDataSource.AUTO;
 import static nl.naturalis.geneious.PluginDataSource.BOLD;
@@ -52,7 +55,9 @@ public enum NaturalisField {
   SMPL_REGISTRATION_NUMBER("RegistrationNumberCode_Samples", "Registr-nmbr (Samples)", SAMPLE_SHEET), // RegistrationNumberCode_Samples
   SMPL_SAMPLE_PLATE_ID("ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)", SAMPLE_SHEET), // ProjectPlateNumberCode_Samples
   SMPL_SCIENTIFIC_NAME("TaxonName2Code_Samples", "[Scientific name] (Samples)", SAMPLE_SHEET), // TaxonName2Code_Samples
-  SMPL_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)", SAMPLE_SHEET), // ???????? Defined in V1 but never actually used to annotate a document
+  SMPL_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)", SAMPLE_SHEET), // ???????? Defined in V1 but never
+                                                                                                        // actually used to annotate a
+                                                                                                        // document
 
   CRS_ALTITUDE("HeightCode_CRS", "Altitude (CRS)", Double.class, CRS), // HeightCode_CRS
   CRS_CLASS("ClassCode_CRS", "Class (CRS)", CRS), // ClassCode_CRS
@@ -88,6 +93,8 @@ public enum NaturalisField {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisField.class);
 
   private static final String NOTE_TYPE_CODE_PREFIX = "DocumentNoteUtilities-";
+  // V1 descriptions are no illogical & non-descript we might as well do without
+  private static final String NO_DESCRIPTION = StringUtils.EMPTY;
 
   private final String code;
   private final String name;
@@ -162,15 +169,30 @@ public enum NaturalisField {
    * @return
    */
   public DocumentField createQueryField() {
+    /*
+     * Why a DocumentField can and should be created from a DocumentNoteField as shown below is not clear. Just got it from Geneious
+     * support.
+     */
     if (queryField == null) {
-      queryField = DocumentField.createStringField("", "", getNoteType().getCode() + "." + code);
+      String noteTypeCode = getNoteType().getCode();
+      if (type == Boolean.class) {
+        queryField = DocumentField.createBooleanField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
+      } else if (type == Integer.class) {
+        queryField = DocumentField.createIntegerField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
+      } else if (type == Double.class) {
+        queryField = DocumentField.createDoubleField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
+      } else {
+        queryField = DocumentField.createStringField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
+      }
     }
     return queryField;
   }
 
   DocumentNoteType getNoteType() {
+    String noteTypeCode = NOTE_TYPE_CODE_PREFIX + name;
+    noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
     if (noteType == null) {
-      noteType = myNoteType();
+      saveOrUpdateDefinition();
     }
     return noteType;
   }
@@ -185,46 +207,34 @@ public enum NaturalisField {
     return note.getFieldValue(getCode());
   }
 
-  /*
-   * N.B. The way note types and note fields are named and created here is odd and awkward, but it is a legacy from the V1 plugins that we
-   * cannot change. Query logic depends on it. For each field a separate note type is created. The name of the note type is the same as the
-   * name of the (single) field within that note type. The code of the note type is NOT the same as the code of the field. It is the same as
-   * the field name but prefixed with "DocumentNoteUtilities-". The description of the note type and field is basically non-sensical, but we
-   * leave it as it was.
-   */
-  private DocumentNoteType myNoteType() {
+  public void saveOrUpdateDefinition() {
+    String noteTypeName = name;
     String noteTypeCode = NOTE_TYPE_CODE_PREFIX + name;
     DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
-    if (noteType == null) {
-      String noteTypeName = name;
-      String fieldDescr = name + " (Naturalis)";
-      String noteTypeDescr = name + " (Naturalis note)";
-      DocumentNoteField noteField = createTextNoteField(name, fieldDescr, code, emptyList(), false);
-      List<DocumentNoteField> noteFields = Arrays.asList(noteField);
-      noteType = createNewNoteType(noteTypeName, noteTypeCode, noteTypeDescr, noteFields, true);
-      setNoteType(noteType);
-    } else if (RuntimeSettings.INSTANCE.regenerateNoteTypes()) {
-      /*
-       * Whether or not the note type must be regenerated even if it is already registered with Geneious. In production this should never be
-       * the case, but during development though (in between Geneious sessions) the definition of a note type may change and we must inform
-       * Geneious about this change.
-       */
-      guiLogger.warn("Regenerating note type definition of \"%s\". This should not happen in production!", code);
+    if (noteType != null) {
+      guiLogger.info("Deleting old definition of field \"%s\"", name);
       List<DocumentNoteField> fields = noteType.getFields();
-      for (DocumentNoteField field : fields) { // In V1 plugin there's always just 1 field per note type, but let's iterate anyhow ...
+      for (DocumentNoteField field : fields) { // In V1 there's always just 1 field per note type, but let's iterate anyhow ...
         noteType.removeField(field.getCode());
       }
-      String fieldDescr = name + " (Naturalis)";
-      DocumentNoteField noteField;
-      if (type == Boolean.class) {
-        noteField = createBooleanNoteField(name, fieldDescr, code, false);
-      } else { // TODO: Create appropriate type of field (V1 legacy is to create a text field in all other cases)
-        noteField = createTextNoteField(name, fieldDescr, code, emptyList(), false);
-      }
-      noteType.setField(noteField);
-      setNoteType(noteType);
     }
-    return noteType;
+    DocumentNoteField noteField;
+    if (type == Boolean.class) {
+      noteField = createBooleanNoteField(name, NO_DESCRIPTION, code, false);
+    } else if (type == Integer.class) {
+      noteField = createIntegerNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
+    } else if (type == Double.class) {
+      noteField = createDecimalNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
+    } else {
+      noteField = createTextNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
+    }
+    List<DocumentNoteField> noteFields = Arrays.asList(noteField);
+    noteType = createNewNoteType(noteTypeName, noteTypeCode, NO_DESCRIPTION, noteFields, true);
+    guiLogger.info("Saving definition of field \"%s\"", name);
+    DocumentNoteUtilities.setNoteType(noteType);
+    this.noteType = noteType;
+    this.queryField = null;
   }
+
 
 }

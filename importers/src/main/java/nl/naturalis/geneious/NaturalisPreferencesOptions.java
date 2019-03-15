@@ -3,6 +3,7 @@ package nl.naturalis.geneious;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.note.FieldDefinitionPersister;
 
 public class NaturalisPreferencesOptions extends Options {
 
@@ -82,6 +83,10 @@ public class NaturalisPreferencesOptions extends Options {
     sOpt2.setHelp("A comma-separated list of valid file extensions for AB1 files. You can leave this field empty or enter '*'.");
     sOpt2.addChangeListener(() -> state.ab1Extensions = sOpt2.getValue());
     state.ab1Extensions = sOpt2.getValue();
+
+    ButtonOption butOpt1 =
+        addButtonOption("nl.naturalis.geneious.regenerateAnnotationMetadata", "", "Regenerate annotation metadata");
+    butOpt1.addActionListener(e -> FieldDefinitionPersister.saveFieldDefinitions());
 
     addDivider("Version Info ");
     addLabel("Version: " + PluginInfo.getInstance().getVersion());
