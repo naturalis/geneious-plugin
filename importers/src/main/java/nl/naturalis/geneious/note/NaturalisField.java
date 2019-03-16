@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import nl.naturalis.geneious.PluginDataSource;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 import static java.util.Collections.emptyList;
 

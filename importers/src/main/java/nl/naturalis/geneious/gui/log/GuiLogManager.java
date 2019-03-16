@@ -1,17 +1,10 @@
 package nl.naturalis.geneious.gui.log;
 
-import java.awt.Font;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JDialog;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import com.google.common.base.Preconditions;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.GeneiousGUI;
@@ -19,19 +12,31 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 
+/**
+ * Keeps track of, and manages the loggers created by the classes participating in the various plugin actions.
+ *
+ * @author Ayco Holleman
+ */
 public class GuiLogManager {
 
-  private static final String NEWLINE = System.getProperty("line.separator");
+  private static final GuiLogManager instance = new GuiLogManager();
 
-  public static final GuiLogManager instance = new GuiLogManager();
-
+  /**
+   * Returns a logger for the specified class.
+   * 
+   * @param clazz
+   * @return
+   */
   public static GuiLogger getLogger(Class<?> clazz) {
     return instance.get(clazz);
   }
 
+  /**
+   * Changes to log level to DEBUG ({@code true} or INFO ({@code false}).
+   * @param debug
+   */
   public static void setDebug(boolean debug) {
-    instance.logLevel = debug ? DEBUG : INFO;
-    instance.loggers.forEach((k, v) -> v.reset(instance.logLevel));
+    instance.getLogWriter().setLogLevel(debug ? DEBUG : INFO);
   }
 
   public static void showLog(String title) {
@@ -44,55 +49,43 @@ public class GuiLogManager {
   }
 
   public static void close() {
-    instance.records = new ArrayList<>();
-    instance.logLevel = getLogLevel();
-    instance.loggers.forEach((k, v) -> v.reset(instance.logLevel, instance.records));
+    
   }
 
   private final HashMap<Class<?>, GuiLogger> loggers;
 
-  private List<LogRecord> records;
-  private LogLevel logLevel;
+  private LogWriter writer;
 
   private GuiLogManager() {
+    this.writer = new LogWriter(getLogLevel());
     this.loggers = new HashMap<>();
-    this.records = new ArrayList<>();
-    this.logLevel = getLogLevel();
   };
 
   private GuiLogger get(Class<?> clazz) {
-    Preconditions.checkNotNull(clazz, "clazz must not be null");
     GuiLogger logger = loggers.get(clazz);
     if (logger == null) {
-      loggers.put(clazz, logger = new GuiLogger(clazz, records, logLevel));
+      loggers.put(clazz, logger = new GuiLogger(clazz, getLogWriter()));
     }
     return logger;
   }
 
   private void show(String title) {
-    this.logLevel = getLogLevel();
+    LogWriter writer = getLogWriter();
+    writer.reset(getLogLevel());
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
-    JTextArea textArea = new JTextArea(20, 140);
-    textArea.setEditable(false);
-    textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-    if (records.size() == 0) {
-      textArea.append("Nothing has been logged");
-    } else {
-      for (LogRecord r : records) {
-        textArea.append(r.toString(logLevel));
-        textArea.append(NEWLINE);
-      }
-    }
-    textArea.setCaretPosition(textArea.getDocument().getLength());
-    JScrollPane scrollPane = new JScrollPane(textArea);
-    dialog.setContentPane(scrollPane);
+    dialog.setContentPane(writer.getScrollPane());
     GeneiousGUI.scale(dialog, .95, .4, 960, 400);
-    dialog.pack();
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
-    JScrollBar vertical = scrollPane.getVerticalScrollBar();
-    vertical.setValue(vertical.getMaximum());
+    dialog.pack();
     dialog.setVisible(true);
+  }
+
+  private LogWriter getLogWriter() {
+    if (writer == null) {
+      writer = new LogWriter(getLogLevel());
+    }
+    return writer;
   }
 
   private static LogLevel getLogLevel() {

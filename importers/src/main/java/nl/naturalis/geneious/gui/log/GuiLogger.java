@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.gui.log;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.copyOfRange;
@@ -12,7 +11,8 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
 
 /**
- * Sends log messages to the Geneious GUI.
+ * A logger implementation that is rather tightly coupled to Geneious and Swing, in that sends sends messages to a JTextArea rather than to
+ * regular destinations like a file ro console.
  * 
  * @author Ayco Holleman
  *
@@ -34,23 +34,11 @@ public class GuiLogger {
   }
 
   private final Class<?> clazz;
+  private final LogWriter writer;
 
-  private List<LogRecord> records;
-  private LogLevel logLevel;
-
-  GuiLogger(Class<?> clazz, List<LogRecord> records, LogLevel logLevel) {
+  GuiLogger(Class<?> clazz, LogWriter writer) {
     this.clazz = clazz;
-    this.logLevel = logLevel;
-    this.records = records;
-  }
-
-  void reset(LogLevel level) {
-    this.logLevel = level;
-  }
-
-  void reset(LogLevel logLevel, List<LogRecord> records) {
-    this.logLevel = logLevel;
-    this.records = records;
+    this.writer = writer;
   }
 
   /**
@@ -59,7 +47,7 @@ public class GuiLogger {
    * @return
    */
   public boolean isDebugEnabled() {
-    return logLevel.ordinal() >= DEBUG.ordinal();
+    return writer.getLogLevel().ordinal() >= DEBUG.ordinal();
   }
 
   /**
@@ -68,7 +56,7 @@ public class GuiLogger {
    * @return
    */
   public boolean isInfoEnabled() {
-    return logLevel.ordinal() >= INFO.ordinal();
+    return writer.getLogLevel().ordinal() >= INFO.ordinal();
   }
 
   /**
@@ -77,7 +65,7 @@ public class GuiLogger {
    * @return
    */
   public boolean isWarnEnabled() {
-    return logLevel.ordinal() >= WARN.ordinal();
+    return writer.getLogLevel().ordinal() >= WARN.ordinal();
   }
 
   public void debug(String message, Object... msgArgs) {
@@ -129,29 +117,29 @@ public class GuiLogger {
   }
 
   private void record(LogLevel level, String msg, Throwable exc, Object... msgArgs) {
-    if (level.ordinal() >= logLevel.ordinal()) {
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
       if (msgArgs.length > 0) {
-        records.add(new LogRecord(clazz, level, String.format(msg, msgArgs), exc));
+        writer.write(new LogRecord(clazz, level, String.format(msg, msgArgs), exc));
       } else {
-        records.add(new LogRecord(clazz, level, msg, exc));
+        writer.write(new LogRecord(clazz, level, msg, exc));
       }
     }
   }
 
   private void record(LogLevel level, Supplier<String> msgSupplier, Throwable exc) {
-    if (level.ordinal() >= logLevel.ordinal()) {
-      records.add(new LogRecord(clazz, level, msgSupplier.get(), exc));
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
+      writer.write(new LogRecord(clazz, level, msgSupplier.get(), exc));
     }
   }
 
   private void recordf(LogLevel level, Supplier<Object[]> msgSupplier, Throwable exc) {
-    if (level.ordinal() >= logLevel.ordinal()) {
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
       Object[] chunks = msgSupplier.get();
       if (chunks.length == 1) {
-        records.add(new LogRecord(clazz, level, chunks[0].toString(), exc));
+        writer.write(new LogRecord(clazz, level, chunks[0].toString(), exc));
       } else {
         String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length));
-        records.add(new LogRecord(clazz, level, msg, exc));
+        writer.write(new LogRecord(clazz, level, msg, exc));
       }
     }
   }

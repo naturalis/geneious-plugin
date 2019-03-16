@@ -1,22 +1,33 @@
 package nl.naturalis.geneious.gui.log;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import org.apache.commons.lang3.StringUtils;
+/**
+ * An immutable Java been containing all data to write out a log message.
+ *
+ * @author Ayco Holleman
+ */
+class LogRecord {
 
-import static nl.naturalis.common.base.NExceptions.getRootStackTraceAsString;
-import static nl.naturalis.common.base.NStrings.rpad;
-
-public class LogRecord {
-
-  private static final String NEWLINE = System.getProperty("line.separator");
-  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss SSS");
-
+  /**
+   * The class of the logger that submitted the log record.
+   */
   final Class<?> clazz;
+  /**
+   * Time when the log record was created.
+   */
   final LocalDateTime timestamp;
+  /**
+   * The message type of the log record was submitted.
+   */
   final LogLevel level;
+  /**
+   * The basic message submitted by the logger.
+   */
   final String message;
+  /**
+   * An optional {@code Exception} object provided by the logger, used to print out stack traces.
+   */
   final Throwable throwable;
 
   LogRecord(Class<?> clazz, LogLevel level, String message) {
@@ -29,28 +40,6 @@ public class LogRecord {
     this.level = level;
     this.message = message;
     this.throwable = throwable;
-  }
-
-  public String toString(LogLevel logLevel) {
-    String terminator = " | ";
-    StringBuilder sb = new StringBuilder(128);
-    sb.append(rpad(dtf.format(timestamp), 23, terminator));
-    if (logLevel == LogLevel.DEBUG) {
-      sb.append(rpad(clazz.getSimpleName(), 32, terminator));
-    }
-    sb.append(rpad(level, 6, terminator));
-    if (!StringUtils.isEmpty(message)) {
-      sb.append(message);
-    }
-    if (throwable != null) {
-      sb.append(NEWLINE);
-      sb.append(getRootStackTraceAsString(throwable));
-    }
-    return sb.toString();
-  }
-
-  public String toString() {
-    return toString(LogLevel.INFO);
   }
 
 }

@@ -3,9 +3,12 @@ package nl.naturalis.geneious.trace;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -20,7 +23,7 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-class TraceFileImporter {
+class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
 
@@ -35,6 +38,11 @@ class TraceFileImporter {
     this.files = traceFiles;
   }
 
+  @Override
+  protected List<AnnotatedPluginDocument> doInBackground() {
+    return importTraceFiles();
+  }
+
   /**
    * Imports the trace files.
    * 
@@ -42,13 +50,13 @@ class TraceFileImporter {
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  List<AnnotatedPluginDocument> process() throws IOException, DatabaseServiceException {
-    List<ImportableDocument> docs = new ArrayList<>();
+  List<AnnotatedPluginDocument> importTraceFiles() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
-      List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
+      List<ImportableDocument> docs = new ArrayList<>();
       AB1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
       DocumentAnnotator annotator = null;
+      List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
         ab1Importer = new AB1Importer(ab1s);
         docs.addAll(ab1Importer.importFiles());
@@ -91,8 +99,11 @@ class TraceFileImporter {
         guiLogger.info("Total number of documents annotated ....: %3d", annotator.getSuccessCount());
         guiLogger.info("Total number of annotation failures ....: %3d", annotator.getFailureCount());
       }
+      return docs.stream().map(ImportableDocument::getGeneiousDocument).collect(Collectors.toList());
+    } catch (Throwable t) {
+      guiLogger.fatal(t.getMessage(), t);
+      return Collections.emptyList();
     }
-    return docs.stream().map(ImportableDocument::getGeneiousDocument).collect(Collectors.toList());
   }
 
 }

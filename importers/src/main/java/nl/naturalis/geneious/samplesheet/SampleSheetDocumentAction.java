@@ -28,7 +28,7 @@ public class SampleSheetDocumentAction extends DocumentAction {
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] docs) {
     try {
-      if (!CommonUtils.checkTargetFolder()) {
+      if (!CommonUtils.checkTargetFolderNotNull()) {
         return;
       }
 //      if (allDocumentsWritableAndInSameFolder(docs)) {

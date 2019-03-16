@@ -2,6 +2,7 @@ package nl.naturalis.geneious.trace;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFileChooser;
 
@@ -20,8 +21,14 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
+/**
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link TraceFileImporter} and lets it do most of the work.
+ *
+ * @author Ayco Holleman
+ */
 public class TraceFileDocumentOperation extends DocumentOperation {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileDocumentOperation.class);
 
   public TraceFileDocumentOperation() {
@@ -38,25 +45,23 @@ public class TraceFileDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try {
-      if (!CommonUtils.checkTargetFolder()) {
-        return Collections.emptyList();
-      }
-      JFileChooser fc = newFileChooser();
-      if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-        RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
-        try {
-          return new TraceFileImporter(fc.getSelectedFiles()).process();
-        } catch (Throwable t) {
-          guiLogger.fatal(t.getMessage(), t);
-        } finally {
+    if (CommonUtils.checkTargetFolderNotNull()) {
+      try {
+        JFileChooser fc = newFileChooser();
+        if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+          RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
           GuiLogManager.showLog("AB1/Fasta import log");
+          TraceFileImporter importer = new TraceFileImporter(fc.getSelectedFiles());
+          importer.execute();
+          return importer.get();
         }
+      } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+      } finally {
+        GuiLogManager.close();
       }
-      return Collections.emptyList();
-    } finally {
-      GuiLogManager.close();
     }
+    return Collections.emptyList();
   }
 
   @Override

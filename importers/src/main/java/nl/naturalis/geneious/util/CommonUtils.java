@@ -75,7 +75,7 @@ public class CommonUtils {
     }
   };
 
-  public static boolean checkTargetFolder() {
+  public static boolean checkTargetFolderNotNull() {
     if (ServiceUtilities.getResultsDestination() == null) {
       ShowDialog.pleaseSelectTargetFolder();
       return false;
