@@ -18,6 +18,7 @@ import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.gui.log.LogSession;
 import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
@@ -28,7 +29,6 @@ import nl.naturalis.geneious.util.RuntimeSettings;
  */
 public class TraceFileDocumentOperation extends DocumentOperation {
 
-  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileDocumentOperation.class);
 
   public TraceFileDocumentOperation() {
@@ -46,19 +46,16 @@ public class TraceFileDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     if (CommonUtils.checkTargetFolderNotNull()) {
-      try {
-        JFileChooser fc = newFileChooser();
-        if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-          RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
-          GuiLogManager.showLog("AB1/Fasta import log");
+      JFileChooser fc = newFileChooser();
+      if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+        RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
+        try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
           TraceFileImporter importer = new TraceFileImporter(fc.getSelectedFiles());
           importer.execute();
           return importer.get();
+        } catch (InterruptedException | ExecutionException e) {
+          guiLogger.info("Cancelling operation");
         }
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-      } finally {
-        GuiLogManager.close();
       }
     }
     return Collections.emptyList();

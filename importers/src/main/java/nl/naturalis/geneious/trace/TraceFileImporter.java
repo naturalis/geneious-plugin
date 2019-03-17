@@ -50,7 +50,7 @@ class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void>
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  List<AnnotatedPluginDocument> importTraceFiles() {
+  private List<AnnotatedPluginDocument> importTraceFiles() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
       AB1Importer ab1Importer = null;

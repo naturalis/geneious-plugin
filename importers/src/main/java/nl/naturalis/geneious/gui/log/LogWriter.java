@@ -28,11 +28,7 @@ class LogWriter {
   private JScrollBar scrollbar;
   private JTextArea area;
 
-  LogWriter(LogLevel level) {
-    reset(level);
-  }
-
-  void reset(LogLevel level) {
+  void initialize(LogLevel level) {
     this.level = level;
     this.area = new JTextArea();
     area.setEditable(false);
@@ -65,12 +61,12 @@ class LogWriter {
 
   private String toString(LogRecord record) {
     String terminator = " | ";
-    StringBuilder sb = new StringBuilder(64);
+    StringBuilder sb = new StringBuilder(160);
     sb.append(rpad(dtf.format(record.timestamp), 23, terminator));
     if (level == DEBUG) {
       sb.append(rpad(record.clazz.getSimpleName(), 32, terminator));
     }
-    sb.append(rpad(level, 6, terminator));
+    sb.append(rpad(record.level, 6, terminator));
     if (!StringUtils.isEmpty(record.message)) {
       sb.append(record.message);
     }

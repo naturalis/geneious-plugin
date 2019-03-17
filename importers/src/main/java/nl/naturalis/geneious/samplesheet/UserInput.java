@@ -3,15 +3,21 @@ package nl.naturalis.geneious.samplesheet;
 import java.io.File;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-class SampleSheetImportConfig {
+/**
+ * Stores the user input provided via a Swing dialog.
+ *
+ * @author Ayco Holleman
+ */
+class UserInput {
 
   private final AnnotatedPluginDocument[] selectedDocuments;
+  
   private File file;
   private boolean createDummies;
   private int skipLines;
   private int sheetNumber;
 
-  SampleSheetImportConfig(AnnotatedPluginDocument[] selectedDocuments) {
+  UserInput(AnnotatedPluginDocument[] selectedDocuments) {
     this.selectedDocuments = selectedDocuments;
   }
 

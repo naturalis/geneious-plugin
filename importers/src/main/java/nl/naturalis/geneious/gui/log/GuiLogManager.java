@@ -32,15 +32,16 @@ public class GuiLogManager {
   }
 
   /**
-   * Changes to log level to DEBUG ({@code true} or INFO ({@code false}).
-   * @param debug
+   * Called by action listener on checkbox in Tools -> Preferences.
+   * 
+   * @param title
    */
   public static void setDebug(boolean debug) {
-    instance.getLogWriter().setLogLevel(debug ? DEBUG : INFO);
+    instance.writer.setLogLevel(debug ? DEBUG : INFO);
   }
 
-  public static void showLog(String title) {
-    instance.show(title);
+  public static LogSession startSession(String title) {
+    return new LogSession(instance.writer, title);
   }
 
   public static void showLogAndClose(String title) {
@@ -49,29 +50,27 @@ public class GuiLogManager {
   }
 
   public static void close() {
-    
+
   }
 
+  private final LogWriter writer;
   private final HashMap<Class<?>, GuiLogger> loggers;
 
-  private LogWriter writer;
-
   private GuiLogManager() {
-    this.writer = new LogWriter(getLogLevel());
+    this.writer = new LogWriter();
     this.loggers = new HashMap<>();
   };
 
   private GuiLogger get(Class<?> clazz) {
     GuiLogger logger = loggers.get(clazz);
     if (logger == null) {
-      loggers.put(clazz, logger = new GuiLogger(clazz, getLogWriter()));
+      loggers.put(clazz, logger = new GuiLogger(clazz, writer));
     }
     return logger;
   }
 
   private void show(String title) {
-    LogWriter writer = getLogWriter();
-    writer.reset(getLogLevel());
+    writer.initialize(getLogLevel());
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
     dialog.setContentPane(writer.getScrollPane());
@@ -79,13 +78,6 @@ public class GuiLogManager {
     dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
     dialog.pack();
     dialog.setVisible(true);
-  }
-
-  private LogWriter getLogWriter() {
-    if (writer == null) {
-      writer = new LogWriter(getLogLevel());
-    }
-    return writer;
   }
 
   private static LogLevel getLogLevel() {

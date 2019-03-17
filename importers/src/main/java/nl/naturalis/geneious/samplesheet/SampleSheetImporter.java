@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.SwingWorker;
+
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
@@ -20,6 +22,7 @@ import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.WrappedException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
@@ -32,7 +35,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter {
+class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
@@ -40,10 +43,10 @@ class SampleSheetImporter {
   private static final String DUMMY_PLATE_ID = "AA000";
   private static final String DUMMY_MARKER = "Dum";
 
-  private final SampleSheetImportConfig config;
+  private final UserInput input;
 
-  SampleSheetImporter(SampleSheetImportConfig input) {
-    this.config = input;
+  SampleSheetImporter(UserInput input) {
+    this.input = input;
   }
 
   /**
@@ -51,20 +54,22 @@ class SampleSheetImporter {
    * their extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID
    * does not exist yet.
    */
-  void process() {
+  @Override
+  protected Void doInBackground() {
+    importSampleSheet();
+    return null;
+  }
+
+  private void importSampleSheet() {
     try {
-      List<String[]> rows = loadSampleSheet(config.getFile());
-      if (rows != null) {
-        if (config.isCreateDummies()) {
-          enrichOrCreateDummies(rows);
-        } else {
-          enrichSelectedDocuments(rows);
-        }
+      List<String[]> rows = loadSampleSheet(input.getFile());
+      if (input.isCreateDummies()) {
+        enrichOrCreateDummies(rows);
+      } else {
+        enrichOnly(rows);
       }
     } catch (Throwable t) {
-      guiLogger.fatal("Unexpected error while importing sample sheet", t);
-    } finally {
-      GuiLogManager.showLogAndClose("Sample sheet import log");
+      guiLogger.fatal(t.getMessage(), t);
     }
   }
 
@@ -80,10 +85,10 @@ class SampleSheetImporter {
     List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(rows.size());
     int good = 0, bad = 0, enriched = 0, dummies = 0;
     SampleSheetRow row;
-    for (int i = 1; i < rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
       if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
         final int rowNum = i;
-        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", rowNum));
+        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", (rowNum + input.getSkipLines())));
         ++bad;
         continue;
       }
@@ -118,15 +123,15 @@ class SampleSheetImporter {
     DocumentUtilities.addGeneratedDocuments(apds, false);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", config.getSelectedDocuments().length);
+    guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Number of dummy documents created: %s", dummies);
     guiLogger.info("Import completed successfully");
   }
 
-  private void enrichSelectedDocuments(List<String[]> rows) {
+  private void enrichOnly(List<String[]> rows) {
     Map<String, AnnotatedPluginDocument> lookups = createLookupTable();
-    List<AnnotatedPluginDocument> apds = new ArrayList<>(config.getSelectedDocuments().length);
+    List<AnnotatedPluginDocument> apds = new ArrayList<>(input.getSelectedDocuments().length);
     int good = 0, bad = 0, enriched = 0;
     SampleSheetRow row;
     for (int i = 1; i < rows.size(); i++) {
@@ -156,7 +161,7 @@ class SampleSheetImporter {
     DocumentUtilities.addGeneratedDocuments(apds, true);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", config.getSelectedDocuments().length);
+    guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Import completed successfully");
   }
@@ -208,20 +213,20 @@ class SampleSheetImporter {
     try {
       if (sampleSheet.getName().endsWith(".xls") || sampleSheet.getName().endsWith(".xlsx")) {
         SpreadSheetReader ssr = new SpreadSheetReader(sampleSheet);
-        ssr.setSheetNumber(config.getSheetNumber() - 1);
-        ssr.setSkipRows(config.getSkipLines());
+        ssr.setSheetNumber(input.getSheetNumber() - 1);
+        ssr.setSkipRows(input.getSkipLines());
         rows = ssr.readAllRows();
       } else {
         TsvParserSettings settings = new TsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
+        settings.setNumberOfRowsToSkip(input.getSkipLines());
         TsvParser parser = new TsvParser(settings);
         rows = parser.parseAll(sampleSheet);
       }
       guiLogger.debugf(() -> format("Number of rows in sample sheet: %s", rows.size()));
       return rows;
     } catch (Throwable t) {
-      guiLogger.fatal("Error loading sample sheet", t);
-      return null;
+      throw new WrappedException("Error loading sample sheet", t);
     }
   }
 
@@ -229,9 +234,9 @@ class SampleSheetImporter {
    * Create a lookup table that maps the extract IDs of the selected documents to the selected documents themselves.
    */
   private Map<String, AnnotatedPluginDocument> createLookupTable() {
-    int numSelected = config.getSelectedDocuments().length;
+    int numSelected = input.getSelectedDocuments().length;
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(numSelected, 1F);
-    for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
+    for (AnnotatedPluginDocument doc : input.getSelectedDocuments()) {
       String val = (String) SMPL_EXTRACT_ID.getValue(doc);
       if (val != null) {
         map.put(val, doc);

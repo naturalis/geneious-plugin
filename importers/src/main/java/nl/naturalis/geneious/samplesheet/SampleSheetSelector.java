@@ -10,6 +10,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.function.Consumer;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -22,9 +24,15 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
+/**
+ * Displays a dialog collecting user input for the sample sheet import process.
+ *
+ * @author Ayco Holleman
+ */
 class SampleSheetSelector {
 
   private final AnnotatedPluginDocument[] selectedDocuments;
+  private final Consumer<UserInput> inputProcessor;
 
   private JDialog dialog;
   private JTextField fileTextField;
@@ -32,8 +40,15 @@ class SampleSheetSelector {
   private JTextField sheetNoTextField;
   private JTextField skipLinesTextField;
 
-  SampleSheetSelector(AnnotatedPluginDocument[] docs) {
+  /**
+   * Creates a new {@code SampleSheetSelector}.
+   * 
+   * @param docs The Geneious documents selected by the user.
+   * @param inputProcessor. Something capable of processing the input collected by this {@code SampleSheetSelector}
+   */
+  SampleSheetSelector(AnnotatedPluginDocument[] docs, Consumer<UserInput> inputProcessor) {
     this.selectedDocuments = docs;
+    this.inputProcessor = inputProcessor;
   }
 
   void show() {
@@ -53,8 +68,7 @@ class SampleSheetSelector {
     addLabel(panel, 1, "Dummies");
     dummiesCheckBox = new JCheckBox();
     dummiesCheckBox.setSelected(true);
-    addCheckboxWithComment(panel, 1, dummiesCheckBox,
-        "Create dummy documents for non-existing extract IDs");
+    addCheckboxWithComment(panel, 1, dummiesCheckBox, "Create dummy documents for non-existing extract IDs");
 
     // THIRD ROW
     addLabel(panel, 2, "Skip lines");
@@ -79,20 +93,17 @@ class SampleSheetSelector {
 
   private JButton createBrowseButton() {
     JButton browseButton = new JButton("Browse");
-    browseButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        JFileChooser fc = new JFileChooser(RuntimeSettings.INSTANCE.getCrsFolder());
-        if (fc.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
-          RuntimeSettings.INSTANCE.setCrsFolder(fc.getCurrentDirectory());
-          File f = fc.getSelectedFile();
-          if (f != null) {
-            fileTextField.setText(f.getAbsolutePath());
-            if (f.getName().endsWith(".xls")) {
-              sheetNoTextField.setEnabled(true);
-            } else {
-              sheetNoTextField.setEnabled(false);
-            }
+    browseButton.addActionListener(e -> {
+      JFileChooser fc = new JFileChooser(RuntimeSettings.INSTANCE.getCrsFolder());
+      if (fc.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+        RuntimeSettings.INSTANCE.setCrsFolder(fc.getCurrentDirectory());
+        File f = fc.getSelectedFile();
+        if (f != null) {
+          fileTextField.setText(f.getAbsolutePath());
+          if (f.getName().endsWith(".xls")) {
+            sheetNoTextField.setEnabled(true);
+          } else {
+            sheetNoTextField.setEnabled(false);
           }
         }
       }
@@ -103,13 +114,7 @@ class SampleSheetSelector {
   private JButton createOkButton() {
     JButton okButton = new JButton("OK");
     okButton.setPreferredSize(new Dimension(100, okButton.getPreferredSize().height));
-    okButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        validateAndLaunch();
-        dialog.dispose();
-      }
-    });
+    okButton.addActionListener(e -> validateAndLaunch());
     return okButton;
   }
 
@@ -125,10 +130,10 @@ class SampleSheetSelector {
       return;
     }
     if (selectedDocuments.length == 0 && !dummiesCheckBox.isSelected()) {
-      showError("No documents selected", "Please select at least one document or check to \"Create dummies\"");
+      showError("No documents selected", "Please select at least one document or check \"Create dummies\"");
       return;
     }
-    SampleSheetImportConfig input = new SampleSheetImportConfig(selectedDocuments);
+    UserInput input = new UserInput(selectedDocuments);
     input.setFile(file);
     input.setCreateDummies(dummiesCheckBox.isSelected());
     try {
@@ -149,7 +154,8 @@ class SampleSheetSelector {
       showError("Invalid number", msg);
       return;
     }
-    new SampleSheetImporter(input).process();
+    dialog.dispose();
+    inputProcessor.accept(input);
   }
 
   private void showError(String title, String message) {

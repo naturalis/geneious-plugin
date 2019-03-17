@@ -1,7 +1,5 @@
 package nl.naturalis.geneious.samplesheet;
 
-import java.util.Collections;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -9,12 +7,11 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.gui.log.LogSession;
 import nl.naturalis.geneious.util.CommonUtils;
 
-import static nl.naturalis.geneious.util.CommonUtils.allDocumentsWritableAndInSameFolder;
-
 /**
- * The "Sample Sheet Import" plugin class.
+ * Framework-plumbing class used to import sample sheets.
  */
 public class SampleSheetDocumentAction extends DocumentAction {
 
@@ -27,17 +24,10 @@ public class SampleSheetDocumentAction extends DocumentAction {
 
   @Override
   public void actionPerformed(AnnotatedPluginDocument[] docs) {
-    try {
-      if (!CommonUtils.checkTargetFolderNotNull()) {
-        return;
-      }
-//      if (allDocumentsWritableAndInSameFolder(docs)) {
-        new SampleSheetSelector(docs).show();
-//      }
-    } catch (Throwable t) {
-    } finally {
-      GuiLogManager.close();
+    if (!CommonUtils.checkTargetFolderNotNull()) {
+      return;
     }
+    new SampleSheetSelector(docs, this::forwardToImporter).show();
   }
 
   @Override
@@ -57,6 +47,13 @@ public class SampleSheetDocumentAction extends DocumentAction {
   @Override
   public DocumentSelectionSignature[] getSelectionSignatures() {
     return new DocumentSelectionSignature[0];
+  }
+
+  private void forwardToImporter(UserInput input) {
+    SampleSheetImporter importer = new SampleSheetImporter(input);
+    try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
+      importer.execute();
+    }
   }
 
 }
