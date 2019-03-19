@@ -5,9 +5,9 @@ import java.io.File;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.util.SequenceNameParser;
 
 import static nl.naturalis.common.io.NFiles.basename;
-import static nl.naturalis.geneious.util.SequenceNameParser.parseAb1;
 
 /**
  * Provides information about an AB1-encoded sequence.
@@ -35,7 +35,7 @@ final class Ab1SequenceInfo extends SequenceInfo {
 
   @Override
   void createNote() throws NotParsableException {
-    note = parseAb1(name);
+    note = new SequenceNameParser(name).parseName();
   }
 
   @Override

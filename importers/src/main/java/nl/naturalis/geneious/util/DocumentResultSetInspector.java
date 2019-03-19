@@ -12,6 +12,8 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
 
 /**
@@ -22,9 +24,9 @@ public class DocumentResultSetInspector {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentResultSetInspector.class);
 
   // Sort descending on document version or creation date
-  private static Comparator<ImportedDocument> comparator = (doc1, doc2) -> {
-    String v1 = doc1.getNaturalisNote().getDocumentVersion();
-    String v2 = doc2.getNaturalisNote().getDocumentVersion();
+  private static Comparator<StoredDocument> comparator = (doc1, doc2) -> {
+    Integer v1 = doc1.getNaturalisNote().get(DOCUMENT_VERSION);
+    Integer v2 = doc2.getNaturalisNote().get(DOCUMENT_VERSION);
     if (v1 == null) {
       if (v2 != null) {
         return -1; // Prefer anything over null
@@ -33,15 +35,14 @@ public class DocumentResultSetInspector {
     if (v2 == null) {
       return 1;
     }
-    int i1 = Integer.parseInt(v1.toString());
-    int i2 = Integer.parseInt(v2.toString());
-    if (i1 == i2) {
+    int i = v2.compareTo(v1);
+    if (i == 0) {
       return getDateModifield(doc2.getGeneiousDocument()).compareTo(getDateModifield(doc1.getGeneiousDocument()));
     }
-    return i2 - i1;
+    return i;
   };
 
-  private final EnumMap<DocumentType, HashMap<String, ImportedDocument>> byTypeByExtractId;
+  private final EnumMap<DocumentType, HashMap<String, StoredDocument>> byTypeByExtractId;
 
   /**
    * Creates a new DocumentResultSetInspector for the specified documents.
@@ -61,8 +62,8 @@ public class DocumentResultSetInspector {
    * @param type
    * @return
    */
-  public Optional<ImportedDocument> findLatestVersion(String extractID, DocumentType type) {
-    HashMap<String, ImportedDocument> subcache = byTypeByExtractId.get(type);
+  public Optional<StoredDocument> find(String extractID, DocumentType type) {
+    HashMap<String, StoredDocument> subcache = byTypeByExtractId.get(type);
     if (subcache != null) {
       return Optional.ofNullable(subcache.get(extractID));
     }
@@ -75,14 +76,14 @@ public class DocumentResultSetInspector {
    * @param extractID
    * @return
    */
-  public Optional<ImportedDocument> findDummy(String extractID) {
-    return findLatestVersion(extractID, DocumentType.DUMMY);
+  public Optional<StoredDocument> findDummy(String extractID) {
+    return find(extractID, DocumentType.DUMMY);
   }
 
   private void cacheDocuments(Collection<AnnotatedPluginDocument> documents) {
     for (AnnotatedPluginDocument document : documents) {
-      ImportedDocument doc = new ImportedDocument(document);
-      String extractId = doc.getNaturalisNote().getExtractId();
+      StoredDocument doc = new StoredDocument(document);
+      String extractId = doc.getNaturalisNote().get(SMPL_EXTRACT_ID);
       switch (doc.getType()) {
         case AB1:
         case FASTA:

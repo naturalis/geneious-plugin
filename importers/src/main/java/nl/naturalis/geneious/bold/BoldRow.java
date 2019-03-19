@@ -47,17 +47,17 @@ class BoldRow {
       throw missingValue(SMPL_EXTRACT_ID);
     }
     NaturalisNote note = new NaturalisNote();
-    note.setExtractPlateId(row[0]);
-    note.setPlatePosition(row[1]);
-    int i = row[2].indexOf('-');
-    if (i == -1) {
-       throw invalidValue(SMPL_SAMPLE_PLATE_ID, row[2]);
-    }
-    note.setSamplePlateId(row[2].substring(0, i));
-    note.setExtractId("e" + row[3]);
-    note.setRegistrationNumber(row[4]);
-    note.setScientificName(row[5]);
-    note.setExtractionMethod(row[6]);
+//    note.setExtractPlateId(row[0]);
+//    note.setPlatePosition(row[1]);
+//    int i = row[2].indexOf('-');
+//    if (i == -1) {
+//       throw invalidValue(SMPL_SAMPLE_PLATE_ID, row[2]);
+//    }
+//    note.setSamplePlateId(row[2].substring(0, i));
+//    note.setExtractId("e" + row[3]);
+//    note.setRegistrationNumber(row[4]);
+//    note.setScientificName(row[5]);
+//    note.setExtractionMethod(row[6]);
     return note;
   }
   
@@ -66,6 +66,7 @@ class BoldRow {
     return new SampleSheetRowException(msg);
   }
   
+  @SuppressWarnings("unused")
   private SampleSheetRowException invalidValue(NaturalisField field, Object val) {
     String msg = String.format(ERR_INVALID_VALUE, rowNum, field.getName(), val);
     return new SampleSheetRowException(msg);

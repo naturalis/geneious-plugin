@@ -5,8 +5,7 @@ package nl.naturalis.geneious.split;
  */
 public class NotParsableException extends Exception {
 
-  public static NotParsableException invalidNumberOfUnderscores(String fileName, int actual,
-      int expected) {
+  public static NotParsableException invalidNumberOfUnderscores(String fileName, int actual, int expected) {
     if (actual < expected) {
       String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
       return new NotParsableException(String.format(fmt, fileName, actual, expected));
@@ -15,38 +14,33 @@ public class NotParsableException extends Exception {
     return new NotParsableException(String.format(fmt, fileName, actual, expected));
   }
 
-  public static NotParsableException notEnoughUnderscores(String fileName, int actual,
-      int expected) {
+  public static NotParsableException notEnoughUnderscores(String fileName, int actual, int expected) {
     String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
     return new NotParsableException(String.format(fmt, fileName, actual, expected));
   }
 
-  public static NotParsableException missingHyphenInMarkerSegment(String fileName) {
+  public static NotParsableException missingHyphenInMarkerSegment(String name) {
     String fmt = "Missing hyphen in marker segment of name \"%s\"";
-    return new NotParsableException(String.format(fmt, fileName));
+    return new NotParsableException(String.format(fmt, name));
   }
 
-  @Deprecated
-  public static NotParsableException unknownExtension(String fileName) {
-    int i = fileName.lastIndexOf('.');
-    if (i == -1 || i == fileName.length() - 1) {
-      String fmt = "Canot parse file name: \"%s\". Missing extension";
-      return new NotParsableException(String.format(fmt, fileName));
-    }
-    String fmt = "Canot parse file name \"%s\". Unknown file type: \"%s\"";
-    return new NotParsableException(String.format(fmt, fileName, fileName.substring(i + 1)));
+  public static NotParsableException badExtractId(String name, String extractId, String pattern) {
+    String fmt = "Invalid extract ID in \"%s\": \"%s\" (must match pattern \"%s\")";
+    return new NotParsableException(String.format(fmt, name, extractId, pattern));
   }
 
-  public NotParsableException(String arg0) {
-    super(arg0);
+  public static NotParsableException badPcrPlateID(String name, String pcrPlateId, String pattern) {
+    String fmt = "Invalid PCR plate ID in \"%s\": \"%s\" (must match pattern \"%s\")";
+    return new NotParsableException(String.format(fmt, name, pcrPlateId, pattern));
   }
 
-  public NotParsableException(Throwable arg0) {
-    super(arg0);
+  public static NotParsableException badMarkerSegment(String name, String marker, String pattern) {
+    String fmt = "Invalid marker segment in \"%s\": \"%s\" (must match pattern \"%s\")";
+    return new NotParsableException(String.format(fmt, name, marker, pattern));
   }
 
-  public NotParsableException(String arg0, Throwable arg1) {
-    super(arg0, arg1);
+  private NotParsableException(String message) {
+    super(message);
   }
 
 }

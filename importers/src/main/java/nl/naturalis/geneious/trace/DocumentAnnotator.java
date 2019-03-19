@@ -1,10 +1,10 @@
 package nl.naturalis.geneious.trace;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -13,9 +13,10 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.util.DocumentResultSetInspector;
-import nl.naturalis.geneious.util.ImportedDocument;
+import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -33,7 +34,7 @@ class DocumentAnnotator {
   private int successCount;
   private int failureCount;
 
-  private Set<ImportedDocument> dummies;
+  private Set<StoredDocument> dummies;
 
   DocumentAnnotator(List<ImportableDocument> docs) {
     this.docs = docs;
@@ -46,20 +47,19 @@ class DocumentAnnotator {
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
     guiLogger.info("Annotating documents");
-    List<ImportableDocument> annotables = getAnnotatableDocuments();
+    List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
-    Set<String> ids = annotables.stream()
-        .map(d -> d.getSequenceInfo().getNaturalisNote().getExtractId())
-        .collect(Collectors.toSet());
-    guiLogger.debugf(() -> format("Searching database \"%s\" for older documents with the same extract IDs", getTargetDatabaseName()));
+    HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
+    annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().get(SEQ_EXTRACT_ID)));
+    guiLogger.debugf(() -> format("Searching database \"%s\" for stored documents with the same extract IDs", getTargetDatabaseName()));
     List<AnnotatedPluginDocument> docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
     DocumentResultSetInspector inspector = new DocumentResultSetInspector(docs);
-    Set<ImportedDocument> dummies = new TreeSet<>(ImportedDocument.URN_COMPARATOR);
-    annotables.forEach(doc -> {
-      ImportedDocument previousVersion = doc.annotate(inspector);
-      if (previousVersion != null && previousVersion.isDummy()) {
-        dummies.add(previousVersion);
+    Set<StoredDocument> dummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
+    annotatableDocs.forEach(doc -> {
+      StoredDocument document = doc.annotate(inspector);
+      if (document != null && document.isDummy()) {
+        dummies.add(document);
       }
     });
     this.dummies = dummies;
@@ -88,7 +88,7 @@ class DocumentAnnotator {
    * 
    * @return
    */
-  Set<ImportedDocument> getObsoleteDummyDocuments() {
+  Set<StoredDocument> getObsoleteDummyDocuments() {
     return dummies;
   }
 

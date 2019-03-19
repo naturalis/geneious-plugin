@@ -8,15 +8,17 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.DocumentResultSetInspector;
-import nl.naturalis.geneious.util.ImportedDocument;
+import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 
 /**
  * A simple combination of an {@link AnnotatedPluginDocument} class and a {@code SequenceInfo} object that will be used to supply the
  * annotations for it. The Geneious document has not yet been imported, but is about to be.
  * 
- * @see ImportedDocument
+ * @see StoredDocument
  */
 class ImportableDocument {
 
@@ -58,30 +60,31 @@ class ImportableDocument {
    *         {@code ImportableDocument}, or null if this {@code ImportableDocument} contains a new Geneious document (based on the extract
    *         ID).
    */
-  ImportedDocument annotate(DocumentResultSetInspector inspector) {
+  StoredDocument annotate(DocumentResultSetInspector inspector) {
     guiLogger.debugf(() -> format("Annotating \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
-    Optional<ImportedDocument> opt = inspector.findLatestVersion(note.getExtractId(), sequenceInfo.getDocumentType());
-    ImportedDocument previous = null;
+    String extractID = note.get(SEQ_EXTRACT_ID);
+    Optional<StoredDocument> opt = inspector.find(extractID, sequenceInfo.getDocumentType());
+    StoredDocument found = null;
     if (opt.isPresent()) {
-      previous = opt.get();
-      previous.getNaturalisNote().complete(note);
-      if (note.getDocumentVersion() == null) {
-        sequenceInfo.getNaturalisNote().setDocumentVersion("1");
+      found = opt.get();
+      Integer docVersion = DOCUMENT_VERSION.readFrom(found.getGeneiousDocument());
+      if (docVersion == null) {
+        docVersion = Integer.valueOf(1);
       } else {
-        int next = Integer.parseInt(note.getDocumentVersion()) + 1;
-        note.setDocumentVersion(String.valueOf(next));
+        docVersion = Integer.valueOf(docVersion.intValue() + 1);
       }
+      note.put(DOCUMENT_VERSION, docVersion);
     } else {
-      sequenceInfo.getNaturalisNote().setDocumentVersion("0");
-      opt = inspector.findDummy(note.getExtractId());
+      note.put(DOCUMENT_VERSION, Integer.valueOf(0));
+      opt = inspector.findDummy(extractID);
       if (opt.isPresent()) {
-        previous = opt.get();
-        previous.getNaturalisNote().complete(note);
+        found = opt.get();
+        note.read(found.getGeneiousDocument());
       }
     }
-    note.overwrite(document);
-    return previous;
+    note.attachTo(document);
+    return found;
   }
 
 }

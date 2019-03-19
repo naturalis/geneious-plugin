@@ -1,17 +1,11 @@
 package nl.naturalis.geneious.samplesheet;
 
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-
-import com.google.common.base.Preconditions;
 
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACTION_METHOD;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
@@ -26,70 +20,16 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
  */
 class SampleSheetRow {
 
-  /**
-   * The mininum number of cells a sample sheet row must contain.
-   */
-  static final int MIN_CELL_COUNT;
 
-  /**
-   * Column containing the extract plate ID (0).
-   */
-  static final int COL_EXTRACT_PLATE_ID = 0;
-  /**
-   * Column containing the plate position (1).
-   */
-  static final int COL_PLATE_POSITION = 1;
-  /**
-   * Column containing the sample plate ID (2).
-   */
-  static final int COL_SAMPLE_PLATE_ID = 2;
-  /**
-   * Column containing the extract ID (3).
-   */
-  static final int COL_EXTRACT_ID = 3;
-  /**
-   * Column containing the registration number (4).
-   */
-  static final int COL_REG_NO = 4;
-  /**
-   * Column containing the scientific name (5).
-   */
-  static final int COL_SCI_NAME = 5;
-  /**
-   * Column containing the extraction method (6).
-   */
-  static final int COL_EXTRACTION_METHOD = 6;
-
-  /**
-   * Returns the column number in which the specied field can be found.
-   * 
-   * @param nf
-   * @return
-   */
-  static int getColumnNumber(NaturalisField nf) {
-    Preconditions.checkArgument(cols.containsKey(nf), "Not a sample sheet field: %s", nf);
-    return cols.get(nf).intValue();
-  }
-
-  private static final EnumMap<NaturalisField, Integer> cols = new EnumMap<>(NaturalisField.class);
-
-  static {
-    cols.put(SMPL_EXTRACT_PLATE_ID, COL_EXTRACT_PLATE_ID);
-    cols.put(SMPL_PLATE_POSITION, COL_PLATE_POSITION);
-    cols.put(SMPL_SAMPLE_PLATE_ID, COL_SAMPLE_PLATE_ID);
-    cols.put(SMPL_EXTRACT_ID, COL_EXTRACT_ID);
-    cols.put(SMPL_REGISTRATION_NUMBER, COL_REG_NO);
-    cols.put(SMPL_SCIENTIFIC_NAME, COL_SCI_NAME);
-    cols.put(SMPL_EXTRACTION_METHOD, COL_EXTRACTION_METHOD);
-
-    MIN_CELL_COUNT = cols.values().stream().max(Integer::compareTo).get();
-  }
-
-  private static final EnumSet<NaturalisField> required = EnumSet.of(
-      SMPL_EXTRACT_PLATE_ID,
-      SMPL_PLATE_POSITION,
-      SMPL_SAMPLE_PLATE_ID,
-      SMPL_EXTRACT_ID);
+  static final int COLNO_EXTRACT_PLATE_ID = 0;
+  static final int COLNO_PLATE_POSITION = 1;
+  static final int COLNO_SAMPLE_PLATE_ID = 2;
+  static final int COLNO_EXTRACT_ID = 3;
+  static final int COLNO_REGISTRATION_NUMBER = 4;
+  static final int COLNO_SCIENTIFIC_NAME = 5;
+  static final int COLNO_EXTRACTION_METHOD = 6;
+  
+  private static final int MIN_CELL_COUNT = 6;
 
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
   private static final String ERR_CELL_COUNT = ERR_BASE + "Invalid number of columns: %s";
@@ -127,32 +67,58 @@ class SampleSheetRow {
    * @throws InvalidRowException
    */
   NaturalisNote extractNote() throws InvalidRowException {
-    String[] cells = this.cells;
     if (cells.length < MIN_CELL_COUNT) {
       throw invalidColumnCount(rowNum, cells);
     }
-    for (NaturalisField nf : required) {
-      if (isBlank(get(nf))) {
-        throw missingValue(nf);
-      }
-    }
     NaturalisNote note = new NaturalisNote();
-    note.setExtractPlateId(get(SMPL_EXTRACT_PLATE_ID));
-    note.setPlatePosition(get(SMPL_PLATE_POSITION));
-    int i = get(SMPL_SAMPLE_PLATE_ID).indexOf('-');
-    if (i == -1) {
-      throw invalidValue(SMPL_SAMPLE_PLATE_ID, cells[COL_SAMPLE_PLATE_ID]);
-    }
-    note.setSamplePlateId(get(SMPL_SAMPLE_PLATE_ID).substring(0, i));
-    note.setExtractId("e" + get(SMPL_EXTRACT_ID));
-    note.setRegistrationNumber(get(SMPL_REGISTRATION_NUMBER));
-    note.setScientificName(get(SMPL_SCIENTIFIC_NAME));
-    note.setExtractionMethod(get(SMPL_EXTRACTION_METHOD));
+    note.parseAndSet(SMPL_EXTRACT_ID, processExtractId());
+    note.parseAndSet(SMPL_SAMPLE_PLATE_ID, processSamplePlateId());
+    note.parseAndSet(SMPL_EXTRACT_PLATE_ID, processExtractPlateId());
+    note.parseAndSet(SMPL_PLATE_POSITION, processPlatePosition());
+    note.parseAndSet(SMPL_REGISTRATION_NUMBER, processColumn(COLNO_REGISTRATION_NUMBER));
+    note.parseAndSet(SMPL_SCIENTIFIC_NAME, processColumn(COLNO_SCIENTIFIC_NAME));
+    note.parseAndSet(SMPL_EXTRACTION_METHOD, processColumn(COLNO_EXTRACTION_METHOD));
     return note;
   }
 
-  private String get(NaturalisField nf) {
-    return cells[cols.get(nf)];
+  private String processExtractId() throws InvalidRowException {
+    String val = StringUtils.trimToNull(cells[COLNO_EXTRACT_ID]);
+    if (val == null) {
+      throw missingValue(SMPL_EXTRACT_ID);
+    }
+    return "e" + val;
+  }
+
+  private String processSamplePlateId() throws InvalidRowException {
+    String val = StringUtils.trimToNull(cells[COLNO_EXTRACT_PLATE_ID]);
+    if (val == null) {
+      throw missingValue(SMPL_SAMPLE_PLATE_ID);
+    }
+    int i = val.indexOf('-');
+    if (i == -1) {
+      throw invalidValue(SMPL_SAMPLE_PLATE_ID, cells[COLNO_SAMPLE_PLATE_ID]);
+    }
+    return val.substring(0, i);
+  }
+
+  private String processExtractPlateId() throws InvalidRowException {
+    String val = StringUtils.trimToNull(cells[COLNO_EXTRACT_PLATE_ID]);
+    if (val == null) {
+      throw missingValue(SMPL_EXTRACT_PLATE_ID);
+    }
+    return val;
+  }
+
+  private String processPlatePosition() throws InvalidRowException {
+    String val = StringUtils.trimToNull(cells[COLNO_PLATE_POSITION]);
+    if (val == null) {
+      throw missingValue(SMPL_PLATE_POSITION);
+    }
+    return val;
+  }
+
+  private String processColumn(int colno) {
+    return StringUtils.trimToNull(cells[colno]);
   }
 
   private static InvalidRowException invalidColumnCount(int rowNum, String[] cells) {

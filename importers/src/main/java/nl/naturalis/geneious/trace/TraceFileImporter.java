@@ -15,7 +15,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.ImportedDocument;
+import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.QueryUtils;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -69,7 +69,7 @@ class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void>
       if (docs.size() != 0) {
         annotator = new DocumentAnnotator(docs);
         annotator.annotateImportedDocuments();
-        Set<ImportedDocument> dummies = annotator.getObsoleteDummyDocuments();
+        Set<StoredDocument> dummies = annotator.getObsoleteDummyDocuments();
         if (!dummies.isEmpty()) {
           guiLogger.info("Deleting obsolete dummy documents");
           QueryUtils.deleteDocuments(dummies);

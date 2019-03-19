@@ -162,6 +162,87 @@ public enum NaturalisField {
     return dataSources;
   }
 
+  @SuppressWarnings("unchecked")
+  public <T> T parse(String str) {
+    T t;
+    if (type == Boolean.class) {
+      t = (T) Boolean.valueOf(str);
+    } else if (type == Integer.class) {
+      t = (T) Integer.valueOf(str);
+    } else if (type == Double.class) {
+      t = (T) Double.valueOf(str);
+    } else {
+      t = (T) str;
+    }
+    return t;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T cast(Object val) {
+    return (T) type.cast(val);
+  }
+
+  public <T> T readFrom(AnnotatedPluginDocument document) {
+    return readFrom(document.getDocumentNotes(false));
+  }
+
+  public <T> T readFrom(DocumentNotes notes) {
+    DocumentNote note = notes.getNote(getNoteType().getCode());
+    if (note == null) {
+      return null;
+    }
+    Object val = note.getFieldValue(code);
+    return val == null ? null : cast(val);
+  }
+
+  public void parseAndwrite(DocumentNotes notes, String value) {
+    DocumentNote note = notes.getNote(getNoteType().getCode());
+    if (note == null) {
+      if (value != null) {
+        note = getNoteType().createDocumentNote();
+        note.setFieldValue(code, parse(value));
+        notes.setNote(note);
+      }
+    } else if (value == null) {
+      notes.removeNote(getNoteType().getCode());
+    } else {
+      note.setFieldValue(code, parse(value));
+      notes.setNote(note);
+    }
+  }
+
+  public void castAndWrite(DocumentNotes notes, Object value) {
+    DocumentNote note = notes.getNote(getNoteType().getCode());
+    if (note == null) {
+      if (value != null) {
+        note = getNoteType().createDocumentNote();
+        note.setFieldValue(code, cast(value));
+        notes.setNote(note);
+      }
+    } else if (value == null) {
+      notes.removeNote(getNoteType().getCode());
+    } else {
+      note.setFieldValue(code, cast(value));
+      notes.setNote(note);
+    }
+  }
+
+  void write(DocumentNotes notes, Object value) {
+    DocumentNote note = notes.getNote(getNoteType().getCode());
+    if (note == null) {
+      if (value != null) {
+        note = getNoteType().createDocumentNote();
+        note.setFieldValue(code, value);
+        notes.setNote(note);
+      }
+    } else if (value == null) {
+      notes.removeNote(getNoteType().getCode());
+    } else {
+      note.setFieldValue(code, value);
+      notes.setNote(note);
+    }
+  }
+
   /**
    * Returns a Geneious object that should you should use if you want to use this field in a query.
    * 
@@ -234,6 +315,5 @@ public enum NaturalisField {
     this.noteType = noteType;
     this.queryField = null;
   }
-
 
 }

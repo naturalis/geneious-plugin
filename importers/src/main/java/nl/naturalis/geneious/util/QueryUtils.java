@@ -45,10 +45,10 @@ public class QueryUtils {
     return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
   }
 
-  public static void deleteDocuments(Set<ImportedDocument> dummies) throws DatabaseServiceException {
+  public static void deleteDocuments(Set<StoredDocument> dummies) throws DatabaseServiceException {
     //String tmpFolderName = getTmpFolderName();
     //WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
-    for (ImportedDocument d : dummies) {
+    for (StoredDocument d : dummies) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
       //dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }

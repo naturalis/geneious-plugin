@@ -10,8 +10,7 @@ import java.io.InputStreamReader;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-
-import static nl.naturalis.geneious.util.SequenceNameParser.parseFasta;
+import nl.naturalis.geneious.util.SequenceNameParser;
 
 /**
  * Provides information about a fasta-encoded sequence.
@@ -50,7 +49,7 @@ final class FastaSequenceInfo extends SequenceInfo {
 
   @Override
   void createNote() throws NotParsableException {
-    note = parseFasta(name);
+    note = new SequenceNameParser(name).parseName();
   }
 
   @Override

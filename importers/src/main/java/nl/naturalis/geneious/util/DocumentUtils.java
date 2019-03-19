@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -16,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisField;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
@@ -79,6 +81,11 @@ public class DocumentUtils {
       }
     }
     return false;
+  }
+  
+  public static boolean isDummyDocument(StoredDocument document) {
+    String marker = document.getNaturalisNote().get(NaturalisField.SEQ_MARKER);
+    return Objects.equals(marker, "Dum");
   }
 
   /**

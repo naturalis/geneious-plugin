@@ -2,7 +2,6 @@ package nl.naturalis.geneious.samplesheet;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,9 +13,6 @@ import javax.swing.SwingWorker;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.documents.URN;
-import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 
@@ -26,8 +22,10 @@ import nl.naturalis.geneious.WrappedException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.DummySequenceDocument;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.SpreadSheetReader;
+import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
@@ -38,10 +36,6 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
-
-  private static final String DUMMY_NUCLEOTIDE_SEQUENCE = "NNNNNNNNNN";
-  private static final String DUMMY_PLATE_ID = "AA000";
-  private static final String DUMMY_MARKER = "Dum";
 
   private final UserInput input;
 
@@ -73,20 +67,16 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     }
   }
 
-  private void enrichOrCreateDummies(List<String[]> rows) {
-    Map<String, AnnotatedPluginDocument> lookups = createLookupTable();
-    Set<String> newExtractIds;
-    try {
-      newExtractIds = getNewExtractIds(rows, lookups);
-    } catch (DatabaseServiceException e) {
-      guiLogger.fatal("Error while executing query", e);
-      return;
-    }
-    List<AnnotatedPluginDocument> apds = new ArrayList<AnnotatedPluginDocument>(rows.size());
+  private void enrichOrCreateDummies(List<String[]> rows) throws DatabaseServiceException {
+    // Create a lookup table for the selected documents (using extract ID as key)
+    Map<String, StoredDocument> selectedDocuments = createLookupTable();
+    // Find new extract IDs in sample sheet (rows containing them will become dummies)
+    Set<String> newExtractIds = getNewExtractIds(rows, selectedDocuments.keySet());
+    List<AnnotatedPluginDocument> updatesOrDummies = new ArrayList<AnnotatedPluginDocument>(rows.size());
     int good = 0, bad = 0, enriched = 0, dummies = 0;
-    SampleSheetRow row;
-    for (int i = 0; i < rows.size(); i++) {
-      if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
+    for (int i = 0; i < rows.size(); ++i) {
+      SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
+      if (row.isEmpty()) {
         final int rowNum = i;
         guiLogger.debugf(() -> format("Ignoring empty record (line %s)", (rowNum + input.getSkipLines())));
         ++bad;
@@ -101,26 +91,21 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         continue;
       }
       ++good;
-      note.setPcrPlateId(DUMMY_PLATE_ID);
-      note.setMarker(DUMMY_MARKER);
-      AnnotatedPluginDocument apd = lookups.get(note.getExtractId());
-      if (apd == null) {
-        if (newExtractIds.contains(note.getExtractId())) {
+      StoredDocument document = selectedDocuments.get(note.getExtractId());
+      if (document == null) { // sample sheet row does not correspond to a user-selected document
+        if (newExtractIds.contains(note.get(SMPL_EXTRACT_ID))) {
           guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
-          NucleotideSequenceDocument nsd = createDummyDocument(note);
-          apd = DocumentUtilities.createAnnotatedPluginDocument(nsd);
-          note.overwrite(apd);
-          apds.add(apd);
+          updatesOrDummies.add(new DummySequenceDocument(note).wrap());
           ++dummies;
         }
       } else {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
-        note.overwrite(apd);
-        apds.add(apd);
+        document.update(note);
+        updatesOrDummies.add(document.getGeneiousDocument());
         ++enriched;
       }
     }
-    DocumentUtilities.addGeneratedDocuments(apds, false);
+    DocumentUtilities.addGeneratedDocuments(updatesOrDummies, false);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
@@ -130,11 +115,11 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
   }
 
   private void enrichOnly(List<String[]> rows) {
-    Map<String, AnnotatedPluginDocument> lookups = createLookupTable();
-    List<AnnotatedPluginDocument> apds = new ArrayList<>(input.getSelectedDocuments().length);
+    Map<String, StoredDocument> selectedDocuments = createLookupTable();
+    List<AnnotatedPluginDocument> updates = new ArrayList<>(selectedDocuments.size());
     int good = 0, bad = 0, enriched = 0;
     SampleSheetRow row;
-    for (int i = 1; i < rows.size(); i++) {
+    for (int i = 1; i < rows.size(); ++i) {
       if ((row = new SampleSheetRow(i, rows.get(i))).isEmpty()) {
         ++bad;
         continue;
@@ -148,17 +133,16 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         continue;
       }
       ++good;
-      AnnotatedPluginDocument apd = lookups.get(note.getExtractId());
-      if (apd != null) {
-        guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
-        note.setPcrPlateId(DUMMY_PLATE_ID);
-        note.setMarker(DUMMY_MARKER);
-        note.overwrite(apd);
-        apds.add(apd);
+      String extractId = note.getExtractId();
+      StoredDocument document = selectedDocuments.get(extractId);
+      if (document != null) {
+        guiLogger.debugf(() -> format("Enriching document with extract ID %s", extractId));
+        document.update(note);
+        updates.add(document.getGeneiousDocument());
         ++enriched;
       }
     }
-    DocumentUtilities.addGeneratedDocuments(apds, true);
+    DocumentUtilities.addGeneratedDocuments(updates, true);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
@@ -173,38 +157,28 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
    * the target database. But since Geneious hands us the selected records for free, we can discard them when constructing the database
    * query, thus making the query a bit more light-weight.
    */
-  private static Set<String> getNewExtractIds(List<String[]> rows,
-      Map<String, AnnotatedPluginDocument> selected) throws DatabaseServiceException {
+  private static Set<String> getNewExtractIds(List<String[]> rows, Set<String> selectedIds) throws DatabaseServiceException {
     guiLogger.debug(() -> "Marking rows with new extract IDs (will become dummy documents)");
     Set<String> allIdsInSheet = new HashSet<>(rows.size(), 1F);
     Set<String> nonSelectedIds = new HashSet<>(rows.size(), 1F);
-    int colno = SampleSheetRow.getColumnNumber(SMPL_EXTRACT_ID);
+    int colno = SampleSheetRow.COLNO_EXTRACT_ID;
     for (String[] row : rows) {
       if (colno < row.length && StringUtils.isNotBlank(row[colno])) {
         String id = "e" + row[colno];
         allIdsInSheet.add(id);
-        if (!selected.keySet().contains(id)) {
+        if (!selectedIds.contains(id)) {
           nonSelectedIds.add(id);
         }
       }
     }
-    guiLogger.debug(() -> "Searching database for the provided extract IDs");
-    List<AnnotatedPluginDocument> apds = QueryUtils.findByExtractID(nonSelectedIds);
-    Set<String> oldIds = new HashSet<>(apds.size(), 1F);
-    apds.forEach(apd -> oldIds.add(SMPL_EXTRACT_ID.getValue(apd).toString()));
-    allIdsInSheet.removeAll(oldIds);
-    allIdsInSheet.removeAll(selected.keySet());
+    guiLogger.debug(() -> "Searching database for the non-selected extract IDs");
+    List<AnnotatedPluginDocument> documents = QueryUtils.findByExtractID(nonSelectedIds);
+    Set<String> exists = new HashSet<>(documents.size(), 1F);
+    documents.forEach(document -> exists.add(SMPL_EXTRACT_ID.readFrom(document)));
+    allIdsInSheet.removeAll(exists);
+    allIdsInSheet.removeAll(selectedIds);
     guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", allIdsInSheet.size()));
     return allIdsInSheet;
-  }
-
-  private static NucleotideSequenceDocument createDummyDocument(NaturalisNote note) {
-    String seqName = note.getExtractId() + ".dum";
-    String descr = "Dummy sequence";
-    String sequence = DUMMY_NUCLEOTIDE_SEQUENCE;
-    Date timestamp = new Date();
-    URN urn = URN.generateUniqueLocalURN("Dummy");
-    return new DefaultNucleotideSequence(seqName, descr, sequence, timestamp, urn);
   }
 
   private List<String[]> loadSampleSheet(File sampleSheet) {
@@ -233,13 +207,19 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
   /*
    * Create a lookup table that maps the extract IDs of the selected documents to the selected documents themselves.
    */
-  private Map<String, AnnotatedPluginDocument> createLookupTable() {
+  private Map<String, StoredDocument> createLookupTable() {
     int numSelected = input.getSelectedDocuments().length;
-    Map<String, AnnotatedPluginDocument> map = new HashMap<>(numSelected, 1F);
+    Map<String, StoredDocument> map = new HashMap<>(numSelected, 1F);
     for (AnnotatedPluginDocument doc : input.getSelectedDocuments()) {
-      String val = (String) SMPL_EXTRACT_ID.getValue(doc);
-      if (val != null) {
-        map.put(val, doc);
+      NaturalisNote note = new NaturalisNote(doc);
+      StoredDocument sd = new StoredDocument(doc, note);
+      String extractId = note.getExtractId();
+      if (extractId == null) {
+        guiLogger.debug("Ignoring selected document without extract ID (possibly not processed yet by split operation");
+      } else if (sd.isDummy()) {
+        guiLogger.debugf(() -> format("Ignoring selected document identified as dummy (extract ID=\"%s\")", extractId));
+      } else {
+        map.put(extractId, sd);
       }
     }
     return map;
