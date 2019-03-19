@@ -17,6 +17,12 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
 
   private final NaturalisNote note;
 
+  // No-arg constructor required by Geneious framework.
+  public DummySequenceDocument() {
+    super();
+    this.note = null;
+  }
+
   public DummySequenceDocument(NaturalisNote note) {
     super(name(note), descr(note), DUMMY_SEQUENCE, new Date());
     this.note = note;

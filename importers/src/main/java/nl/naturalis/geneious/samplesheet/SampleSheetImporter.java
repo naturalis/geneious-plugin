@@ -171,13 +171,13 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         }
       }
     }
-    guiLogger.debug(() -> "Searching database for the non-selected extract IDs");
+    guiLogger.debug(() -> "Searching database ...");
     List<AnnotatedPluginDocument> documents = QueryUtils.findByExtractID(nonSelectedIds);
     Set<String> exists = new HashSet<>(documents.size(), 1F);
     documents.forEach(document -> exists.add(SMPL_EXTRACT_ID.readFrom(document)));
     allIdsInSheet.removeAll(exists);
     allIdsInSheet.removeAll(selectedIds);
-    guiLogger.debugf(() -> format("Found %s new extract IDs in sample sheet", allIdsInSheet.size()));
+    guiLogger.debugf(() -> format("Sample sheet contains %s new extract ID(s)", allIdsInSheet.size()));
     return allIdsInSheet;
   }
 

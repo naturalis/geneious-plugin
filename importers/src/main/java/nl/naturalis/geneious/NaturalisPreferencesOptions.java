@@ -3,7 +3,7 @@ package nl.naturalis.geneious;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.note.FieldDefinitionPersister;
+import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 
 public class NaturalisPreferencesOptions extends Options {
 
@@ -85,8 +85,8 @@ public class NaturalisPreferencesOptions extends Options {
     state.ab1Extensions = sOpt2.getValue();
 
     ButtonOption butOpt1 =
-        addButtonOption("nl.naturalis.geneious.regenerateAnnotationMetadata", "", "Regenerate annotation metadata");
-    butOpt1.addActionListener(e -> FieldDefinitionPersister.saveFieldDefinitions());
+        addButtonOption("nl.naturalis.geneious.updateAnnotationMetadata", "", "Update annotation metadata");
+    butOpt1.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
 
     addDivider("Version Info ");
     addLabel("Version: " + PluginInfo.getInstance().getVersion());

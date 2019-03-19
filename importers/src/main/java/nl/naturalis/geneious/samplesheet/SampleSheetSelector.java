@@ -1,14 +1,7 @@
 package nl.naturalis.geneious.samplesheet;
 
-import static nl.naturalis.geneious.gui.GridBagFormUtil.addFileSelector;
-import static nl.naturalis.geneious.gui.GridBagFormUtil.addLabel;
-import static nl.naturalis.geneious.gui.GridBagFormUtil.addTextFieldWithComment;
-import static nl.naturalis.geneious.gui.GridBagFormUtil.createFormPanel;
-import static nl.naturalis.geneious.gui.GridBagFormUtil.*;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -19,10 +12,20 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import org.apache.commons.lang3.StringUtils;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+
+import org.apache.commons.lang3.StringUtils;
+
 import nl.naturalis.geneious.util.RuntimeSettings;
+
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addCheckboxWithComment;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addFileSelector;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addLabel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.addTextFieldWithComment;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.createFormPanel;
+import static nl.naturalis.geneious.gui.GridBagFormUtil.createOKCancelPanel;
 
 /**
  * Displays a dialog collecting user input for the sample sheet import process.

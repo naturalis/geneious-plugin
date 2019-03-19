@@ -4,10 +4,12 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import org.virion.jam.framework.AbstractFrame;
 
+import nl.naturalis.geneious.util.QueryUtils;
+
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_OPTION;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
-import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 
@@ -49,8 +51,9 @@ public class ShowDialog {
   }
 
   public static boolean confirmRegenerateAnnotationMetadata() {
-    String msg = "This is advanced functionality! Do you really want to regenerate the Naturalis annotation metadata?";
-    int answer = showConfirmDialog(frame(), msg, "Regenerate annotation metadata?", YES_NO_CANCEL_OPTION, WARNING_MESSAGE);
+    String fmt = "This is advanced functionality! Do you really want to update Naturalis annotation metadata for database \"%s\"?";
+    String msg = String.format(fmt, QueryUtils.getTargetDatabaseName());
+    int answer = showConfirmDialog(frame(), msg, "Update annotation metadata?", OK_CANCEL_OPTION, WARNING_MESSAGE);
     return answer == OK_OPTION;
   }
 
