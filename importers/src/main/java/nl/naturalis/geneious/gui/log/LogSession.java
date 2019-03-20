@@ -6,7 +6,7 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.GeneiousGUI;
-import nl.naturalis.geneious.trace.TraceFileDocumentOperation;
+import nl.naturalis.geneious.trace.Ab1FastaDocumentOperation;
 
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
@@ -14,7 +14,7 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 /**
  * An Object defining the boundaries within which logger can safely log messages. In other words, loggers must not be used outside the
  * boundaries of a log session. That means it's best to set up a log session in a top-level class (which in our case means: the
- * framework-plumbing classes like {@link TraceFileDocumentOperation}).
+ * framework-plumbing classes like {@link Ab1FastaDocumentOperation}).
  *
  * @author Ayco Holleman
  */

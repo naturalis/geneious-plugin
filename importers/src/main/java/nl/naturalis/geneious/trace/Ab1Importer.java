@@ -17,9 +17,9 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Imports the AB1 files selected by the user into Geneious.
  */
-class AB1Importer {
+class Ab1Importer {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(AB1Importer.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1Importer.class);
 
   private final List<Ab1SequenceInfo> sequences;
 
@@ -27,7 +27,7 @@ class AB1Importer {
   private int imported;
   private int rejected;
 
-  AB1Importer(List<Ab1SequenceInfo> sequences) {
+  Ab1Importer(List<Ab1SequenceInfo> sequences) {
     guiLogger.info("Starting AB1 file importer");
     this.sequences = sequences;
   }

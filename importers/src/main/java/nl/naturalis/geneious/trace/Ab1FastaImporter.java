@@ -23,9 +23,9 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
+class Ab1FastaImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaImporter.class);
 
   private final File[] files;
 
@@ -34,7 +34,7 @@ class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void>
    * 
    * @param traceFiles
    */
-  TraceFileImporter(File[] traceFiles) {
+  Ab1FastaImporter(File[] traceFiles) {
     this.files = traceFiles;
   }
 
@@ -53,12 +53,12 @@ class TraceFileImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void>
   private List<AnnotatedPluginDocument> importTraceFiles() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
-      AB1Importer ab1Importer = null;
+      Ab1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
       DocumentAnnotator annotator = null;
       List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
-        ab1Importer = new AB1Importer(ab1s);
+        ab1Importer = new Ab1Importer(ab1s);
         docs.addAll(ab1Importer.importFiles());
       }
       List<FastaSequenceInfo> fastas = provider.getFastaSequences();

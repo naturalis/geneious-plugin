@@ -24,7 +24,7 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
   }
 
   public DummySequenceDocument(NaturalisNote note) {
-    super(name(note), descr(note), DUMMY_SEQUENCE, new Date());
+    super(name(note), "", DUMMY_SEQUENCE, new Date());
     this.note = note;
   }
 
@@ -40,7 +40,4 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
     return note.getExtractId() + " (dummy)";
   }
 
-  private static String descr(NaturalisNote note) {
-    return "Dummy sequence for extract ID " + note.getExtractId();
-  }
 }

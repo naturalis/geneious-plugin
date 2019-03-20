@@ -1,10 +1,14 @@
 package nl.naturalis.geneious.samplesheet;
 
+import java.util.List;
+
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
+import com.biomatters.geneious.publicapi.plugin.Options;
 
+import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
@@ -29,6 +33,10 @@ public class SampleSheetDocumentAction extends DocumentAction {
     }
     new SampleSheetSelector(docs, this::forwardToImporter).show();
   }
+
+//  public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
+//    return null;
+//  }
 
   @Override
   public GeneiousActionOptions getActionOptions() {

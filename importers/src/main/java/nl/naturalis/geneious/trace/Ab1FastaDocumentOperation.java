@@ -23,15 +23,15 @@ import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link TraceFileImporter} and lets it do most of the work.
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link Ab1FastaImporter} and lets it do most of the work.
  *
  * @author Ayco Holleman
  */
-public class TraceFileDocumentOperation extends DocumentOperation {
+public class Ab1FastaDocumentOperation extends DocumentOperation {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(TraceFileDocumentOperation.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaDocumentOperation.class);
 
-  public TraceFileDocumentOperation() {
+  public Ab1FastaDocumentOperation() {
     super();
   }
 
@@ -50,7 +50,7 @@ public class TraceFileDocumentOperation extends DocumentOperation {
       if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
         RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
         try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-          TraceFileImporter importer = new TraceFileImporter(fc.getSelectedFiles());
+          Ab1FastaImporter importer = new Ab1FastaImporter(fc.getSelectedFiles());
           importer.execute();
           return importer.get();
         } catch (InterruptedException | ExecutionException e) {
