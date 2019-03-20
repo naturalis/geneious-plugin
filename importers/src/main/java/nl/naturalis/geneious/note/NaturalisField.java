@@ -115,19 +115,6 @@ public enum NaturalisField {
   }
 
   /**
-   * Returns the value of this field within the specified document.
-   * 
-   * @param doc
-   * @return
-   */
-  public Object getValue(AnnotatedPluginDocument doc) {
-    String noteTypeCode = getNoteType().getCode();
-    DocumentNotes notes = doc.getDocumentNotes(false);
-    DocumentNote note = notes.getNote(noteTypeCode);
-    return note == null ? null : note.getFieldValue(code);
-  }
-
-  /**
    * Returns the code for this field.
    * 
    * @return
@@ -223,22 +210,6 @@ public enum NaturalisField {
       notes.removeNote(getNoteType().getCode());
     } else {
       note.setFieldValue(code, cast(value));
-      notes.setNote(note);
-    }
-  }
-
-  void write(DocumentNotes notes, Object value) {
-    DocumentNote note = notes.getNote(getNoteType().getCode());
-    if (note == null) {
-      if (value != null) {
-        note = getNoteType().createDocumentNote();
-        note.setFieldValue(code, value);
-        notes.setNote(note);
-      }
-    } else if (value == null) {
-      notes.removeNote(getNoteType().getCode());
-    } else {
-      note.setFieldValue(code, value);
       notes.setNote(note);
     }
   }

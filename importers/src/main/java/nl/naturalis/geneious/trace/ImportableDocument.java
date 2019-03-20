@@ -65,26 +65,21 @@ class ImportableDocument {
     NaturalisNote note = sequenceInfo.getNaturalisNote();
     String extractID = note.get(SEQ_EXTRACT_ID);
     Optional<StoredDocument> opt = inspector.find(extractID, sequenceInfo.getDocumentType());
-    StoredDocument found = null;
+    StoredDocument previous = null;
     if (opt.isPresent()) {
-      found = opt.get();
-      Integer docVersion = DOCUMENT_VERSION.readFrom(found.getGeneiousDocument());
-      if (docVersion == null) {
-        docVersion = Integer.valueOf(1);
-      } else {
-        docVersion = Integer.valueOf(docVersion.intValue() + 1);
-      }
-      note.put(DOCUMENT_VERSION, docVersion);
+      previous = opt.get();
+      note.setDocumentVersion(DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument()));
+      note.incrementDocumentVersion(0);
     } else {
-      note.put(DOCUMENT_VERSION, Integer.valueOf(0));
+      note.setDocumentVersion(0);
       opt = inspector.findDummy(extractID);
       if (opt.isPresent()) {
-        found = opt.get();
-        note.read(found.getGeneiousDocument());
+        previous = opt.get();
+        note.readFrom(previous.getGeneiousDocument());
       }
     }
-    note.attachTo(document);
-    return found;
+    note.saveTo(document);
+    return previous;
   }
 
 }

@@ -100,7 +100,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         }
       } else {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
-        document.update(note);
+        note.saveTo(document);
         updatesOrDummies.add(document.getGeneiousDocument());
         ++enriched;
       }
@@ -137,7 +137,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       StoredDocument document = selectedDocuments.get(extractId);
       if (document != null) {
         guiLogger.debugf(() -> format("Enriching document with extract ID %s", extractId));
-        document.update(note);
+        note.saveTo(document);
         updates.add(document.getGeneiousDocument());
         ++enriched;
       }
@@ -215,9 +215,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       StoredDocument sd = new StoredDocument(doc, note);
       String extractId = note.getExtractId();
       if (extractId == null) {
-        guiLogger.debug("Ignoring selected document without extract ID (possibly not processed yet by split operation");
-      } else if (sd.isDummy()) {
-        guiLogger.debugf(() -> format("Ignoring selected document identified as dummy (extract ID=\"%s\")", extractId));
+        guiLogger.debugf(() -> format("Ignoring selected document without extract ID (urn=\"%s\")", doc.getURN()));
       } else {
         map.put(extractId, sd);
       }

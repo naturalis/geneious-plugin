@@ -1,42 +1,40 @@
 package nl.naturalis.geneious.note;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 
-public class NaturalisNote extends EnumMap<NaturalisField, Object> {
+import nl.naturalis.geneious.util.StoredDocument;
+
+public final class NaturalisNote {
+
+  private final EnumMap<NaturalisField, Object> data;
 
   public NaturalisNote() {
-    super(NaturalisField.class);
+    data = new EnumMap<>(NaturalisField.class);
   }
 
   public NaturalisNote(AnnotatedPluginDocument document) {
-    super(NaturalisField.class);
-    read(document);
-  }
-
-  public Object put(NaturalisField field, Object value) {
-    throw new UnsupportedOperationException();
+    data = new EnumMap<>(NaturalisField.class);
+    readFrom(document);
   }
 
   public void parseAndSet(NaturalisField field, String value) {
     if (value != null) {
-      super.put(field, field.parse(value));
+      data.put(field, field.parse(value));
     }
   }
 
   public void castAndSet(NaturalisField field, Object value) {
     if (value != null) {
-      super.put(field, field.cast(value));
+      data.put(field, field.cast(value));
     }
   }
 
   @SuppressWarnings("unchecked")
   public <T> T get(NaturalisField field) {
-    Object val = super.get(field);
+    Object val = data.get(field);
     return (T) (val == null ? null : val);
   }
 
@@ -48,25 +46,44 @@ public class NaturalisNote extends EnumMap<NaturalisField, Object> {
     return get(NaturalisField.DOCUMENT_VERSION);
   }
 
-  public void read(AnnotatedPluginDocument document) {
+  public void setDocumentVersion(Integer version) {
+    data.put(NaturalisField.DOCUMENT_VERSION, version);
+  }
+
+  public void incrementDocumentVersion(Integer nullValue) {
+    Integer version = getDocumentVersion();
+    if (version == null) {
+      version = nullValue;
+    }
+    setDocumentVersion(Integer.valueOf(version.intValue() + 1));
+  }
+
+  public void copyFrom(NaturalisNote other) {
+    data.putAll(other.data);
+  }
+
+  public void copyTo(NaturalisNote other) {
+    other.data.putAll(data);
+  }
+
+  public void readFrom(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(false);
-    for (NaturalisField field : getEmptyFields()) {
-      super.put(field, field.readFrom(notes));
+    for (NaturalisField field : NaturalisField.values()) {
+      data.put(field, field.readFrom(notes));
     }
   }
 
-  public void attachTo(AnnotatedPluginDocument document) {
+  public void saveTo(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(true);
-    for (NaturalisField field : keySet()) {
-      field.write(notes, super.get(field));
+    for (NaturalisField field : data.keySet()) {
+      field.castAndWrite(notes, data.get(field));
     }
-    notes.saveNotes(true, true);
+    notes.saveNotes();
   }
 
-  private Set<NaturalisField> getEmptyFields() {
-    EnumSet<NaturalisField> all = EnumSet.allOf(NaturalisField.class);
-    all.removeAll(keySet());
-    return all;
+  public void saveTo(StoredDocument document) {
+    copyTo(document.getNaturalisNote());
+    saveTo(document.getGeneiousDocument());
   }
 
 }

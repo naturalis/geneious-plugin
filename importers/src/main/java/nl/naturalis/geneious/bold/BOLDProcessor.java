@@ -48,10 +48,10 @@ class BOLDProcessor {
     logger.debug("Creating lookup table for selected documents");
     Map<String, AnnotatedPluginDocument> map = new HashMap<>(docs.size() + 1, 1.0F);
     for (AnnotatedPluginDocument doc : docs) {
-      String val = (String) SMPL_EXTRACT_ID.getValue(doc);
-      if (val != null) {
-        map.put(val, doc);
-      }
+//      String val = (String) SMPL_EXTRACT_ID.getValue(doc);
+//      if (val != null) {
+//        map.put(val, doc);
+//      }
     }
     return map;
   }

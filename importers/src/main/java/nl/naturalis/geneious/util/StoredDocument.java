@@ -51,19 +51,6 @@ public class StoredDocument {
     return note;
   }
 
-  public void update(NaturalisNote other) {
-    update(other, false);
-  }
-
-  public void update(NaturalisNote other, boolean overwrite) {
-    if (overwrite) {
-      note.putAll(other);
-    } else {
-      other.forEach((k, v) -> note.putIfAbsent(k, v));
-    }
-    note.attachTo(doc);
-  }
-
   public DocumentType getType() {
     return type;
   }

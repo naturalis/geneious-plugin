@@ -18,9 +18,9 @@ import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
  */
 public class SequenceNameParser {
 
-  private static final Pattern PT_EXTRACT_ID = Pattern.compile("^e\\d{10}$");
-  private static final Pattern PT_PCR_PLATE_ID = Pattern.compile("^[A-Z]{2}\\D{3}$");
-  private static final Pattern PT_MARKER = Pattern.compile("^[A-Z]{3}($|\\.|-)");
+  private static final Pattern PT_EXTRACT_ID = Pattern.compile("^e\\d{4,16}$");
+  private static final Pattern PT_PCR_PLATE_ID = Pattern.compile("^[A-Z]{1,4}\\d{1,5}$");
+  private static final Pattern PT_MARKER = Pattern.compile("^[A-Za-z0-9]{2,16}$");
 
   private final String name;
 
@@ -51,12 +51,21 @@ public class SequenceNameParser {
     if (PT_PCR_PLATE_ID.matcher(id).matches()) {
       return id;
     }
-    throw NotParsableException.badExtractId(name, id, PT_EXTRACT_ID.pattern());
+    throw NotParsableException.badPcrPlateID(name, id, PT_PCR_PLATE_ID.pattern());
   }
 
   private String processMarker(String marker) throws NotParsableException {
+    int i = marker.indexOf('-');
+    if (i == -1) {
+      i = marker.indexOf('.');
+      if (i == -1) {
+        i = marker.length();
+      }
+    }
+    marker = marker.substring(0, i);
     if (PT_MARKER.matcher(marker).matches()) {
-      return marker.substring(0, 2);
+      return marker;
+
     }
     throw NotParsableException.badMarkerSegment(name, marker, PT_MARKER.pattern());
   }

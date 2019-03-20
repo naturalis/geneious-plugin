@@ -25,17 +25,17 @@ public class NotParsableException extends Exception {
   }
 
   public static NotParsableException badExtractId(String name, String extractId, String pattern) {
-    String fmt = "Invalid extract ID in \"%s\": \"%s\" (must match pattern \"%s\")";
+    String fmt = "Invalid extract ID in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, extractId, pattern));
   }
 
   public static NotParsableException badPcrPlateID(String name, String pcrPlateId, String pattern) {
-    String fmt = "Invalid PCR plate ID in \"%s\": \"%s\" (must match pattern \"%s\")";
+    String fmt = "Invalid PCR plate ID in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, pcrPlateId, pattern));
   }
 
   public static NotParsableException badMarkerSegment(String name, String marker, String pattern) {
-    String fmt = "Invalid marker segment in \"%s\": \"%s\" (must match pattern \"%s\")";
+    String fmt = "Invalid marker segment in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, marker, pattern));
   }
 

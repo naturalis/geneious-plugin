@@ -32,7 +32,7 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
     AnnotatedPluginDocument document = DocumentUtilities.createAnnotatedPluginDocument(this);
     note.castAndSet(NaturalisField.SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
     note.castAndSet(NaturalisField.SEQ_MARKER, DUMMY_MARKER);
-    note.attachTo(document);
+    note.saveTo(document);
     return document;
   }
 
