@@ -13,6 +13,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import nl.naturalis.geneious.NaturalisPluginException;
+
 public class SpreadSheetReader {
 
   private final File file;
@@ -26,8 +28,9 @@ public class SpreadSheetReader {
 
   public List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
     Workbook workbook = WorkbookFactory.create(file);
-    if (sheetNumber > workbook.getNumberOfSheets()) {
-      // TODO throw something
+    if (sheetNumber >= workbook.getNumberOfSheets()) {
+      String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
+      throw new NaturalisPluginException(String.format(fmt, workbook.getNumberOfSheets()));
     }
     Sheet sheet = workbook.getSheetAt(sheetNumber);
     DataFormatter dataFormatter = new DataFormatter();

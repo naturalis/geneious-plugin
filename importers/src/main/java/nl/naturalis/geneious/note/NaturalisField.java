@@ -37,7 +37,7 @@ import static nl.naturalis.geneious.PluginDataSource.SEQUENCE_NAME;
  */
 public enum NaturalisField {
 
-  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version", AUTO), // DocumentVersionCode_Seq
+  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version", Integer.class, AUTO), // DocumentVersionCode_Seq
 
   SEQ_EXTRACT_ID("ExtractIDCode_Seq", "Extract ID (Seq)", SEQUENCE_NAME), // ExtractIDCode_Seq
   SEQ_MARKER("MarkerCode_Seq", "Marker (Seq)", SEQUENCE_NAME), // MarkerCode_Seq

@@ -13,6 +13,8 @@ import javax.swing.SwingWorker;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 
@@ -190,6 +192,12 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         ssr.setSheetNumber(input.getSheetNumber() - 1);
         ssr.setSkipRows(input.getSkipLines());
         rows = ssr.readAllRows();
+      } else if(sampleSheet.getName().endsWith(".csv")) {
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.getFormat().setLineSeparator("\n");
+        settings.setNumberOfRowsToSkip(input.getSkipLines());
+        CsvParser parser = new CsvParser(settings);
+        rows = parser.parseAll(sampleSheet);
       } else {
         TsvParserSettings settings = new TsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
