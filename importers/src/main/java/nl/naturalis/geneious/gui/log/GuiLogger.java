@@ -112,6 +112,10 @@ public class GuiLogger {
     record(FATAL, message, null, msgArgs);
   }
 
+  public void fatal(Throwable throwable) {
+    record(FATAL, throwable.getMessage(), throwable);
+  }
+
   public void fatal(String message, Throwable throwable, Object... msgArgs) {
     record(FATAL, message, throwable, msgArgs);
   }

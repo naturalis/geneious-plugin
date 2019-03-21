@@ -69,7 +69,7 @@ class ImportableDocument {
     if (opt.isPresent()) {
       previous = opt.get();
       note.setDocumentVersion(DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument()));
-      note.incrementDocumentVersion(0);
+      note.incrementDocumentVersion(1);
     } else {
       note.setDocumentVersion(0);
       opt = inspector.findDummy(extractID);

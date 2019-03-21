@@ -12,7 +12,6 @@ import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.tsv.TsvParser;
@@ -35,7 +34,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter extends SwingWorker<Void, Void> {
+class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
@@ -51,25 +50,19 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
    * does not exist yet.
    */
   @Override
-  protected Void doInBackground() {
-    importSampleSheet();
-    return null;
+  protected List<AnnotatedPluginDocument> doInBackground() throws DatabaseServiceException {
+    return importSampleSheet();
   }
 
-  private void importSampleSheet() {
-    try {
-      List<String[]> rows = loadSampleSheet(input.getFile());
-      if (input.isCreateDummies()) {
-        enrichOrCreateDummies(rows);
-      } else {
-        enrichOnly(rows);
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t.getMessage(), t);
+  private List<AnnotatedPluginDocument> importSampleSheet() throws DatabaseServiceException {
+    List<String[]> rows = loadSampleSheet(input.getFile());
+    if (input.isCreateDummies()) {
+      return enrichOrCreateDummies(rows);
     }
+    return enrichOnly(rows);
   }
 
-  private void enrichOrCreateDummies(List<String[]> rows) throws DatabaseServiceException {
+  private List<AnnotatedPluginDocument> enrichOrCreateDummies(List<String[]> rows) throws DatabaseServiceException {
     // Create a lookup table for the selected documents (using extract ID as key)
     Map<String, StoredDocument> selectedDocuments = createLookupTable();
     // Find new extract IDs in sample sheet (rows containing them will become dummies)
@@ -107,16 +100,16 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         ++enriched;
       }
     }
-    DocumentUtilities.addGeneratedDocuments(updatesOrDummies, false);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Number of dummy documents created: %s", dummies);
     guiLogger.info("Import completed successfully");
+    return updatesOrDummies;
   }
 
-  private void enrichOnly(List<String[]> rows) {
+  private List<AnnotatedPluginDocument> enrichOnly(List<String[]> rows) {
     Map<String, StoredDocument> selectedDocuments = createLookupTable();
     List<AnnotatedPluginDocument> updates = new ArrayList<>(selectedDocuments.size());
     int good = 0, bad = 0, enriched = 0;
@@ -144,12 +137,12 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         ++enriched;
       }
     }
-    DocumentUtilities.addGeneratedDocuments(updates, true);
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
     guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Import completed successfully");
+    return updates;
   }
 
   /*
@@ -192,7 +185,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         ssr.setSheetNumber(input.getSheetNumber() - 1);
         ssr.setSkipRows(input.getSkipLines());
         rows = ssr.readAllRows();
-      } else if(sampleSheet.getName().endsWith(".csv")) {
+      } else if (sampleSheet.getName().endsWith(".csv")) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
         settings.setNumberOfRowsToSkip(input.getSkipLines());

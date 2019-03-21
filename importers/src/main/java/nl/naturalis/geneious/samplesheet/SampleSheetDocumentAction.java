@@ -1,9 +1,12 @@
 package nl.naturalis.geneious.samplesheet;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.plugin.DocumentAction;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
@@ -17,26 +20,13 @@ import nl.naturalis.geneious.util.CommonUtils;
 /**
  * Framework-plumbing class used to import sample sheets.
  */
-public class SampleSheetDocumentAction extends DocumentAction {
+public class SampleSheetDocumentAction extends DocumentOperation {
 
-  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentAction.class);
 
   public SampleSheetDocumentAction() {
     super();
   }
-
-  @Override
-  public void actionPerformed(AnnotatedPluginDocument[] docs) {
-    if (!CommonUtils.checkTargetFolderNotNull()) {
-      return;
-    }
-    new SampleSheetSelector(docs, this::forwardToImporter).show();
-  }
-
-//  public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-//    return null;
-//  }
 
   @Override
   public GeneiousActionOptions getActionOptions() {
@@ -57,11 +47,24 @@ public class SampleSheetDocumentAction extends DocumentAction {
     return new DocumentSelectionSignature[0];
   }
 
-  private void forwardToImporter(UserInput input) {
-    SampleSheetImporter importer = new SampleSheetImporter(input);
-    try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
-      importer.execute();
+  @Override
+  public Options getOptions(AnnotatedPluginDocument... documents) throws DocumentOperationException {
+    return new SampleSheetImportOptions(documents);
+  }
+
+  @Override
+  public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
+    if (CommonUtils.checkTargetFolderNotNull()) {
+      try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
+        SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
+        SampleSheetImporter importer = new SampleSheetImporter(opts.createImportConfig());
+        importer.execute();
+        return importer.get();
+      } catch (InterruptedException | ExecutionException e) {
+        guiLogger.fatal(e);
+      }
     }
+    return Collections.emptyList();
   }
 
 }

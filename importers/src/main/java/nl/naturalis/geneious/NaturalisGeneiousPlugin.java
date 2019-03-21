@@ -51,14 +51,14 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public DocumentAction[] getDocumentActions() {
     return new DocumentAction[] {
-        new SampleSheetDocumentAction()
+
     };
   }
 
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
-        new Ab1FastaDocumentOperation()
+        new Ab1FastaDocumentOperation(), new SampleSheetDocumentAction()
     };
   }
 

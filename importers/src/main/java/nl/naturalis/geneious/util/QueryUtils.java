@@ -29,10 +29,16 @@ public class QueryUtils {
   private QueryUtils() {}
 
   public static WritableDatabaseService getTargetDatabase() {
+    if (ServiceUtilities.getResultsDestination() == null) {
+      return null;
+    }
     return ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
   }
 
   public static String getTargetDatabaseName() {
+    if(getTargetDatabase()==null) {
+      return "<no database selected>";
+    }
     return getTargetDatabase().getFolderName();
   }
 
@@ -46,13 +52,13 @@ public class QueryUtils {
   }
 
   public static void deleteDocuments(Set<StoredDocument> dummies) throws DatabaseServiceException {
-    //String tmpFolderName = getTmpFolderName();
-    //WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
+    // String tmpFolderName = getTmpFolderName();
+    // WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
     for (StoredDocument d : dummies) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
-      //dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
+      // dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
-    //getTargetDatabase().removeChildFolder(tmpFolderName);
+    // getTargetDatabase().removeChildFolder(tmpFolderName);
   }
 
   private static NaturalisDatabaseService getNaturalisDbService() {

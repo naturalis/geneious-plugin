@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.note;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,7 +36,7 @@ import static nl.naturalis.geneious.PluginDataSource.SEQUENCE_NAME;
  */
 public enum NaturalisField {
 
-  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version", Integer.class, AUTO), // DocumentVersionCode_Seq
+  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version", AUTO), // DocumentVersionCode_Seq
 
   SEQ_EXTRACT_ID("ExtractIDCode_Seq", "Extract ID (Seq)", SEQUENCE_NAME), // ExtractIDCode_Seq
   SEQ_MARKER("MarkerCode_Seq", "Marker (Seq)", SEQUENCE_NAME), // MarkerCode_Seq
@@ -58,18 +57,18 @@ public enum NaturalisField {
                                                                                                         // actually used to annotate a
                                                                                                         // document
 
-  CRS_ALTITUDE("HeightCode_CRS", "Altitude (CRS)", Double.class, CRS), // HeightCode_CRS
+  CRS_ALTITUDE("HeightCode_CRS", "Altitude (CRS)", CRS), // HeightCode_CRS
   CRS_CLASS("ClassCode_CRS", "Class (CRS)", CRS), // ClassCode_CRS
   CRS_COLLECTOR("CollectorCode_CRS", "Leg (CRS)", CRS), // CollectorCode_CRS
   CRS_COUNTRY("CountryCode_CRS", "Country (CRS)", CRS), // CountryCode_CRS
-  CRS_DATE("CollectingDateCode_CRS", "Date (CRS)", LocalDateTime.class, CRS), // CollectingDateCode_CRS
+  CRS_DATE("CollectingDateCode_CRS", "Date (CRS)", CRS), // CollectingDateCode_CRS
   CRS_FAMILY("FamilyCode_CRS", "Family (CRS)", CRS), // FamilyCode_CRS
   CRS_FLAG("CRSCode_CRS", "CRS (CRS)", Boolean.class, CRS), // CRSCode_CRS
   CRS_GENUS("GenusCode_CRS", "Genus (CRS)", CRS), // GenusCode_CRS
   CRS_IDENTIFIER("IdentifierCode_CRS", "Identifier (CRS)", CRS), // IdentifierCode_CRS
-  CRS_LATITUDE("LatitudeDecimalCode_CRS", "Lat (CRS)", Double.class, CRS), // LatitudeDecimalCode_CRS
+  CRS_LATITUDE("LatitudeDecimalCode_CRS", "Lat (CRS)", CRS), // LatitudeDecimalCode_CRS
   CRS_LOCALITY("LocalityCode_CRS", "Locality (CRS)", CRS), // LocalityCode_CRS
-  CRS_LONGITUDE("LongitudeDecimalCode_CRS", "Long (CRS)", Double.class, CRS), // LongitudeDecimalCode_CRS
+  CRS_LONGITUDE("LongitudeDecimalCode_CRS", "Long (CRS)", CRS), // LongitudeDecimalCode_CRS
   CRS_ORDER("OrderCode_CRS", "Order (CRS)", CRS), // OrderCode_CRS
   CRS_PHYLUM("PhylumCode_CRS", "Phylum (CRS)", CRS), // PhylumCode_CRS
   CRS_REGION("StateOrProvinceBioRegionCode_CRS", "Region (CRS)", CRS), // StateOrProvinceBioRegionCode_CRS
@@ -166,7 +165,12 @@ public enum NaturalisField {
 
   @SuppressWarnings("unchecked")
   public <T> T cast(Object val) {
-    return (T) type.cast(val);
+    try {
+      return (T) type.cast(val);
+    } catch (ClassCastException e) {
+      guiLogger.error("Field: %s; Value: %s; MyType: %s; ValType: %s", name(), val, type, val.getClass());
+      return null;
+    }
   }
 
   public <T> T readFrom(AnnotatedPluginDocument document) {

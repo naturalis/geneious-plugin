@@ -12,8 +12,6 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
 
 /**
@@ -25,8 +23,8 @@ public class DocumentResultSetInspector {
 
   // Sort descending on document version or creation date
   private static Comparator<StoredDocument> comparator = (doc1, doc2) -> {
-    Integer v1 = doc1.getNaturalisNote().get(DOCUMENT_VERSION);
-    Integer v2 = doc2.getNaturalisNote().get(DOCUMENT_VERSION);
+    Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
+    Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
     if (v1 == null) {
       if (v2 != null) {
         return -1; // Prefer anything over null
@@ -83,7 +81,7 @@ public class DocumentResultSetInspector {
   private void cacheDocuments(Collection<AnnotatedPluginDocument> documents) {
     for (AnnotatedPluginDocument document : documents) {
       StoredDocument doc = new StoredDocument(document);
-      String extractId = doc.getNaturalisNote().get(SMPL_EXTRACT_ID);
+      String extractId = doc.getNaturalisNote().getExtractId();
       switch (doc.getType()) {
         case AB1:
         case FASTA:

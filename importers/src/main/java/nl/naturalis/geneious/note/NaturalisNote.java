@@ -43,19 +43,26 @@ public final class NaturalisNote {
   }
 
   public Integer getDocumentVersion() {
-    return get(NaturalisField.DOCUMENT_VERSION);
+    String val = get(NaturalisField.DOCUMENT_VERSION);
+    return val == null ? null : Integer.valueOf(val);
   }
 
-  public void setDocumentVersion(Integer version) {
+  public void setDocumentVersion(int version) {
     data.put(NaturalisField.DOCUMENT_VERSION, version);
   }
 
-  public void incrementDocumentVersion(Integer nullValue) {
+  public void setDocumentVersion(String version) {
+    data.put(NaturalisField.DOCUMENT_VERSION, version);
+  }
+
+  public void incrementDocumentVersion(int whenNull) {
     Integer version = getDocumentVersion();
     if (version == null) {
-      version = nullValue;
+      data.put(NaturalisField.DOCUMENT_VERSION, String.valueOf(whenNull));
+    } else {
+      int i = version.intValue() + 1;
+      data.put(NaturalisField.DOCUMENT_VERSION, String.valueOf(i));
     }
-    setDocumentVersion(Integer.valueOf(version.intValue() + 1));
   }
 
   public void copyFrom(NaturalisNote other) {
