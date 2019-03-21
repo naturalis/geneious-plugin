@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +21,7 @@ public class SampleSheetImportOptions extends Options {
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.samplesheet.linesToSkip";
   private static final String SHEET_NAME = "nl.naturalis.geneious.samplesheet.sheetName";
 
-  private static final OptionValue EMPTY_SHEET_NAME = new OptionValue("", "--- choose when importing spreadsheet ---");
+  private static final OptionValue EMPTY_SHEET_NAME = new OptionValue("0", "--- only when importing spreadsheet ---");
 
   private final AnnotatedPluginDocument[] documents;
   private final FileSelectionOption sampleSheet;
@@ -31,12 +30,25 @@ public class SampleSheetImportOptions extends Options {
   private final ComboBoxOption<OptionValue> sheetName;
 
   public SampleSheetImportOptions(AnnotatedPluginDocument[] documents) {
+
     this.documents = documents;
+
     sampleSheet = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
     sampleSheet.setAllowMultipleSelection(false);
+    sampleSheet.setFillHorizontalSpace(true);
+    sampleSheet.setValue("");
+    sampleSheet.setDescription("Select a sample sheet to import (allowed formats: CSV, TSV, XLS, CLSX)");
+
     createDummies = addBooleanOption(CREATE_DUMMIES, "Create dummy sequences for new extract IDs", Boolean.TRUE);
+
     linesToSkip = addIntegerOption(LINES_TO_SKIP, "Lines to skip", 1, 0, Integer.MAX_VALUE);
-    sheetName = addComboBoxOption(SHEET_NAME, "Sample sheet", Arrays.asList(EMPTY_SHEET_NAME), EMPTY_SHEET_NAME);
+    linesToSkip.setDescription("Set to 0 when processing should start with first line in the selected file. "
+        + "Set to 1 if the file contains a header.");
+
+    sheetName = addComboBoxOption(SHEET_NAME, "Sheet name", Arrays.asList(EMPTY_SHEET_NAME), EMPTY_SHEET_NAME);
+    sheetName.setFillHorizontalSpace(true);
+    sheetName.setDescription("The name of the sheet (a.k.s. tab) within the spreadsheet.");
+
     sampleSheet.addChangeListener(() -> {
       String fileName = sampleSheet.getValue();
       if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
@@ -61,8 +73,8 @@ public class SampleSheetImportOptions extends Options {
     });
   }
 
-  UserInput createImportConfig() {
-    UserInput cfg = new UserInput(documents);
+  SampleSheetImportConfig createImportConfig() {
+    SampleSheetImportConfig cfg = new SampleSheetImportConfig(documents);
     cfg.setCreateDummies(createDummies.isEnabled());
     cfg.setFile(new File(sampleSheet.getValue()));
     cfg.setSkipLines(linesToSkip.getValue());

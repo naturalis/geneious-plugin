@@ -35,7 +35,7 @@ import static nl.naturalis.geneious.gui.GridBagFormUtil.createOKCancelPanel;
 class SampleSheetSelector {
 
   private final AnnotatedPluginDocument[] selectedDocuments;
-  private final Consumer<UserInput> inputProcessor;
+  private final Consumer<SampleSheetImportConfig> inputProcessor;
 
   private JDialog dialog;
   private JTextField fileTextField;
@@ -49,7 +49,7 @@ class SampleSheetSelector {
    * @param docs The Geneious documents selected by the user.
    * @param inputProcessor. Something capable of processing the input collected by this {@code SampleSheetSelector}
    */
-  SampleSheetSelector(AnnotatedPluginDocument[] docs, Consumer<UserInput> inputProcessor) {
+  SampleSheetSelector(AnnotatedPluginDocument[] docs, Consumer<SampleSheetImportConfig> inputProcessor) {
     this.selectedDocuments = docs;
     this.inputProcessor = inputProcessor;
   }
@@ -136,7 +136,7 @@ class SampleSheetSelector {
       showError("No documents selected", "Please select at least one document or check \"Create dummies\"");
       return;
     }
-    UserInput input = new UserInput(selectedDocuments);
+    SampleSheetImportConfig input = new SampleSheetImportConfig(selectedDocuments);
     input.setFile(file);
     input.setCreateDummies(dummiesCheckBox.isSelected());
     try {

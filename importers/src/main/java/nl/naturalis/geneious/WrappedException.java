@@ -35,7 +35,7 @@ public class WrappedException extends RuntimeException {
 
   @Override
   public StackTraceElement[] getStackTrace() {
-    return super.getStackTrace();
+    return getCause().getStackTrace();
   }
 
 }

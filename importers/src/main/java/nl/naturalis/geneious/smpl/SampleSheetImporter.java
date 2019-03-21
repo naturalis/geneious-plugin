@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,20 +11,15 @@ import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
-import com.univocity.parsers.tsv.TsvParser;
-import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.WrappedException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.DummySequenceDocument;
 import nl.naturalis.geneious.util.QueryUtils;
-import nl.naturalis.geneious.util.SpreadSheetReader;
+import nl.naturalis.geneious.util.RowIterator;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -38,10 +32,10 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
-  private final UserInput input;
+  private final SampleSheetImportConfig cfg;
 
-  SampleSheetImporter(UserInput input) {
-    this.input = input;
+  SampleSheetImporter(SampleSheetImportConfig cfg) {
+    this.cfg = cfg;
   }
 
   /**
@@ -55,14 +49,14 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
   }
 
   private List<AnnotatedPluginDocument> importSampleSheet() throws DatabaseServiceException {
-    List<String[]> rows = loadSampleSheet(input.getFile());
-    if (input.isCreateDummies()) {
-      return enrichOrCreateDummies(rows);
+    if (cfg.isCreateDummies()) {
+      return enrichOrCreateDummies();
     }
-    return enrichOnly(rows);
+    return enrichOnly();
   }
 
-  private List<AnnotatedPluginDocument> enrichOrCreateDummies(List<String[]> rows) throws DatabaseServiceException {
+  private List<AnnotatedPluginDocument> enrichOrCreateDummies() throws DatabaseServiceException {
+    List<String[]> rows = new RowIterator(cfg).getAllRows();
     // Create a lookup table for the selected documents (using extract ID as key)
     Map<String, StoredDocument> selectedDocuments = createLookupTable();
     // Find new extract IDs in sample sheet (rows containing them will become dummies)
@@ -73,7 +67,7 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
       if (row.isEmpty()) {
         final int rowNum = i;
-        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", (rowNum + input.getSkipLines())));
+        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", (rowNum + cfg.getSkipLines())));
         ++bad;
         continue;
       }
@@ -102,14 +96,15 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
     }
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
+    guiLogger.info("Number of documents selected: %s", cfg.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Number of dummy documents created: %s", dummies);
     guiLogger.info("Import completed successfully");
     return updatesOrDummies;
   }
 
-  private List<AnnotatedPluginDocument> enrichOnly(List<String[]> rows) {
+  private List<AnnotatedPluginDocument> enrichOnly() {
+    List<String[]> rows = new RowIterator(cfg).getAllRows();
     Map<String, StoredDocument> selectedDocuments = createLookupTable();
     List<AnnotatedPluginDocument> updates = new ArrayList<>(selectedDocuments.size());
     int good = 0, bad = 0, enriched = 0;
@@ -139,7 +134,7 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
     }
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", input.getSelectedDocuments().length);
+    guiLogger.info("Number of documents selected: %s", cfg.getSelectedDocuments().length);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Import completed successfully");
     return updates;
@@ -176,42 +171,13 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
     return allIdsInSheet;
   }
 
-  private List<String[]> loadSampleSheet(File sampleSheet) {
-    guiLogger.info("Loading sample sheet: %s", sampleSheet.getAbsolutePath());
-    List<String[]> rows;
-    try {
-      if (sampleSheet.getName().endsWith(".xls") || sampleSheet.getName().endsWith(".xlsx")) {
-        SpreadSheetReader ssr = new SpreadSheetReader(sampleSheet);
-        ssr.setSheetNumber(input.getSheetNumber() - 1);
-        ssr.setSkipRows(input.getSkipLines());
-        rows = ssr.readAllRows();
-      } else if (sampleSheet.getName().endsWith(".csv")) {
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.getFormat().setLineSeparator("\n");
-        settings.setNumberOfRowsToSkip(input.getSkipLines());
-        CsvParser parser = new CsvParser(settings);
-        rows = parser.parseAll(sampleSheet);
-      } else {
-        TsvParserSettings settings = new TsvParserSettings();
-        settings.getFormat().setLineSeparator("\n");
-        settings.setNumberOfRowsToSkip(input.getSkipLines());
-        TsvParser parser = new TsvParser(settings);
-        rows = parser.parseAll(sampleSheet);
-      }
-      guiLogger.debugf(() -> format("Number of rows in sample sheet: %s", rows.size()));
-      return rows;
-    } catch (Throwable t) {
-      throw new WrappedException("Error loading sample sheet", t);
-    }
-  }
-
   /*
    * Create a lookup table that maps the extract IDs of the selected documents to the selected documents themselves.
    */
   private Map<String, StoredDocument> createLookupTable() {
-    int numSelected = input.getSelectedDocuments().length;
+    int numSelected = cfg.getSelectedDocuments().length;
     Map<String, StoredDocument> map = new HashMap<>(numSelected, 1F);
-    for (AnnotatedPluginDocument doc : input.getSelectedDocuments()) {
+    for (AnnotatedPluginDocument doc : cfg.getSelectedDocuments()) {
       NaturalisNote note = new NaturalisNote(doc);
       StoredDocument sd = new StoredDocument(doc, note);
       String extractId = note.getExtractId();
