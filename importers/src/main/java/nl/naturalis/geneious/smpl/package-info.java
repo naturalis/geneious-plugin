@@ -1,5 +1,5 @@
 /**
- * 
+ * Classes and interfaces implementing sample sheet import.
  */
 /**
  * @author Ayco Holleman
