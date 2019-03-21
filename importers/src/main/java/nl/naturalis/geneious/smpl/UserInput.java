@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;
 
 import java.io.File;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;

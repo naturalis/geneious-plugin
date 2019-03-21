@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;
 
 public class InvalidRowException extends Exception {
 

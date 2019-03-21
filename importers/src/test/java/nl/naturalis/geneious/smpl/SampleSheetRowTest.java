@@ -1,9 +1,11 @@
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;
 
 import com.biomatters.geneious.publicapi.plugin.TestGeneious;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import nl.naturalis.geneious.smpl.SampleSheetRow;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;
 
 import java.util.Collections;
 import java.util.List;

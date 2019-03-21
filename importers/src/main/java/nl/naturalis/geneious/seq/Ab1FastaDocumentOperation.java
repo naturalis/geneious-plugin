@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.trace;
+package nl.naturalis.geneious.seq;
 
 import java.util.Collections;
 import java.util.List;

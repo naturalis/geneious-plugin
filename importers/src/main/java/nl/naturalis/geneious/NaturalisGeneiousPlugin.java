@@ -13,8 +13,8 @@ import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
-import nl.naturalis.geneious.samplesheet.SampleSheetDocumentAction;
-import nl.naturalis.geneious.trace.Ab1FastaDocumentOperation;
+import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
+import nl.naturalis.geneious.smpl.SampleSheetDocumentAction;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 

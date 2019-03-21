@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;
 
 import java.awt.Dimension;
 import java.awt.GridBagLayout;

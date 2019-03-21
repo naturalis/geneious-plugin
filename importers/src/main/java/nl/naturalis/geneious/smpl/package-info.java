@@ -5,4 +5,4 @@
  * @author Ayco Holleman
  *
  */
-package nl.naturalis.geneious.samplesheet;
+package nl.naturalis.geneious.smpl;

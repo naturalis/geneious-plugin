@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.tracefile;
+package nl.naturalis.geneious.seq;
 
 import com.biomatters.geneious.publicapi.plugin.TestGeneious;
 

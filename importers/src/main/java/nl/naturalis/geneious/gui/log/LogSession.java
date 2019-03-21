@@ -6,7 +6,7 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.GeneiousGUI;
-import nl.naturalis.geneious.trace.Ab1FastaDocumentOperation;
+import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
 
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
