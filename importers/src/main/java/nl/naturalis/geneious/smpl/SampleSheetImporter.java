@@ -69,8 +69,10 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
       final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty record at line %s", rowNum));
-        ++bad;
+        if (i != rows.size() - 1) { // Let's not count a last empty line as a bad record
+          guiLogger.debugf(() -> format("Ignoring empty record at line %s", rowNum));
+          ++bad;
+        }
         continue;
       }
       NaturalisNote note;

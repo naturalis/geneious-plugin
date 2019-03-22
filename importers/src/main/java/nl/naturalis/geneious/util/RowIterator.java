@@ -1,6 +1,9 @@
 package nl.naturalis.geneious.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +13,7 @@ import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.CsvImportConfig;
 import nl.naturalis.geneious.NaturalisPluginException;
@@ -22,7 +26,7 @@ public class RowIterator implements Iterable<String[]> {
   public RowIterator(CsvImportConfig config) {
     this.cfg = config;
   }
-  
+
   public List<String[]> getAllRows() {
     File file = cfg.getFile();
     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
@@ -48,11 +52,10 @@ public class RowIterator implements Iterable<String[]> {
       } else {
         throw new NaturalisPluginException("Unknown file type: *." + ext);
       }
-      return rows;
+      return removeTrailingEmptyRows(rows);
     } catch (Throwable t) {
       throw new WrappedException(t);
     }
-    
   }
 
   @Override
@@ -85,6 +88,23 @@ public class RowIterator implements Iterable<String[]> {
     } catch (Throwable t) {
       throw new WrappedException(t);
     }
+  }
+
+  private static List<String[]> removeTrailingEmptyRows(List<String[]> rows) {
+    if (rows.size() != 0) {
+      List<String[]> trimmed = new ArrayList<>(rows);
+      int i;
+      for (i = trimmed.size() - 1; i != 0; --i) {
+        if (Arrays.stream(trimmed.get(i)).filter(StringUtils::isNotBlank).findFirst().isPresent()) {
+          break;
+        }
+      }
+      if (i != trimmed.size() - 1) {
+        trimmed = trimmed.subList(i, trimmed.size());
+        return trimmed;
+      }
+    }
+    return rows;
   }
 
 }

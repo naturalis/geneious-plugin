@@ -20,7 +20,6 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
  */
 class SampleSheetRow {
 
-
   static final int COLNO_EXTRACT_PLATE_ID = 0;
   static final int COLNO_PLATE_POSITION = 1;
   static final int COLNO_SAMPLE_PLATE_ID = 2;
