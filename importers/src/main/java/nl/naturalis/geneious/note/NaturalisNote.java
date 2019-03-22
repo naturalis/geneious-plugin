@@ -1,6 +1,7 @@
 package nl.naturalis.geneious.note;
 
 import java.util.EnumMap;
+import java.util.Map;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
@@ -69,8 +70,16 @@ public final class NaturalisNote {
     data.putAll(other.data);
   }
 
-  public void copyTo(NaturalisNote other) {
-    other.data.putAll(data);
+  public boolean copyTo(NaturalisNote other) {
+    boolean changed = false;
+    for (Map.Entry<NaturalisField, Object> entry : other.data.entrySet()) {
+      Object myValue = data.get(entry.getKey());
+      if (myValue == null || !myValue.equals(entry.getValue())) {
+        data.put(entry.getKey(), entry.getValue());
+        changed = true;
+      }
+    }
+    return changed;
   }
 
   public void readFrom(AnnotatedPluginDocument document) {
@@ -88,9 +97,12 @@ public final class NaturalisNote {
     notes.saveNotes();
   }
 
-  public void saveTo(StoredDocument document) {
-    copyTo(document.getNaturalisNote());
-    saveTo(document.getGeneiousDocument());
+  public boolean saveTo(StoredDocument document) {
+    if (copyTo(document.getNaturalisNote())) {
+      saveTo(document.getGeneiousDocument());
+      return true;
+    }
+    return false;
   }
 
 }

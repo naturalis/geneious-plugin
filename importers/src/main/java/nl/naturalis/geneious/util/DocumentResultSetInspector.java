@@ -22,7 +22,7 @@ public class DocumentResultSetInspector {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentResultSetInspector.class);
 
   // Sort descending on document version or creation date
-  private static Comparator<StoredDocument> comparator = (doc1, doc2) -> {
+  public static Comparator<StoredDocument> comparator = (doc1, doc2) -> {
     Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
     Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
     if (v1 == null) {

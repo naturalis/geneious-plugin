@@ -1,5 +1,6 @@
 package nl.naturalis.geneious.util;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -42,7 +43,7 @@ public class QueryUtils {
     return getTargetDatabase().getFolderName();
   }
 
-  public static List<AnnotatedPluginDocument> findByExtractID(Set<String> extractIds) throws DatabaseServiceException {
+  public static List<AnnotatedPluginDocument> findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
     if (extractIds.size() == 0) {
       return Collections.emptyList();
     }

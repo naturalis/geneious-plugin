@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +16,13 @@ import org.apache.commons.lang3.StringUtils;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.DummySequenceDocument;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.RowIterator;
 import nl.naturalis.geneious.util.StoredDocument;
+import nl.naturalis.geneious.util.StoredDocumentList;
+import nl.naturalis.geneious.util.StoredDocumentLookupTable;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
@@ -28,7 +30,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
+class SampleSheetImporter extends SwingWorker<APDList, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
@@ -44,30 +46,30 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
    * does not exist yet.
    */
   @Override
-  protected List<AnnotatedPluginDocument> doInBackground() throws DatabaseServiceException {
+  protected APDList doInBackground() throws DatabaseServiceException {
     return importSampleSheet();
   }
 
-  private List<AnnotatedPluginDocument> importSampleSheet() throws DatabaseServiceException {
+  private APDList importSampleSheet() throws DatabaseServiceException {
     if (cfg.isCreateDummies()) {
       return enrichOrCreateDummies();
     }
     return enrichOnly();
   }
 
-  private List<AnnotatedPluginDocument> enrichOrCreateDummies() throws DatabaseServiceException {
+  private APDList enrichOrCreateDummies() throws DatabaseServiceException {
     List<String[]> rows = new RowIterator(cfg).getAllRows();
     // Create a lookup table for the selected documents (using extract ID as key)
-    Map<String, StoredDocument> selectedDocuments = createLookupTable();
+    StoredDocumentLookupTable selectedDocuments = new StoredDocumentLookupTable(cfg.getSelectedDocuments());
     // Find new extract IDs in sample sheet (rows containing them will become dummies)
     Set<String> newExtractIds = getNewExtractIds(rows, selectedDocuments.keySet());
-    List<AnnotatedPluginDocument> updatesOrDummies = new ArrayList<AnnotatedPluginDocument>(rows.size());
-    int good = 0, bad = 0, enriched = 0, dummies = 0;
+    APDList updatesOrDummies = new APDList(rows.size());
+    int good = 0, bad = 0, updated = 0, newDummies = 0, updatedDummies = 0, unused = 0;
     for (int i = 0; i < rows.size(); ++i) {
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
+      final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
-        final int rowNum = i;
-        guiLogger.debugf(() -> format("Ignoring empty record (line %s)", (rowNum + cfg.getSkipLines())));
+        guiLogger.debugf(() -> format("Ignoring empty record at line %s", rowNum));
         ++bad;
         continue;
       }
@@ -80,33 +82,54 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
         continue;
       }
       ++good;
-      StoredDocument document = selectedDocuments.get(note.getExtractId());
-      if (document == null) { // sample sheet row does not correspond to a user-selected document
+      StoredDocumentList docs = selectedDocuments.get(note.getExtractId());
+      if (docs == null) {
+        // The sample sheet row does not correspond to any user-selected document
         if (newExtractIds.contains(note.get(SMPL_EXTRACT_ID))) {
+          // It is inf fact a completely new extract ID. Create a dummy.
           guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
           updatesOrDummies.add(new DummySequenceDocument(note).wrap());
-          ++dummies;
+          ++newDummies;
+        } else {
+          ++unused;
+          guiLogger.debugf(() -> format("Sample sheet row %s (extract ID %s) corresponds to one or more existing "
+              + " documents, but they were not selected and will not be updated", rowNum, note.getExtractId()));
         }
       } else {
-        guiLogger.debugf(() -> format("Enriching document with extract ID %s", note.getExtractId()));
-        note.saveTo(document);
-        updatesOrDummies.add(document.getGeneiousDocument());
-        ++enriched;
+        guiLogger.debugf(() -> format("Enriching selected documents with extract ID %s", note.getExtractId()));
+        for (StoredDocument doc : docs) {
+          if (note.saveTo(doc)) {
+            updatesOrDummies.add(doc.getGeneiousDocument());
+            ++updated;
+            if (doc.isDummy()) {
+              ++updatedDummies;
+            }
+          }
+        }
       }
     }
+    int numSelected = cfg.getSelectedDocuments().length;
+    int numUnaffected = numSelected - updated - updatedDummies;
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", cfg.getSelectedDocuments().length);
-    guiLogger.info("Number of documents enriched: %s", enriched);
-    guiLogger.info("Number of dummy documents created: %s", dummies);
+    guiLogger.info("Number of selected documents: %s", cfg.getSelectedDocuments().length);
+    if (updatedDummies == 0) {
+      guiLogger.info("Number selected of documents updated by sample sheet: %s", updated);
+    } else {
+      guiLogger.info("Number selected of documents updated by sample sheet: %s (of which dummies: %s)", updated, updatedDummies);
+    }
+    guiLogger.info("Number of selected documents not updated by sample sheet: %s", numUnaffected);
+    guiLogger.info("Number of dummy documents created: %s", newDummies);
+    guiLogger.info("Number of unused rows (corresponding to existing but not-selected documents): %s", unused);
     guiLogger.info("Import completed successfully");
     return updatesOrDummies;
   }
 
-  private List<AnnotatedPluginDocument> enrichOnly() {
+  private APDList enrichOnly() {
     List<String[]> rows = new RowIterator(cfg).getAllRows();
     Map<String, StoredDocument> selectedDocuments = createLookupTable();
-    List<AnnotatedPluginDocument> updates = new ArrayList<>(selectedDocuments.size());
+    int numSelected = cfg.getSelectedDocuments().length;
+    APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, enriched = 0;
     SampleSheetRow row;
     for (int i = 1; i < rows.size(); ++i) {
@@ -134,7 +157,7 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
     }
     guiLogger.info("Number of valid records in sample sheet: %s", good);
     guiLogger.info("Number of empty/bad records in sample sheet: %s", bad);
-    guiLogger.info("Number of documents selected: %s", cfg.getSelectedDocuments().length);
+    guiLogger.info("Number of documents selected: %s", numSelected);
     guiLogger.info("Number of documents enriched: %s", enriched);
     guiLogger.info("Import completed successfully");
     return updates;
@@ -148,7 +171,7 @@ class SampleSheetImporter extends SwingWorker<List<AnnotatedPluginDocument>, Voi
    * query, thus making the query a bit more light-weight.
    */
   private static Set<String> getNewExtractIds(List<String[]> rows, Set<String> selectedIds) throws DatabaseServiceException {
-    guiLogger.debug(() -> "Marking rows with new extract IDs (will become dummy documents)");
+    guiLogger.debug(() -> "Marking rows with new extract IDs (will become dummy sequences)");
     Set<String> allIdsInSheet = new HashSet<>(rows.size(), 1F);
     Set<String> nonSelectedIds = new HashSet<>(rows.size(), 1F);
     int colno = SampleSheetRow.COLNO_EXTRACT_ID;
