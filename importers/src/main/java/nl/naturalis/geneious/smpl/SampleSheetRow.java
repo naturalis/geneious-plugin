@@ -13,7 +13,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.*;
 
 /**
  * Represents a single row within a sample sheet and functions as a producer of {@link NaturalisNote} instances.
@@ -70,7 +70,8 @@ class SampleSheetRow {
       throw invalidColumnCount(rowNum, cells);
     }
     NaturalisNote note = new NaturalisNote();
-    note.parseAndSet(SMPL_EXTRACT_ID, processExtractId());
+    String extractId = processExtractId();
+    note.parseAndSet(SMPL_EXTRACT_ID, extractId);
     note.parseAndSet(SMPL_SAMPLE_PLATE_ID, processSamplePlateId());
     note.parseAndSet(SMPL_EXTRACT_PLATE_ID, processExtractPlateId());
     note.parseAndSet(SMPL_PLATE_POSITION, processPlatePosition());

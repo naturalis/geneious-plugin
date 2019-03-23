@@ -2,20 +2,16 @@ package nl.naturalis.geneious.util;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.Query;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
-import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.NaturalisDatabaseService;
 
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
@@ -37,34 +33,29 @@ public class QueryUtils {
   }
 
   public static String getTargetDatabaseName() {
-    if(getTargetDatabase()==null) {
+    if (getTargetDatabase() == null) {
       return "<no database selected>";
     }
     return getTargetDatabase().getFolderName();
   }
 
-  public static List<AnnotatedPluginDocument> findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
+  public static APDList findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
     if (extractIds.size() == 0) {
-      return Collections.emptyList();
+      return APDList.emptyList();
     }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
-    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
+    return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
   }
 
   public static void deleteDocuments(Set<StoredDocument> dummies) throws DatabaseServiceException {
-    // String tmpFolderName = getTmpFolderName();
-    // WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
+    String tmpFolderName = getTmpFolderName();
+    WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
     for (StoredDocument d : dummies) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
-      // dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
+      dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
-    // getTargetDatabase().removeChildFolder(tmpFolderName);
-  }
-
-  private static NaturalisDatabaseService getNaturalisDbService() {
-    GeneiousService svc = ServiceUtilities.getService(NaturalisDatabaseService.UNIQUE_ID);
-    return (NaturalisDatabaseService) svc;
+    getTargetDatabase().removeChildFolder(tmpFolderName);
   }
 
   private static String getTmpFolderName() {

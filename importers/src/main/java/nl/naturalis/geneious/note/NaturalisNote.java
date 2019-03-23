@@ -8,6 +8,10 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.Docum
 
 import nl.naturalis.geneious.util.StoredDocument;
 
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+
 public final class NaturalisNote {
 
   private final EnumMap<NaturalisField, Object> data;
@@ -40,29 +44,29 @@ public final class NaturalisNote {
   }
 
   public String getExtractId() {
-    return get(NaturalisField.SMPL_EXTRACT_ID);
+    return (String) data.getOrDefault(SEQ_EXTRACT_ID, data.get(SMPL_EXTRACT_ID));
   }
 
   public Integer getDocumentVersion() {
-    String val = get(NaturalisField.DOCUMENT_VERSION);
+    String val = get(DOCUMENT_VERSION);
     return val == null ? null : Integer.valueOf(val);
   }
 
   public void setDocumentVersion(int version) {
-    data.put(NaturalisField.DOCUMENT_VERSION, version);
+    data.put(DOCUMENT_VERSION, version);
   }
 
   public void setDocumentVersion(String version) {
-    data.put(NaturalisField.DOCUMENT_VERSION, version);
+    data.put(DOCUMENT_VERSION, version);
   }
 
   public void incrementDocumentVersion(int whenNull) {
     Integer version = getDocumentVersion();
     if (version == null) {
-      data.put(NaturalisField.DOCUMENT_VERSION, String.valueOf(whenNull));
+      data.put(DOCUMENT_VERSION, String.valueOf(whenNull));
     } else {
       int i = version.intValue() + 1;
-      data.put(NaturalisField.DOCUMENT_VERSION, String.valueOf(i));
+      data.put(DOCUMENT_VERSION, String.valueOf(i));
     }
   }
 
@@ -72,10 +76,10 @@ public final class NaturalisNote {
 
   public boolean copyTo(NaturalisNote other) {
     boolean changed = false;
-    for (Map.Entry<NaturalisField, Object> entry : other.data.entrySet()) {
-      Object myValue = data.get(entry.getKey());
-      if (myValue == null || !myValue.equals(entry.getValue())) {
-        data.put(entry.getKey(), entry.getValue());
+    for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+      Object val = other.data.get(e.getKey());
+      if (val == null || !val.equals(e.getValue())) {
+        other.data.put(e.getKey(), e.getValue());
         changed = true;
       }
     }
@@ -100,6 +104,7 @@ public final class NaturalisNote {
   public boolean saveTo(StoredDocument document) {
     if (copyTo(document.getNaturalisNote())) {
       saveTo(document.getGeneiousDocument());
+      document.getGeneiousDocument().save();
       return true;
     }
     return false;

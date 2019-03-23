@@ -7,7 +7,13 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 public class APDList extends ArrayList<AnnotatedPluginDocument> {
 
-  public APDList() {}
+  public static APDList emptyList() {
+    return new APDList(0);
+  }
+
+  public APDList() {
+    super();
+  }
 
   public APDList(int initialCapacity) {
     super(initialCapacity);
@@ -15,6 +21,11 @@ public class APDList extends ArrayList<AnnotatedPluginDocument> {
 
   public APDList(Collection<? extends AnnotatedPluginDocument> c) {
     super(c);
+  }
+
+  public APDList and(APDList other) {
+    addAll(other);
+    return this;
   }
 
 }
