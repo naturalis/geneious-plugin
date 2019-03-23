@@ -5,6 +5,11 @@ import java.util.Collection;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+/**
+ * Extesion of oft-used @code ArrayList} just to make code somewhat less verbose.
+ *
+ * @author Ayco Holleman
+ */
 public class APDList extends ArrayList<AnnotatedPluginDocument> {
 
   public static APDList emptyList() {

@@ -53,7 +53,7 @@ public final class NaturalisNote {
   }
 
   public void setDocumentVersion(int version) {
-    data.put(DOCUMENT_VERSION, version);
+    data.put(DOCUMENT_VERSION, String.valueOf(version));
   }
 
   public void setDocumentVersion(String version) {

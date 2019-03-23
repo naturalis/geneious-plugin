@@ -32,8 +32,8 @@ class SampleSheetRow {
 
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
   private static final String ERR_CELL_COUNT = ERR_BASE + "Invalid number of columns: %s";
-  private static final String ERR_MISSING_VALUE = ERR_BASE + "Missing value for field %s";
-  private static final String ERR_INVALID_VALUE = ERR_BASE + "Invalid value for field %s: \"%s\"";
+  private static final String ERR_MISSING_VALUE = ERR_BASE + "Missing value for %s";
+  private static final String ERR_INVALID_VALUE = ERR_BASE + "Invalid value for %s: \"%s\"";
 
   private final int rowNum;
   private final String[] cells;

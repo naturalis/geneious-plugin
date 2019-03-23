@@ -20,11 +20,11 @@ import nl.naturalis.geneious.util.CommonUtils;
 /**
  * Framework-plumbing class used to import sample sheets.
  */
-public class SampleSheetDocumentAction extends DocumentOperation {
+public class SampleSheetDocumentOperation extends DocumentOperation {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentAction.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentOperation.class);
 
-  public SampleSheetDocumentAction() {
+  public SampleSheetDocumentOperation() {
     super();
   }
 
@@ -39,7 +39,7 @@ public class SampleSheetDocumentAction extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Enriches documents using data from sample sheets";
+    return "Updates documents using data from sample sheets";
   }
 
   @Override
@@ -48,12 +48,14 @@ public class SampleSheetDocumentAction extends DocumentOperation {
   }
 
   @Override
-  public Options getOptions(AnnotatedPluginDocument... documents) throws DocumentOperationException {
-    return new SampleSheetImportOptions(documents);
+  public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
+    System.out.println("XXXXXXX: " + docs.length);
+    return new SampleSheetImportOptions(docs);
   }
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
+    System.out.println("YYYYYYY: " + docs.length);
     if (CommonUtils.checkTargetFolderNotNull()) {
       try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
         SampleSheetImportOptions opts = (SampleSheetImportOptions) options;

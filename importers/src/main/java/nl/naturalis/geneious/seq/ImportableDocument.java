@@ -12,7 +12,6 @@ import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 
 /**
  * A simple combination of an {@link AnnotatedPluginDocument} class and a {@code SequenceInfo} object that will be used to supply the
@@ -63,8 +62,8 @@ class ImportableDocument {
   StoredDocument annotate(DocumentResultSetInspector inspector) {
     guiLogger.debugf(() -> format("Annotating \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
-    String extractID = note.get(SEQ_EXTRACT_ID);
-    Optional<StoredDocument> opt = inspector.find(extractID, sequenceInfo.getDocumentType());
+    String extractId = note.getExtractId();
+    Optional<StoredDocument> opt = inspector.find(extractId, sequenceInfo.getDocumentType());
     StoredDocument previous = null;
     if (opt.isPresent()) {
       previous = opt.get();
@@ -72,7 +71,7 @@ class ImportableDocument {
       note.incrementDocumentVersion(1);
     } else {
       note.setDocumentVersion(0);
-      opt = inspector.findDummy(extractID);
+      opt = inspector.findDummy(extractId);
       if (opt.isPresent()) {
         previous = opt.get();
         note.readFrom(previous.getGeneiousDocument());

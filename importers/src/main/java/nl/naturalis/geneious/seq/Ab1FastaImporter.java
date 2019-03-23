@@ -3,27 +3,25 @@ package nl.naturalis.geneious.seq;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.StoredDocument;
+import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.QueryUtils;
+import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-class Ab1FastaImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> {
+class Ab1FastaImporter extends SwingWorker<APDList, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaImporter.class);
 
@@ -39,7 +37,7 @@ class Ab1FastaImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> 
   }
 
   @Override
-  protected List<AnnotatedPluginDocument> doInBackground() {
+  protected APDList doInBackground() {
     return importTraceFiles();
   }
 
@@ -50,7 +48,7 @@ class Ab1FastaImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> 
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  private List<AnnotatedPluginDocument> importTraceFiles() {
+  private APDList importTraceFiles() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
       Ab1Importer ab1Importer = null;
@@ -78,31 +76,33 @@ class Ab1FastaImporter extends SwingWorker<List<AnnotatedPluginDocument>, Void> 
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {
-        guiLogger.info("Number of AB1 files selected ...........: %3d", ab1s.size());
-        guiLogger.info("Number of chromatograms created ........: %3d", (processed = ab1Importer.getNumProcessed()));
-        guiLogger.info("Number of chromatograms rejected .......: %3d", (rejected = ab1Importer.getNumRejected()));
-        guiLogger.info("Number of chromatograms imported .......: %3d", (imported = ab1Importer.getNumImported()));
+        guiLogger.info("Number of AB1 files selected ..........: %3d", ab1s.size());
+        guiLogger.info("Number of AB1 documents created .......: %3d", (processed = ab1Importer.getNumProcessed()));
+        guiLogger.info("Number of AB1 documents rejected ......: %3d", (rejected = ab1Importer.getNumRejected()));
+        guiLogger.info("Number of AB1 documents imported ......: %3d", (imported = ab1Importer.getNumImported()));
       }
       if (fastaImporter != null) {
-        guiLogger.info("Number of fasta files selected .........: %3d", fastas.size());
-        guiLogger.info("Number of sequences created ............: %3d", (processed += fastaImporter.getNumProcessed()));
-        guiLogger.info("Number of sequences rejected ...........: %3d", (rejected += fastaImporter.getNumRejected()));
-        guiLogger.info("Number of sequences imported ...........: %3d", (imported += fastaImporter.getNumImported()));
+        guiLogger.info("Number of FASTA files selected ........: %3d", fastas.size());
+        guiLogger.info("Number of FASTA documents created .....: %3d", (processed += fastaImporter.getNumProcessed()));
+        guiLogger.info("Number of FASTA documents rejected ....: %3d", (rejected += fastaImporter.getNumRejected()));
+        guiLogger.info("Number of FASTA documents imported ....: %3d", (imported += fastaImporter.getNumImported()));
       }
       if (ab1Importer != null && fastaImporter != null) {
-        guiLogger.info("Total number of trace files selected ...: %3d", files.length);
-        guiLogger.info("Total number of documents created ......: %3d", processed);
-        guiLogger.info("Total number of documents rejected .....: %3d", rejected);
-        guiLogger.info("Total number of documents imported .....: %3d", imported);
+        guiLogger.info("Total number of files selected ........: %3d", files.length);
+        guiLogger.info("Total number of documents created .....: %3d", processed);
+        guiLogger.info("Total number of documents rejected ....: %3d", rejected);
+        guiLogger.info("Total number of documents imported ....: %3d", imported);
       }
       if (annotator != null) {
-        guiLogger.info("Total number of documents annotated ....: %3d", annotator.getSuccessCount());
-        guiLogger.info("Total number of annotation failures ....: %3d", annotator.getFailureCount());
+        guiLogger.info("Total number of documents annotated ...: %3d", annotator.getSuccessCount());
+        guiLogger.info("Total number of annotation failures ...: %3d", annotator.getFailureCount());
       }
-      return docs.stream().map(ImportableDocument::getGeneiousDocument).collect(Collectors.toList());
+      APDList result = new APDList(docs.size());
+      docs.forEach((d) -> result.add(d.getGeneiousDocument()));
+      return result;
     } catch (Throwable t) {
       guiLogger.fatal(t.getMessage(), t);
-      return Collections.emptyList();
+      return APDList.emptyList();
     }
   }
 

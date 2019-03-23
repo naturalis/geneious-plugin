@@ -14,7 +14,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
 import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
-import nl.naturalis.geneious.smpl.SampleSheetDocumentAction;
+import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
@@ -58,7 +58,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
-        new Ab1FastaDocumentOperation(), new SampleSheetDocumentAction()
+        new Ab1FastaDocumentOperation(), new SampleSheetDocumentOperation()
     };
   }
 

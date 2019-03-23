@@ -57,7 +57,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private APDList enrichOrCreateDummies() throws DatabaseServiceException {
-    guiLogger.info("Loading sample sheet");
+    guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
     guiLogger.info("Marking rows with new extract IDs");
@@ -92,10 +92,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
           ++unused;
         }
       } else {
-        guiLogger.debugf(() -> format("Updating document(s) with extract ID %s", note.getExtractId()));
         for (StoredDocument doc : docs0) {
           if (note.saveTo(doc)) {
-            updates.add(doc.getGeneiousDocument());
             if (doc.isDummy()) {
               ++updatedDummies;
             }
@@ -123,7 +121,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private APDList enrichOnly() {
-    guiLogger.info("Loading sample sheet");
+    guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
     StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
     int numSelected = cfg.getSelectedDocuments().length;
@@ -151,7 +149,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       if (docs == null) {
         ++unused;
       } else {
-        guiLogger.debugf(() -> format("Updating document(s) with extract ID %s", extractId));
         for (StoredDocument doc : docs) {
           if (note.saveTo(doc)) {
             updates.add(doc.getGeneiousDocument());
@@ -184,7 +181,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private static AnnotatedPluginDocument createDummy(NaturalisNote note) {
-    guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
     AnnotatedPluginDocument apd = new DummySequenceDocument(note).wrap();
     apd.save();
     return apd;

@@ -16,7 +16,6 @@ import nl.naturalis.geneious.util.DocumentResultSetInspector;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -50,7 +49,7 @@ class DocumentAnnotator {
     List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
     HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
-    annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().get(SEQ_EXTRACT_ID)));
+    annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
     guiLogger.debugf(() -> format("Searching database \"%s\" for stored documents with the same extract IDs", getTargetDatabaseName()));
     List<AnnotatedPluginDocument> docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
