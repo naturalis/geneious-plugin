@@ -12,8 +12,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
  */
 public class CsvImportConfig {
 
-  private  final List<AnnotatedPluginDocument> selectedDocuments;
-  
+  private final List<AnnotatedPluginDocument> selectedDocuments;
+
   private File file;
   private int skipLines;
   private int sheetNumber;

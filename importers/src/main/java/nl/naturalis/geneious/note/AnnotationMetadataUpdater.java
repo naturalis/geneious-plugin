@@ -16,7 +16,7 @@ public class AnnotationMetadataUpdater {
     }
     try (LogSession session = GuiLogManager.startSession("Update annotation metadata")) {
       for (NaturalisField field : NaturalisField.values()) {
-        field.saveOrUpdateDefinition();
+        field.saveOrUpdateNoteType();
       }
       guiLogger.info("Updated annotation metadata for database \"%s\"", QueryUtils.getTargetDatabaseName());
     }

@@ -84,7 +84,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       ++good;
       StoredDocumentList docs0 = selected.get(note.getExtractId());
       if (docs0 == null) {
-        System.out.println("CCCCCCCCCCCCCCCCC NOT FOUND: " +note.getExtractId());
         StoredDocumentList docs1 = unselected.get(note.getExtractId());
         if (docs1 == null) {
           dummies.add(createDummy(note));
@@ -93,7 +92,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
           ++unused;
         }
       } else {
-        System.out.println("MMMMMMMMMMMMMMMMMMM NOT FOUND: " +note.getExtractId());
         for (StoredDocument doc : docs0) {
           if (note.saveTo(doc)) {
             if (doc.isDummy()) {
@@ -109,18 +107,18 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     int numSelected = cfg.getSelectedDocuments().size();
     int numUpdates = updates.size();
     int newDummies = dummies.size();
-    int numUnchanged = numSelected - numUpdates;
+    int numUnchanged = numSelected - numUpdates - updatedDummies;
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
     guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
     guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
     guiLogger.info("Number of selected documents ...............: %3d", numSelected);
-    if (updatedDummies == 0) {
-      guiLogger.info("Number of updated documents ................: %3d", numUpdates);
-    } else {
-      guiLogger.info("Number of updated documents ................: %3d (of which dummies: %d)", numUpdates, updatedDummies);
-    }
     guiLogger.info("Number of unchanged documents ..............: %3d", numUnchanged);
+    guiLogger.info("Number of updated documents ................: %3d", numUpdates);
+    guiLogger.info("Number of updated dummies ..................: %3d", updatedDummies);
     guiLogger.info("Number of dummy documents created ..........: %3d", newDummies);
+    guiLogger.info("UNUSED ROW: The row's extract ID was found in an existing");
+    guiLogger.info("            document, but the  document was not selected");
+    guiLogger.info("            and therefore not updated.");
     guiLogger.info("Import completed successfully");
     return updates.and(dummies);
   }
@@ -170,6 +168,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Number of selected documents ...............: %3d", numSelected);
     guiLogger.info("Number of updated documents ................: %3d", numUpdates);
     guiLogger.info("Number of unchanged documents ..............: %3d", numUnchanged);
+    guiLogger.info("UNUSED ROW: The row's extract ID did not correspond to any");
+    guiLogger.info("            of the selected documents.");
     guiLogger.info("Import completed successfully");
     return updates;
   }

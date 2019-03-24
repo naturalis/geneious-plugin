@@ -44,7 +44,8 @@ public final class NaturalisNote {
   }
 
   public String getExtractId() {
-    return (String) data.getOrDefault(SEQ_EXTRACT_ID, data.get(SMPL_EXTRACT_ID));
+    Object v = data.get(SMPL_EXTRACT_ID);
+    return (String) (v == null ? data.get(SEQ_EXTRACT_ID) : v);
   }
 
   public Integer getDocumentVersion() {

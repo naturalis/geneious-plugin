@@ -10,6 +10,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -91,12 +92,17 @@ public enum NaturalisField {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisField.class);
 
   private static final String NOTE_TYPE_CODE_PREFIX = "DocumentNoteUtilities-";
-  // V1 descriptions are no illogical & non-descript we might as well do without
+  // V1 legacy: descriptions are so illogical & non-descript we might as well do without them
   private static final String NO_DESCRIPTION = StringUtils.EMPTY;
 
-  private final String code;
-  private final String name;
-  private final Class<?> type;
+  @VisibleForTesting
+  final String code;
+  @VisibleForTesting
+  final String name;
+
+  private final String noteTypeCode;
+  private final String noteTypeName;
+  private final Class<?> dataType;
   private final PluginDataSource[] dataSources;
 
   private DocumentNoteType noteType;
@@ -106,43 +112,31 @@ public enum NaturalisField {
     this(code, name, String.class, dataSources);
   }
 
-  private NaturalisField(String code, String name, Class<?> type, PluginDataSource... dataSources) {
+  private NaturalisField(String code, String name, Class<?> dateType, PluginDataSource... dataSources) {
     this.code = code;
     this.name = name;
-    this.type = type;
+    /*
+     * V1 legacy: the name of the note type is the sanme as the name of the one and only field it contains, and the code of
+     * the note type is also derived from the name (NOT the code) of the field.
+     */
+    this.noteTypeCode = NOTE_TYPE_CODE_PREFIX + name;
+    this.noteTypeName = name;
+    /*
+     * V1 legacy, except for the CRS_FLAG field, all fields are defined as string fields, including for example
+     * DOCUMENT_VERSION, which could better have been defined as an integer field.
+     */
+    this.dataType = dateType;
     this.dataSources = dataSources;
   }
 
-  /**
-   * Returns the code for this field.
-   * 
-   * @return
-   */
-  public String getCode() {
-    return code;
-  }
-
-  /**
-   * Returns the name of this field.
-   * 
-   * @return
-   */
   public String getName() {
     return name;
   }
 
   /**
-   * Returns the data type of this field.
-   * 
-   * @return
-   */
-  public Class<?> getDataType() {
-    return type;
-  }
-
-  /**
-   * Returns all data sources (sequence name, sample sheet, CRS, BOLD) containg the field. The first of these data sources is the primaru
-   * data source, i.e. the one actually used to populate the field. However, there may be other data sources that also contain this field.
+   * Returns all data sources (sequence name, sample sheet, CRS, BOLD) containg the field. The first of these data sources
+   * is the primaru data source, i.e. the one actually used to populate the field. However, there may be other data
+   * sources that also contain this field.
    */
   public PluginDataSource[] getDataSources() {
     return dataSources;
@@ -151,11 +145,11 @@ public enum NaturalisField {
   @SuppressWarnings("unchecked")
   public <T> T parse(String str) {
     T t;
-    if (type == Boolean.class) {
+    if (dataType == Boolean.class) {
       t = (T) Boolean.valueOf(str);
-    } else if (type == Integer.class) {
+    } else if (dataType == Integer.class) {
       t = (T) Integer.valueOf(str);
-    } else if (type == Double.class) {
+    } else if (dataType == Double.class) {
       t = (T) Double.valueOf(str);
     } else {
       t = (T) str;
@@ -166,9 +160,9 @@ public enum NaturalisField {
   @SuppressWarnings("unchecked")
   public <T> T cast(Object val) {
     try {
-      return (T) type.cast(val);
+      return (T) dataType.cast(val);
     } catch (ClassCastException e) {
-      guiLogger.error("Field: %s; Value: %s; MyType: %s; ValType: %s", name(), val, type, val.getClass());
+      guiLogger.error("Field: %s; Value: %s; MyType: %s; ValType: %s", name(), val, dataType, val.getClass());
       return null;
     }
   }
@@ -177,6 +171,7 @@ public enum NaturalisField {
     return readFrom(document.getDocumentNotes(false));
   }
 
+  @SuppressWarnings("unused")
   public <T> T readFrom(DocumentNotes notes) {
     DocumentNote note = notes.getNote(getNoteType().getCode());
     if (note == null) {
@@ -225,16 +220,15 @@ public enum NaturalisField {
    */
   public DocumentField createQueryField() {
     /*
-     * Why a DocumentField can and should be created from a DocumentNoteField as shown below is not clear. Just got it from Geneious
-     * support.
+     * Why a DocumentField can and should be created from a DocumentNoteField as shown below is not clear. Just got it from
+     * Geneious support.
      */
     if (queryField == null) {
-      String noteTypeCode = getNoteType().getCode();
-      if (type == Boolean.class) {
+      if (dataType == Boolean.class) {
         queryField = DocumentField.createBooleanField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
-      } else if (type == Integer.class) {
+      } else if (dataType == Integer.class) {
         queryField = DocumentField.createIntegerField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
-      } else if (type == Double.class) {
+      } else if (dataType == Double.class) {
         queryField = DocumentField.createDoubleField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
       } else {
         queryField = DocumentField.createStringField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
@@ -243,28 +237,7 @@ public enum NaturalisField {
     return queryField;
   }
 
-  DocumentNoteType getNoteType() {
-    String noteTypeCode = NOTE_TYPE_CODE_PREFIX + name;
-    noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
-    if (noteType == null) {
-      saveOrUpdateDefinition();
-    }
-    return noteType;
-  }
-
-  /**
-   * Returns the value this field has in the provided note (most likely extracted from a stored Geneious document).
-   * 
-   * @param note
-   * @return
-   */
-  Object valueIn(DocumentNote note) {
-    return note.getFieldValue(getCode());
-  }
-
-  public void saveOrUpdateDefinition() {
-    String noteTypeName = name;
-    String noteTypeCode = NOTE_TYPE_CODE_PREFIX + name;
+  public void saveOrUpdateNoteType() {
     DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
     if (noteType != null) {
       guiLogger.info("Deleting old definition of field \"%s\"", name);
@@ -273,12 +246,26 @@ public enum NaturalisField {
         noteType.removeField(field.getCode());
       }
     }
+    saveNoteType();
+    // Make sure the query fields also gets re-generated the first time it is requested.
+    this.queryField = null;
+  }
+
+  private DocumentNoteType getNoteType() {
+    noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
+    if (noteType == null) {
+      saveOrUpdateNoteType();
+    }
+    return noteType;
+  }
+
+  private void saveNoteType() {
     DocumentNoteField noteField;
-    if (type == Boolean.class) {
+    if (dataType == Boolean.class) {
       noteField = createBooleanNoteField(name, NO_DESCRIPTION, code, false);
-    } else if (type == Integer.class) {
+    } else if (dataType == Integer.class) {
       noteField = createIntegerNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
-    } else if (type == Double.class) {
+    } else if (dataType == Double.class) {
       noteField = createDecimalNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
     } else {
       noteField = createTextNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
@@ -287,8 +274,6 @@ public enum NaturalisField {
     noteType = createNewNoteType(noteTypeName, noteTypeCode, NO_DESCRIPTION, noteFields, true);
     guiLogger.info("Saving definition of field \"%s\"", name);
     DocumentNoteUtilities.setNoteType(noteType);
-    this.noteType = noteType;
-    this.queryField = null;
   }
 
 }

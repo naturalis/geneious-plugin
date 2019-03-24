@@ -30,6 +30,7 @@ public class SampleSheetImportOptions extends Options {
   private final ComboBoxOption<OptionValue> sheetName;
 
   public SampleSheetImportOptions(List<AnnotatedPluginDocument> documents) {
+
     this.documents = documents;
 
     sampleSheet = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
@@ -41,35 +42,13 @@ public class SampleSheetImportOptions extends Options {
     createDummies = addBooleanOption(CREATE_DUMMIES, "Create dummy sequences for new extract IDs", Boolean.TRUE);
 
     linesToSkip = addIntegerOption(LINES_TO_SKIP, "Lines to skip", 1, 0, Integer.MAX_VALUE);
-    linesToSkip.setDescription("Set to 0 when processing should start with first line in the selected file. "
-        + "Set to 1 if the file contains a header.");
+    linesToSkip.setDescription("The number of files to skip with the selected file.");
 
     sheetName = addComboBoxOption(SHEET_NAME, "Sheet name", Arrays.asList(EMPTY_SHEET_NAME), EMPTY_SHEET_NAME);
     sheetName.setFillHorizontalSpace(true);
-    sheetName.setDescription("The name of the sheet (a.k.s. tab) within the spreadsheet.");
+    sheetName.setDescription("The name of the sheet (tab) within the spreadsheet.");
 
-    sampleSheet.addChangeListener(() -> {
-      String fileName = sampleSheet.getValue();
-      if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
-        try {
-          Workbook workbook = WorkbookFactory.create(new File(sampleSheet.getValue()));
-          List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
-          for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
-            names.add(new OptionValue(String.valueOf(i), workbook.getSheetAt(i).getSheetName()));
-          }
-          sheetName.setPossibleValues(names);
-          sheetName.setDefaultValue(names.get(0));
-        } catch (Exception e) {
-          Dialogs.showMessageDialog("Error reading spreadsheet: " + e,
-              "Error reading spreadsheet",
-              GuiUtilities.getMainFrame(),
-              DialogIcon.ERROR);
-        }
-      } else {
-        sheetName.setPossibleValues(Arrays.asList(EMPTY_SHEET_NAME));
-        sheetName.setDefaultValue(EMPTY_SHEET_NAME);
-      }
-    });
+    sampleSheet.addChangeListener(this::loadSheetNames);
   }
 
   SampleSheetImportConfig createImportConfig() {
@@ -79,6 +58,29 @@ public class SampleSheetImportOptions extends Options {
     cfg.setSkipLines(linesToSkip.getValue());
     cfg.setSheetNumber(Integer.parseInt(sheetName.getValue().getName()));
     return cfg;
+  }
+
+  private void loadSheetNames() {
+    String fileName = sampleSheet.getValue();
+    if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+      try {
+        Workbook workbook = WorkbookFactory.create(new File(sampleSheet.getValue()));
+        List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
+        for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
+          names.add(new OptionValue(String.valueOf(i), workbook.getSheetAt(i).getSheetName()));
+        }
+        sheetName.setPossibleValues(names);
+        sheetName.setDefaultValue(names.get(0));
+      } catch (Exception e) {
+        Dialogs.showMessageDialog("Error reading spreadsheet: " + e,
+            "Error reading spreadsheet",
+            GuiUtilities.getMainFrame(),
+            DialogIcon.ERROR);
+      }
+    } else {
+      sheetName.setPossibleValues(Arrays.asList(EMPTY_SHEET_NAME));
+      sheetName.setDefaultValue(EMPTY_SHEET_NAME);
+    }
   }
 
 }

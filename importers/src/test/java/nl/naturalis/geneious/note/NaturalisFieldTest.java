@@ -22,7 +22,7 @@ public class NaturalisFieldTest {
     LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
     OUTER_LOOP: for (String line = lnr.readLine(); line != null; line = lnr.readLine()) {
       for (NaturalisField nf : NaturalisField.values()) {
-        if (nf.getCode().equals(line)) {
+        if (nf.code.equals(line)) {
           continue OUTER_LOOP;
         }
       }
@@ -36,7 +36,7 @@ public class NaturalisFieldTest {
     LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
     OUTER_LOOP: for (String line = lnr.readLine(); line != null; line = lnr.readLine()) {
       for (NaturalisField nf : NaturalisField.values()) {
-        if (nf.getName().equals(line)) {
+        if (nf.name.equals(line)) {
           continue OUTER_LOOP;
         }
       }

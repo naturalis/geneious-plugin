@@ -55,8 +55,6 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    System.out.println("YYYYYYY: " + docs.length); // returns 0 !!!
-    System.out.println("QQQQQQQ: " + DocumentUtilities.getSelectedDocuments().size()); // does return the right amount
     if (CommonUtils.checkTargetFolderNotNull()) {
       try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
         SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
