@@ -84,6 +84,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       ++good;
       StoredDocumentList docs0 = selected.get(note.getExtractId());
       if (docs0 == null) {
+        System.out.println("CCCCCCCCCCCCCCCCC NOT FOUND: " +note.getExtractId());
         StoredDocumentList docs1 = unselected.get(note.getExtractId());
         if (docs1 == null) {
           dummies.add(createDummy(note));
@@ -92,16 +93,20 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
           ++unused;
         }
       } else {
+        System.out.println("MMMMMMMMMMMMMMMMMMM NOT FOUND: " +note.getExtractId());
         for (StoredDocument doc : docs0) {
           if (note.saveTo(doc)) {
             if (doc.isDummy()) {
               ++updatedDummies;
+              guiLogger.debugf(() -> format("Updating dummy with extract ID %s", note.getExtractId()));
+            } else {
+              guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
             }
           }
         }
       }
     }
-    int numSelected = cfg.getSelectedDocuments().length;
+    int numSelected = cfg.getSelectedDocuments().size();
     int numUpdates = updates.size();
     int newDummies = dummies.size();
     int numUnchanged = numSelected - numUpdates;
@@ -124,7 +129,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
     StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
-    int numSelected = cfg.getSelectedDocuments().length;
+    int numSelected = cfg.getSelectedDocuments().size();
     APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, unused = 0;
     for (int i = 1; i < rows.size(); ++i) {
@@ -152,6 +157,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         for (StoredDocument doc : docs) {
           if (note.saveTo(doc)) {
             updates.add(doc.getGeneiousDocument());
+            guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
           }
         }
       }
@@ -181,6 +187,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private static AnnotatedPluginDocument createDummy(NaturalisNote note) {
+    guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
     AnnotatedPluginDocument apd = new DummySequenceDocument(note).wrap();
     apd.save();
     return apd;

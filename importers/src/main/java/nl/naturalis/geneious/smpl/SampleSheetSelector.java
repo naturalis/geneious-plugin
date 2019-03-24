@@ -122,43 +122,43 @@ class SampleSheetSelector {
   }
 
   private void validateAndLaunch() {
-    if (StringUtils.isBlank(fileTextField.getText())) {
-      showError("No sample sheet selected", "Please select a sample sheet");
-      return;
-    }
-    File file = new File(fileTextField.getText());
-    if (!file.isFile()) {
-      String msg = String.format("No such file: \"%s\"", fileTextField.getText());
-      showError("No such file", msg);
-      return;
-    }
-    if (selectedDocuments.length == 0 && !dummiesCheckBox.isSelected()) {
-      showError("No documents selected", "Please select at least one document or check \"Create dummies\"");
-      return;
-    }
-    SampleSheetImportConfig input = new SampleSheetImportConfig(selectedDocuments);
-    input.setFile(file);
-    input.setCreateDummies(dummiesCheckBox.isSelected());
-    try {
-      int i = Integer.parseInt(skipLinesTextField.getText());
-      input.setSkipLines(i);
-      RuntimeSettings.INSTANCE.setCrsSkipLines(i);
-    } catch (NumberFormatException exc) {
-      String msg = String.format("Invalid number: \"%s\"", skipLinesTextField.getText());
-      showError("Invalid number", msg);
-      return;
-    }
-    try {
-      int i = Integer.parseInt(sheetNoTextField.getText().trim());
-      input.setSheetNumber(i);
-      RuntimeSettings.INSTANCE.setCrsSheetNum(i);
-    } catch (NumberFormatException exc) {
-      String msg = String.format("Invalid number: \"%s\"", sheetNoTextField.getText());
-      showError("Invalid number", msg);
-      return;
-    }
-    dialog.dispose();
-    inputProcessor.accept(input);
+//    if (StringUtils.isBlank(fileTextField.getText())) {
+//      showError("No sample sheet selected", "Please select a sample sheet");
+//      return;
+//    }
+//    File file = new File(fileTextField.getText());
+//    if (!file.isFile()) {
+//      String msg = String.format("No such file: \"%s\"", fileTextField.getText());
+//      showError("No such file", msg);
+//      return;
+//    }
+//    if (selectedDocuments.length == 0 && !dummiesCheckBox.isSelected()) {
+//      showError("No documents selected", "Please select at least one document or check \"Create dummies\"");
+//      return;
+//    }
+//    SampleSheetImportConfig input = new SampleSheetImportConfig(selectedDocuments);
+//    input.setFile(file);
+//    input.setCreateDummies(dummiesCheckBox.isSelected());
+//    try {
+//      int i = Integer.parseInt(skipLinesTextField.getText());
+//      input.setSkipLines(i);
+//      RuntimeSettings.INSTANCE.setCrsSkipLines(i);
+//    } catch (NumberFormatException exc) {
+//      String msg = String.format("Invalid number: \"%s\"", skipLinesTextField.getText());
+//      showError("Invalid number", msg);
+//      return;
+//    }
+//    try {
+//      int i = Integer.parseInt(sheetNoTextField.getText().trim());
+//      input.setSheetNumber(i);
+//      RuntimeSettings.INSTANCE.setCrsSheetNum(i);
+//    } catch (NumberFormatException exc) {
+//      String msg = String.format("Invalid number: \"%s\"", sheetNoTextField.getText());
+//      showError("Invalid number", msg);
+//      return;
+//    }
+//    dialog.dispose();
+//    inputProcessor.accept(input);
   }
 
   private void showError(String title, String message) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -49,13 +50,13 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    System.out.println("XXXXXXX: " + docs.length);
-    return new SampleSheetImportOptions(docs);
+    return new SampleSheetImportOptions(DocumentUtilities.getSelectedDocuments());
   }
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    System.out.println("YYYYYYY: " + docs.length);
+    System.out.println("YYYYYYY: " + docs.length); // returns 0 !!!
+    System.out.println("QQQQQQQ: " + DocumentUtilities.getSelectedDocuments().size()); // does return the right amount
     if (CommonUtils.checkTargetFolderNotNull()) {
       try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
         SampleSheetImportOptions opts = (SampleSheetImportOptions) options;

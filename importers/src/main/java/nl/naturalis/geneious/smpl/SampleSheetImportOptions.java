@@ -23,14 +23,13 @@ public class SampleSheetImportOptions extends Options {
 
   private static final OptionValue EMPTY_SHEET_NAME = new OptionValue("0", "--- only when importing spreadsheet ---");
 
-  private final AnnotatedPluginDocument[] documents;
+  private final List<AnnotatedPluginDocument> documents;
   private final FileSelectionOption sampleSheet;
   private final BooleanOption createDummies;
   private final IntegerOption linesToSkip;
   private final ComboBoxOption<OptionValue> sheetName;
 
-  public SampleSheetImportOptions(AnnotatedPluginDocument[] documents) {
-
+  public SampleSheetImportOptions(List<AnnotatedPluginDocument> documents) {
     this.documents = documents;
 
     sampleSheet = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
