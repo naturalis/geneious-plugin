@@ -12,6 +12,8 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
 
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
@@ -20,6 +22,8 @@ import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 public class QueryUtils {
+
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
 
   private static final DocumentField QF_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
 
@@ -45,6 +49,7 @@ public class QueryUtils {
     }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
+    guiLogger.debug(() -> "Query: " + query);
     return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
   }
 

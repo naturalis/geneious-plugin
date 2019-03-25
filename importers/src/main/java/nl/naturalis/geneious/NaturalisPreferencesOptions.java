@@ -8,7 +8,6 @@ import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 public class NaturalisPreferencesOptions extends Options {
 
   private static class State {
-    private Boolean debug = Boolean.FALSE;
     private Boolean disableFastaCache;
     private Boolean deleteTmpFastaFiles;
     private String fastaExtensions;
@@ -16,10 +15,6 @@ public class NaturalisPreferencesOptions extends Options {
   }
 
   private static final State state = new State();
-
-  public static boolean isDebug() {
-    return state.debug.booleanValue();
-  }
 
   public static boolean disableFastaCache() {
     return state.disableFastaCache.booleanValue();
@@ -49,11 +44,9 @@ public class NaturalisPreferencesOptions extends Options {
     bOpt1.setHelp("Provide more detailed information as the Naturalis plugin is working.  Enable when creating "
         + "support tickets for bugs or perfomance issues.");
     bOpt1.addChangeListener(() -> {
-      state.debug = bOpt1.getValue();
-      GuiLogManager.setDebug(state.debug.booleanValue());
+      GuiLogManager.setDebug(bOpt1.getValue());
     });
-    state.debug = bOpt1.getValue();
-    GuiLogManager.setDebug(state.debug.booleanValue());
+    GuiLogManager.setDebug(bOpt1.getValue());
 
     BooleanOption bOpt2 =
         addBooleanOption("nl.naturalis.geneious.log.disableFastaCache", "Disable fasta cache", Boolean.FALSE);

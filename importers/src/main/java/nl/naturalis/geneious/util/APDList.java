@@ -6,7 +6,9 @@ import java.util.Collection;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 /**
- * Extesion of oft-used @code ArrayList} just to make code somewhat less verbose.
+ * A simple extension of {@code ArrayList} that does not add any new functionality, but has a concrete type argument
+ * {@code AnnotatedPluginDocument}. Lists if this type of objects are used so often throughout the code, that having
+ * this subclass makes the code quite a bit less verbose.
  *
  * @author Ayco Holleman
  */

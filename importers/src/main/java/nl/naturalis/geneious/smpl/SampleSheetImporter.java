@@ -40,9 +40,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records are linked using
-   * their extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID
-   * does not exist yet.
+   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records
+   * are linked using their extract ID. In addition, if requested, this routine will create dummy documents from sample
+   * sheet records if their extract ID does not exist yet.
    */
   @Override
   protected APDList doInBackground() throws DatabaseServiceException {
@@ -100,6 +100,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
             } else {
               guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
             }
+          } else {
+            String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
+            guiLogger.debugf(() -> format(fmt, note.getExtractId()));
           }
         }
       }
@@ -156,6 +159,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
           if (note.saveTo(doc)) {
             updates.add(doc.getGeneiousDocument());
             guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
+          } else {
+            String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
+            guiLogger.debugf(() -> format(fmt, note.getExtractId()));
           }
         }
       }
@@ -199,7 +205,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       String fmt = "Row %s (%s) corresponds to an existing document, but the document was not selected";
       guiLogger.info(fmt, rowNum, extractId);
     } else {
-      String fmt = "Row %s (%s) corresponds to %s existing documents, but the they were not selected";
+      String fmt = "Row %s (%s) corresponds to %s existing documents, but they were not selected";
       guiLogger.info(fmt, rowNum, extractId, docs.size());
     }
   }

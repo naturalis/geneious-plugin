@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import static nl.naturalis.common.base.NExceptions.getRootStackTraceAsString;
 import static nl.naturalis.common.base.NStrings.rpad;
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
+import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 
 /**
  * Accepts log records from loggers and turns them into messages, which it then sends to the Geneious GUI.
@@ -23,25 +24,24 @@ class LogWriter {
   private static final String NEWLINE = System.getProperty("line.separator");
   private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss SSS");
 
-  private LogLevel level;
+  private LogLevel level = INFO;
   private JScrollPane pane;
   private JScrollBar scrollbar;
   private JTextArea area;
 
-  void initialize(LogLevel level) {
-    this.level = level;
-    this.area = new JTextArea();
+  void initialize() {
+    area = new JTextArea();
     area.setEditable(false);
     area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-    this.pane = new JScrollPane(area);
-    this.scrollbar = pane.getVerticalScrollBar();
+    pane = new JScrollPane(area);
+    scrollbar = pane.getVerticalScrollBar();
   }
 
   void write(LogRecord record) {
     if (area == null) {
       /*
-       * A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while initializing.
-       * It should never happen when the plugin itself is in control!!
+       * A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while
+       * initializing. It should never happen when the plugin itself is in control !!
        */
       System.out.println("[OUTSIDE LOG SESSION] - " + toString(record));
     } else {

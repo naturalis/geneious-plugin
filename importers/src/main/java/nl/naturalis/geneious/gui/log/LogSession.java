@@ -4,12 +4,8 @@ import javax.swing.JDialog;
 
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
-import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
-
-import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
-import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 
 /**
  * An Object defining the boundaries within which logger can safely log messages. In other words, loggers must not be used outside the
@@ -35,18 +31,15 @@ public final class LogSession implements AutoCloseable {
   }
 
   private void start() {
-    writer.initialize(getLogLevel());
+    writer.initialize();
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
     dialog.setContentPane(writer.getScrollPane());
-    GeneiousGUI.scale(dialog, .8, .4, 600, 400);
-    dialog.setLocationRelativeTo(GuiUtilities.getMainFrame());
+    dialog.setLocationRelativeTo(null);
+    GeneiousGUI.scale(dialog, .5, .4, 600, 400);
     dialog.pack();
     dialog.setVisible(true);
   }
 
-  private static LogLevel getLogLevel() {
-    return NaturalisPreferencesOptions.isDebug() ? DEBUG : INFO;
-  }
 
 }

@@ -11,8 +11,17 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import nl.naturalis.geneious.ErrorCode;
+import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.MessageProvider.Message;
+import nl.naturalis.geneious.util.SharedPreconditionValidator;
+
+import static nl.naturalis.geneious.ErrorCode.SMPL_MISSING_SAMPLE_SHEET;
+import static nl.naturalis.geneious.ErrorCode.SMPL_NO_DOCUMENTS_SELECTED;
 
 public class SampleSheetImportOptions extends Options {
 
@@ -33,36 +42,83 @@ public class SampleSheetImportOptions extends Options {
 
     this.documents = documents;
 
-    sampleSheet = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
-    sampleSheet.setAllowMultipleSelection(false);
-    sampleSheet.setFillHorizontalSpace(true);
-    sampleSheet.setValue("");
-    sampleSheet.setDescription("Select a sample sheet to import (allowed formats: CSV, TSV, XLS, CLSX)");
+    sampleSheet = addFileSelectionOption();
+    createDummies = addCreateDummiesOption();
+    linesToSkip = addLinesToSkipOption();
+    sheetName = addSheetNameOption();
 
-    createDummies = addBooleanOption(CREATE_DUMMIES, "Create dummy sequences for new extract IDs", Boolean.TRUE);
+    sampleSheet.addChangeListener(this::fileChanged);
 
-    linesToSkip = addIntegerOption(LINES_TO_SKIP, "Lines to skip", 1, 0, Integer.MAX_VALUE);
-    linesToSkip.setDescription("The number of files to skip with the selected file.");
+  }
 
-    sheetName = addComboBoxOption(SHEET_NAME, "Sheet name", Arrays.asList(EMPTY_SHEET_NAME), EMPTY_SHEET_NAME);
-    sheetName.setFillHorizontalSpace(true);
-    sheetName.setDescription("The name of the sheet (tab) within the spreadsheet.");
+  public String verifyOptionsAreValid() {
+    String msg = super.verifyOptionsAreValid();
+    if (msg != null) {
+      return msg;
+    }
+    SharedPreconditionValidator validator = new SharedPreconditionValidator(documents);
+    Message message = validator.validate();
+    if (message.getCode() != ErrorCode.OK) {
+      return message.getMessage();
+    }
+    if (StringUtils.isBlank(sampleSheet.getValue())) {
+      return MessageProvider.get(SMPL_MISSING_SAMPLE_SHEET);
 
-    sampleSheet.addChangeListener(this::loadSheetNames);
+    }
+    if (documents.size() == 0 && createDummies.getValue() == Boolean.FALSE) {
+      return MessageProvider.get(SMPL_NO_DOCUMENTS_SELECTED);
+    }
+    return null; // Signals to Geneious it is allowed to execute the performOperation (-ish) methods of our plugin
   }
 
   SampleSheetImportConfig createImportConfig() {
     SampleSheetImportConfig cfg = new SampleSheetImportConfig(documents);
-    cfg.setCreateDummies(createDummies.isEnabled());
+    cfg.setCreateDummies(createDummies.getValue());
     cfg.setFile(new File(sampleSheet.getValue()));
     cfg.setSkipLines(linesToSkip.getValue());
     cfg.setSheetNumber(Integer.parseInt(sheetName.getValue().getName()));
     return cfg;
   }
 
-  private void loadSheetNames() {
+  private FileSelectionOption addFileSelectionOption() {
+    FileSelectionOption opt = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
+    opt.setAllowMultipleSelection(false);
+    opt.setFillHorizontalSpace(true);
+    opt.setValue("");
+    opt.setDescription("Select a sample sheet to import (allowed formats: CSV, TSV, XLS, CLSX)");
+    return opt;
+  }
+
+  private BooleanOption addCreateDummiesOption() {
+    String descr = "Create dummy sequences for rows containing new extract IDs";
+    BooleanOption opt = addBooleanOption(CREATE_DUMMIES, descr, Boolean.TRUE);
+    return opt;
+  }
+
+  private IntegerOption addLinesToSkipOption() {
+    String descr = "The number of files to skip within the selected file. Should be at least 1 if the file starts with a header line";
+    IntegerOption opt = addIntegerOption(LINES_TO_SKIP, "Lines to skip", 1, 0, Integer.MAX_VALUE);
+    opt.setDescription(descr);
+    return opt;
+  }
+
+  private ComboBoxOption<OptionValue> addSheetNameOption() {
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(SHEET_NAME, "Sheet name", Arrays.asList(EMPTY_SHEET_NAME), EMPTY_SHEET_NAME);
+    opt.setFillHorizontalSpace(true);
+    opt.setDescription("The name of the sheet (tab) within the spreadsheet.");
     String fileName = sampleSheet.getValue();
     if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+      opt.setEnabled(true);
+    } else {
+      opt.setEnabled(false);
+    }
+    return opt;
+  }
+
+  private void fileChanged() {
+    String fileName = sampleSheet.getValue();
+    if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+      sheetName.setEnabled(true);
       try {
         Workbook workbook = WorkbookFactory.create(new File(sampleSheet.getValue()));
         List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
@@ -78,6 +134,7 @@ public class SampleSheetImportOptions extends Options {
             DialogIcon.ERROR);
       }
     } else {
+      sheetName.setEnabled(false);
       sheetName.setPossibleValues(Arrays.asList(EMPTY_SHEET_NAME));
       sheetName.setDefaultValue(EMPTY_SHEET_NAME);
     }

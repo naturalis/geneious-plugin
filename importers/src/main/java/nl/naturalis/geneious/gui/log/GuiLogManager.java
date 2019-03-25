@@ -21,7 +21,7 @@ public class GuiLogManager {
    * @return
    */
   public static GuiLogger getLogger(Class<?> clazz) {
-    return instance.get(clazz);
+    return instance.getOrCreateLogger(clazz);
   }
 
   /**
@@ -39,13 +39,13 @@ public class GuiLogManager {
 
   private final LogWriter writer;
   private final HashMap<Class<?>, GuiLogger> loggers;
-
+  
   private GuiLogManager() {
     this.writer = new LogWriter();
     this.loggers = new HashMap<>();
   };
 
-  private GuiLogger get(Class<?> clazz) {
+  private GuiLogger getOrCreateLogger(Class<?> clazz) {
     GuiLogger logger = loggers.get(clazz);
     if (logger == null) {
       loggers.put(clazz, logger = new GuiLogger(clazz, writer));
