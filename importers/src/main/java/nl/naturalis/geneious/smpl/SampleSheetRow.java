@@ -27,7 +27,7 @@ class SampleSheetRow {
   static final int COLNO_REGISTRATION_NUMBER = 4;
   static final int COLNO_SCIENTIFIC_NAME = 5;
   static final int COLNO_EXTRACTION_METHOD = 6;
-  
+
   private static final int MIN_CELL_COUNT = 6;
 
   private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
@@ -75,9 +75,9 @@ class SampleSheetRow {
     note.parseAndSet(SMPL_SAMPLE_PLATE_ID, processSamplePlateId());
     note.parseAndSet(SMPL_EXTRACT_PLATE_ID, processExtractPlateId());
     note.parseAndSet(SMPL_PLATE_POSITION, processPlatePosition());
-    note.parseAndSet(SMPL_REGISTRATION_NUMBER, processColumn(COLNO_REGISTRATION_NUMBER));
-    note.parseAndSet(SMPL_SCIENTIFIC_NAME, processColumn(COLNO_SCIENTIFIC_NAME));
-    note.parseAndSet(SMPL_EXTRACTION_METHOD, processColumn(COLNO_EXTRACTION_METHOD));
+    setIfPresent(note, SMPL_SCIENTIFIC_NAME, COLNO_SCIENTIFIC_NAME);
+    setIfPresent(note, SMPL_REGISTRATION_NUMBER, COLNO_REGISTRATION_NUMBER);
+    setIfPresent(note, SMPL_EXTRACTION_METHOD, COLNO_EXTRACTION_METHOD);
     return note;
   }
 
@@ -117,8 +117,11 @@ class SampleSheetRow {
     return val;
   }
 
-  private String processColumn(int colno) {
-    return StringUtils.trimToNull(cells[colno]);
+  private void setIfPresent(NaturalisNote note, NaturalisField field, int column) {
+    String val = StringUtils.trimToNull(cells[column]);
+    if (val != null) {
+      note.parseAndSet(field, val);
+    }
   }
 
   private static InvalidRowException invalidColumnCount(int rowNum, String[] cells) {

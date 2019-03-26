@@ -17,7 +17,6 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.DebugUtil;
 import nl.naturalis.geneious.util.DummySequenceDocument;
-import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.RowProvider;
 import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
@@ -26,6 +25,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 import static java.util.function.Predicate.not;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -60,20 +60,25 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   private APDList updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
+    guiLogger.info("Collecting extract IDs from sample sheet");
+    Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
-    guiLogger.info("Marking rows with new extract IDs");
-    StoredDocumentTable unselected = findUnselectedDocuments(rows, selected.keySet());
+    guiLogger.info("Searching database for documents matching the extract IDs");
+    Set<String> searchFor = extractIds.stream()
+        .filter(not(selected::containsKey))
+        .collect(Collectors.toSet());
+    StoredDocumentTable unselected = new StoredDocumentTable(findByExtractID(searchFor));
+    int numNewExtractIds = extractIds.size() - selected.keySet().size() - unselected.keySet().size();
+    guiLogger.info("Sample sheet contains %s new extract ID(s)", numNewExtractIds);
     APDList updates = new APDList();
     APDList dummies = new APDList();
     int good = 0, bad = 0, updatedDummies = 0, unused = 0;
     for (int i = 0; i < rows.size(); ++i) {
-      if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Processing row: %s", DebugUtil.toJson(rows.get(i)));
-      }
+      int rowNumber = i;
+      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rowNumber))));
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
-      final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty row at line %s", rowNum));
+        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rowNumber)));
         ++bad;
         continue;
       }
@@ -85,9 +90,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         ++bad;
         continue;
       }
-      if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Note created: %s", DebugUtil.toJson(note, false));
-      }
+      guiLogger.debugf(() -> format("Note created: %s", DebugUtil.toJson(note, false)));
       ++good;
       StoredDocumentList docs0 = selected.get(note.getExtractId());
       if (docs0 == null) {
@@ -95,7 +98,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         if (docs1 == null) {
           dummies.add(createDummy(note));
         } else {
-          handleUnselectedDocument(docs1, rowNum);
+          handleUnselectedDocument(docs1, rowNumber);
           ++unused;
         }
       } else {
@@ -143,13 +146,11 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, unused = 0;
     for (int i = 1; i < rows.size(); ++i) {
-      if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Processing row: %s", DebugUtil.toJson(rows.get(i)));
-      }
+      int rowNumber = i;
+      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rowNumber))));
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
-      final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty row at line %s", rowNum));
+        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rowNumber)));
         ++bad;
         continue;
       }
@@ -194,16 +195,13 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     return updates;
   }
 
-  private static StoredDocumentTable findUnselectedDocuments(List<String[]> rows, Set<String> selectedIds) throws DatabaseServiceException {
+  private static Set<String> collectExtractIds(List<String[]> rows) {
     int colno = SampleSheetRow.COLNO_EXTRACT_ID;
-    Set<String> nonSelectedIds = rows.stream()
+    return rows.stream()
         .filter(row -> colno < row.length)
         .filter(row -> StringUtils.isNotBlank(row[colno]))
         .map(row -> "e" + row[colno])
-        .filter(not(selectedIds::contains))
         .collect(Collectors.toSet());
-    guiLogger.debug(() -> "Searching database ...");
-    return new StoredDocumentTable(QueryUtils.findByExtractID(nonSelectedIds));
   }
 
   private static AnnotatedPluginDocument createDummy(NaturalisNote note) {
@@ -213,15 +211,19 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     return apd;
   }
 
-  private static void handleUnselectedDocument(StoredDocumentList docs, int rowNum) {
+  private void handleUnselectedDocument(StoredDocumentList docs, int row) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
     if (docs.size() == 1) {
-      String fmt = "Row %s (%s) corresponds to an existing document, but the document was not selected";
-      guiLogger.info(fmt, rowNum, extractId);
+      String fmt = "Row %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
+      guiLogger.info(fmt, userFriendly(row), extractId);
     } else {
-      String fmt = "Row %s (%s) corresponds to %s existing documents, but they were not selected";
-      guiLogger.info(fmt, rowNum, extractId, docs.size());
+      String fmt = "Row %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
+      guiLogger.info(fmt, userFriendly(row), extractId, docs.size());
     }
+  }
+
+  private int userFriendly(int hardcore) {
+    return hardcore + cfg.getSkipLines() + 1;
   }
 
 }

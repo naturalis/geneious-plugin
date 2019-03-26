@@ -17,4 +17,8 @@ public class StoredDocumentTable extends HashMap<String, StoredDocumentList> {
     values().forEach(list -> Collections.sort(list, StoredDocumentComparator.INSTANCE));
   }
 
+  public int documentCount() {
+    return values().stream().mapToInt(StoredDocumentList::size).sum();
+  }
+
 }
