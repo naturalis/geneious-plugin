@@ -13,7 +13,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.*;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
 
 /**
  * Represents a single row within a sample sheet and functions as a producer of {@link NaturalisNote} instances.

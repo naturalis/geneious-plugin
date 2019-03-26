@@ -10,6 +10,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteField;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
@@ -274,6 +275,11 @@ public enum NaturalisField {
     noteType = createNewNoteType(noteTypeName, noteTypeCode, NO_DESCRIPTION, noteFields, true);
     guiLogger.info("Saving definition of field \"%s\"", name);
     DocumentNoteUtilities.setNoteType(noteType);
+  }
+
+  @JsonValue
+  public String toString() {
+    return name;
   }
 
 }

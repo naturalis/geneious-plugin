@@ -1,7 +1,6 @@
 package nl.naturalis.geneious.util;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Optional;
@@ -12,33 +11,12 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
-
 /**
  * Provides various types of lookups on a collection of Geneious documents (presumably fetched from the database).
  */
 public class DocumentResultSetInspector {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentResultSetInspector.class);
-
-  // Sort descending on document version or creation date
-  public static Comparator<StoredDocument> comparator = (doc1, doc2) -> {
-    Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
-    Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
-    if (v1 == null) {
-      if (v2 != null) {
-        return -1; // Prefer anything over null
-      }
-    }
-    if (v2 == null) {
-      return 1;
-    }
-    int i = v2.compareTo(v1);
-    if (i == 0) {
-      return getDateModifield(doc2.getGeneiousDocument()).compareTo(getDateModifield(doc1.getGeneiousDocument()));
-    }
-    return i;
-  };
 
   private final EnumMap<DocumentType, HashMap<String, StoredDocument>> byTypeByExtractId;
 
@@ -53,8 +31,8 @@ public class DocumentResultSetInspector {
   }
 
   /**
-   * Returns the latest version of the document with the specified extract ID and type, or an empty optional if this combination does not
-   * exist yet in the database.
+   * Returns the latest version of the document with the specified extract ID and type, or an empty optional if this
+   * combination does not exist yet in the database.
    * 
    * @param extractID
    * @param type
@@ -88,7 +66,7 @@ public class DocumentResultSetInspector {
         case DUMMY:
           byTypeByExtractId
               .computeIfAbsent(doc.getType(), (k) -> new HashMap<>())
-              .merge(extractId, doc, (d1, d2) -> comparator.compare(d1, d2) < 0 ? d2 : d1);
+              .merge(extractId, doc, StoredDocumentComparator::chooseLatest);
           break;
         case UNKNOWN:
         default:

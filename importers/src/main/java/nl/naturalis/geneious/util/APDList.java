@@ -30,9 +30,5 @@ public class APDList extends ArrayList<AnnotatedPluginDocument> {
     super(c);
   }
 
-  public APDList and(APDList other) {
-    addAll(other);
-    return this;
-  }
 
 }

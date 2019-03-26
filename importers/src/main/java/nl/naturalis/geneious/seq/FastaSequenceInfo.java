@@ -74,7 +74,6 @@ final class FastaSequenceInfo extends SequenceInfo {
         }
         sequence = sb.toString();
       }
-
     }
     return sequence;
   }

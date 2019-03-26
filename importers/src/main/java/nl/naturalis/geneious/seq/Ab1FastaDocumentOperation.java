@@ -23,7 +23,7 @@ import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link Ab1FastaImporter} and lets it do most of the work.
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do most of the work.
  *
  * @author Ayco Holleman
  */
@@ -50,7 +50,7 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
       if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
         RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
         try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-          Ab1FastaImporter importer = new Ab1FastaImporter(fc.getSelectedFiles());
+          SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
           importer.execute();
           return importer.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -63,7 +63,7 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Imports one or more AB1/Fasta files and parses the file name to create extra search fields";
+    return "Imports one or more AB1/fasta files and parses the file name to create extra search fields";
   }
 
   @Override

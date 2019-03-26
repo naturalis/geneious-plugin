@@ -50,7 +50,7 @@ class Ab1Importer {
         if (apds.size() != 1) { // We don't understand when this might happen, so let's just crash
           String fmt = "Unexpected number of documents created from a single file (%s): %s. Aborting.";
           String msg = String.format(fmt, f.getName(), apds.size());
-          throw new AssertionError(msg);
+          throw new IllegalStateException(msg);
         }
         AnnotatedPluginDocument doc = apds.get(0);
         doc.setName(info.getName());

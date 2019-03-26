@@ -35,9 +35,9 @@ public final class LogSession implements AutoCloseable {
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
     dialog.setTitle(title);
     dialog.setContentPane(writer.getScrollPane());
-    dialog.setLocationRelativeTo(null);
     GeneiousGUI.scale(dialog, .5, .4, 600, 400);
     dialog.pack();
+    dialog.setLocationRelativeTo(null);
     dialog.setVisible(true);
   }
 

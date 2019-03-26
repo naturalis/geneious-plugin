@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.DocumentResultSetInspector;
 import nl.naturalis.geneious.util.StoredDocument;
 
@@ -24,9 +24,9 @@ import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
  *
  * @author Ayco Holleman
  */
-class DocumentAnnotator {
+class Annotator {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentAnnotator.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Annotator.class);
 
   private final List<ImportableDocument> docs;
 
@@ -35,7 +35,7 @@ class DocumentAnnotator {
 
   private Set<StoredDocument> dummies;
 
-  DocumentAnnotator(List<ImportableDocument> docs) {
+  Annotator(List<ImportableDocument> docs) {
     this.docs = docs;
   }
 
@@ -45,13 +45,13 @@ class DocumentAnnotator {
    * @throws DatabaseServiceException
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    guiLogger.info("Annotating documents");
+    guiLogger.info("Creating document notes");
     List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
-    guiLogger.debug(() -> "Collecting extract IDs");
+    guiLogger.debug(() -> "Collecting extract IDs from document notes");
     HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
     annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
-    guiLogger.debugf(() -> format("Searching database \"%s\" for stored documents with the same extract IDs", getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> docs = findByExtractID(ids);
+    guiLogger.debugf(() -> format("Searching database \"%s\" for the provided extract IDs", getTargetDatabaseName()));
+    APDList docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
     DocumentResultSetInspector inspector = new DocumentResultSetInspector(docs);
     Set<StoredDocument> dummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
@@ -74,7 +74,8 @@ class DocumentAnnotator {
   }
 
   /**
-   * Returns the number of documents which could not be annotated (most likely because the sequence name could not be parsed).
+   * Returns the number of documents which could not be annotated (most likely because the sequence name could not be
+   * parsed).
    * 
    * @return
    */
@@ -83,7 +84,8 @@ class DocumentAnnotator {
   }
 
   /**
-   * Returns all dummy documents that were found and used for their annotations. They have served their purpose and should now be deleted.
+   * Returns all dummy documents that were found and used for their annotations. They have served their purpose and should
+   * now be deleted.
    * 
    * @return
    */

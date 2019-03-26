@@ -15,6 +15,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
+import nl.naturalis.geneious.util.DebugUtil;
 import nl.naturalis.geneious.util.DummySequenceDocument;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.RowProvider;
@@ -51,12 +52,12 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
 
   private APDList importSampleSheet() throws DatabaseServiceException {
     if (cfg.isCreateDummies()) {
-      return enrichOrCreateDummies();
+      return updateOrCreateDummies();
     }
-    return enrichOnly();
+    return updateOnly();
   }
 
-  private APDList enrichOrCreateDummies() throws DatabaseServiceException {
+  private APDList updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
@@ -66,6 +67,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     APDList dummies = new APDList();
     int good = 0, bad = 0, updatedDummies = 0, unused = 0;
     for (int i = 0; i < rows.size(); ++i) {
+      if (guiLogger.isDebugEnabled()) {
+        guiLogger.debug("Processing row: %s", DebugUtil.toJson(rows.get(i)));
+      }
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
       final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
@@ -80,6 +84,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         guiLogger.error(e.getMessage());
         ++bad;
         continue;
+      }
+      if (guiLogger.isDebugEnabled()) {
+        guiLogger.debug("Note created: %s", DebugUtil.toJson(note, false));
       }
       ++good;
       StoredDocumentList docs0 = selected.get(note.getExtractId());
@@ -122,11 +129,13 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("UNUSED ROW: The row's extract ID was found in an existing");
     guiLogger.info("            document, but the  document was not selected");
     guiLogger.info("            and therefore not updated.");
+    guiLogger.info("Import type: update existing documents or create dummies");
     guiLogger.info("Import completed successfully");
-    return updates.and(dummies);
+    updates.addAll(dummies);
+    return updates;
   }
 
-  private APDList enrichOnly() {
+  private APDList updateOnly() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
     StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
@@ -134,6 +143,9 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, unused = 0;
     for (int i = 1; i < rows.size(); ++i) {
+      if (guiLogger.isDebugEnabled()) {
+        guiLogger.debug("Processing row: %s", DebugUtil.toJson(rows.get(i)));
+      }
       SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
       final int rowNum = i + cfg.getSkipLines();
       if (row.isEmpty()) {
@@ -149,6 +161,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         ++bad;
         continue;
       }
+      guiLogger.debugf(() -> format("Note created: ", DebugUtil.toJson(note)));
       ++good;
       String extractId = note.getExtractId();
       StoredDocumentList docs = selectedDocuments.get(extractId);
@@ -176,6 +189,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Number of unchanged documents ..............: %3d", numUnchanged);
     guiLogger.info("UNUSED ROW: The row's extract ID did not correspond to any");
     guiLogger.info("            of the selected documents.");
+    guiLogger.info("Import type: update existing documents; do not create dummies");
     guiLogger.info("Import completed successfully");
     return updates;
   }

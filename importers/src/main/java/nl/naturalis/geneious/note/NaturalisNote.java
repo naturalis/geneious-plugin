@@ -5,6 +5,11 @@ import java.util.Map;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+
+import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.util.StoredDocument;
 
@@ -16,6 +21,8 @@ public final class NaturalisNote {
 
   private final EnumMap<NaturalisField, Object> data;
 
+  private static final String ERR_EMPTY = "Value must not be null or whitespace only (field=%s)";
+
   public NaturalisNote() {
     data = new EnumMap<>(NaturalisField.class);
   }
@@ -26,26 +33,26 @@ public final class NaturalisNote {
   }
 
   public void parseAndSet(NaturalisField field, String value) {
-    if (value != null) {
-      data.put(field, field.parse(value));
-    }
+    Preconditions.checkArgument(StringUtils.isNotBlank(value), ERR_EMPTY, field);
+    data.put(field, field.parse(value));
   }
 
   public void castAndSet(NaturalisField field, Object value) {
-    if (value != null) {
-      data.put(field, field.cast(value));
+    Preconditions.checkNotNull(value, ERR_EMPTY, field);
+    if (value instanceof CharSequence && StringUtils.isBlank((CharSequence) value)) {
+      throw new IllegalArgumentException(String.format(ERR_EMPTY, field));
     }
+    data.put(field, field.cast(value)); // Force ClassCastException as soon as possible
   }
 
   @SuppressWarnings("unchecked")
   public <T> T get(NaturalisField field) {
-    Object val = data.get(field);
-    return (T) (val == null ? null : val);
+    return (T) data.get(field);
   }
 
   public String getExtractId() {
-    Object v = data.get(SMPL_EXTRACT_ID);
-    return (String) (v == null ? data.get(SEQ_EXTRACT_ID) : v);
+    String s = get(SEQ_EXTRACT_ID);
+    return s == null ? get(SMPL_EXTRACT_ID) : s;
   }
 
   public Integer getDocumentVersion() {
@@ -57,20 +64,17 @@ public final class NaturalisNote {
     data.put(DOCUMENT_VERSION, String.valueOf(version));
   }
 
-  public void setDocumentVersion(String version) {
-    data.put(DOCUMENT_VERSION, version);
+  public void incrementDocumentVersion(int ifNull) {
+    Integer v = getDocumentVersion();
+    String s = String.valueOf(v == null ? ifNull : v.intValue() + 1);
+    data.put(DOCUMENT_VERSION, s);
   }
 
-  public void incrementDocumentVersion(int whenNull) {
-    Integer version = getDocumentVersion();
-    if (version == null) {
-      data.put(DOCUMENT_VERSION, String.valueOf(whenNull));
-    } else {
-      int i = version.intValue() + 1;
-      data.put(DOCUMENT_VERSION, String.valueOf(i));
-    }
-  }
-
+  /**
+   * Copies this note's values to the other note (overwriting any previous values).
+   * 
+   * @param other
+   */
   public void copyFrom(NaturalisNote other) {
     data.putAll(other.data);
   }
@@ -100,15 +104,34 @@ public final class NaturalisNote {
       field.castAndWrite(notes, data.get(field));
     }
     notes.saveNotes();
+    document.save();
   }
 
   public boolean saveTo(StoredDocument document) {
     if (copyTo(document.getNaturalisNote())) {
       saveTo(document.getGeneiousDocument());
-      document.getGeneiousDocument().save();
       return true;
     }
     return false;
+  }
+
+  @JsonValue
+  public Map<NaturalisField, Object> data() {
+    return ImmutableMap.copyOf(data);
+  }
+
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    return data.equals(((NaturalisNote) obj).data);
+  }
+
+  public int hashCode() {
+    return data.hashCode();
   }
 
 }

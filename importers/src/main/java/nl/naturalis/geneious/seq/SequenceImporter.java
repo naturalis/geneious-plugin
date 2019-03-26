@@ -21,24 +21,24 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-class Ab1FastaImporter extends SwingWorker<APDList, Void> {
+class SequenceImporter extends SwingWorker<APDList, Void> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImporter.class);
 
   private final File[] files;
 
   /**
    * Creates a new trace file importer that imports the specified files.
    * 
-   * @param traceFiles
+   * @param files The ab1/files selected by the user
    */
-  Ab1FastaImporter(File[] traceFiles) {
-    this.files = traceFiles;
+  SequenceImporter(File[] files) {
+    this.files = files;
   }
 
   @Override
   protected APDList doInBackground() {
-    return importTraceFiles();
+    return importSequences();
   }
 
   /**
@@ -48,12 +48,12 @@ class Ab1FastaImporter extends SwingWorker<APDList, Void> {
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  private APDList importTraceFiles() {
+  private APDList importSequences() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
       Ab1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
-      DocumentAnnotator annotator = null;
+      Annotator annotator = null;
       List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
         ab1Importer = new Ab1Importer(ab1s);
@@ -65,7 +65,7 @@ class Ab1FastaImporter extends SwingWorker<APDList, Void> {
         docs.addAll(fastaImporter.importFiles());
       }
       if (docs.size() != 0) {
-        annotator = new DocumentAnnotator(docs);
+        annotator = new Annotator(docs);
         annotator.annotateImportedDocuments();
         Set<StoredDocument> dummies = annotator.getObsoleteDummyDocuments();
         if (!dummies.isEmpty()) {
@@ -76,16 +76,22 @@ class Ab1FastaImporter extends SwingWorker<APDList, Void> {
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {
+        processed = ab1Importer.getNumProcessed();
+        rejected = ab1Importer.getNumRejected();
+        imported = ab1Importer.getNumImported();
         guiLogger.info("Number of AB1 files selected ..........: %3d", ab1s.size());
-        guiLogger.info("Number of AB1 documents created .......: %3d", (processed = ab1Importer.getNumProcessed()));
-        guiLogger.info("Number of AB1 documents rejected ......: %3d", (rejected = ab1Importer.getNumRejected()));
-        guiLogger.info("Number of AB1 documents imported ......: %3d", (imported = ab1Importer.getNumImported()));
+        guiLogger.info("Number of AB1 documents created .......: %3d", processed);
+        guiLogger.info("Number of AB1 documents rejected ......: %3d", rejected);
+        guiLogger.info("Number of AB1 documents imported ......: %3d", imported);
       }
       if (fastaImporter != null) {
+        processed += fastaImporter.getNumProcessed();
+        rejected += fastaImporter.getNumRejected();
+        imported += fastaImporter.getNumImported();
         guiLogger.info("Number of FASTA files selected ........: %3d", fastas.size());
-        guiLogger.info("Number of FASTA documents created .....: %3d", (processed += fastaImporter.getNumProcessed()));
-        guiLogger.info("Number of FASTA documents rejected ....: %3d", (rejected += fastaImporter.getNumRejected()));
-        guiLogger.info("Number of FASTA documents imported ....: %3d", (imported += fastaImporter.getNumImported()));
+        guiLogger.info("Number of FASTA documents created .....: %3d", fastaImporter.getNumProcessed());
+        guiLogger.info("Number of FASTA documents rejected ....: %3d", fastaImporter.getNumRejected());
+        guiLogger.info("Number of FASTA documents imported ....: %3d", fastaImporter.getNumImported());
       }
       if (ab1Importer != null && fastaImporter != null) {
         guiLogger.info("Total number of files selected ........: %3d", files.length);

@@ -2,6 +2,8 @@ package nl.naturalis.geneious.seq;
 
 import java.io.File;
 
+import com.google.common.base.Preconditions;
+
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
@@ -40,6 +42,7 @@ final class Ab1SequenceInfo extends SequenceInfo {
 
   @Override
   NaturalisNote getNaturalisNote() {
+    Preconditions.checkNotNull(note, "Note not yet created");
     return note;
   }
 

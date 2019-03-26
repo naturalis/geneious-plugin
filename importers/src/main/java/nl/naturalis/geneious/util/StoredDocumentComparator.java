@@ -15,6 +15,10 @@ public class StoredDocumentComparator implements Comparator<StoredDocument> {
 
   public static final StoredDocumentComparator INSTANCE = new StoredDocumentComparator();
 
+  public static StoredDocument chooseLatest(StoredDocument doc1, StoredDocument doc2) {
+    return INSTANCE.compare(doc1, doc2) < 0 ? doc2 : doc1;
+  }
+
   private StoredDocumentComparator() {}
 
   @Override
