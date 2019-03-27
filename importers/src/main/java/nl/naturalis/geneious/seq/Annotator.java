@@ -33,7 +33,7 @@ class Annotator {
   private int successCount;
   private int failureCount;
 
-  private Set<StoredDocument> dummies;
+  private Set<StoredDocument> obsoleteDummies;
 
   Annotator(List<ImportableDocument> docs) {
     this.docs = docs;
@@ -55,14 +55,8 @@ class Annotator {
     APDList docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
     QueryResultManager queryResultManager = new QueryResultManager(docs);
-    Set<StoredDocument> dummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
-    annotatableDocs.forEach(doc -> {
-      StoredDocument document = doc.annotate(queryResultManager);
-      if (document != null && document.isDummy()) {
-        dummies.add(document);
-      }
-    });
-    this.dummies = dummies;
+    obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
+    annotatableDocs.forEach(doc -> doc.annotate(queryResultManager).ifPresent(dummy -> obsoleteDummies.add(dummy)));
   }
 
   /**
@@ -91,7 +85,7 @@ class Annotator {
    * @return
    */
   Set<StoredDocument> getObsoleteDummyDocuments() {
-    return dummies;
+    return obsoleteDummies;
   }
 
   private List<ImportableDocument> getAnnotatableDocuments() {

@@ -25,8 +25,8 @@ public class StoredDocumentComparator implements Comparator<StoredDocument> {
   public int compare(StoredDocument doc1, StoredDocument doc2) {
     AnnotatedPluginDocument apd1 = doc1.getGeneiousDocument();
     AnnotatedPluginDocument apd2 = doc2.getGeneiousDocument();
-    Integer v1 = doc1.getNaturalisNote().getDocumentVersion();
-    Integer v2 = doc2.getNaturalisNote().getDocumentVersion();
+    Integer v1 = Integer.valueOf(doc1.getNaturalisNote().getDocumentVersion());
+    Integer v2 = Integer.valueOf(doc2.getNaturalisNote().getDocumentVersion());
     if (v1 == null) {
       if (v2 != null) {
         return -1; // Prefer anything over null

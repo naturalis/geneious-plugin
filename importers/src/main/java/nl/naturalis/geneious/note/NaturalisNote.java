@@ -1,6 +1,7 @@
 package nl.naturalis.geneious.note;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -10,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import nl.naturalis.geneious.util.StoredDocument;
 
@@ -24,9 +26,10 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
  */
 public final class NaturalisNote {
 
-  private final EnumMap<NaturalisField, Object> data;
-
+  private static final EnumSet<NaturalisField> DEDICATED_SETTER_REQUIRED = EnumSet.of(DOCUMENT_VERSION);
   private static final String ERR_EMPTY = "Value must not be null or whitespace only (field=%s)";
+
+  private final EnumMap<NaturalisField, Object> data;
 
   /**
    * Creates a new empty note.
@@ -55,6 +58,7 @@ public final class NaturalisNote {
    */
   public void parseAndSet(NaturalisField field, String value) {
     Preconditions.checkArgument(StringUtils.isNotBlank(value), ERR_EMPTY, field);
+    Preconditions.checkArgument(!DEDICATED_SETTER_REQUIRED.contains(field), "Must use dedicated setter for " + field);
     data.put(field, field.parse(value));
   }
 
@@ -68,6 +72,7 @@ public final class NaturalisNote {
    */
   public void castAndSet(NaturalisField field, Object value) {
     Preconditions.checkNotNull(value, ERR_EMPTY, field);
+    Preconditions.checkArgument(!DEDICATED_SETTER_REQUIRED.contains(field), "Must use dedicated setter for " + field);
     if (value instanceof CharSequence && StringUtils.isBlank((CharSequence) value)) {
       throw new IllegalArgumentException(String.format(ERR_EMPTY, field));
     }
@@ -86,6 +91,17 @@ public final class NaturalisNote {
   }
 
   /**
+   * Removes the specified field (and its value) from the note. Returns true if this note did have a value for the
+   * specified field, false otherwise.
+   * 
+   * @param field
+   * @return
+   */
+  public boolean remove(NaturalisField field) {
+    return data.remove(field) != null;
+  }
+
+  /**
    * Convenience method for retrieving the ubiquitous extract ID.
    * 
    * @return
@@ -100,9 +116,21 @@ public final class NaturalisNote {
    * 
    * @return
    */
-  public Integer getDocumentVersion() {
-    String val = get(DOCUMENT_VERSION);
-    return val == null ? null : Integer.valueOf(val);
+  public String getDocumentVersion() {
+    return get(DOCUMENT_VERSION);
+  }
+
+  /**
+   * Sets the document version to the specified number. N.B. you cannot use the generic {@code parseAndSet} and
+   * {@code castAndSet} methods to set the document version (will throw an IllegalArgumentException).
+   * 
+   * @param version
+   */
+  public void setDocumentVersion(int version) {
+    if (version < 0) {
+      throw new IllegalArgumentException("Invalid document version: " + version);
+    }
+    data.put(DOCUMENT_VERSION, String.valueOf(version));
   }
 
   /**
@@ -110,25 +138,32 @@ public final class NaturalisNote {
    * 
    * @param version
    */
-  public void setDocumentVersion(int version) {
-    data.put(DOCUMENT_VERSION, String.valueOf(version));
+  public void setDocumentVersion(String version) {
+    int i = NumberUtils.toInt(version, -1);
+    if (i < 0) {
+      throw new IllegalArgumentException("Invalid document version: " + version);
+    }
+    data.put(DOCUMENT_VERSION, version);
   }
 
   /**
-   * Increments the document version of this note or sets it to the specified value if the note didn't have a document
-   * version yet.
+   * Increments the document version of this note or sets it to 1 if the note did not have a document version yet.
    * 
-   * @param ifNull
    */
-  public void incrementDocumentVersion(int ifNull) {
-    Integer v = getDocumentVersion();
-    String s = String.valueOf(v == null ? ifNull : v.intValue() + 1);
-    data.put(DOCUMENT_VERSION, s);
+  public void incrementDocumentVersion(String previous) {
+    if (previous == null) {
+      data.put(DOCUMENT_VERSION, "1");
+    }
+    int i = NumberUtils.toInt(previous, -1);
+    if (i < 0) {
+      throw new IllegalArgumentException("Invalid document version: " + previous);
+    }
+    data.put(DOCUMENT_VERSION, String.valueOf(++i));
   }
 
   /**
-   * Copies this note's values into the other note, overwriting any previous values. Returns true if the target note's
-   * values changed as a result, false otherwise.
+   * Copies this note's values into the other note, overwriting any previous values the other note may have had. Returns
+   * true if there was a change in the target note, false otherwise.
    * 
    * @param other
    * @return
@@ -138,6 +173,29 @@ public final class NaturalisNote {
     for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
       Object val = other.data.get(e.getKey());
       if (val == null || !val.equals(e.getValue())) {
+        other.data.put(e.getKey(), e.getValue());
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  /**
+   * Copies this note's values into the other note. Returns true if there was a change in the target note, false
+   * otherwise.
+   * 
+   * @param other
+   * @param overwrite Whether or not to overwrite the values in the other note.
+   * @return
+   */
+  public boolean copyTo(NaturalisNote other, boolean overwrite) {
+    if (overwrite) {
+      return copyTo(other);
+    }
+    boolean changed = false;
+    for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+      Object val = other.data.get(e.getKey());
+      if (val == null) {
         other.data.put(e.getKey(), e.getValue());
         changed = true;
       }
@@ -170,7 +228,7 @@ public final class NaturalisNote {
   }
 
   /**
-   * Saves this note to the specified document. Returns true of the document changed as a result, false otherwise.
+   * Saves this note to the specified document. Returns true if the document changed as a result, false otherwise.
    * 
    * @param document
    * @return

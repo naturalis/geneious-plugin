@@ -12,7 +12,6 @@ import nl.naturalis.geneious.util.QueryResultManager;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 
 /**
  * A simple combination of an {@link AnnotatedPluginDocument} and a {@code SequenceInfo} object that will be used to
@@ -51,39 +50,41 @@ class ImportableDocument {
   }
 
   /**
-   * Attaches the {@link NaturalisNote} to the Geneious document. The provided {@code DocumentResultSetInspector} is used
-   * to look up a previous version of the Geneious document (dummy or "real"). If found, the {@code NaturalisNote} acquire
-   * the annotations from that document before being attached. If there are multiple previous versions, the most recent
-   * one will be chosen for its annotations.
+   * Attaches the {@link NaturalisNote} to the Geneious document. The provided {@code QueryResultManager} is used to look
+   * up older documents with the same extract ID (dummy or real). In case the QueryResultManager yields a regular
+   * (AB1/fasta) document, its document version is used to determine the document version of this document. If the
+   * QueryResultManager yields a dummy document, its annotations will be copied over to this document AND the dummy
+   * document will be pased on (returned) to the caller, who may then proceed to delete the dummy. Otherwise an empty
+   * {@code Optional} is returned to the caller.
    * 
-   * @param inspector
-   * @return An {@code ImportedDocument} that contains the version immediately preceding the document inside this
-   *         {@code ImportableDocument}, or null if this {@code ImportableDocument} contains a new Geneious document
-   *         (based on the extract ID).
+   * @param queryResultManager
+   * @return
    */
-  StoredDocument annotate(QueryResultManager inspector) {
+  Optional<StoredDocument> annotate(QueryResultManager queryResultManager) {
     DocumentType type = sequenceInfo.getDocumentType();
     guiLogger.debugf(() -> format("Splitting \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
     String extractId = note.getExtractId();
-    Optional<StoredDocument> opt = inspector.find(extractId, type);
-    StoredDocument previous = null;
-    if (opt.isPresent()) {
-      previous = opt.get();
-      String version = DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument());
-      guiLogger.debugf(() -> format("Found older %s document with version %s for extract ID %s", type, version, extractId));
-      note.setDocumentVersion(DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument()));
-      note.incrementDocumentVersion(1);
-    } else {
-      note.setDocumentVersion(0);
-      opt = inspector.findDummy(extractId);
-      if (opt.isPresent()) {
-        previous = opt.get();
-        note.readFrom(previous.getGeneiousDocument());
-      }
+    guiLogger.debugf(() -> format("Searching query cache for %s document(s) with extract ID %s", type, extractId));
+    Optional<StoredDocument> optional = queryResultManager.find(extractId, type);
+    if (optional.isPresent()) {
+      String version = optional.get().getNaturalisNote().getDocumentVersion();
+      guiLogger.debugf(() -> format("Found. Document version: %s", version));
+      note.incrementDocumentVersion(version);
+      note.saveTo(document);
+      return Optional.empty();
     }
-    note.saveTo(document);
-    return previous;
+    note.setDocumentVersion(1);
+    guiLogger.debugf(() -> format("Not found. Searching query cache for dummy document with extract ID %s", extractId));
+    optional = queryResultManager.findDummy(extractId);
+    if (optional.isPresent()) {
+      guiLogger.debug(() -> "Found. Copying annotations from dummy document");
+      optional.get().getNaturalisNote().copyTo(note, false);
+      note.saveTo(document);
+      return optional;
+    }
+    guiLogger.debug(() -> "Not found. Creating fresh %s document");
+    return Optional.empty();
   }
 
 }
