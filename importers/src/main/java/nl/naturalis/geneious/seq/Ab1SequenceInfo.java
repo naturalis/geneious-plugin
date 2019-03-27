@@ -7,7 +7,7 @@ import com.google.common.base.Preconditions;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.util.SequenceNameParser;
+import nl.naturalis.geneious.split.SequenceNameParser;
 
 import static nl.naturalis.common.io.NFiles.basename;
 

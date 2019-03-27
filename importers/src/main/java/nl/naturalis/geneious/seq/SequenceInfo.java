@@ -5,7 +5,7 @@ import java.io.File;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.util.SequenceNameParser;
+import nl.naturalis.geneious.split.SequenceNameParser;
 
 /**
  * Abstract base class for classes providing information about a single nucleotide sequence. {@code SequenceInfo} objects are responsible

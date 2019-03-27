@@ -1,9 +1,8 @@
-package nl.naturalis.geneious.util;
+package nl.naturalis.geneious.split;
 
 import java.util.regex.Pattern;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.NotParsableException;
 
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;

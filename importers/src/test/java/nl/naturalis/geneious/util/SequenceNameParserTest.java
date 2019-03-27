@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.split.SequenceNameParser;
 
 import static org.junit.Assert.*;
 

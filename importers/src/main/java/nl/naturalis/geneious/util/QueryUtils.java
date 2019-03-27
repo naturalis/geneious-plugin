@@ -2,7 +2,6 @@ package nl.naturalis.geneious.util;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Random;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
@@ -53,22 +52,10 @@ public class QueryUtils {
     return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
   }
 
-  public static void deleteDocuments(Set<StoredDocument> dummies) throws DatabaseServiceException {
-    String tmpFolderName = getTmpFolderName();
-    WritableDatabaseService dummyFolder = getTargetDatabase().createChildFolder(tmpFolderName);
-    for (StoredDocument d : dummies) {
+  public static void deleteDocuments(Set<StoredDocument> documents) throws DatabaseServiceException {
+    for (StoredDocument d : documents) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
-      dummyFolder.moveDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
-    getTargetDatabase().removeChildFolder(tmpFolderName);
-  }
-
-  private static String getTmpFolderName() {
-    return new StringBuilder(64)
-        .append("dummies-")
-        .append(System.currentTimeMillis())
-        .append(new Random().nextInt(100))
-        .toString();
   }
 
 }
