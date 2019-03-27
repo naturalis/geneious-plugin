@@ -19,9 +19,9 @@ import static nl.naturalis.geneious.util.DocumentUtils.isAb1File;
 import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
 
 /**
- * Divides the files selected by the user in the file chooser dialog into AB1 files and fasta files and then calls the
- * {@link FastaFileSplitter} to split the fasta files into nucleotide sequences. Note that this is an Autocloseable class. You SHOULD create
- * instances of it using a try-with-resources block. This will ensure that the temporary files created by the fasta will be deleted once the
+ * Separates AB1 files from fasta files and then calls the {@link FastaFileSplitter} to split the fasta files into
+ * individual nucleotide sequences. Note that this is an Autocloseable class. You SHOULD create instances of it using a
+ * try-with-resources block. This will ensure that the temporary files created by the fasta will be deleted once the
  * import completes.
  * 
  * {@link FastaFileSplitter}.
@@ -29,9 +29,9 @@ import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
 class SequenceInfoProvider implements AutoCloseable {
 
   /**
-   * The maximum number of user-selected fasta files that will be dealt with in-memory (500). If the user selects more than this number of
-   * fasta files, or if he/she has disabled fasta file caching in the Prefences panel, the individual nucleotide sequences will be written
-   * to temporary files.
+   * The maximum number of user-selected fasta files that will be dealt with in-memory (500). If the user selects more
+   * than this number of fasta files, or if he/she has disabled fasta file caching in the Prefences panel, the individual
+   * nucleotide sequences will be written to temporary files.
    */
   static final int MAX_FASTAS_IN_MEMORY = 500;
 
@@ -39,12 +39,12 @@ class SequenceInfoProvider implements AutoCloseable {
 
   private final boolean inMemory;
   private final FastaFileSplitter splitter;
-  private final List<Ab1SequenceInfo> ab1Sequences;
-  private final List<FastaSequenceInfo> fastaSequences;
+  private final List<AB1Info> ab1Sequences;
+  private final List<FastaInfo> fastaSequences;
 
   /**
-   * Creates a new {@code SequenceInfoProvider} for the specified AB1/fasta files. Ordinarily these files would come from a file chooser
-   * dialog presented to the user.
+   * Creates a new {@code SequenceInfoProvider} for the specified AB1/fasta files. Ordinarily these files would come from
+   * a file chooser dialog presented to the user.
    * 
    * @param files
    * @throws NotParsableException
@@ -58,7 +58,7 @@ class SequenceInfoProvider implements AutoCloseable {
     for (File f : files) {
       try {
         if (isAb1File(f)) {
-          ab1Sequences.add(new Ab1SequenceInfo(f));
+          ab1Sequences.add(new AB1Info(f));
         } else if (isFastaFile(f)) {
           fastaSequences.addAll(splitter.split(f));
         } else {
@@ -75,7 +75,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * 
    * @return
    */
-  List<Ab1SequenceInfo> getAb1Sequences() {
+  List<AB1Info> getAb1Sequences() {
     return ab1Sequences;
   }
 
@@ -84,7 +84,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * 
    * @return
    */
-  List<FastaSequenceInfo> getFastaSequences() {
+  List<FastaInfo> getFastaSequences() {
     return fastaSequences;
   }
 

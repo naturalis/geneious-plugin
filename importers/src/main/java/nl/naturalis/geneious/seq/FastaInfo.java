@@ -15,7 +15,7 @@ import nl.naturalis.geneious.split.SequenceNameParser;
 /**
  * Provides information about a fasta-encoded sequence.
  */
-final class FastaSequenceInfo extends SequenceInfo {
+final class FastaInfo extends SequenceInfo {
 
   private final File child;
 
@@ -23,13 +23,13 @@ final class FastaSequenceInfo extends SequenceInfo {
   private String sequence;
   private NaturalisNote note;
 
-  FastaSequenceInfo(File mother, String name, File child) {
+  FastaInfo(File mother, String name, File child) {
     super(mother);
     this.name = name;
     this.child = child;
   }
 
-  FastaSequenceInfo(File mother, String name, String sequence) {
+  FastaInfo(File mother, String name, String sequence) {
     super(mother);
     this.child = null;
     this.name = name;

@@ -30,5 +30,4 @@ public class APDList extends ArrayList<AnnotatedPluginDocument> {
     super(c);
   }
 
-
 }

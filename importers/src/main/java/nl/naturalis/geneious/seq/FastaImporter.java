@@ -23,13 +23,13 @@ class FastaImporter {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaImporter.class);
 
-  private final List<FastaSequenceInfo> sequences;
+  private final List<FastaInfo> sequences;
 
   private int processed;
   private int imported;
   private int rejected;
 
-  FastaImporter(List<FastaSequenceInfo> sequences) {
+  FastaImporter(List<FastaInfo> sequences) {
     guiLogger.info("Starting fasta file importer");
     this.sequences = sequences;
   }
@@ -43,14 +43,14 @@ class FastaImporter {
   List<ImportableDocument> importFiles() throws IOException {
     processed = imported = rejected = 0;
     List<ImportableDocument> importables = new ArrayList<>();
-    LinkedHashMap<File, ArrayList<FastaSequenceInfo>> fastas = mapMothersToChildren();
+    LinkedHashMap<File, ArrayList<FastaInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument document;
     for (File motherFile : fastas.keySet()) {
-      guiLogger.debugf(() -> format("Importing file \"%s\"", motherFile.getName()));
-      for (FastaSequenceInfo info : fastas.get(motherFile)) {
+      guiLogger.debugf(() -> format("Importing file %s", motherFile.getName()));
+      for (FastaInfo info : fastas.get(motherFile)) {
         ++processed;
-        guiLogger.debugf(() -> format("--> Importing sequence \"%s\"", info.getName()));
+        guiLogger.debugf(() -> format("--> Importing sequence %s", info.getName()));
         sequence = new DefaultNucleotideSequence(info.getName(), info.getSequence());
         document = createAnnotatedPluginDocument(sequence);
         ++imported;
@@ -72,10 +72,10 @@ class FastaImporter {
     return rejected;
   }
 
-  private LinkedHashMap<File, ArrayList<FastaSequenceInfo>> mapMothersToChildren() {
-    LinkedHashMap<File, ArrayList<FastaSequenceInfo>> map = new LinkedHashMap<>();
-    for (FastaSequenceInfo info : sequences) {
-      ArrayList<FastaSequenceInfo> infos = map.get(info.getSourceFile());
+  private LinkedHashMap<File, ArrayList<FastaInfo>> mapMothersToChildren() {
+    LinkedHashMap<File, ArrayList<FastaInfo>> map = new LinkedHashMap<>();
+    for (FastaInfo info : sequences) {
+      ArrayList<FastaInfo> infos = map.get(info.getSourceFile());
       if (infos == null) {
         infos = new ArrayList<>();
         map.put(info.getSourceFile(), infos);

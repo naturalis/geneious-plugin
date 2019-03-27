@@ -39,7 +39,7 @@ public class GuiLogManager {
 
   private final LogWriter writer;
   private final HashMap<Class<?>, GuiLogger> loggers;
-  
+
   private GuiLogManager() {
     this.writer = new LogWriter();
     this.loggers = new HashMap<>();

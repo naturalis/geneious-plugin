@@ -14,13 +14,13 @@ import static nl.naturalis.common.io.NFiles.basename;
 /**
  * Provides information about an AB1-encoded sequence.
  */
-final class Ab1SequenceInfo extends SequenceInfo {
+final class AB1Info extends SequenceInfo {
 
   private final String name;
 
   private NaturalisNote note;
 
-  Ab1SequenceInfo(File sourceFile) {
+  AB1Info(File sourceFile) {
     super(sourceFile);
     name = basename(getSourceFile());
   }

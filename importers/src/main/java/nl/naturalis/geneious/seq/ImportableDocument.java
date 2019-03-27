@@ -8,7 +8,7 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.DocumentResultSetInspector;
+import nl.naturalis.geneious.util.QueryResultManager;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -61,9 +61,9 @@ class ImportableDocument {
    *         {@code ImportableDocument}, or null if this {@code ImportableDocument} contains a new Geneious document
    *         (based on the extract ID).
    */
-  StoredDocument annotate(DocumentResultSetInspector inspector) {
+  StoredDocument annotate(QueryResultManager inspector) {
     DocumentType type = sequenceInfo.getDocumentType();
-    guiLogger.debugf(() -> format("Annotating \"%s\"", sequenceInfo.getName()));
+    guiLogger.debugf(() -> format("Splitting \"%s\"", sequenceInfo.getName()));
     NaturalisNote note = sequenceInfo.getNaturalisNote();
     String extractId = note.getExtractId();
     Optional<StoredDocument> opt = inspector.find(extractId, type);
@@ -71,7 +71,7 @@ class ImportableDocument {
     if (opt.isPresent()) {
       previous = opt.get();
       String version = DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument());
-      guiLogger.debugf(() -> format("Found older %s document with version %s for \"%s\"", type, version, extractId));
+      guiLogger.debugf(() -> format("Found older %s document with version %s for extract ID %s", type, version, extractId));
       note.setDocumentVersion(DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument()));
       note.incrementDocumentVersion(1);
     } else {

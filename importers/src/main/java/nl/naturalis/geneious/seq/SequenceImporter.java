@@ -51,15 +51,15 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
   private APDList importSequences() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
-      Ab1Importer ab1Importer = null;
+      AB1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
       Annotator annotator = null;
-      List<Ab1SequenceInfo> ab1s = provider.getAb1Sequences();
+      List<AB1Info> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
-        ab1Importer = new Ab1Importer(ab1s);
+        ab1Importer = new AB1Importer(ab1s);
         docs.addAll(ab1Importer.importFiles());
       }
-      List<FastaSequenceInfo> fastas = provider.getFastaSequences();
+      List<FastaInfo> fastas = provider.getFastaSequences();
       if (fastas.size() != 0) {
         fastaImporter = new FastaImporter(fastas);
         docs.addAll(fastaImporter.importFiles());

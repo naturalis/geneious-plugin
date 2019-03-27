@@ -12,11 +12,12 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
 /**
- * Provides various types of lookups on a collection of Geneious documents (presumably fetched from the database).
+ * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
+ * database query.
  */
-public class DocumentResultSetInspector {
+public class QueryResultManager {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentResultSetInspector.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryResultManager.class);
 
   private final EnumMap<DocumentType, HashMap<String, StoredDocument>> byTypeByExtractId;
 
@@ -25,7 +26,7 @@ public class DocumentResultSetInspector {
    * 
    * @param documents
    */
-  public DocumentResultSetInspector(Collection<AnnotatedPluginDocument> documents) {
+  public QueryResultManager(Collection<AnnotatedPluginDocument> documents) {
     this.byTypeByExtractId = new EnumMap<>(DocumentType.class);
     cacheDocuments(documents);
   }

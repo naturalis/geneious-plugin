@@ -26,6 +26,7 @@ import static java.util.function.Predicate.not;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -63,7 +64,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Collecting extract IDs from sample sheet");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
-    guiLogger.info("Searching database for documents matching the extract IDs");
+    guiLogger.debugf(() -> format("Searching database %s for documents matching the extract IDs", getTargetDatabaseName()));
     Set<String> searchFor = extractIds.stream()
         .filter(not(selected::containsKey))
         .collect(Collectors.toSet());

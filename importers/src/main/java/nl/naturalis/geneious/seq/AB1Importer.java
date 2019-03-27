@@ -17,17 +17,17 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 /**
  * Imports the AB1 files selected by the user into Geneious.
  */
-class Ab1Importer {
+class AB1Importer {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1Importer.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(AB1Importer.class);
 
-  private final List<Ab1SequenceInfo> sequences;
+  private final List<AB1Info> sequences;
 
   private int processed;
   private int imported;
   private int rejected;
 
-  Ab1Importer(List<Ab1SequenceInfo> sequences) {
+  AB1Importer(List<AB1Info> sequences) {
     guiLogger.info("Starting AB1 file importer");
     this.sequences = sequences;
   }
@@ -41,13 +41,13 @@ class Ab1Importer {
   List<ImportableDocument> importFiles() throws IOException {
     processed = imported = rejected = 0;
     List<ImportableDocument> importables = new ArrayList<>(sequences.size());
-    for (Ab1SequenceInfo info : sequences) {
+    for (AB1Info info : sequences) {
       ++processed;
       File f = info.getSourceFile();
-      guiLogger.debugf(() -> format("Importing file: %s", f.getName()));
+      guiLogger.debugf(() -> format("Importing file %s", f.getName()));
       try {
         List<AnnotatedPluginDocument> apds = PluginUtilities.importDocuments(f, null);
-        if (apds.size() != 1) { // We don't understand when this might happen, so let's just crash
+        if (apds.size() != 1) { // We don't understand why/when this might happen, so let's just crash
           String fmt = "Unexpected number of documents created from a single file (%s): %s. Aborting.";
           String msg = String.format(fmt, f.getName(), apds.size());
           throw new IllegalStateException(msg);

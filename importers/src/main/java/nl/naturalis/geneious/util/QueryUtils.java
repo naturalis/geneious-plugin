@@ -71,7 +71,7 @@ public class QueryUtils {
     }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
-    guiLogger.debugf(() -> format("Query: ", query));
+    guiLogger.debugf(() -> format("Executing query: %s", query));
     return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
   }
 

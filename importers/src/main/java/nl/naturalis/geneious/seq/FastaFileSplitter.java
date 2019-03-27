@@ -41,7 +41,7 @@ class FastaFileSplitter {
   /**
    * Creates a new {@code FastaFileSplitter}.
    * 
-   * @param inMemory If {@code true}, the splitter will create {@link FastaSequenceInfo} instances with the sequence data already set.
+   * @param inMemory If {@code true}, the splitter will create {@link FastaInfo} instances with the sequence data already set.
    *        Otherwise it will save the sequence to temporaray, single-sequence fasta files.
    */
   FastaFileSplitter(boolean inMemory) {
@@ -60,8 +60,8 @@ class FastaFileSplitter {
    * @return
    * @throws IOException
    */
-  List<FastaSequenceInfo> split(File motherFile) throws IOException {
-    List<FastaSequenceInfo> files = new ArrayList<>();
+  List<FastaInfo> split(File motherFile) throws IOException {
+    List<FastaInfo> files = new ArrayList<>();
     StringBuilder buf = new StringBuilder(672); // fasta sequences actually contain 659 chars
     try (BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
       String header = br.readLine();
@@ -88,14 +88,14 @@ class FastaFileSplitter {
       } while (true);
     }
     if (files.size() > 1) {
-      guiLogger.debugf(() -> format("File \"%s\" was split into %s nucleotide sequences", motherFile.getName(), files.size()));
+      guiLogger.debugf(() -> format("File %s was split into %s nucleotide sequences", motherFile.getName(), files.size()));
     }
     return files;
   }
 
-  private FastaSequenceInfo newSequenceInfo(File mother, String header, String sequence) throws IOException {
+  private FastaInfo newSequenceInfo(File mother, String header, String sequence) throws IOException {
     if (inMemory) {
-      return new FastaSequenceInfo(mother, substring(header, 1), sequence);
+      return new FastaInfo(mother, substring(header, 1), sequence);
     }
     String base = FilenameUtils.getBaseName(mother.getName());
     String ext = FilenameUtils.getExtension(mother.getName());
@@ -112,7 +112,7 @@ class FastaFileSplitter {
       bos.write(NEWLINE);
       bos.write(sequence.getBytes(UTF_8));
     }
-    return new FastaSequenceInfo(mother, substring(header, 1), child);
+    return new FastaInfo(mother, substring(header, 1), child);
   }
 
   /**

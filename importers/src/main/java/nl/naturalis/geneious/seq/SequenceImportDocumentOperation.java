@@ -27,11 +27,11 @@ import nl.naturalis.geneious.util.RuntimeSettings;
  *
  * @author Ayco Holleman
  */
-public class Ab1FastaDocumentOperation extends DocumentOperation {
+public class SequenceImportDocumentOperation extends DocumentOperation {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaDocumentOperation.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImportDocumentOperation.class);
 
-  public Ab1FastaDocumentOperation() {
+  public SequenceImportDocumentOperation() {
     super();
   }
 

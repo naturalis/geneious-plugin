@@ -12,7 +12,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.DocumentResultSetInspector;
+import nl.naturalis.geneious.util.QueryResultManager;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
@@ -45,18 +45,19 @@ class Annotator {
    * @throws DatabaseServiceException
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    guiLogger.info("Creating document notes");
+    guiLogger.info("Splitting sequence names");
     List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
-    guiLogger.debug(() -> "Collecting extract IDs from document notes");
+    guiLogger.debug(() -> "Collecting extract IDs");
     HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
     annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
-    guiLogger.debugf(() -> format("Searching database \"%s\" for the provided extract IDs", getTargetDatabaseName()));
+    guiLogger.debugf(() -> format("Collected %s unique extract ID(s)", ids.size()));
+    guiLogger.debugf(() -> format("Searching database %s for documents matching the extract IDs", getTargetDatabaseName()));
     APDList docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
-    DocumentResultSetInspector inspector = new DocumentResultSetInspector(docs);
+    QueryResultManager queryResultManager = new QueryResultManager(docs);
     Set<StoredDocument> dummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
     annotatableDocs.forEach(doc -> {
-      StoredDocument document = doc.annotate(inspector);
+      StoredDocument document = doc.annotate(queryResultManager);
       if (document != null && document.isDummy()) {
         dummies.add(document);
       }
