@@ -17,26 +17,55 @@ import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
+/**
+ * A containing for all annotations that can be added using the Naturalis plugin.
+ *
+ * @author Ayco Holleman
+ */
 public final class NaturalisNote {
 
   private final EnumMap<NaturalisField, Object> data;
 
   private static final String ERR_EMPTY = "Value must not be null or whitespace only (field=%s)";
 
+  /**
+   * Creates a new empty note.
+   */
   public NaturalisNote() {
     data = new EnumMap<>(NaturalisField.class);
   }
 
+  /**
+   * Creates a new note and initializes it with the values found in the specified document.
+   * 
+   * @param document
+   */
   public NaturalisNote(AnnotatedPluginDocument document) {
     data = new EnumMap<>(NaturalisField.class);
     readFrom(document);
   }
 
+  /**
+   * Sets the specified field to the specified value, parsing it into an object of the field's datatype. This method will
+   * throw an {@code IllegalArgumentException} if the string cannot be parsed into such an object, or if the string is
+   * null or empty.
+   * 
+   * @param field
+   * @param value
+   */
   public void parseAndSet(NaturalisField field, String value) {
     Preconditions.checkArgument(StringUtils.isNotBlank(value), ERR_EMPTY, field);
     data.put(field, field.parse(value));
   }
 
+  /**
+   * Sets the specified field to the specified value, casting it to an object of the field's datatype. This method will
+   * throw a {@code ClassCastException} if the value cannot be cast this way, a {@code NullPointerException} if the value
+   * is null, and an {@code IllegalArgumentException} if the value is an empty string.
+   * 
+   * @param field
+   * @param value
+   */
   public void castAndSet(NaturalisField field, Object value) {
     Preconditions.checkNotNull(value, ERR_EMPTY, field);
     if (value instanceof CharSequence && StringUtils.isBlank((CharSequence) value)) {
@@ -45,25 +74,52 @@ public final class NaturalisNote {
     data.put(field, field.cast(value)); // Force ClassCastException as soon as possible
   }
 
+  /**
+   * Returns the value of the specified field within this note.
+   * 
+   * @param field
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public <T> T get(NaturalisField field) {
     return (T) data.get(field);
   }
 
+  /**
+   * Convenience method for retrieving the ubiquitous extract ID.
+   * 
+   * @return
+   */
   public String getExtractId() {
     String s = get(SEQ_EXTRACT_ID);
     return s == null ? get(SMPL_EXTRACT_ID) : s;
   }
 
+  /**
+   * Convenience method for retrieving the ubiquitous document version.
+   * 
+   * @return
+   */
   public Integer getDocumentVersion() {
     String val = get(DOCUMENT_VERSION);
     return val == null ? null : Integer.valueOf(val);
   }
 
+  /**
+   * Sets the document version to the specified number.
+   * 
+   * @param version
+   */
   public void setDocumentVersion(int version) {
     data.put(DOCUMENT_VERSION, String.valueOf(version));
   }
 
+  /**
+   * Increments the document version of this note or sets it to the specified value if the note didn't have a document
+   * version yet.
+   * 
+   * @param ifNull
+   */
   public void incrementDocumentVersion(int ifNull) {
     Integer v = getDocumentVersion();
     String s = String.valueOf(v == null ? ifNull : v.intValue() + 1);
@@ -71,14 +127,12 @@ public final class NaturalisNote {
   }
 
   /**
-   * Copies this note's values to the other note (overwriting any previous values).
+   * Copies this note's values into the other note, overwriting any previous values. Returns true if the target note's
+   * values changed as a result, false otherwise.
    * 
    * @param other
+   * @return
    */
-  public void copyFrom(NaturalisNote other) {
-    data.putAll(other.data);
-  }
-
   public boolean copyTo(NaturalisNote other) {
     boolean changed = false;
     for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
@@ -91,6 +145,9 @@ public final class NaturalisNote {
     return changed;
   }
 
+  /**
+   * Initializes this note with values from the specified document.
+   */
   public void readFrom(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(false);
     for (NaturalisField field : NaturalisField.values()) {
@@ -98,6 +155,11 @@ public final class NaturalisNote {
     }
   }
 
+  /**
+   * Saves this note to the specified document.
+   * 
+   * @param document
+   */
   public void saveTo(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(true);
     for (NaturalisField field : data.keySet()) {
@@ -107,6 +169,12 @@ public final class NaturalisNote {
     document.save();
   }
 
+  /**
+   * Saves this note to the specified document. Returns true of the document changed as a result, false otherwise.
+   * 
+   * @param document
+   * @return
+   */
   public boolean saveTo(StoredDocument document) {
     if (copyTo(document.getNaturalisNote())) {
       saveTo(document.getGeneiousDocument());
@@ -115,6 +183,11 @@ public final class NaturalisNote {
     return false;
   }
 
+  /**
+   * Returns an immutable copy of the internal state of this note.
+   * 
+   * @return
+   */
   @JsonValue
   public Map<NaturalisField, Object> data() {
     return ImmutableMap.copyOf(data);

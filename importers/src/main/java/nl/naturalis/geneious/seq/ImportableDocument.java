@@ -15,8 +15,8 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 
 /**
- * A simple combination of an {@link AnnotatedPluginDocument} class and a {@code SequenceInfo} object that will be used
- * to supply the annotations for it. The Geneious document has not yet been imported, but is about to be.
+ * A simple combination of an {@link AnnotatedPluginDocument} and a {@code SequenceInfo} object that will be used to
+ * supply the annotations for it. The Geneious document has not yet been saved to the database, but is about to be.
  * 
  * @see StoredDocument
  */
@@ -70,12 +70,8 @@ class ImportableDocument {
     StoredDocument previous = null;
     if (opt.isPresent()) {
       previous = opt.get();
-      String docVersion = DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument());
-      String chunk = type == DocumentType.AB1 ? "an AB1" : "a fasta";
-      guiLogger.debugf(() -> format("Database already contained %s document with extract ID \"%s\" (document version: %s)",
-          chunk,
-          extractId,
-          docVersion));
+      String version = DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument());
+      guiLogger.debugf(() -> format("Found older %s document with version %s for \"%s\"", type, version, extractId));
       note.setDocumentVersion(DOCUMENT_VERSION.readFrom(previous.getGeneiousDocument()));
       note.incrementDocumentVersion(1);
     } else {

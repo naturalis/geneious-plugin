@@ -6,6 +6,12 @@ import java.util.HashMap;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+/**
+ * An extension of {@code HashMap} mainly intended to map extract IDs to stored documents containing them, although the
+ * keys could of course by any string property of those documents.
+ *
+ * @author Ayco Holleman
+ */
 public class StoredDocumentTable extends HashMap<String, StoredDocumentList> {
 
   public StoredDocumentTable(Collection<AnnotatedPluginDocument> docs) {
@@ -17,6 +23,11 @@ public class StoredDocumentTable extends HashMap<String, StoredDocumentList> {
     values().forEach(list -> Collections.sort(list, StoredDocumentComparator.INSTANCE));
   }
 
+  /**
+   * Returns the total number of documents in this table.
+   * 
+   * @return
+   */
   public int documentCount() {
     return values().stream().mapToInt(StoredDocumentList::size).sum();
   }

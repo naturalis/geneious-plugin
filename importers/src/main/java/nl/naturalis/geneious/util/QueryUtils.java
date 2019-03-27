@@ -18,8 +18,14 @@ import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.cr
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
 
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
+/**
+ * Methods for accessing the Geneious database.
+ *
+ * @author Ayco Holleman
+ */
 public class QueryUtils {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
@@ -28,6 +34,11 @@ public class QueryUtils {
 
   private QueryUtils() {}
 
+  /**
+   * Returns the database containing the user-selected folder.
+   * 
+   * @return
+   */
   public static WritableDatabaseService getTargetDatabase() {
     if (ServiceUtilities.getResultsDestination() == null) {
       return null;
@@ -35,6 +46,11 @@ public class QueryUtils {
     return ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
   }
 
+  /**
+   * Returns name of the database containing the user-selected folder.
+   * 
+   * @return
+   */
   public static String getTargetDatabaseName() {
     if (getTargetDatabase() == null) {
       return "<no database selected>";
@@ -42,16 +58,29 @@ public class QueryUtils {
     return getTargetDatabase().getFolderName();
   }
 
+  /**
+   * Return the documents containing the specified extract IDs.
+   * 
+   * @param extractIds
+   * @return
+   * @throws DatabaseServiceException
+   */
   public static APDList findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
     if (extractIds.size() == 0) {
       return APDList.emptyList();
     }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
-    guiLogger.debug(() -> "Query: " + query);
+    guiLogger.debugf(() -> format("Query: ", query));
     return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
   }
 
+  /**
+   * Deletes the specified documents. The documents may reside in multiple databases.
+   * 
+   * @param documents
+   * @throws DatabaseServiceException
+   */
   public static void deleteDocuments(Set<StoredDocument> documents) throws DatabaseServiceException {
     for (StoredDocument d : documents) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
