@@ -51,7 +51,7 @@ class Annotator {
     HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
     annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
     guiLogger.debugf(() -> format("Collected %s unique extract ID(s)", ids.size()));
-    guiLogger.debugf(() -> format("Searching database %s for documents matching the extract IDs", getTargetDatabaseName()));
+    guiLogger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
     APDList docs = findByExtractID(ids);
     guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
     QueryResultManager queryResultManager = new QueryResultManager(docs);

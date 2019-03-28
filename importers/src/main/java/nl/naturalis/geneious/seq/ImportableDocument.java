@@ -74,17 +74,18 @@ class ImportableDocument {
       note.saveTo(document);
       return Optional.empty();
     }
-    note.setDocumentVersion(1);
     guiLogger.debugf(() -> format("Not found. Searching query cache for dummy document with extract ID %s", extractId));
     optional = queryResultManager.findDummy(extractId);
     if (optional.isPresent()) {
       guiLogger.debug(() -> "Found. Copying annotations from dummy document");
       optional.get().getNaturalisNote().copyTo(note, false);
-      note.saveTo(document);
-      return optional;
+    } else {
+      guiLogger.debug(() -> "Not found");
     }
-    guiLogger.debug(() -> "Not found. Creating fresh %s document");
-    return Optional.empty();
+    guiLogger.debugf(() -> format("Saving %s document", type));
+    note.setDocumentVersion(1);
+    note.saveTo(document);
+    return optional;
   }
 
 }

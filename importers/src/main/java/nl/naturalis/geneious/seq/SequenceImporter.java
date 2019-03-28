@@ -16,8 +16,6 @@ import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocument;
 
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
@@ -69,10 +67,9 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
         annotator.annotateImportedDocuments();
         Set<StoredDocument> dummies = annotator.getObsoleteDummyDocuments();
         if (!dummies.isEmpty()) {
-          guiLogger.info("Deleting obsolete dummy documents");
+          guiLogger.info("Deleting %s obsolete dummy document(s)", dummies.size());
           QueryUtils.deleteDocuments(dummies);
-          guiLogger.debugf(() -> format("Deleted %s obsolete dummy document(s)", dummies.size()));
-        }
+         }
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {

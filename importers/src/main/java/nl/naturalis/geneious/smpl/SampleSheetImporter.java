@@ -61,10 +61,10 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   private APDList updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowProvider(cfg).getAllRows();
-    guiLogger.info("Collecting extract IDs from sample sheet");
+    guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
-    guiLogger.debugf(() -> format("Searching database %s for documents matching the extract IDs", getTargetDatabaseName()));
+    guiLogger.info("Searching database %s for matching documents", getTargetDatabaseName());
     Set<String> searchFor = extractIds.stream()
         .filter(not(selected::containsKey))
         .collect(Collectors.toSet());
@@ -75,11 +75,11 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     APDList dummies = new APDList();
     int good = 0, bad = 0, updatedDummies = 0, unused = 0;
     for (int i = 0; i < rows.size(); ++i) {
-      int rowNumber = i;
-      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rowNumber))));
-      SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
+      final int rownum = i;
+      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rownum))));
+      SampleSheetRow row = new SampleSheetRow(userFriendly(i), rows.get(i));
       if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rowNumber)));
+        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rownum)));
         ++bad;
         continue;
       }
@@ -91,29 +91,33 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         ++bad;
         continue;
       }
-      guiLogger.debugf(() -> format("Note created: %s", DebugUtil.toJson(note, false)));
+      guiLogger.debugf(() -> format("Note created: %s", DebugUtil.toJson(note)));
       ++good;
-      StoredDocumentList docs0 = selected.get(note.getExtractId());
+      String id = note.getExtractId();
+      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      StoredDocumentList docs0 = selected.get(id);
       if (docs0 == null) {
-        StoredDocumentList docs1 = unselected.get(note.getExtractId());
+        guiLogger.debug(() -> "Not found. Scanning query cache for unselected documents");
+        StoredDocumentList docs1 = unselected.get(id);
         if (docs1 == null) {
+          guiLogger.debugf(() -> format("Not found. Creating dummy document for extract ID %s", id));
           dummies.add(createDummy(note));
         } else {
-          handleUnselectedDocument(docs1, rowNumber);
+          handleUnselectedDocument(docs1, i);
           ++unused;
         }
       } else {
+        String fmt0 = "Found. Updating %s selected document(s) with data from row %s";
+        guiLogger.debugf(() -> format(fmt0, docs0.size(), userFriendly(rownum)));
         for (StoredDocument doc : docs0) {
           if (note.saveTo(doc)) {
             if (doc.isDummy()) {
               ++updatedDummies;
-              guiLogger.debugf(() -> format("Updating dummy with extract ID %s", note.getExtractId()));
-            } else {
-              guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
+              guiLogger.debug(() -> "Updating dummy document!");
             }
           } else {
-            String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
-            guiLogger.debugf(() -> format(fmt, note.getExtractId()));
+            String fmt1 = "Document with extract ID %s was not updated because sample sheet contained no new values";
+            guiLogger.debugf(() -> format(fmt1, id));
           }
         }
       }
@@ -147,11 +151,11 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, unused = 0;
     for (int i = 1; i < rows.size(); ++i) {
-      int rowNumber = i;
-      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rowNumber))));
-      SampleSheetRow row = new SampleSheetRow(i, rows.get(i));
+      final int rownum = i;
+      guiLogger.debugf(() -> format("Processing row: %s", DebugUtil.toJson(rows.get(rownum))));
+      SampleSheetRow row = new SampleSheetRow(userFriendly(i), rows.get(i));
       if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rowNumber)));
+        guiLogger.debugf(() -> format("Ignoring empty row at line %s", userFriendly(rownum)));
         ++bad;
         continue;
       }
@@ -163,20 +167,22 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         ++bad;
         continue;
       }
-      guiLogger.debugf(() -> format("Note created: ", DebugUtil.toJson(note)));
+      guiLogger.debugf(() -> format("Note created: %s", DebugUtil.toJson(note)));
       ++good;
-      String extractId = note.getExtractId();
-      StoredDocumentList docs = selectedDocuments.get(extractId);
+      String id = note.getExtractId();
+      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
+        guiLogger.debugf(() -> format("Not found. Row %s remains unused", userFriendly(rownum)));
         ++unused;
       } else {
         for (StoredDocument doc : docs) {
           if (note.saveTo(doc)) {
+            guiLogger.debugf(() -> format("Updating document with extract ID %s", id));
             updates.add(doc.getGeneiousDocument());
-            guiLogger.debugf(() -> format("Updating document with extract ID %s", note.getExtractId()));
           } else {
             String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
-            guiLogger.debugf(() -> format(fmt, note.getExtractId()));
+            guiLogger.debugf(() -> format(fmt, id));
           }
         }
       }
@@ -206,7 +212,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private static AnnotatedPluginDocument createDummy(NaturalisNote note) {
-    guiLogger.debugf(() -> format("Creating dummy document for extract ID %s", note.getExtractId()));
     AnnotatedPluginDocument apd = new DummySequenceDocument(note).wrap();
     apd.save();
     return apd;

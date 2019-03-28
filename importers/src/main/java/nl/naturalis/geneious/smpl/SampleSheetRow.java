@@ -30,10 +30,10 @@ class SampleSheetRow {
 
   private static final int MIN_CELL_COUNT = 6;
 
-  private static final String ERR_BASE = "Invalid record in sample sheet: %s. ";
+  private static final String ERR_BASE = "Invalid row at line %s. ";
   private static final String ERR_CELL_COUNT = ERR_BASE + "Invalid number of columns: %s";
   private static final String ERR_MISSING_VALUE = ERR_BASE + "Missing value for %s";
-  private static final String ERR_INVALID_VALUE = ERR_BASE + "Invalid value for %s: \"%s\"";
+  private static final String ERR_INVALID_VALUE = ERR_BASE + "Invalid value for %s: \"%s\". Reason: %s";
 
   private final int rowNum;
   private final String[] cells;
@@ -96,7 +96,7 @@ class SampleSheetRow {
     }
     int i = val.indexOf('-');
     if (i == -1) {
-      throw invalidValue(SMPL_SAMPLE_PLATE_ID, cells[COLNO_SAMPLE_PLATE_ID]);
+      throw invalidValue(SMPL_SAMPLE_PLATE_ID, cells[COLNO_SAMPLE_PLATE_ID], "missing hyphen ('-')");
     }
     return val.substring(0, i);
   }
@@ -133,8 +133,8 @@ class SampleSheetRow {
     return new InvalidRowException(msg);
   }
 
-  private InvalidRowException invalidValue(NaturalisField field, Object val) {
-    String msg = String.format(ERR_INVALID_VALUE, rowNum, field.getName(), val);
+  private InvalidRowException invalidValue(NaturalisField field, Object val, String reason) {
+    String msg = String.format(ERR_INVALID_VALUE, rowNum, field.getName(), val, reason);
     return new InvalidRowException(msg);
   }
 
