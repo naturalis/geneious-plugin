@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.util;
+package nl.naturalis.geneious.csv;
 
 import java.io.File;
 import java.io.IOException;

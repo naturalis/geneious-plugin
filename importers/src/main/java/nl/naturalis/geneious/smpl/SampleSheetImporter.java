@@ -11,13 +11,14 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.csv.InvalidRowException;
+import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.seq.DummySequenceDocument;
 import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.DebugUtil;
-import nl.naturalis.geneious.util.RowProvider;
 import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -60,7 +61,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
 
   private APDList updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowProvider(cfg).getAllRows();
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments());
@@ -145,7 +146,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
 
   private APDList updateOnly() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowProvider(cfg).getAllRows();
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
     int numSelected = cfg.getSelectedDocuments().size();
     APDList updates = new APDList(numSelected);

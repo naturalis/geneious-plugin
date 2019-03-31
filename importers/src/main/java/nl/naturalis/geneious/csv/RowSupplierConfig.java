@@ -1,4 +1,4 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.csv;
 
 import java.io.File;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
  *
  * @author Ayco Holleman
  */
-public class CsvImportConfig {
+public class RowSupplierConfig {
 
   private final List<AnnotatedPluginDocument> selectedDocuments;
 
@@ -18,7 +18,7 @@ public class CsvImportConfig {
   private int skipLines;
   private int sheetNumber;
 
-  public CsvImportConfig(List<AnnotatedPluginDocument> selectedDocuments) {
+  public RowSupplierConfig(List<AnnotatedPluginDocument> selectedDocuments) {
     this.selectedDocuments = selectedDocuments;
   }
 

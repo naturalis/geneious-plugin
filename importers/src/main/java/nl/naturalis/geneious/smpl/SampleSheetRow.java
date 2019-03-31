@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 

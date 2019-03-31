@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.util;
+package nl.naturalis.geneious.csv;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,15 +13,22 @@ import com.univocity.parsers.tsv.TsvParserSettings;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.CsvImportConfig;
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.WrappedException;
 
-public class RowProvider {
+/**
+ * A simple reader of the most common types of files containing rows of some sort: CSV files, TSV files and spreadsheet.
+ * Not meant to be generic or adaptable, but sufficient for our needs. Reads the entire file into memory. This class
+ * will read .txt files, but they will always be presumed to contain tab-delimited columns (i.e. they will be parsed
+ * like TSV files).
+ *
+ * @author Ayco Holleman
+ */
+public class RowSupplier {
 
-  private final CsvImportConfig cfg;
+  private final RowSupplierConfig cfg;
 
-  public RowProvider(CsvImportConfig config) {
+  public RowSupplier(RowSupplierConfig config) {
     this.cfg = config;
   }
 
