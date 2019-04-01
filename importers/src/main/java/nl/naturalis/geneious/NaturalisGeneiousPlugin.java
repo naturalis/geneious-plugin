@@ -13,6 +13,7 @@ import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
+import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 
@@ -27,9 +28,10 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
    * We must instantiate a NaturalisPluginPreferences object as soon as possible (which we do above) and certainly before
-   * getDocumentActions() and getDocumentOperations() is called. These methods return our implementation classes, and these in turn have
-   * static initalizers that depend on the preferences being set and readable (see NaturalisPreferencesOptions).But we must always a new
-   * instance of NaturalisPluginPreferences. Geneious will throw an exception if you don't.
+   * getDocumentActions() and getDocumentOperations() is called. These methods return our implementation classes, and
+   * these in turn may have static initalizers that depend on the preferences being set and readable (see
+   * NaturalisPreferencesOptions). But we must also always return a new instance of NaturalisPluginPreferences. Geneious
+   * will throw an exception if you don't.
    */
   @Override
   @SuppressWarnings("rawtypes")
@@ -50,21 +52,19 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public DocumentAction[] getDocumentActions() {
-    return new DocumentAction[] {
-
-    };
+    return new DocumentAction[0];
   }
 
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
-        new SequenceImportDocumentOperation(), new SampleSheetDocumentOperation()
+        new SequenceImportDocumentOperation(), new SampleSheetDocumentOperation(), new CrsDocumentOperation()
     };
   }
 
   @Override
   public GeneiousService[] getServices() {
-    return new GeneiousService[] {new NaturalisDatabaseService()};
+    return new GeneiousService[0];
   }
 
   @Override

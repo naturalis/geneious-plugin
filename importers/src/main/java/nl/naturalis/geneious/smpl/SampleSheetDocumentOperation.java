@@ -31,16 +31,16 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Sample Sheet")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
-        .setInMainToolbar(true)
-        .setInPopupMenu(true)
+    return new GeneiousActionOptions("Samples")
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99991)
+        .setInMainToolbar(true, .99991)
+        .setInPopupMenu(true, .99991)
         .setAvailableToWorkflows(true);
   }
 
   @Override
   public String getHelp() {
-    return "Updates documents using data from sample sheets";
+    return "Updates documents with data from sample sheets";
   }
 
   @Override

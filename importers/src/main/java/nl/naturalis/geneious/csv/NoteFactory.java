@@ -2,8 +2,6 @@ package nl.naturalis.geneious.csv;
 
 import java.util.EnumMap;
 
-import org.apache.commons.lang3.StringUtils;
-
 import nl.naturalis.common.base.ThrowingFunction;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
@@ -18,13 +16,6 @@ public abstract class NoteFactory<T extends Enum<T>> {
     this.cells = cells;
   }
 
-  /**
-   * Whether or not this is an empty row (all cells contain whitespace only).
-   */
-  public boolean isEmpty() {
-    return cells.values().stream().allMatch(StringUtils::isNotBlank);
-  }
-
   public final NaturalisNote createNote() throws InvalidRowException {
     NaturalisNote note = new NaturalisNote();
     populate(note);
@@ -33,16 +24,16 @@ public abstract class NoteFactory<T extends Enum<T>> {
 
   protected abstract void populate(NaturalisNote note) throws InvalidRowException;
 
-  public int getRownum() {
+  protected int getRownum() {
     return rownum;
   }
 
   protected String get(T column) {
-    return StringUtils.trimToNull(cells.get(column));
+    return cells.get(column);
   }
 
-  protected String getOrThrow(T column) throws InvalidRowException {
-    String s = StringUtils.trimToNull(cells.get(column));
+  protected String getRequired(T column) throws InvalidRowException {
+    String s = cells.get(column);
     if (s == null) {
       throw InvalidRowException.missingValue(this, column);
     }
@@ -57,7 +48,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   protected void setRequiredValue(NaturalisNote note, NaturalisField field, T column) throws InvalidRowException {
-    note.parseAndSet(field, getOrThrow(column));
+    note.parseAndSet(field, getRequired(column));
   }
 
   protected void setValue(NaturalisNote note, NaturalisField field, T column,

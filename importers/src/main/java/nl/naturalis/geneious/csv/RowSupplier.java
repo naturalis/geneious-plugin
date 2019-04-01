@@ -17,10 +17,9 @@ import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.WrappedException;
 
 /**
- * A simple reader of the most common types of files containing rows of some sort: CSV files, TSV files and spreadsheet.
- * Not meant to be generic or adaptable, but sufficient for our needs. Reads the entire file into memory. This class
- * will read .txt files, but they will always be presumed to contain tab-delimited columns (i.e. they will be parsed
- * like TSV files).
+ * A simple reader for the types of files the plugin deal with: CSV files, TSV files and spreadsheet. Not meant to be
+ * generic or adaptable, but sufficient for our needs. Reads the entire file into memory. This class will read .txt
+ * files, but they will always be presumed to contain tab-delimited columns (i.e. they will be parsed like TSV files).
  *
  * @author Ayco Holleman
  */

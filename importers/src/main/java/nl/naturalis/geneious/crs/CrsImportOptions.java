@@ -22,11 +22,11 @@ import nl.naturalis.geneious.util.SharedPreconditionValidator;
 
 import static nl.naturalis.geneious.ErrorCode.SMPL_MISSING_SAMPLE_SHEET;
 
-public class CrsImportOptions extends Options {
+class CrsImportOptions extends Options {
 
-  private static final String SAMPLE_SHEET = "nl.naturalis.geneious.samplesheet.sampleSheet";
-  private static final String LINES_TO_SKIP = "nl.naturalis.geneious.samplesheet.linesToSkip";
-  private static final String SHEET_NAME = "nl.naturalis.geneious.samplesheet.sheetName";
+  private static final String SAMPLE_SHEET = "nl.naturalis.geneious.crs.file";
+  private static final String LINES_TO_SKIP = "nl.naturalis.geneious.crs.linesToSkip";
+  private static final String SHEET_NAME = "nl.naturalis.geneious.crs.sheetName";
 
   private static final OptionValue EMPTY_SHEET_NAME = new OptionValue("0", "--- only when importing spreadsheet ---");
 
@@ -35,18 +35,15 @@ public class CrsImportOptions extends Options {
   private final IntegerOption linesToSkip;
   private final ComboBoxOption<OptionValue> sheetName;
 
-  public CrsImportOptions(List<AnnotatedPluginDocument> documents) {
-
+  CrsImportOptions(List<AnnotatedPluginDocument> documents) {
     this.documents = documents;
-
     sampleSheet = addFileSelectionOption();
     linesToSkip = addLinesToSkipOption();
     sheetName = addSheetNameOption();
-
     sampleSheet.addChangeListener(this::fileChanged);
-
   }
 
+  @Override
   public String verifyOptionsAreValid() {
     String msg = super.verifyOptionsAreValid();
     if (msg != null) {
@@ -61,7 +58,7 @@ public class CrsImportOptions extends Options {
       return MessageProvider.get(SMPL_MISSING_SAMPLE_SHEET);
 
     }
-    return null; // Signals to Geneious it is allowed to execute the performOperation (-ish) methods of our plugin
+    return null; // Signals to Geneious it can continue
   }
 
   CrsImportConfig createImportConfig() {

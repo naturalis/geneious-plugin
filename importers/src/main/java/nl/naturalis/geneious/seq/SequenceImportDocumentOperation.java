@@ -23,7 +23,8 @@ import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do most of the work.
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do
+ * most of the work.
  *
  * @author Ayco Holleman
  */
@@ -38,8 +39,9 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("AB1/Fasta Import")
-        .setInMainToolbar(true)
-        .setInPopupMenu(true)
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99990)
+        .setInMainToolbar(true, .99990)
+        .setInPopupMenu(true, .99990)
         .setAvailableToWorkflows(true);
   }
 

@@ -25,7 +25,7 @@ import static nl.naturalis.geneious.crs.CrsColumn.SEX;
 import static nl.naturalis.geneious.crs.CrsColumn.STATE_OR_PROVINCE;
 
 /**
- * Stores the user input provided via a Swing dialog.
+ * Stores the input provided provided by the user via the options dialog.
  *
  * @author Ayco Holleman
  */
@@ -36,8 +36,8 @@ class CrsImportConfig extends RowSupplierConfig {
   }
 
   EnumToIntMap<CrsColumn> getColumnNumbers() {
-    EnumToIntMap<CrsColumn> cols = new EnumToIntMap<>(CrsColumn.class);
-    cols.set(REGISTRATION_NUMBER, 0)
+    return new EnumToIntMap<>(CrsColumn.class)
+        .set(REGISTRATION_NUMBER, 0)
         .set(HIGHER_RANKS, 1)
         .set(HIGHER_NAMES, 2)
         .set(GENUS_OR_MONOMIAL, 3)
@@ -53,7 +53,6 @@ class CrsImportConfig extends RowSupplierConfig {
         .set(LATTITUDE, 13)
         .set(LONGITUDE, 14)
         .set(ALTITUDE, 15);
-    return cols;
   }
 
 }

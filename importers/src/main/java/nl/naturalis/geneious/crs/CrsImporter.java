@@ -1,14 +1,10 @@
 package nl.naturalis.geneious.crs;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-
-import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
@@ -16,18 +12,16 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.DebugUtil;
 import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
-
-import static nl.naturalis.geneious.util.DebugUtil.*;
+import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
 /**
- * Does the actual work of importing a sample sheet into Geneious.
+ * Does the actual work of importing a CRS file into Geneious.
  */
 class CrsImporter extends SwingWorker<APDList, Void> {
 
@@ -40,16 +34,16 @@ class CrsImporter extends SwingWorker<APDList, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records
-   * are linked using their extract ID. In addition, if requested, this routine will create dummy documents from sample
-   * sheet records if their extract ID does not exist yet.
+   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched
+   * to the selected documents using the registration number annotation (set during sample sheet import).
    */
   @Override
   protected APDList doInBackground() throws DatabaseServiceException {
-    return importSampleSheet();
+    return importCrsFile();
   }
 
-  private APDList importSampleSheet() throws DatabaseServiceException {
+  @SuppressWarnings("unused")
+  private APDList importCrsFile() throws DatabaseServiceException {
     return updateOnly();
   }
 
@@ -61,15 +55,15 @@ class CrsImporter extends SwingWorker<APDList, Void> {
     APDList updates = new APDList(numSelected);
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 1; i < rows.size(); ++i) {
+    for (int i = 0; i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
       }
       ++good;
-      String id = note.getExtractId();
-      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
-      StoredDocumentList docs = selected.get(id);
+      String regno = note.get(SMPL_REGISTRATION_NUMBER);
+      guiLogger.debugf(() -> format("Scanning selected documents for reg.no. %s", regno));
+      StoredDocumentList docs = selected.get(regno);
       if (docs == null) {
         int rownum = userfriendly(i);
         guiLogger.debugf(() -> format("Not found. Row %s remains unused", rownum));
@@ -77,67 +71,46 @@ class CrsImporter extends SwingWorker<APDList, Void> {
       } else {
         for (StoredDocument doc : docs) {
           if (note.saveTo(doc)) {
-            guiLogger.debugf(() -> format("Updating document with extract ID %s", id));
+            guiLogger.debugf(() -> format("Updating document with reg.no. %s", regno));
             updates.add(doc.getGeneiousDocument());
           } else {
-            String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
-            guiLogger.debugf(() -> format(fmt, id));
+            String fmt = "Document with reg.no. %s not updated (no new values in CRS file)";
+            guiLogger.debugf(() -> format(fmt, regno));
           }
         }
       }
     }
     int numUpdates = updates.size();
     int numUnchanged = numSelected - numUpdates;
-    guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
-    guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
-    guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
-    guiLogger.info("Number of selected documents ...............: %3d", numSelected);
-    guiLogger.info("Number of updated documents ................: %3d", numUpdates);
-    guiLogger.info("Number of unchanged documents ..............: %3d", numUnchanged);
-    guiLogger.info("UNUSED ROW: The row's extract ID did not correspond to any");
-    guiLogger.info("            of the selected documents.");
-    guiLogger.info("Import type: update existing documents; do not create dummies");
+    guiLogger.info("Number of valid rows in CRS file .......: %3d", good);
+    guiLogger.info("Number of empty/bad rows in CRS file ...: %3d", bad);
+    guiLogger.info("Number of unused rows in CRS file ......: %3d", unused);
+    guiLogger.info("Number of selected documents ...........: %3d", numSelected);
+    guiLogger.info("Number of updated documents ............: %3d", numUpdates);
+    guiLogger.info("Number of unchanged documents ..........: %3d", numUnchanged);
+    guiLogger.info("UNUSED ROW: The row's registration number did not correspond");
+    guiLogger.info("            to any of the selected documents.");
     guiLogger.info("Import completed successfully");
-    return updates;
+    return null;
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
-    int y = userfriendly(rownum);
-    guiLogger.debugf(() -> format("Processing row %s: %s", y, toJson(values)));
+    int x = userfriendly(rownum);
     CrsRow row = new CrsRow(cfg.getColumnNumbers(), values);
-    CrsNoteFactory factory = new CrsNoteFactory(userfriendly(rownum), row);
-    if (factory.isEmpty()) {
-      guiLogger.debugf(() -> format("Ignoring empty or useless row at line %s", y));
+    if (row.isEmptyRow()) {
+      guiLogger.debugf(() -> format("Ignoring empty or useless row at line %s", x));
       return null;
     }
+    guiLogger.debugf(() -> format("Processing row %s: %s", x, toJson(values, false)));
+    CrsNoteFactory factory = new CrsNoteFactory(x, row);
     try {
       NaturalisNote note = factory.createNote();
-      guiLogger.debugf(() -> format("Note created: %s", DebugUtil.toJson(note)));
+      guiLogger.debugf(() -> format("Note created: %s", toJson(note, false)));
       return note;
     } catch (InvalidRowException e) {
       guiLogger.error(e.getMessage());
       return null;
-    }
-  }
-
-  private static Set<String> collectRegnos(List<String[]> rows) {
-    int colno = CrsColumn.REGISTRATION_NUMBER.ordinal();
-    return rows.stream()
-        .filter(row -> colno < row.length)
-        .filter(row -> StringUtils.isNotBlank(row[colno]))
-        .map(row -> "e" + row[colno])
-        .collect(Collectors.toSet());
-  }
-
-  private void handleUnselectedDocument(StoredDocumentList docs, int row) {
-    String extractId = docs.get(0).getNaturalisNote().getExtractId();
-    if (docs.size() == 1) {
-      String fmt = "Row %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.info(fmt, userfriendly(row), extractId);
-    } else {
-      String fmt = "Row %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.info(fmt, userfriendly(row), extractId, docs.size());
     }
   }
 

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.seq;
+package nl.naturalis.geneious.smpl;
 
 import java.util.Date;
 

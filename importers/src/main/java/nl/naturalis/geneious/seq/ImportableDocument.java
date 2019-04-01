@@ -69,20 +69,19 @@ class ImportableDocument {
     Optional<StoredDocument> optional = queryResultManager.find(extractId, type);
     if (optional.isPresent()) {
       String version = optional.get().getNaturalisNote().getDocumentVersion();
-      guiLogger.debugf(() -> format("Found. Document version: %s", version));
       note.incrementDocumentVersion(version);
+      guiLogger.debugf(() -> format("Found. Saving new %s document as version %s", type, note.getDocumentVersion()));
       note.saveTo(document);
       return Optional.empty();
     }
     guiLogger.debugf(() -> format("Not found. Searching query cache for dummy document with extract ID %s", extractId));
     optional = queryResultManager.findDummy(extractId);
     if (optional.isPresent()) {
-      guiLogger.debug(() -> "Found. Copying annotations from dummy document");
+      guiLogger.debug(() -> "Found. Copying annotations to new %s document");
       optional.get().getNaturalisNote().copyTo(note, false);
     } else {
-      guiLogger.debug(() -> "Not found");
+      guiLogger.debugf(() -> format("Found. Saving new %s document as version 1", type));
     }
-    guiLogger.debugf(() -> format("Saving %s document", type));
     note.setDocumentVersion(1);
     note.saveTo(document);
     return optional;
