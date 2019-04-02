@@ -15,6 +15,7 @@ public class RowSupplierConfig {
   private final List<AnnotatedPluginDocument> selectedDocuments;
 
   private File file;
+  private String delimiter;
   private int skipLines;
   private int sheetNumber;
 
@@ -28,6 +29,14 @@ public class RowSupplierConfig {
 
   public void setFile(File file) {
     this.file = file;
+  }
+
+  public String getDelimiter() {
+    return delimiter;
+  }
+
+  public void setDelimiter(String delimiter) {
+    this.delimiter = delimiter;
   }
 
   public int getSkipLines() {

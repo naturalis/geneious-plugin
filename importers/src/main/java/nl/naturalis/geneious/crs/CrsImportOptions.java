@@ -4,13 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.biomatters.geneious.publicapi.components.Dialogs;
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+import com.google.common.collect.ImmutableSet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -20,25 +23,30 @@ import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.MessageProvider.Message;
 import nl.naturalis.geneious.util.SharedPreconditionValidator;
 
-import static nl.naturalis.geneious.ErrorCode.CRS_MISSING_FILE;
+import static nl.naturalis.geneious.ErrorCode.*;
 
 class CrsImportOptions extends Options {
 
   private static final String CRS_FILE = "nl.naturalis.geneious.crs.file";
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.crs.linesToSkip";
+  private static final String DELIMITER = "nl.naturalis.geneious.crs.delimiter";
   private static final String SHEET_NAME = "nl.naturalis.geneious.crs.sheetName";
 
   private static final OptionValue EMPTY_SHEET_NAME = new OptionValue("0", "--- only when importing spreadsheet ---");
 
+  private static final Set<String> ALLOWED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls", "xlsx");
+
   private final List<AnnotatedPluginDocument> documents;
   private final FileSelectionOption sampleSheet;
   private final IntegerOption linesToSkip;
+  private final ComboBoxOption<OptionValue> delimiter;
   private final ComboBoxOption<OptionValue> sheetName;
 
   CrsImportOptions(List<AnnotatedPluginDocument> documents) {
     this.documents = documents;
     sampleSheet = addFileSelectionOption();
     linesToSkip = addLinesToSkipOption();
+    delimiter = addDelimiterOption();
     sheetName = addSheetNameOption();
     sampleSheet.addChangeListener(this::fileChanged);
   }
@@ -56,7 +64,10 @@ class CrsImportOptions extends Options {
     }
     if (StringUtils.isBlank(sampleSheet.getValue())) {
       return MessageProvider.get(CRS_MISSING_FILE);
-
+    }
+    String ext = FilenameUtils.getExtension(sampleSheet.getValue());
+    if (!ALLOWED_FILE_TYPES.contains(ext.toLowerCase())) {
+      return MessageProvider.get(NOT_CSV_OR_SPREADSHEET, ext);
     }
     return null; // Signals to Geneious it can continue
   }
@@ -65,6 +76,7 @@ class CrsImportOptions extends Options {
     CrsImportConfig cfg = new CrsImportConfig(documents);
     cfg.setFile(new File(sampleSheet.getValue()));
     cfg.setSkipLines(linesToSkip.getValue());
+    cfg.setDelimiter(delimiter.getValue().getName());
     cfg.setSheetNumber(Integer.parseInt(sheetName.getValue().getName()));
     return cfg;
   }
@@ -74,7 +86,7 @@ class CrsImportOptions extends Options {
     opt.setAllowMultipleSelection(false);
     opt.setFillHorizontalSpace(true);
     opt.setValue("");
-    opt.setDescription("Select a sample sheet to import (allowed formats: CSV, TSV, XLS, CLSX)");
+    opt.setDescription("Select a sample sheet to import (allowed formats: *.csv *.tsv *.txt *.xls *.xlsx)");
     return opt;
   }
 
@@ -82,6 +94,22 @@ class CrsImportOptions extends Options {
     String descr = "The number of files to skip within the selected file. Should be at least 1 if the file starts with a header line";
     IntegerOption opt = addIntegerOption(LINES_TO_SKIP, "Lines to skip", 1, 0, Integer.MAX_VALUE);
     opt.setDescription(descr);
+    return opt;
+  }
+
+  private ComboBoxOption<OptionValue> addDelimiterOption() {
+    List<OptionValue> options = new ArrayList<>(8);
+    options.add(new OptionValue("\t", "\\t"));
+    options.add(new OptionValue(",", ","));
+    options.add(new OptionValue(";", ";"));
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(DELIMITER, "Field separator", options, options.get(0));
+    opt.setDescription("The character used to separate values within a row");
+    String fileName = sampleSheet.getValue();
+    if (fileName.endsWith(".csv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt")) {
+      opt.setEnabled(true);
+    } else {
+      opt.setEnabled(false);
+    }
     return opt;
   }
 
@@ -102,6 +130,7 @@ class CrsImportOptions extends Options {
     String fileName = sampleSheet.getValue();
     if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
       sheetName.setEnabled(true);
+      delimiter.setEnabled(true);
       try {
         Workbook workbook = WorkbookFactory.create(new File(sampleSheet.getValue()));
         List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
@@ -117,6 +146,9 @@ class CrsImportOptions extends Options {
             DialogIcon.ERROR);
       }
     } else {
+      if (fileName.endsWith(".csv") || fileName.endsWith(".tsv") || fileName.endsWith(".txt")) {
+        delimiter.setEnabled(true);
+      }
       sheetName.setEnabled(false);
       sheetName.setPossibleValues(Arrays.asList(EMPTY_SHEET_NAME));
       sheetName.setDefaultValue(EMPTY_SHEET_NAME);

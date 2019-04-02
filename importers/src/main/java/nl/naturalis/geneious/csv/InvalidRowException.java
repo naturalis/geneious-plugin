@@ -6,10 +6,14 @@ public class InvalidRowException extends Exception {
   public static final String MSG_MISSING_VALUE = MSG_BASE + " Missing value for column %s";
 
   public static <T extends Enum<T>> InvalidRowException custom(NoteFactory<T> factory, String msg, Object... msgArgs) {
+    if (msgArgs.length == 0) {
+      String fmt = MSG_BASE + msg;
+      return new InvalidRowException(String.format(fmt, factory.getRownum()));
+    }
     Object[] args = new Object[msgArgs.length + 1];
     args[0] = Integer.valueOf(factory.getRownum());
     System.arraycopy(msgArgs, 0, args, 1, msgArgs.length);
-    return new InvalidRowException(String.format(MSG_BASE, factory, msg, args));
+    return new InvalidRowException(String.format(MSG_BASE + msg, args));
   }
 
   public static <T extends Enum<T>> InvalidRowException missingValue(NoteFactory<T> factory, T column) {

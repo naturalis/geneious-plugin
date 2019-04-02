@@ -12,6 +12,11 @@ public enum ErrorCode {
    * query). This is currently not supported.
    */
   BAD_DOCUMENT_DATABASE(1),
+  
+  /**
+   * The user-selected file did not have a csv, tsv, txt, xls or xlsx extension
+   */
+  NOT_CSV_OR_SPREADSHEET(1),
 
   /**
    * The user did not select a sample sheet in the options dialog.

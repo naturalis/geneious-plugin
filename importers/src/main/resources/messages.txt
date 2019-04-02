@@ -8,12 +8,15 @@ BAD_DOCUMENT_DATABASE
 	Selecting documents from mulitple databases not supported. Please make sure all
 	documents belong to database "%s" or select a different folder
 	
+NOT_CSV_OR_SPREADSHEET
+	Unsupported file type: "%s". Allowed file types: csv, tsv, txt, xls, xlsx
+	
 SMPL_MISSING_SAMPLE_SHEET
 	Please select a sample sheet
 	
 SMPL_NO_DOCUMENTS_SELECTED
 	Please select at least one document or check the "Create dummies" checkbox
 	
-SMPL_MISSING_CRS_FILE
+CRS_MISSING_FILE
 	Please select a CRS file
 	

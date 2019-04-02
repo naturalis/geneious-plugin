@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import com.univocity.parsers.tsv.TsvParser;
-import com.univocity.parsers.tsv.TsvParserSettings;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +25,8 @@ import nl.naturalis.geneious.WrappedException;
  */
 public class RowSupplier {
 
+  private static final Set<String> CSV_LIKE_EXTS = ImmutableSet.of("csv", "tsv", "txt");
+
   private final RowSupplierConfig cfg;
 
   public RowSupplier(RowSupplierConfig config) {
@@ -36,22 +38,17 @@ public class RowSupplier {
     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
     List<String[]> rows;
     try {
-      if (ext.equals("xls") || ext.equals(".xlsx")) {
+      if (ext.equals("xls") || ext.equals("xlsx")) {
         SpreadSheetReader ssr = new SpreadSheetReader(file);
         ssr.setSheetNumber(cfg.getSheetNumber());
         ssr.setSkipRows(cfg.getSkipLines());
         rows = ssr.readAllRows();
-      } else if (ext.equals(".csv")) {
+      } else if (CSV_LIKE_EXTS.contains(ext)) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
+        settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
         settings.setNumberOfRowsToSkip(cfg.getSkipLines());
         CsvParser parser = new CsvParser(settings);
-        rows = parser.parseAll(file);
-      } else if (ext.equals("tsv") || ext.equals("txt")) {
-        TsvParserSettings settings = new TsvParserSettings();
-        settings.getFormat().setLineSeparator("\n");
-        settings.setNumberOfRowsToSkip(cfg.getSkipLines());
-        TsvParser parser = new TsvParser(settings);
         rows = parser.parseAll(file);
       } else {
         throw new NaturalisPluginException("Unknown file type: *." + ext);
