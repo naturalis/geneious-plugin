@@ -1,5 +1,6 @@
 package nl.naturalis.geneious.crs;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -50,10 +51,8 @@ class CrsImporter extends SwingWorker<APDList, Void> {
   private APDList updateOnly() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    StoredDocumentTable selected = new StoredDocumentTable(cfg.getSelectedDocuments(), CrsImporter::getRegno);
-    int numSelected = cfg.getSelectedDocuments().size();
-    APDList updates = new APDList(numSelected);
-    int good = 0, bad = 0, unused = 0;
+    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments(), CrsImporter::getRegno);
+    int good = 0, bad = 0, updated = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
@@ -63,16 +62,16 @@ class CrsImporter extends SwingWorker<APDList, Void> {
       ++good;
       String regno = note.get(SMPL_REGISTRATION_NUMBER);
       guiLogger.debugf(() -> format("Scanning selected documents for reg.no. %s", regno));
-      StoredDocumentList docs = selected.get(regno);
+      StoredDocumentList docs = selectedDocuments.get(regno);
       if (docs == null) {
         int rownum = userfriendly(i);
-        guiLogger.debugf(() -> format("Not found. Row %s remains unused", rownum));
+        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", rownum));
         ++unused;
       } else {
+        guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
         for (StoredDocument doc : docs) {
           if (note.saveTo(doc)) {
-            guiLogger.debugf(() -> format("Updating document with reg.no. %s", regno));
-            updates.add(doc.getGeneiousDocument());
+            ++updated;
           } else {
             String fmt = "Document with reg.no. %s not updated (no new values in CRS file)";
             guiLogger.debugf(() -> format(fmt, regno));
@@ -80,18 +79,18 @@ class CrsImporter extends SwingWorker<APDList, Void> {
         }
       }
     }
-    int numUpdates = updates.size();
-    int numUnchanged = numSelected - numUpdates;
+    int selected = cfg.getSelectedDocuments().size();
+    int unchanged = selected - updated;
     guiLogger.info("Number of valid rows in CRS file .......: %3d", good);
     guiLogger.info("Number of empty/bad rows in CRS file ...: %3d", bad);
     guiLogger.info("Number of unused rows in CRS file ......: %3d", unused);
-    guiLogger.info("Number of selected documents ...........: %3d", numSelected);
-    guiLogger.info("Number of updated documents ............: %3d", numUpdates);
-    guiLogger.info("Number of unchanged documents ..........: %3d", numUnchanged);
-    guiLogger.info("UNUSED ROW: The row's registration number did not correspond");
-    guiLogger.info("            to any of the selected documents.");
-    guiLogger.info("Import completed successfully");
-    return null;
+    guiLogger.info("Number of selected documents ...........: %3d", selected);
+    guiLogger.info("Number of updated documents ............: %3d", updated);
+    guiLogger.info("Number of unchanged documents ..........: %3d", unchanged);
+    guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
+    guiLogger.info("          correspond to any of the selected documents, but may or");
+    guiLogger.info("          may not correspond to other, unselected documents.");
+    return null; // Tells Geneious that we didn't create any new documents.
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
@@ -99,10 +98,10 @@ class CrsImporter extends SwingWorker<APDList, Void> {
     int x = userfriendly(rownum);
     CrsRow row = new CrsRow(cfg.getColumnNumbers(), values);
     if (row.isEmptyRow()) {
-      guiLogger.debugf(() -> format("Ignoring empty or useless row at line %s", x));
+      guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
       return null;
     }
-    guiLogger.debugf(() -> format("Processing row %s: %s", x, toJson(values, false)));
+    guiLogger.debugf(() -> format("Line %s: %s", x, toJson(values, false)));
     CrsNoteFactory factory = new CrsNoteFactory(x, row);
     try {
       NaturalisNote note = factory.createNote();
@@ -118,8 +117,12 @@ class CrsImporter extends SwingWorker<APDList, Void> {
     return sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
   }
 
-  private int userfriendly(int zeroBased) {
-    return zeroBased + cfg.getSkipLines() + 1;
+  private static int userfriendly(int zeroBased) {
+    return zeroBased + 1;
+  }
+
+  private static String plural(Collection<?> c) {
+    return c.size() == 1 ? "" : "s";
   }
 
 }

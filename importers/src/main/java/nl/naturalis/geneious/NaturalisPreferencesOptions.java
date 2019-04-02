@@ -83,9 +83,10 @@ public class NaturalisPreferencesOptions extends Options {
 
     addDivider("Version Info ");
     addLabel("Version: " + PluginInfo.getInstance().getVersion());
-    addLabel("Build time: " + PluginInfo.getInstance().getBuildDate());
+    addLabel("Release date: " + PluginInfo.getInstance().getBuildDate());
     addLabel("Git branch: " + PluginInfo.getInstance().getGitBranch());
     addLabel("Git commit: " + PluginInfo.getInstance().getGitCommit());
+    addLabel("Build number: " + PluginInfo.getInstance().getCommitCount());
 
     addDivider("Team ");
     addLabel("Rudi Broekhuizen");

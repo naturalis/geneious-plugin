@@ -13,4 +13,7 @@ SMPL_MISSING_SAMPLE_SHEET
 	
 SMPL_NO_DOCUMENTS_SELECTED
 	Please select at least one document or check the "Create dummies" checkbox
-		
+	
+SMPL_MISSING_CRS_FILE
+	Please select a CRS file
+	

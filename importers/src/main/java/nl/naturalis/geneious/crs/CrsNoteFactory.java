@@ -49,8 +49,8 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER
  */
 class CrsNoteFactory extends NoteFactory<CrsColumn> {
 
-  CrsNoteFactory(int rownum, CrsRow cells) {
-    super(rownum, cells);
+  CrsNoteFactory(int rownum, CrsRow row) {
+    super(rownum, row);
   }
 
   @Override
@@ -58,18 +58,18 @@ class CrsNoteFactory extends NoteFactory<CrsColumn> {
     note.castAndSet(CRS_FLAG, Boolean.TRUE);
     setRequiredValue(note, SMPL_REGISTRATION_NUMBER, REGISTRATION_NUMBER);
     setRequiredValue(note, CRS_SCIENTIFIC_NAME, FULL_SCIENTIFIC_NAME);
-    setOptionalValue(note, CRS_IDENTIFIER, IDENTIFIED_BY);
-    setOptionalValue(note, CRS_GENUS, GENUS_OR_MONOMIAL);
-    setOptionalValue(note, CRS_SEX, SEX);
-    setOptionalValue(note, CRS_COLLECTOR, AGENT);
-    setOptionalValue(note, CRS_DATE, COLLECTING_START_DATE);
-    setOptionalValue(note, CRS_STAGE, PHASE_OR_STAGE);
-    setOptionalValue(note, CRS_LATITUDE, LATTITUDE);
-    setOptionalValue(note, CRS_LONGITUDE, LONGITUDE);
-    setOptionalValue(note, CRS_ALTITUDE, ALTITUDE);
-    setOptionalValue(note, CRS_COUNTRY, COUNTRY);
-    setOptionalValue(note, CRS_REGION, STATE_OR_PROVINCE);
-    setOptionalValue(note, CRS_LOCALITY, LOCALITY);
+    setValue(note, CRS_IDENTIFIER, IDENTIFIED_BY);
+    setValue(note, CRS_GENUS, GENUS_OR_MONOMIAL);
+    setValue(note, CRS_SEX, SEX);
+    setValue(note, CRS_COLLECTOR, AGENT);
+    setValue(note, CRS_DATE, COLLECTING_START_DATE);
+    setValue(note, CRS_STAGE, PHASE_OR_STAGE);
+    setValue(note, CRS_LATITUDE, LATTITUDE);
+    setValue(note, CRS_LONGITUDE, LONGITUDE);
+    setValue(note, CRS_ALTITUDE, ALTITUDE);
+    setValue(note, CRS_COUNTRY, COUNTRY);
+    setValue(note, CRS_REGION, STATE_OR_PROVINCE);
+    setValue(note, CRS_LOCALITY, LOCALITY);
     addClassification(note);
   }
 

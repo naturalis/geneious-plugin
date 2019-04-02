@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import nl.naturalis.common.collection.EnumToIntMap;
 import nl.naturalis.geneious.csv.RowSupplierConfig;
 
 /**
@@ -25,6 +26,11 @@ public class SampleSheetImportConfig extends RowSupplierConfig {
 
   void setCreateDummies(boolean createDummies) {
     this.createDummies = createDummies;
+  }
+
+  EnumToIntMap<SampleSheetColumn> getColumnNumbers() {
+    // Ordinal values of the SampleSheetColumn enum constants correspond exactly to the column numbers
+    return new EnumToIntMap<>(SampleSheetColumn.class, k -> k.ordinal());
   }
 
 }

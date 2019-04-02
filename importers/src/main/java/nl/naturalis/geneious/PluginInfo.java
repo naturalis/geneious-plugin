@@ -19,6 +19,7 @@ public class PluginInfo {
   private final String buildDate;
   private final String gitBranch;
   private final String gitCommit;
+  private final String commitCount;
 
   private PluginInfo() {
     InputStream is = getClass().getResourceAsStream("/git.properties");
@@ -36,6 +37,7 @@ public class PluginInfo {
     buildDate = props.getProperty("git.build.time");
     gitBranch = props.getProperty("git.branch");
     gitCommit = props.getProperty("git.commit.id.abbrev");
+    commitCount = props.getProperty("git.total.commit.count");
   }
 
   public String getVersion() {
@@ -52,6 +54,10 @@ public class PluginInfo {
 
   public String getGitCommit() {
     return gitCommit;
+  }
+
+  public String getCommitCount() {
+    return commitCount;
   }
 
 }

@@ -20,11 +20,11 @@ import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.MessageProvider.Message;
 import nl.naturalis.geneious.util.SharedPreconditionValidator;
 
-import static nl.naturalis.geneious.ErrorCode.SMPL_MISSING_SAMPLE_SHEET;
+import static nl.naturalis.geneious.ErrorCode.CRS_MISSING_FILE;
 
 class CrsImportOptions extends Options {
 
-  private static final String SAMPLE_SHEET = "nl.naturalis.geneious.crs.file";
+  private static final String CRS_FILE = "nl.naturalis.geneious.crs.file";
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.crs.linesToSkip";
   private static final String SHEET_NAME = "nl.naturalis.geneious.crs.sheetName";
 
@@ -55,7 +55,7 @@ class CrsImportOptions extends Options {
       return message.getMessage();
     }
     if (StringUtils.isBlank(sampleSheet.getValue())) {
-      return MessageProvider.get(SMPL_MISSING_SAMPLE_SHEET);
+      return MessageProvider.get(CRS_MISSING_FILE);
 
     }
     return null; // Signals to Geneious it can continue
@@ -70,7 +70,7 @@ class CrsImportOptions extends Options {
   }
 
   private FileSelectionOption addFileSelectionOption() {
-    FileSelectionOption opt = addFileSelectionOption(SAMPLE_SHEET, "Sample sheet", "");
+    FileSelectionOption opt = addFileSelectionOption(CRS_FILE, "CRS file", "");
     opt.setAllowMultipleSelection(false);
     opt.setFillHorizontalSpace(true);
     opt.setValue("");

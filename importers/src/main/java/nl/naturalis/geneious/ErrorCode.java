@@ -22,9 +22,15 @@ public enum ErrorCode {
    * The user did not selected any documents and also unchecked the "Create dummies" checkbox. He/she must either select
    * at least one document or check the "Create dummies" checkbox.
    */
-  SMPL_NO_DOCUMENTS_SELECTED;
+  SMPL_NO_DOCUMENTS_SELECTED,
 
+  /**
+   * The user did not select a CRS file in the options dialog.
+   */
+  CRS_MISSING_FILE;
+  
   private final int msgArgCount;
+
 
   private ErrorCode() {
     this.msgArgCount = 0;

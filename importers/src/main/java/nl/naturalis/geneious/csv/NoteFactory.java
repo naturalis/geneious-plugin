@@ -40,7 +40,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
     return s;
   }
 
-  protected void setOptionalValue(NaturalisNote note, NaturalisField field, T column) {
+  protected void setValue(NaturalisNote note, NaturalisField field, T column) {
     String val = get(column);
     if (val != null) {
       note.parseAndSet(field, val);
@@ -57,6 +57,11 @@ public abstract class NoteFactory<T extends Enum<T>> {
     if (val != null) {
       note.castAndSet(field, val);
     }
+  }
+
+  protected void setRequiredValue(NaturalisNote note, NaturalisField field, T column,
+      ThrowingFunction<String, Object, InvalidRowException> transformer) throws InvalidRowException {
+    note.castAndSet(field, transformer.apply(getRequired(column)));
   }
 
 }
