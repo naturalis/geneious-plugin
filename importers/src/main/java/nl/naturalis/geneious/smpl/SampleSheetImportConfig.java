@@ -1,23 +1,21 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.List;
-
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.common.collection.EnumToIntMap;
-import nl.naturalis.geneious.csv.RowSupplierConfig;
+import nl.naturalis.geneious.csv.CsvImportConfig;
 
 /**
- * Stores the user input provided via a Swing dialog.
+ * Contains configuration settings for sample sheet imports.
  *
  * @author Ayco Holleman
  */
-public class SampleSheetImportConfig extends RowSupplierConfig {
+public class SampleSheetImportConfig extends CsvImportConfig<SampleSheetColumn> {
 
   private boolean createDummies;
 
-  SampleSheetImportConfig(List<AnnotatedPluginDocument> selectedDocuments) {
-    super(selectedDocuments);
+  @Override
+  public EnumToIntMap<SampleSheetColumn> getColumnNumbers() {
+    // Column numbers correspond exactly to ordinal values
+    return new EnumToIntMap<>(SampleSheetColumn.class, Enum::ordinal);
   }
 
   boolean isCreateDummies() {
@@ -26,11 +24,6 @@ public class SampleSheetImportConfig extends RowSupplierConfig {
 
   void setCreateDummies(boolean createDummies) {
     this.createDummies = createDummies;
-  }
-
-  EnumToIntMap<SampleSheetColumn> getColumnNumbers() {
-    // Ordinal values of the SampleSheetColumn enum constants correspond exactly to the column numbers
-    return new EnumToIntMap<>(SampleSheetColumn.class, k -> k.ordinal());
   }
 
 }

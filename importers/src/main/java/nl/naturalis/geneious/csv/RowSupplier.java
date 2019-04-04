@@ -4,13 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.NaturalisPluginException;
@@ -25,25 +22,22 @@ import nl.naturalis.geneious.WrappedException;
  */
 public class RowSupplier {
 
-  private static final Set<String> CSV_LIKE_EXTS = ImmutableSet.of("csv", "tsv", "txt");
+  private final CsvImportConfig<?> cfg;
 
-  private final RowSupplierConfig cfg;
-
-  public RowSupplier(RowSupplierConfig config) {
+  public RowSupplier(CsvImportConfig<?> config) {
     this.cfg = config;
   }
 
   public List<String[]> getAllRows() {
     File file = cfg.getFile();
-    String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
     List<String[]> rows;
     try {
-      if (ext.equals("xls") || ext.equals("xlsx")) {
+      if (CsvImportUtil.isSpreadsheet(file.getName())) {
         SpreadSheetReader ssr = new SpreadSheetReader(file);
         ssr.setSheetNumber(cfg.getSheetNumber());
         ssr.setSkipRows(cfg.getSkipLines());
         rows = ssr.readAllRows();
-      } else if (CSV_LIKE_EXTS.contains(ext)) {
+      } else if (CsvImportUtil.isCsvFile(file.getName())) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
         settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
@@ -51,7 +45,7 @@ public class RowSupplier {
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
       } else {
-        throw new NaturalisPluginException("Unknown file type: *." + ext);
+        throw new NaturalisPluginException("Unknown file type");
       }
       return removeTrailingEmptyRows(rows);
     } catch (Throwable t) {

@@ -12,11 +12,6 @@ public enum ErrorCode {
    * query). This is currently not supported.
    */
   BAD_DOCUMENT_DATABASE(1),
-  
-  /**
-   * The user-selected file did not have a csv, tsv, txt, xls or xlsx extension
-   */
-  NOT_CSV_OR_SPREADSHEET(1),
 
   /**
    * The user did not select a sample sheet in the options dialog.
@@ -32,10 +27,14 @@ public enum ErrorCode {
   /**
    * The user did not select a CRS file in the options dialog.
    */
-  CRS_MISSING_FILE;
-  
-  private final int msgArgCount;
+  CSV_NO_FILE_PROVIDED,
 
+  /**
+   * The user-selected file did not have a csv, tsv, txt, xls or xlsx extension
+   */
+  CSV_UNSUPPORTED_FILE_TYPE(1);
+
+  private final int msgArgCount;
 
   private ErrorCode() {
     this.msgArgCount = 0;

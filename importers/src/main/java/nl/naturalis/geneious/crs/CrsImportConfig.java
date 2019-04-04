@@ -1,11 +1,7 @@
 package nl.naturalis.geneious.crs;
 
-import java.util.List;
-
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.common.collection.EnumToIntMap;
-import nl.naturalis.geneious.csv.RowSupplierConfig;
+import nl.naturalis.geneious.csv.CsvImportConfig;
 
 import static nl.naturalis.geneious.crs.CrsColumn.AGENT;
 import static nl.naturalis.geneious.crs.CrsColumn.ALTITUDE;
@@ -13,29 +9,26 @@ import static nl.naturalis.geneious.crs.CrsColumn.COLLECTING_START_DATE;
 import static nl.naturalis.geneious.crs.CrsColumn.COUNTRY;
 import static nl.naturalis.geneious.crs.CrsColumn.FULL_SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.crs.CrsColumn.GENUS_OR_MONOMIAL;
+import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_NAMES;
+import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_RANKS;
 import static nl.naturalis.geneious.crs.CrsColumn.IDENTIFIED_BY;
 import static nl.naturalis.geneious.crs.CrsColumn.LATTITUDE;
 import static nl.naturalis.geneious.crs.CrsColumn.LOCALITY;
 import static nl.naturalis.geneious.crs.CrsColumn.LONGITUDE;
-import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_NAMES;
 import static nl.naturalis.geneious.crs.CrsColumn.PHASE_OR_STAGE;
-import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_RANKS;
 import static nl.naturalis.geneious.crs.CrsColumn.REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.crs.CrsColumn.SEX;
 import static nl.naturalis.geneious.crs.CrsColumn.STATE_OR_PROVINCE;
 
 /**
- * Stores the input provided provided by the user via the options dialog.
+ * Contains configuration settings for CRS imports.
  *
  * @author Ayco Holleman
  */
-class CrsImportConfig extends RowSupplierConfig {
+class CrsImportConfig extends CsvImportConfig<CrsColumn> {
 
-  CrsImportConfig(List<AnnotatedPluginDocument> selectedDocuments) {
-    super(selectedDocuments);
-  }
-
-  EnumToIntMap<CrsColumn> getColumnNumbers() {
+  @Override
+  public EnumToIntMap<CrsColumn> getColumnNumbers() {
     return new EnumToIntMap<>(CrsColumn.class)
         .set(REGISTRATION_NUMBER, 0)
         .set(HIGHER_RANKS, 1)
