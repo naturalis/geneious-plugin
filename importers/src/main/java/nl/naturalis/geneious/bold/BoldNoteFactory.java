@@ -26,11 +26,11 @@ class BoldNoteFactory extends NoteFactory<BoldColumn> {
     setRequiredValue(note, BOLD_FIELD_ID, FIELD_ID);
     setRequiredValue(note, BOLD_BIN_CODE, BIN);
     setRequiredValue(note, BOLD_NUCLEOTIDE_LENGTH, SEQ_LENGTH);
-    setRequiredValue(note, BOLD_NUM_TRACES, TRACE_COUNT);
-    setRequiredValue(note, BOLD_GEN_BANK_ID, ACCESSION);
-    setRequiredValue(note, BOLD_NUM_IMAGES, IMAGE_COUNT);
+    setValue(note, BOLD_NUM_TRACES, TRACE_COUNT);
+    setValue(note, BOLD_GEN_BANK_ID, ACCESSION);
+    setValue(note, BOLD_NUM_IMAGES, IMAGE_COUNT);
     setValue(note, BOLD_URI, PROCCES_ID, val -> BOLD_URI_PREFIX + val);
-    setValue(note, BOLD_GEN_BANK_URI, ACCESSION, val -> GEN_BANK_URI_PREFIX + val);
+    setValue(note, BOLD_GEN_BANK_URI, ACCESSION, val -> val == null ? null : GEN_BANK_URI_PREFIX + val);
   }
 
 }
