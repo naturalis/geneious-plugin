@@ -1,5 +1,6 @@
 package nl.naturalis.geneious.gui.log;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.copyOfRange;
@@ -11,8 +12,8 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
 
 /**
- * A logger implementation that is rather tightly coupled to Geneious and Swing, in that sends sends messages to a JTextArea rather than to
- * regular destinations like a file ro console.
+ * A logger implementation that is rather tightly coupled to Geneious and Swing, in that sends sends messages to a
+ * JTextArea rather than to regular destinations like a file ro console.
  * 
  * @author Ayco Holleman
  *
@@ -20,8 +21,8 @@ import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
 public class GuiLogger {
 
   /**
-   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the message pattern and the
-   * remaining arguments the message arguments passed to String.format.
+   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the message
+   * pattern and the remaining arguments the message arguments passed to String.format.
    * 
    * @param args
    * @return
@@ -31,6 +32,10 @@ public class GuiLogger {
     objs[0] = pattern;
     System.arraycopy(args, 0, objs, 1, args.length);
     return objs;
+  }
+
+  public static String plural(Collection<?> c) {
+    return c.size() == 1 ? "" : "s";
   }
 
   private final Class<?> clazz;

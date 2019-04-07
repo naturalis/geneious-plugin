@@ -34,8 +34,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private static final String DELIMITER = "nl.naturalis.geneious.%s.delim";
   private static final String SHEET_NAME = "nl.naturalis.geneious.%s.sheet";
 
-  private static final OptionValue NO_SHEET = new OptionValue("0", "--- (for spreadsheet) ---");
-  private static final OptionValue NO_DELIM = new OptionValue("0", "--- (for CSV) ---");
+  private static final OptionValue NO_SHEET = new OptionValue("0", "--- (spreadsheet) ---");
+  private static final OptionValue NO_DELIM = new OptionValue("0", "--- (CSV) ---");
 
   private static final List<OptionValue> DELIM_OPTIONS = Arrays.asList(
       new OptionValue("\t", "\\t"),

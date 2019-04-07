@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.crs;
+package nl.naturalis.geneious.bold;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,13 +24,13 @@ import static nl.naturalis.geneious.util.DebugUtil.toJson;
 /**
  * Does the actual work of importing a CRS file into Geneious.
  */
-class CrsImporter extends SwingWorker<APDList, Void> {
+class BoldImporter extends SwingWorker<APDList, Void> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
 
-  private final CrsImportConfig cfg;
+  private final BoldImportConfig cfg;
 
-  CrsImporter(CrsImportConfig cfg) {
+  BoldImporter(BoldImportConfig cfg) {
     this.cfg = cfg;
   }
 
@@ -51,7 +51,7 @@ class CrsImporter extends SwingWorker<APDList, Void> {
   private APDList updateOnly() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments(), CrsImporter::getRegno);
+    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments(), BoldImporter::getRegno);
     int good = 0, bad = 0, updated = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
@@ -94,13 +94,13 @@ class CrsImporter extends SwingWorker<APDList, Void> {
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
-    CrsRow row = new CrsRow(cfg.getColumnNumbers(), rows.get(rownum));
+    BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(rownum));
     if (row.isEmptyRow()) {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", line(rownum)));
       return null;
     }
     guiLogger.debugf(() -> format("Line %s: %s", line(rownum), toJson(rows.get(rownum))));
-    CrsNoteFactory factory = new CrsNoteFactory(line(rownum), row);
+    BoldNoteFactory factory = new BoldNoteFactory(line(rownum), row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));

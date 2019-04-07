@@ -20,7 +20,7 @@ import static nl.naturalis.geneious.smpl.SampleSheetColumn.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.SCIENTIFIC_NAME;
 
 /**
- * Represents a single row within a sample sheet and functions as a producer of {@link NaturalisNote} instances.
+ * Produces a {@link NaturalisNote} from the data in a {@link SampleSheetRow}.
  */
 class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 

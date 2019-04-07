@@ -45,7 +45,7 @@ import static nl.naturalis.geneious.note.NaturalisField.CRS_SUBFAMILY;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 
 /**
- * Represents a single row within a sample sheet and functions as a producer of {@link NaturalisNote} instances.
+ * Produces a {@link NaturalisNote} from the data in a {@link CrsRow}.
  */
 class CrsNoteFactory extends NoteFactory<CrsColumn> {
 

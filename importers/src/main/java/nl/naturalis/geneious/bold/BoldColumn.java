@@ -8,7 +8,8 @@ package nl.naturalis.geneious.bold;
 enum BoldColumn {
 
   PROJECT_CODE,
-  PROJECT_ID,
+  PROCCES_ID,
+  SAMPLE_ID,
   FIELD_ID,
   BIN,
   MARKER,

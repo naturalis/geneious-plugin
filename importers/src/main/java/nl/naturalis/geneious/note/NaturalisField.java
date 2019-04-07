@@ -3,7 +3,6 @@ package nl.naturalis.geneious.note;
 import java.util.Arrays;
 import java.util.List;
 
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.documents.DocumentNote;
@@ -15,7 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.PluginDataSource;
+import nl.naturalis.geneious.csv.NoteFactory;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
@@ -27,66 +26,60 @@ import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.crea
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
 
-import static nl.naturalis.geneious.PluginDataSource.AUTO;
-import static nl.naturalis.geneious.PluginDataSource.BOLD;
-import static nl.naturalis.geneious.PluginDataSource.CRS;
-import static nl.naturalis.geneious.PluginDataSource.SAMPLE_SHEET;
-import static nl.naturalis.geneious.PluginDataSource.SEQUENCE_NAME;
-
 /**
  * Symbolic constants for all fields that can be included in a {@link NaturalisNote}.
  */
 public enum NaturalisField {
 
-  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version", AUTO),
+  DOCUMENT_VERSION("DocumentVersionCode_Seq", "Document version"),
 
-  SEQ_EXTRACT_ID("ExtractIDCode_Seq", "Extract ID (Seq)", SEQUENCE_NAME),
-  SEQ_MARKER("MarkerCode_Seq", "Marker (Seq)", SEQUENCE_NAME),
-  SEQ_PASS("ConsensusSeqPassCode_Seq", "Pass (Seq)", SEQUENCE_NAME),
-  SEQ_PCR_PLATE_ID("PCRplateIDCode_Seq", "PCR plate ID (Seq)", SEQUENCE_NAME),
-  SEQ_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)", SEQUENCE_NAME),
+  SEQ_EXTRACT_ID("ExtractIDCode_Seq", "Extract ID (Seq)"),
+  SEQ_MARKER("MarkerCode_Seq", "Marker (Seq)"),
+  SEQ_PASS("ConsensusSeqPassCode_Seq", "Pass (Seq)"),
+  SEQ_PCR_PLATE_ID("PCRplateIDCode_Seq", "PCR plate ID (Seq)"),
+  SEQ_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)"),
 
-  SMPL_AMPLIFICATION_STAFF("AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)", SAMPLE_SHEET),
-  SMPL_EXTRACT_ID("ExtractIDCode_Samples", "Extract ID (Samples)", SAMPLE_SHEET),
-  SMPL_EXTRACT_PLATE_ID("ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)", SAMPLE_SHEET),
-  SMPL_EXTRACTION_METHOD("SampleMethodCode_Samples", "Extraction method (Samples)", SAMPLE_SHEET),
-  SMPL_PLATE_POSITION("PlatePositionCode_Samples", "Position (Samples)", SAMPLE_SHEET),
-  SMPL_REGNO_PLUS_SCI_NAME("RegistrationNumberCode_TaxonName2Code_Samples", "Registr-nmbr_[Scientific_name] (Samples)", SAMPLE_SHEET),
-  SMPL_REGISTRATION_NUMBER("RegistrationNumberCode_Samples", "Registr-nmbr (Samples)", SAMPLE_SHEET),
-  SMPL_SAMPLE_PLATE_ID("ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)", SAMPLE_SHEET),
-  SMPL_SCIENTIFIC_NAME("TaxonName2Code_Samples", "[Scientific name] (Samples)", SAMPLE_SHEET),
-  SMPL_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)", SAMPLE_SHEET),
+  SMPL_AMPLIFICATION_STAFF("AmplicificationStaffCode_FixedValue_Samples", "Ampl-staff (Samples)"),
+  SMPL_EXTRACT_ID("ExtractIDCode_Samples", "Extract ID (Samples)"),
+  SMPL_EXTRACT_PLATE_ID("ExtractPlateNumberCode_Samples", "Extract plate ID (Samples)"),
+  SMPL_EXTRACTION_METHOD("SampleMethodCode_Samples", "Extraction method (Samples)"),
+  SMPL_PLATE_POSITION("PlatePositionCode_Samples", "Position (Samples)"),
+  SMPL_REGNO_PLUS_SCI_NAME("RegistrationNumberCode_TaxonName2Code_Samples", "Registr-nmbr_[Scientific_name] (Samples)"),
+  SMPL_REGISTRATION_NUMBER("RegistrationNumberCode_Samples", "Registr-nmbr (Samples)"),
+  SMPL_SAMPLE_PLATE_ID("ProjectPlateNumberCode_Samples", "Sample plate ID (Samples)"),
+  SMPL_SCIENTIFIC_NAME("TaxonName2Code_Samples", "[Scientific name] (Samples)"),
+  SMPL_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Samples", "Seq-staff (Samples)"),
 
-  CRS_ALTITUDE("HeightCode_CRS", "Altitude (CRS)", CRS),
-  CRS_CLASS("ClassCode_CRS", "Class (CRS)", CRS),
-  CRS_COLLECTOR("CollectorCode_CRS", "Leg (CRS)", CRS),
-  CRS_COUNTRY("CountryCode_CRS", "Country (CRS)", CRS),
-  CRS_DATE("CollectingDateCode_CRS", "Date (CRS)", CRS),
-  CRS_FAMILY("FamilyCode_CRS", "Family (CRS)", CRS),
-  CRS_FLAG("CRSCode_CRS", "CRS (CRS)", Boolean.class, CRS),
-  CRS_GENUS("GenusCode_CRS", "Genus (CRS)", CRS),
-  CRS_IDENTIFIER("IdentifierCode_CRS", "Identifier (CRS)", CRS),
-  CRS_LATITUDE("LatitudeDecimalCode_CRS", "Lat (CRS)", CRS),
-  CRS_LOCALITY("LocalityCode_CRS", "Locality (CRS)", CRS),
-  CRS_LONGITUDE("LongitudeDecimalCode_CRS", "Long (CRS)", CRS),
-  CRS_ORDER("OrderCode_CRS", "Order (CRS)", CRS),
-  CRS_PHYLUM("PhylumCode_CRS", "Phylum (CRS)", CRS),
-  CRS_REGION("StateOrProvinceBioRegionCode_CRS", "Region (CRS)", CRS),
-  CRS_SCIENTIFIC_NAME("TaxonName1Code_CRS", "Scientific name (CRS)", CRS),
-  CRS_SEX("SexCode_CRS", "Sex (CRS)", CRS),
-  CRS_STAGE("PhaseOrStageCode_CRS", "Stage (CRS)", CRS),
-  CRS_SUBFAMILY("SubFamilyCode_CRS", "Subfamily (CRS)", CRS),
+  CRS_ALTITUDE("HeightCode_CRS", "Altitude (CRS)"),
+  CRS_CLASS("ClassCode_CRS", "Class (CRS)"),
+  CRS_COLLECTOR("CollectorCode_CRS", "Leg (CRS)"),
+  CRS_COUNTRY("CountryCode_CRS", "Country (CRS)"),
+  CRS_DATE("CollectingDateCode_CRS", "Date (CRS)"),
+  CRS_FAMILY("FamilyCode_CRS", "Family (CRS)"),
+  CRS_FLAG("CRSCode_CRS", "CRS (CRS)", Boolean.class),
+  CRS_GENUS("GenusCode_CRS", "Genus (CRS)"),
+  CRS_IDENTIFIER("IdentifierCode_CRS", "Identifier (CRS)"),
+  CRS_LATITUDE("LatitudeDecimalCode_CRS", "Lat (CRS)"),
+  CRS_LOCALITY("LocalityCode_CRS", "Locality (CRS)"),
+  CRS_LONGITUDE("LongitudeDecimalCode_CRS", "Long (CRS)"),
+  CRS_ORDER("OrderCode_CRS", "Order (CRS)"),
+  CRS_PHYLUM("PhylumCode_CRS", "Phylum (CRS)"),
+  CRS_REGION("StateOrProvinceBioRegionCode_CRS", "Region (CRS)"),
+  CRS_SCIENTIFIC_NAME("TaxonName1Code_CRS", "Scientific name (CRS)"),
+  CRS_SEX("SexCode_CRS", "Sex (CRS)"),
+  CRS_STAGE("PhaseOrStageCode_CRS", "Stage (CRS)"),
+  CRS_SUBFAMILY("SubFamilyCode_CRS", "Subfamily (CRS)"),
 
-  BOLD_BIN_CODE("BOLDBINCode_Bold", "BOLD BIN (Bold)", BOLD),
-  BOLD_FIELD_ID("FieldIDCode_Bold", "Field ID (Bold)", BOLD),
-  BOLD_GEN_BANK_ID("GenBankIDCode_Bold", "GenBank ID (Bold)", BOLD),
-  BOLD_GEN_BANK_URI("GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)", BOLD),
-  BOLD_ID("BOLDIDCode_Bold", "BOLD ID (Bold)", BOLD),
-  BOLD_NUCLEOTIDE_LENGTH("NucleotideLengthCode_Bold", "Nucl-length (Bold)", BOLD),
-  BOLD_NUM_IMAGES("NumberOfImagesCode_Bold", "N images (Bold)", BOLD),
-  BOLD_NUM_TRACES("TraceFilePresenceCode_Bold", "N traces (Bold)", BOLD),
-  BOLD_PROJECT_ID("BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)", BOLD),
-  BOLD_URI("BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)", BOLD);
+  BOLD_BIN_CODE("BOLDBINCode_Bold", "BOLD BIN (Bold)"),
+  BOLD_FIELD_ID("FieldIDCode_Bold", "Field ID (Bold)"),
+  BOLD_GEN_BANK_ID("GenBankIDCode_Bold", "GenBank ID (Bold)"),
+  BOLD_GEN_BANK_URI("GenBankURICode_FixedValue_Bold", "GenBank URI (Bold)"),
+  BOLD_ID("BOLDIDCode_Bold", "BOLD ID (Bold)"),
+  BOLD_NUCLEOTIDE_LENGTH("NucleotideLengthCode_Bold", "Nucl-length (Bold)"),
+  BOLD_NUM_IMAGES("NumberOfImagesCode_Bold", "N images (Bold)"),
+  BOLD_NUM_TRACES("TraceFilePresenceCode_Bold", "N traces (Bold)"),
+  BOLD_PROJECT_ID("BOLDprojIDCode_Bold", "BOLD proj-ID (Bold)"),
+  BOLD_URI("BOLDURICode_FixedValue_Bold", "BOLD URI (Bold)");
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisField.class);
 
@@ -102,16 +95,15 @@ public enum NaturalisField {
   private final String noteTypeCode;
   private final String noteTypeName;
   private final Class<?> dataType;
-  private final PluginDataSource[] dataSources;
 
   private DocumentNoteType noteType;
   private DocumentField queryField;
 
-  private NaturalisField(String code, String name, PluginDataSource... dataSources) {
-    this(code, name, String.class, dataSources);
+  private NaturalisField(String code, String name) {
+    this(code, name, String.class);
   }
 
-  private NaturalisField(String code, String name, Class<?> dateType, PluginDataSource... dataSources) {
+  private NaturalisField(String code, String name, Class<?> dateType) {
     this.code = code;
     this.name = name;
     /*
@@ -125,24 +117,15 @@ public enum NaturalisField {
      * DOCUMENT_VERSION, which could better have been defined as an integer field.
      */
     this.dataType = dateType;
-    this.dataSources = dataSources;
-  }
-
-  public String getName() {
-    return name;
   }
 
   /**
-   * Returns all data sources (sequence name, sample sheet, CRS, BOLD) containg the field. The first of these data sources
-   * is the primaru data source, i.e. the one actually used to populate the field. However, there may be other data
-   * sources that also contain this field.
+   * Returns the name of the field (which will appear as the header in the GUI.
+   * 
+   * @return
    */
-  public PluginDataSource[] getDataSources() {
-    return dataSources;
-  }
-
-  public <T> T readFrom(AnnotatedPluginDocument document) {
-    return readFrom(document.getDocumentNotes(false));
+  public String getName() {
+    return name;
   }
 
   /**
@@ -151,10 +134,7 @@ public enum NaturalisField {
    * @return
    */
   public DocumentField createQueryField() {
-    /*
-     * Why a DocumentField can and should be created from a DocumentNoteField as shown below is not clear. Just got it from
-     * Geneious support.
-     */
+    // Why a DocumentField should be created this way is mysterious. Just got it from Geneious support.
     if (queryField == null) {
       if (dataType == Boolean.class) {
         queryField = DocumentField.createBooleanField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
@@ -183,6 +163,13 @@ public enum NaturalisField {
     this.queryField = null;
   }
 
+  /**
+   * Parses the provided string value (supposedly coming from a file-to-be-imported) into an object of this field's
+   * datatype. Throws an {@code IllegalArgumentException} if the string could not be parsed as such.
+   * 
+   * @param str
+   * @return
+   */
   @SuppressWarnings("unchecked")
   <T> T parse(String str) {
     T t;
@@ -198,6 +185,14 @@ public enum NaturalisField {
     return t;
   }
 
+  /**
+   * Casts the provided object (presumably already processed by a {@link NoteFactory} to an object of this field's
+   * datatype. Since the not factory probably already returned the right datatype, this is just an extra type check. If
+   * the casting throws a {@code ClassCastException}, an error is logged and this method returns null.
+   * 
+   * @param val
+   * @return
+   */
   @SuppressWarnings("unchecked")
   <T> T cast(Object val) {
     try {
