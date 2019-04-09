@@ -18,6 +18,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
+import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -26,7 +27,6 @@ import static java.util.function.Predicate.not;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
@@ -64,12 +64,13 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
-    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
+    StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     guiLogger.info("Searching database \"%s\" for matching documents", getTargetDatabaseName());
-    Set<String> searchFor = extractIds.stream()
+    Set<String> extraIdsInSampleSheet = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
-    StoredDocumentTable unselected = new StoredDocumentTable(findByExtractID(searchFor));
+    APDList searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
+    StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int numNewExtractIds = extractIds.size() - selectedDocuments.keySet().size() - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", numNewExtractIds, plural(numNewExtractIds));
     APDList dummies = new APDList();
@@ -131,7 +132,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   private APDList updateOnly() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments());
+    StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     int good = 0, bad = 0, updated = 0, unused = 0;
     NaturalisNote note;
     for (int i = 1; i < rows.size(); ++i) {
@@ -174,11 +175,23 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     return null; // Tells Geneious that we didn't create any new documents.
   }
 
+  private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {
+    StoredDocumentTable<String> sdt = new StoredDocumentTable<>(cfg.getSelectedDocuments(), sd -> sd.getNaturalisNote().getExtractId());
+    sdt.sortByDocumentVersionDescending();
+    return sdt;
+  }
+
+  private static StoredDocumentTable<String> createLookupTableForUnselectedDocuments(APDList searchResult) {
+    StoredDocumentTable<String> sdt = new StoredDocumentTable<>(searchResult, sd -> sd.getNaturalisNote().getExtractId());
+    sdt.sortByDocumentVersionDescending();
+    return sdt;
+  }
+
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
     int x = userfriendly(rownum);
     SampleSheetRow row = new SampleSheetRow(cfg.getColumnNumbers(), values);
-    if (row.isEmptyRow()) {
+    if (row.isEmpty()) {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
       return null;
     }

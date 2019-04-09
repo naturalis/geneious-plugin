@@ -4,8 +4,24 @@ import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.NoteFactory;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.note.NaturalisField.*;
-import static nl.naturalis.geneious.bold.BoldColumn.*;
+import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
+import static nl.naturalis.geneious.bold.BoldColumn.BIN;
+import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.IMAGE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.PROCCES_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
+import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
+import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_BIN_CODE;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_FIELD_ID;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_GEN_BANK_ID;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_GEN_BANK_URI;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_ID;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_NUCLEOTIDE_LENGTH;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_NUM_IMAGES;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_NUM_TRACES;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_PROJECT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.BOLD_URI;
 
 /**
  * Produces a {@link NaturalisNote} from the data in a {@link BoldRow}.
@@ -24,8 +40,8 @@ class BoldNoteFactory extends NoteFactory<BoldColumn> {
     setRequiredValue(note, BOLD_ID, PROJECT_CODE);
     setRequiredValue(note, BOLD_PROJECT_ID, PROCCES_ID);
     setRequiredValue(note, BOLD_FIELD_ID, FIELD_ID);
-    setRequiredValue(note, BOLD_BIN_CODE, BIN);
     setRequiredValue(note, BOLD_NUCLEOTIDE_LENGTH, SEQ_LENGTH);
+    setValue(note, BOLD_BIN_CODE, BIN);
     setValue(note, BOLD_NUM_TRACES, TRACE_COUNT);
     setValue(note, BOLD_GEN_BANK_ID, ACCESSION);
     setValue(note, BOLD_NUM_IMAGES, IMAGE_COUNT);

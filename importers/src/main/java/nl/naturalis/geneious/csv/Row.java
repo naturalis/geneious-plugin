@@ -19,11 +19,17 @@ public class Row<T extends Enum<T>> extends EnumMap<T, String> {
     }
   }
 
-  public boolean isEmptyRow() {
+  public boolean isEmpty() {
     return values().stream().allMatch(Objects::isNull);
   }
 
-  public boolean hasValueFor(T column) {
-    return get(column) != null;
+  @SuppressWarnings("unchecked")
+  public boolean hasValueFor(T... columns) {
+    for (T column : columns) {
+      if (get(column) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 }

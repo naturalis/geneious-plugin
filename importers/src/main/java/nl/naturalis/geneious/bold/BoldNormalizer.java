@@ -11,14 +11,23 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
 import static nl.naturalis.geneious.gui.log.GuiLogger.*;
 import static nl.naturalis.geneious.bold.BoldColumn.*;
 
-public class BoldFileNormalizer {
+/**
+ * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets
+ * and CRS files). It takes the rows in a BOLD file as input and produces a new set of rows, each one having just one
+ * quartet of marker column. (The original BOLD file only has three marker-related columns, with the name of the marker
+ * being implicit in the headers of those columns. In the output produced by the {@code BoldNormalizer} the name of the
+ * marker becomes a value in a 4th column.)
+ *
+ * @author Ayco Holleman
+ */
+public class BoldNormalizer {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldFileNormalizer.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
   private String[] header;
   private List<String[]> lines;
 
-  public BoldFileNormalizer(String[] header, List<String[]> lines) {
+  public BoldNormalizer(String[] header, List<String[]> lines) {
     this.header = header;
     this.lines = lines;
   }

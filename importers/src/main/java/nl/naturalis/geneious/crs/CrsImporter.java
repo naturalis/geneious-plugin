@@ -51,7 +51,7 @@ class CrsImporter extends SwingWorker<APDList, Void> {
   private APDList updateOnly() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    StoredDocumentTable selectedDocuments = new StoredDocumentTable(cfg.getSelectedDocuments(), CrsImporter::getRegno);
+    StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), CrsImporter::getRegno);
     int good = 0, bad = 0, updated = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
@@ -95,7 +95,7 @@ class CrsImporter extends SwingWorker<APDList, Void> {
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     CrsRow row = new CrsRow(cfg.getColumnNumbers(), rows.get(rownum));
-    if (row.isEmptyRow()) {
+    if (row.isEmpty()) {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", line(rownum)));
       return null;
     }
