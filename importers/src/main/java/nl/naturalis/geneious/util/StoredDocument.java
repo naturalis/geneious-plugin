@@ -51,10 +51,6 @@ public class StoredDocument {
     return note;
   }
 
-  public void save() {
-    doc.save();
-  }
-
   public DocumentType getType() {
     return type;
   }

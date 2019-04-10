@@ -38,6 +38,10 @@ public class GuiLogger {
     return c.size() == 1 ? "" : "s";
   }
 
+  public static String plural(int i) {
+    return i == 1 ? "" : "s";
+  }
+
   private final Class<?> clazz;
   private final LogWriter writer;
 

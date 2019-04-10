@@ -2,11 +2,13 @@ package nl.naturalis.geneious.util;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.Query;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
@@ -65,14 +67,14 @@ public class QueryUtils {
    * @return
    * @throws DatabaseServiceException
    */
-  public static APDList findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
+  public static List<AnnotatedPluginDocument> findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
     if (extractIds.size() == 0) {
       return APDList.emptyList();
     }
     Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
     Query query = createOrQuery(subqueries, Collections.emptyMap());
     guiLogger.debugf(() -> format("Executing query: %s", query));
-    return new APDList(getTargetDatabase().retrieve(query, ProgressListener.EMPTY));
+    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
   }
 
   /**

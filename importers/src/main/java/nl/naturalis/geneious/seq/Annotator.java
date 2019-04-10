@@ -7,15 +7,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.QueryResultManager;
 import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -45,18 +47,35 @@ class Annotator {
    * @throws DatabaseServiceException
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    guiLogger.info("Splitting sequence names");
+    guiLogger.info("Parsing AB1 files names / fasta sequence headers");
     List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
     HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
     annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
-    guiLogger.debugf(() -> format("Collected %s unique extract ID(s)", ids.size()));
+    guiLogger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
     guiLogger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
-    APDList docs = findByExtractID(ids);
-    guiLogger.debugf(() -> format("Found %s document(s)", docs.size()));
-    QueryResultManager queryResultManager = new QueryResultManager(docs);
+    List<AnnotatedPluginDocument> docs = findByExtractID(ids);
+    guiLogger.debugf(() -> format("Found %s matching document%s", docs.size(), plural(docs)));
+    QueryCache queryCache = new QueryCache(docs);
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
-    annotatableDocs.forEach(doc -> doc.annotate(queryResultManager).ifPresent(dummy -> obsoleteDummies.add(dummy)));
+    guiLogger.info("Annotating documents");
+    for (ImportableDocument doc : annotatableDocs) {
+      NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
+      String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
+      guiLogger.debugf(() -> format("Annotating %s document with extract ID %s", getType(doc), extractId));
+      guiLogger.debugf(() -> format("Scanning query cache for dummy document with extract ID %s", extractId));
+      queryCache.findDummy(extractId).ifPresent(dummy -> {
+        guiLogger.debugf(() -> format("Found. Copying annotations to %s document", getType(doc)));
+        dummy.getNaturalisNote().copyTo(note);
+        obsoleteDummies.add(dummy);
+        guiLogger.debug(() -> "Dummy document queued for deletion");
+      });
+    }
+    guiLogger.info("Setting document version on documents");
+//    VersionTracker versioner = new VersionTracker(docs);
+    for (ImportableDocument doc : annotatableDocs) {
+
+    }
   }
 
   /**
@@ -103,6 +122,10 @@ class Annotator {
       }
     }
     return annotatables;
+  }
+
+  private static DocumentType getType(ImportableDocument doc) {
+    return doc.getSequenceInfo().getDocumentType();
   }
 
 }

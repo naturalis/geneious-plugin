@@ -3,6 +3,7 @@ package nl.naturalis.geneious.seq;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -48,10 +49,12 @@ class FastaImporter {
     AnnotatedPluginDocument document;
     for (File motherFile : fastas.keySet()) {
       guiLogger.debugf(() -> format("Importing file %s", motherFile.getName()));
+      String descr = "Source: " + motherFile.getName();
+      Date date = new Date(motherFile.lastModified());
       for (FastaInfo info : fastas.get(motherFile)) {
         ++processed;
         guiLogger.debugf(() -> format("--> Importing sequence %s", info.getName()));
-        sequence = new DefaultNucleotideSequence(info.getName(), info.getSequence());
+        sequence = new DefaultNucleotideSequence(info.getName(), descr, info.getSequence(), date);
         document = createAnnotatedPluginDocument(sequence);
         ++imported;
         importables.add(new ImportableDocument(document, info));

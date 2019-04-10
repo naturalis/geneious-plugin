@@ -69,7 +69,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     Set<String> extraIdsInSampleSheet = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
-    APDList searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
+    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int numNewExtractIds = extractIds.size() - selectedDocuments.keySet().size() - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", numNewExtractIds, plural(numNewExtractIds));
@@ -181,7 +181,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     return sdt;
   }
 
-  private static StoredDocumentTable<String> createLookupTableForUnselectedDocuments(APDList searchResult) {
+  private static StoredDocumentTable<String> createLookupTableForUnselectedDocuments(List<AnnotatedPluginDocument> searchResult) {
     StoredDocumentTable<String> sdt = new StoredDocumentTable<>(searchResult, sd -> sd.getNaturalisNote().getExtractId());
     sdt.sortByDocumentVersionDescending();
     return sdt;

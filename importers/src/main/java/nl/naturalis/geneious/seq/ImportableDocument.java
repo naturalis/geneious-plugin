@@ -1,17 +1,10 @@
 package nl.naturalis.geneious.seq;
 
-import java.util.Optional;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.QueryResultManager;
 import nl.naturalis.geneious.util.StoredDocument;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
  * A simple combination of an {@link AnnotatedPluginDocument} and a {@code SequenceInfo} object that will be used to
@@ -21,6 +14,7 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
  */
 class ImportableDocument {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(ImportableDocument.class);
 
   private final SequenceInfo sequenceInfo;
@@ -47,44 +41,6 @@ class ImportableDocument {
    */
   AnnotatedPluginDocument getGeneiousDocument() {
     return document;
-  }
-
-  /**
-   * Attaches the {@link NaturalisNote} to the Geneious document. The provided {@code QueryResultManager} is used to look
-   * up older documents with the same extract ID (dummy or real). In case the QueryResultManager yields a regular
-   * (AB1/fasta) document, its document version is used to determine the document version of this document. If the
-   * QueryResultManager yields a dummy document, its annotations will be copied over to this document AND the dummy
-   * document will be pased on (returned) to the caller, who may then proceed to delete the dummy. Otherwise an empty
-   * {@code Optional} is returned to the caller.
-   * 
-   * @param queryResultManager
-   * @return
-   */
-  Optional<StoredDocument> annotate(QueryResultManager queryResultManager) {
-    DocumentType type = sequenceInfo.getDocumentType();
-    guiLogger.debugf(() -> format("Splitting \"%s\"", sequenceInfo.getName()));
-    NaturalisNote note = sequenceInfo.getNaturalisNote();
-    String extractId = note.getExtractId();
-    guiLogger.debugf(() -> format("Searching query cache for %s document(s) with extract ID %s", type, extractId));
-    Optional<StoredDocument> optional = queryResultManager.find(extractId, type);
-    if (optional.isPresent()) {
-      String version = optional.get().getNaturalisNote().getDocumentVersion();
-      note.incrementDocumentVersion(version);
-      guiLogger.debugf(() -> format("Found. Saving new %s document as version %s", type, note.getDocumentVersion()));
-      note.saveTo(document);
-      return Optional.empty();
-    }
-    guiLogger.debugf(() -> format("Not found. Searching query cache for dummy document with extract ID %s", extractId));
-    optional = queryResultManager.findDummy(extractId);
-    if (optional.isPresent()) {
-      guiLogger.debug(() -> "Found. Copying annotations to new %s document");
-      optional.get().getNaturalisNote().copyTo(note, false);
-    } else {
-      guiLogger.debugf(() -> format("Found. Saving new %s document as version 1", type));
-    }
-    note.setDocumentVersion(1);
-    note.saveTo(document);
-    return optional;
   }
 
 }

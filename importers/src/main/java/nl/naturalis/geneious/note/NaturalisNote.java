@@ -1,7 +1,6 @@
 package nl.naturalis.geneious.note;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -11,7 +10,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import nl.naturalis.geneious.util.StoredDocument;
 
@@ -26,7 +24,6 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
  */
 public final class NaturalisNote {
 
-  private static final EnumSet<NaturalisField> DEDICATED_SETTER_REQUIRED = EnumSet.of(DOCUMENT_VERSION);
   private static final String ERR_EMPTY = "Value must not be null or whitespace only (field=%s)";
 
   private final EnumMap<NaturalisField, Object> data;
@@ -58,7 +55,6 @@ public final class NaturalisNote {
    */
   public void parseAndSet(NaturalisField field, String value) {
     Preconditions.checkArgument(StringUtils.isNotBlank(value), ERR_EMPTY, field);
-    Preconditions.checkArgument(!DEDICATED_SETTER_REQUIRED.contains(field), "Must use dedicated setter for " + field);
     data.put(field, field.parse(value));
   }
 
@@ -72,7 +68,6 @@ public final class NaturalisNote {
    */
   public void castAndSet(NaturalisField field, Object value) {
     Preconditions.checkNotNull(value, ERR_EMPTY, field);
-    Preconditions.checkArgument(!DEDICATED_SETTER_REQUIRED.contains(field), "Must use dedicated setter for " + field);
     if (value instanceof CharSequence && StringUtils.isBlank((CharSequence) value)) {
       throw new IllegalArgumentException(String.format(ERR_EMPTY, field));
     }
@@ -112,7 +107,8 @@ public final class NaturalisNote {
   }
 
   /**
-   * Convenience method for retrieving the ubiquitous document version.
+   * Convenience method for retrieving the ubiquitous document version. N.B. In version 1 the document version was stored
+   * as a string, and it is not trivial to repair this.
    * 
    * @return
    */
@@ -121,8 +117,7 @@ public final class NaturalisNote {
   }
 
   /**
-   * Sets the document version to the specified number. N.B. you cannot use the generic {@code parseAndSet} and
-   * {@code castAndSet} methods to set the document version (will throw an IllegalArgumentException).
+   * Convenience method for setting the document version,
    * 
    * @param version
    */
@@ -131,34 +126,6 @@ public final class NaturalisNote {
       throw new IllegalArgumentException("Invalid document version: " + version);
     }
     data.put(DOCUMENT_VERSION, String.valueOf(version));
-  }
-
-  /**
-   * Sets the document version to the specified number.
-   * 
-   * @param version
-   */
-  public void setDocumentVersion(String version) {
-    int i = NumberUtils.toInt(version, -1);
-    if (i < 0) {
-      throw new IllegalArgumentException("Invalid document version: " + version);
-    }
-    data.put(DOCUMENT_VERSION, version);
-  }
-
-  /**
-   * Increments the document version of this note or sets it to 1 if the note did not have a document version yet.
-   * 
-   */
-  public void incrementDocumentVersion(String previous) {
-    if (previous == null) {
-      data.put(DOCUMENT_VERSION, "1");
-    }
-    int i = NumberUtils.toInt(previous, -1);
-    if (i < 0) {
-      throw new IllegalArgumentException("Invalid document version: " + previous);
-    }
-    data.put(DOCUMENT_VERSION, String.valueOf(++i));
   }
 
   /**
@@ -223,8 +190,8 @@ public final class NaturalisNote {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
     }
-    notes.saveNotes();
-    document.save();
+    notes.saveNotes(false);
+    document.save(false);
   }
 
   /**
