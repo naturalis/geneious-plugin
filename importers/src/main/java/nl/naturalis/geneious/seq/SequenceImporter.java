@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.SwingWorker;
 
@@ -13,8 +12,6 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.QueryUtils;
-import nl.naturalis.geneious.util.StoredDocument;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
@@ -65,11 +62,6 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
       if (docs.size() != 0) {
         annotator = new Annotator(docs);
         annotator.annotateImportedDocuments();
-        Set<StoredDocument> dummies = annotator.getObsoleteDummyDocuments();
-        if (!dummies.isEmpty()) {
-          guiLogger.info("Deleting %s obsolete dummy document(s)", dummies.size());
-          QueryUtils.deleteDocuments(dummies);
-         }
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {

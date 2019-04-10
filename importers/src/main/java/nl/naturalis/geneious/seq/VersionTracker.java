@@ -40,7 +40,7 @@ class VersionTracker {
     } else {
       version.increment();
       if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Document version of %s document with extract ID %s incremented to %s", key.dt, key.id, version);
+        guiLogger.debug("Document version of %s document with extract ID %s set to %s", key.dt, key.id, version);
       }
     }
     doc.getSequenceInfo().getNaturalisNote().setDocumentVersion(version.intValue());

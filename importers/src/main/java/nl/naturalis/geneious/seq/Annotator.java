@@ -1,10 +1,10 @@
 package nl.naturalis.geneious.seq;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -18,6 +18,7 @@ import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -48,21 +49,19 @@ class Annotator {
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
     guiLogger.info("Parsing AB1 files names / fasta sequence headers");
-    List<ImportableDocument> annotatableDocs = getAnnotatableDocuments();
+    List<ImportableDocument> documents = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
-    HashSet<String> ids = new HashSet<>(annotatableDocs.size(), 1F);
-    annotatableDocs.forEach(d -> ids.add(d.getSequenceInfo().getNaturalisNote().getExtractId()));
+    Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
     guiLogger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
     guiLogger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> docs = findByExtractID(ids);
-    guiLogger.debugf(() -> format("Found %s matching document%s", docs.size(), plural(docs)));
-    QueryCache queryCache = new QueryCache(docs);
+    List<AnnotatedPluginDocument> queryResult = findByExtractID(ids);
+    guiLogger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
+    QueryCache queryCache = new QueryCache(queryResult);
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
     guiLogger.info("Annotating documents");
-    for (ImportableDocument doc : annotatableDocs) {
+    for (ImportableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
-      guiLogger.debugf(() -> format("Annotating %s document with extract ID %s", getType(doc), extractId));
       guiLogger.debugf(() -> format("Scanning query cache for dummy document with extract ID %s", extractId));
       queryCache.findDummy(extractId).ifPresent(dummy -> {
         guiLogger.debugf(() -> format("Found. Copying annotations to %s document", getType(doc)));
@@ -71,10 +70,14 @@ class Annotator {
         guiLogger.debug(() -> "Dummy document queued for deletion");
       });
     }
-    guiLogger.info("Setting document version on documents");
-//    VersionTracker versioner = new VersionTracker(docs);
-    for (ImportableDocument doc : annotatableDocs) {
-
+    guiLogger.info("Versioning documents");
+    VersionTracker versioner = new VersionTracker(queryCache);
+    documents.forEach(versioner::setDocumentVersion);
+    guiLogger.info("Saving annotations to database");
+    documents.forEach(ImportableDocument::saveAnnotations);
+    if (!obsoleteDummies.isEmpty()) {
+      guiLogger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
+      deleteDocuments(obsoleteDummies);
     }
   }
 
@@ -97,16 +100,6 @@ class Annotator {
     return failureCount;
   }
 
-  /**
-   * Returns all dummy documents that were found and used for their annotations. They have served their purpose and should
-   * now be deleted.
-   * 
-   * @return
-   */
-  Set<StoredDocument> getObsoleteDummyDocuments() {
-    return obsoleteDummies;
-  }
-
   private List<ImportableDocument> getAnnotatableDocuments() {
     successCount = failureCount = 0;
     List<ImportableDocument> annotatables = new ArrayList<>(docs.size());
@@ -124,8 +117,12 @@ class Annotator {
     return annotatables;
   }
 
+  private static String getExtractId(ImportableDocument doc) {
+    return doc.getSequenceInfo().getNaturalisNote().getExtractId();
+  }
+
+
   private static DocumentType getType(ImportableDocument doc) {
     return doc.getSequenceInfo().getDocumentType();
   }
-
 }

@@ -43,4 +43,11 @@ class ImportableDocument {
     return document;
   }
 
+  /**
+   * Attaches the {@link NaturalisNote} to the Geneious document, and then saves the document to the database.
+   */
+  void saveAnnotations() {
+    sequenceInfo.getNaturalisNote().saveTo(document);
+  }
+
 }
