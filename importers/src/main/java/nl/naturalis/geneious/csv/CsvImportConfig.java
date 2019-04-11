@@ -20,6 +20,17 @@ public abstract class CsvImportConfig<T extends Enum<T>> {
   private int skipLines;
   private int sheetNumber;
 
+  /**
+   * Returns line number of a row, taking into account the number of lines to skip. The line number is "user friendly"
+   * (i.e. one-based rather than zer-based).
+   * 
+   * @param rownum
+   * @return
+   */
+  public int getLine(int rownum) {
+    return rownum + skipLines + 1;
+  }
+
   public List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
   }

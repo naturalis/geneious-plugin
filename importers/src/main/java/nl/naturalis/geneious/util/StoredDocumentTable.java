@@ -1,8 +1,6 @@
 package nl.naturalis.geneious.util;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -26,7 +24,6 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
         computeIfAbsent(key, (k) -> new StoredDocumentList()).add(sd);
       }
     });
-    values().forEach(list -> Collections.sort(list, StoredDocumentComparator.INSTANCE));
   }
 
   /**
@@ -38,21 +35,5 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
     return values().stream().mapToInt(StoredDocumentList::size).sum();
   }
 
-  /**
-   * Sorts all the document lists that the keys map to according to the specified {@code Comparator}.
-   * 
-   * @param comparator
-   */
-  public void sortDocumentLists(Comparator<StoredDocument> comparator) {
-    values().forEach(list -> Collections.sort(list, comparator));
-  }
-
-  /**
-   * Sorts each of the document lists within this map according to document version descending. In other words, the first
-   * element of each of the lists is always the most recent version for the corresponding key (e.g. extract ID).
-   */
-  public void sortByDocumentVersionDescending() {
-    sortDocumentLists(StoredDocumentComparator.INSTANCE);
-  }
 
 }

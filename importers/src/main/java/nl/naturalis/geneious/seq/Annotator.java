@@ -48,7 +48,7 @@ class Annotator {
    * @throws DatabaseServiceException
    */
   void annotateImportedDocuments() throws DatabaseServiceException {
-    guiLogger.info("Parsing AB1 files names / fasta sequence headers");
+    guiLogger.info("Annotating documents");
     List<ImportableDocument> documents = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
@@ -62,9 +62,8 @@ class Annotator {
     for (ImportableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
-      guiLogger.debugf(() -> format("Scanning query cache for dummy document with extract ID %s", extractId));
       queryCache.findDummy(extractId).ifPresent(dummy -> {
-        guiLogger.debugf(() -> format("Found. Copying annotations to %s document", getType(doc)));
+        guiLogger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
         dummy.getNaturalisNote().copyTo(note);
         obsoleteDummies.add(dummy);
         guiLogger.debug(() -> "Dummy document queued for deletion");
@@ -105,6 +104,7 @@ class Annotator {
     List<ImportableDocument> annotatables = new ArrayList<>(docs.size());
     for (ImportableDocument doc : docs) {
       try {
+        guiLogger.debugf(() -> format("Extracting annotations from name \"%s\"", doc.getSequenceInfo().getName()));
         doc.getSequenceInfo().createNote();
         ++successCount;
         annotatables.add(doc);
@@ -120,7 +120,6 @@ class Annotator {
   private static String getExtractId(ImportableDocument doc) {
     return doc.getSequenceInfo().getNaturalisNote().getExtractId();
   }
-
 
   private static DocumentType getType(ImportableDocument doc) {
     return doc.getSequenceInfo().getDocumentType();

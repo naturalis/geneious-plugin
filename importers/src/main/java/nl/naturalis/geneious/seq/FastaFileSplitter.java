@@ -45,7 +45,6 @@ class FastaFileSplitter {
    *        Otherwise it will save the sequence to temporaray, single-sequence fasta files.
    */
   FastaFileSplitter(boolean inMemory) {
-    guiLogger.debug(() -> "Initializing fasta file splitter");
     if (this.inMemory = inMemory) {
       this.tmpDir = null;
     } else {

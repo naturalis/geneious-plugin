@@ -16,7 +16,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  *
  * @author Ayco Holleman
  */
-public class DummySequenceDocument extends DefaultNucleotideSequence {
+public class DummySequence extends DefaultNucleotideSequence {
 
   /**
    * The nucleotide sequence used for all dummy documents: "NNNNNNNNNN"
@@ -37,7 +37,7 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
    * No-arg constructor, required by Geneious framework, but it seems we can rely on the other constructor being called
    * when it matters.
    */
-  public DummySequenceDocument() {
+  public DummySequence() {
     super();
     this.note = null;
   }
@@ -47,13 +47,13 @@ public class DummySequenceDocument extends DefaultNucleotideSequence {
    * 
    * @param note
    */
-  public DummySequenceDocument(NaturalisNote note) {
+  public DummySequence(NaturalisNote note) {
     super(name(note), "", DUMMY_SEQUENCE, new Date());
     this.note = note;
   }
 
   /**
-   * Creates a document for the dummy sequence and saves it to the database.
+   * Wraps the sequence into a Geneious document and saves it to the database.
    * 
    * @return
    */

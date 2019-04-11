@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +25,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 import static java.util.function.Predicate.not;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -90,10 +90,12 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         StoredDocumentList docs1 = unselected.get(id);
         if (docs1 == null) {
           guiLogger.debugf(() -> format("Not found. Creating dummy document for extract ID %s", id));
-          dummies.add(createDummy(note));
+          dummies.add(new DummySequence(note).wrap());
         } else {
-          handleUnselectedDocument(docs1, i);
           ++unused;
+          if (guiLogger.isDebugEnabled()) {
+            logUnusedRow(docs1, i);
+          }
         }
       } else {
         String fmt = "Found %1$s document%2$s. Updating document%2$s";
@@ -145,8 +147,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
-        int rownum = userfriendly(i);
-        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", rownum));
+        int line = cfg.getLine(i);
+        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
         ++unused;
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
@@ -176,20 +178,16 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {
-    StoredDocumentTable<String> sdt = new StoredDocumentTable<>(cfg.getSelectedDocuments(), sd -> sd.getNaturalisNote().getExtractId());
-    sdt.sortByDocumentVersionDescending();
-    return sdt;
+    return new StoredDocumentTable<>(cfg.getSelectedDocuments(), sd -> sd.getNaturalisNote().getExtractId());
   }
 
   private static StoredDocumentTable<String> createLookupTableForUnselectedDocuments(List<AnnotatedPluginDocument> searchResult) {
-    StoredDocumentTable<String> sdt = new StoredDocumentTable<>(searchResult, sd -> sd.getNaturalisNote().getExtractId());
-    sdt.sortByDocumentVersionDescending();
-    return sdt;
+    return new StoredDocumentTable<>(searchResult, sd -> sd.getNaturalisNote().getExtractId());
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
-    int x = userfriendly(rownum);
+    int x = cfg.getLine(rownum);
     SampleSheetRow row = new SampleSheetRow(cfg.getColumnNumbers(), values);
     if (row.isEmpty()) {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
@@ -216,33 +214,15 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         .collect(Collectors.toSet());
   }
 
-  private static AnnotatedPluginDocument createDummy(NaturalisNote note) {
-    AnnotatedPluginDocument apd = new DummySequenceDocument(note).wrap();
-    apd.save();
-    return apd;
-  }
-
-  private static void handleUnselectedDocument(StoredDocumentList docs, int row) {
+  private void logUnusedRow(StoredDocumentList docs, int row) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
     if (docs.size() == 1) {
       String fmt = "Row at line %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.debugf(() -> format(fmt, userfriendly(row), extractId));
+      guiLogger.debug(fmt, cfg.getLine(row), extractId);
     } else {
       String fmt = "Row at line %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.debugf(() -> format(fmt, userfriendly(row), extractId, docs.size()));
+      guiLogger.debug(fmt, cfg.getLine(row), extractId, docs.size());
     }
-  }
-
-  private static int userfriendly(int zerobased) {
-    return zerobased + 1;
-  }
-
-  private static String plural(Collection<?> c) {
-    return plural(c.size());
-  }
-
-  private static String plural(int i) {
-    return i == 1 ? "" : "s";
   }
 
 }
