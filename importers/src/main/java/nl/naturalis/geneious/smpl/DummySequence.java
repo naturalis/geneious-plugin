@@ -62,7 +62,7 @@ public class DummySequence extends DefaultNucleotideSequence {
     note.setDocumentVersion(0);
     note.castAndSet(NaturalisField.SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
     note.castAndSet(NaturalisField.SEQ_MARKER, DUMMY_MARKER);
-    note.saveTo(document);
+    note.attachTo(document);
     return document;
   }
 

@@ -82,7 +82,7 @@ class BoldImporter extends SwingWorker<APDList, Void> {
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
         for (StoredDocument doc : docs) {
-          if (note.saveTo(doc)) {
+          if (note.attachTo(doc)) {
             ++updated;
           } else {
             String fmt = "Document with %s not updated (no new values in BOLD file)";

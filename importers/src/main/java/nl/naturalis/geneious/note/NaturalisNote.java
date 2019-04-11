@@ -22,7 +22,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
  *
  * @author Ayco Holleman
  */
-public final class NaturalisNote {
+public final class NaturalisNote implements Note {
 
   private static final String ERR_EMPTY = "Value must not be null or whitespace only (field=%s)";
 
@@ -129,8 +129,8 @@ public final class NaturalisNote {
   }
 
   /**
-   * Copies this note's values into the other note, overwriting any previous values the other note may have had. Returns
-   * true if there was a change in the target note, false otherwise.
+   * Copies all values of this note <i>except the document version</i> to the other note, overwriting any previous values
+   * the other note may have had. Returns true if there was a change in the target note, false otherwise.
    * 
    * @param other
    * @return
@@ -148,8 +148,8 @@ public final class NaturalisNote {
   }
 
   /**
-   * Copies this note's values into the other note. Returns true if there was a change in the target note, false
-   * otherwise.
+   * Copies all values of this note <i>except the document version</i> to the other note. Returns true if there was a
+   * change in the target note, false otherwise.
    * 
    * @param other
    * @param overwrite Whether or not to overwrite the values in the other note.
@@ -181,17 +181,24 @@ public final class NaturalisNote {
   }
 
   /**
-   * Saves this note to the specified document.
+   * Populates the provided Geneious API object with the value from this note.
    * 
    * @param document
    */
-  public void saveTo(AnnotatedPluginDocument document) {
-    DocumentNotes notes = document.getDocumentNotes(true);
+  public void attachTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
     }
     notes.saveNotes(false);
-    document.save(false);
+  }
+
+  /**
+   * Saves this note to the specified document.
+   * 
+   * @param document
+   */
+  public void attachTo(AnnotatedPluginDocument document) {
+    attachTo(document.getDocumentNotes(true));
   }
 
   /**
@@ -200,9 +207,9 @@ public final class NaturalisNote {
    * @param document
    * @return
    */
-  public boolean saveTo(StoredDocument document) {
+  public boolean attachTo(StoredDocument document) {
     if (copyTo(document.getNaturalisNote())) {
-      saveTo(document.getGeneiousDocument());
+      attachTo(document.getGeneiousDocument());
       return true;
     }
     return false;

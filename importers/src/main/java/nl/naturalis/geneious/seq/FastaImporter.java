@@ -12,6 +12,7 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.ImportedFromNote;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.createAnnotatedPluginDocument;
 
@@ -46,18 +47,19 @@ class FastaImporter {
     List<ImportableDocument> importables = new ArrayList<>();
     LinkedHashMap<File, ArrayList<FastaInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
-    AnnotatedPluginDocument document;
+    AnnotatedPluginDocument apd;
     for (File motherFile : fastas.keySet()) {
       guiLogger.debugf(() -> format("Importing file %s", motherFile.getName()));
-      String descr = "Source: " + motherFile.getName();
       Date date = new Date(motherFile.lastModified());
       for (FastaInfo info : fastas.get(motherFile)) {
         ++processed;
         guiLogger.debugf(() -> format("--> Importing sequence %s", info.getName()));
-        sequence = new DefaultNucleotideSequence(info.getName(), descr, info.getSequence(), date);
-        document = createAnnotatedPluginDocument(sequence);
+        sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
+        apd = createAnnotatedPluginDocument(sequence);
         ++imported;
-        importables.add(new ImportableDocument(document, info));
+        ImportableDocument doc = new ImportableDocument(apd, info);
+        doc.attach(new ImportedFromNote(motherFile));
+        importables.add(doc);
       }
     }
     return importables;

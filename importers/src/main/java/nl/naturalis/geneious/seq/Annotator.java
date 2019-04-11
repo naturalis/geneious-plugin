@@ -47,7 +47,7 @@ class Annotator {
    * 
    * @throws DatabaseServiceException
    */
-  void annotateImportedDocuments() throws DatabaseServiceException {
+  void annotateDocuments() throws DatabaseServiceException {
     guiLogger.info("Annotating documents");
     List<ImportableDocument> documents = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
@@ -58,7 +58,6 @@ class Annotator {
     guiLogger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
     QueryCache queryCache = new QueryCache(queryResult);
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
-    guiLogger.info("Annotating documents");
     for (ImportableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
@@ -70,10 +69,9 @@ class Annotator {
       });
     }
     guiLogger.info("Versioning documents");
-    VersionTracker versioner = new VersionTracker(queryCache);
+    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
     documents.forEach(versioner::setDocumentVersion);
-    guiLogger.info("Saving annotations to database");
-    documents.forEach(ImportableDocument::saveAnnotations);
+    documents.forEach(ImportableDocument::attachNaturalisNote);
     if (!obsoleteDummies.isEmpty()) {
       guiLogger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
       deleteDocuments(obsoleteDummies);

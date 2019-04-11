@@ -82,12 +82,12 @@ class QueryCache {
 
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
-    cache.forEach((key, sd) -> {
-      String version = sd.getNaturalisNote().getDocumentVersion();
+    cache.entrySet().stream().filter(entry -> !entry.getValue().isDummy()).forEach(entry -> {
+      String version = entry.getValue().getNaturalisNote().getDocumentVersion();
       if (version == null) {
-        guiLogger.warn("Encountered corrupt %s document. Extract ID is set (%s) but document version is not", key.dt, key.id);
+        guiLogger.warn("Bad %s document. Extract ID is set (%s) but document version is not", entry.getKey().dt, entry.getKey().id);
       } else {
-        versions.put(key, new MutableInt(version));
+        versions.put(entry.getKey(), new MutableInt(version));
       }
     });
     return versions;

@@ -21,8 +21,8 @@ class VersionTracker {
 
   private final Map<Key, MutableInt> cache;
 
-  VersionTracker(QueryCache queryCache) {
-    cache = queryCache.getLatestDocumentVersions();
+  VersionTracker(Map<Key, MutableInt> initialVersions) {
+    cache = initialVersions;
   }
 
   /**

@@ -61,7 +61,8 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
       }
       if (docs.size() != 0) {
         annotator = new Annotator(docs);
-        annotator.annotateImportedDocuments();
+        annotator.annotateDocuments();
+        docs.forEach(ImportableDocument::saveAnnotations);
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {

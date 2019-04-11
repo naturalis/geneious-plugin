@@ -70,6 +70,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
+    guiLogger.info("Sample sheet contains %s row%s matching unselected documents", searchResult.size(), plural(searchResult));
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int numNewExtractIds = extractIds.size() - selectedDocuments.keySet().size() - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", numNewExtractIds, plural(numNewExtractIds));
@@ -101,7 +102,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         String fmt = "Found %1$s document%2$s. Updating document%2$s";
         guiLogger.debugf(() -> format(fmt, docs0.size(), plural(docs0)));
         for (StoredDocument doc : docs0) {
-          if (note.saveTo(doc)) {
+          if (note.attachTo(doc)) {
             if (doc.isDummy()) {
               ++updatedDummies;
             } else {
@@ -153,7 +154,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
         for (StoredDocument doc : docs) {
-          if (note.saveTo(doc)) {
+          if (note.attachTo(doc)) {
             ++updated;
           } else {
             String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
