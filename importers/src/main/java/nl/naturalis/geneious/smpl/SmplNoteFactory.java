@@ -30,19 +30,19 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 
   @Override
   protected void populate(NaturalisNote note) throws InvalidRowException {
-    setRequiredValue(note, SMPL_EXTRACT_ID, EXTRACT_ID, val -> "e" + val);
-    setRequiredValue(note, SMPL_SAMPLE_PLATE_ID, SAMPLE_PLATE_ID);
-    setRequiredValue(note, SMPL_EXTRACT_PLATE_ID, EXTRACT_PLATE_ID, this::getExtractPlateId);
+    setRequiredValue(note, SMPL_EXTRACT_PLATE_ID, EXTRACT_PLATE_ID);
     setRequiredValue(note, SMPL_PLATE_POSITION, PLATE_POSITION);
-    setValue(note, SMPL_SCIENTIFIC_NAME, SCIENTIFIC_NAME);
+    setRequiredValue(note, SMPL_SAMPLE_PLATE_ID, SAMPLE_PLATE_ID, this::getExtractPlateId);
+    setRequiredValue(note, SMPL_EXTRACT_ID, EXTRACT_ID, val -> "e" + val);
     setValue(note, SMPL_REGISTRATION_NUMBER, REGISTRATION_NUMBER);
+    setValue(note, SMPL_SCIENTIFIC_NAME, SCIENTIFIC_NAME);
     setValue(note, SMPL_EXTRACTION_METHOD, EXTRACTION_METHOD);
   }
 
   private String getExtractPlateId(String val) throws InvalidRowException {
     int i = val.indexOf('-');
     if (i == -1) {
-      throw InvalidRowException.custom(this, "missing hyphen ('-')");
+      throw InvalidRowException.custom(this, "missing hyphen ('-') in value for %s: %s", SMPL_SAMPLE_PLATE_ID, val);
     }
     return val.substring(0, i);
   }
