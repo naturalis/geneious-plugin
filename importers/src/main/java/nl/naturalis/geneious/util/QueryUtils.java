@@ -21,7 +21,7 @@ import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.cr
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 
 /**
  * Methods for accessing the Geneious database.
@@ -32,7 +32,7 @@ public class QueryUtils {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
 
-  private static final DocumentField QF_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
+  private static final DocumentField QF_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
 
   private QueryUtils() {}
 

@@ -65,12 +65,12 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
-    guiLogger.info("Searching database \"%s\" for matching documents", getTargetDatabaseName());
+    guiLogger.info("Searching for unselected documents matching the extract IDs", getTargetDatabaseName());
     Set<String> extraIdsInSampleSheet = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
-    guiLogger.info("Sample sheet contains %s row%s matching unselected documents", searchResult.size(), plural(searchResult));
+    guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int numNewExtractIds = extractIds.size() - selectedDocuments.keySet().size() - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", numNewExtractIds, plural(numNewExtractIds));
