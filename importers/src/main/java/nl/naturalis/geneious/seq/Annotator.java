@@ -68,7 +68,7 @@ class Annotator {
         guiLogger.debug(() -> "Dummy document queued for deletion");
       });
     }
-    guiLogger.info("Versioning documents");
+    guiLogger.info("Setting document versions");
     VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
     documents.forEach(versioner::setDocumentVersion);
     documents.forEach(ImportableDocument::attachNaturalisNote);
