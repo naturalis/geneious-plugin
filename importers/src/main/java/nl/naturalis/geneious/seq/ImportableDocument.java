@@ -62,7 +62,6 @@ class ImportableDocument {
    */
   void saveAnnotations() {
     notes.saveNotes(false);
-    //document.save(false);
   }
 
 }

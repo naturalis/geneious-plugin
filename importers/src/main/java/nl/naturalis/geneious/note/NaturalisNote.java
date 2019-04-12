@@ -190,7 +190,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Populates the provided Geneious API object with the value from this note.
+   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes}, but does not save the notes to the
+   * database.
    * 
    * @param document
    */
@@ -198,20 +199,21 @@ public final class NaturalisNote implements Note {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
     }
-    notes.saveNotes(false);
   }
 
   /**
-   * Saves this note to the specified document.
+   * Attaches this note to the specified document and saves it immediately.
    * 
    * @param document
    */
   public void attachTo(AnnotatedPluginDocument document) {
-    attachTo(document.getDocumentNotes(true));
+    DocumentNotes notes = document.getDocumentNotes(true);
+    attachTo(notes);
+    notes.saveNotes(false);
   }
 
   /**
-   * Saves this note to the specified document. Returns true if the document changed as a result, false otherwise.
+   * Attaches this note to the specified document and saves it immediately.
    * 
    * @param document
    * @return
