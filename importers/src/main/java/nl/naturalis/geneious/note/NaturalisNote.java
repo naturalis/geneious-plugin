@@ -68,9 +68,18 @@ public final class NaturalisNote implements Note {
    */
   public void castAndSet(NaturalisField field, Object value) {
     Preconditions.checkNotNull(value, ERR_EMPTY, field);
-    if (value instanceof CharSequence && StringUtils.isBlank((CharSequence) value)) {
-      throw new IllegalArgumentException(String.format(ERR_EMPTY, field));
-    }
+    data.put(field, field.cast(value)); // Force ClassCastException as soon as possible
+  }
+
+  /**
+   * Sets the specified field to the specified value. This method will throw a {@code ClassCastException} if the field's
+   * datatype in not {@link String} and an {@code IllegalArgumentException} if the value is an empty string.
+   * 
+   * @param field
+   * @param value
+   */
+  public void castAndSet(NaturalisField field, String value) {
+    Preconditions.checkArgument(StringUtils.isNotBlank(value), ERR_EMPTY, field);
     data.put(field, field.cast(value)); // Force ClassCastException as soon as possible
   }
 

@@ -10,7 +10,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.note.NaturalisField.*;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.EXTRACTION_METHOD;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.EXTRACT_ID;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.EXTRACT_PLATE_ID;
@@ -23,6 +23,8 @@ import static nl.naturalis.geneious.smpl.SampleSheetColumn.SCIENTIFIC_NAME;
  * Produces a {@link NaturalisNote} from the data in a {@link SampleSheetRow}.
  */
 class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
+
+  private static final String CONSTANT_VALUE_AMPL_STAFF = "Naturalis Biodiversity Center Laboratories";
 
   SmplNoteFactory(int rownum, SampleSheetRow row) {
     super(rownum, row);
@@ -37,6 +39,7 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
     setValue(note, SMPL_REGISTRATION_NUMBER, REGISTRATION_NUMBER);
     setValue(note, SMPL_SCIENTIFIC_NAME, SCIENTIFIC_NAME);
     setValue(note, SMPL_EXTRACTION_METHOD, EXTRACTION_METHOD);
+    note.castAndSet(SMPL_AMPLIFICATION_STAFF, CONSTANT_VALUE_AMPL_STAFF);
   }
 
   private String getExtractPlateId(String val) throws InvalidRowException {
