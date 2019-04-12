@@ -22,7 +22,7 @@ import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 class LogWriter {
 
   private static final String NEWLINE = System.getProperty("line.separator");
-  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss SSS");
+  private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss SSS");
 
   private LogLevel level = INFO;
   private JScrollPane pane;
