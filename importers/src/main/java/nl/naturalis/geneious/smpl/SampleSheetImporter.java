@@ -65,15 +65,17 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
-    guiLogger.info("Searching for unselected documents matching the extract IDs", getTargetDatabaseName());
-    Set<String> extraIdsInSampleSheet = extractIds.stream()
+    guiLogger.info("Searching database %s for matching extract IDs", getTargetDatabaseName());
+    Set<String> unselectedExtractIds = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
-    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIdsInSampleSheet);
-    guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
+    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(unselectedExtractIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
-    int numNewExtractIds = extractIds.size() - selectedDocuments.keySet().size() - unselected.keySet().size();
-    guiLogger.info("Sample sheet contains %s new extract ID%s", numNewExtractIds, plural(numNewExtractIds));
+    int count = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
+    guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", count, plural(count));
+    guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
+    count = extractIds.size() - count - searchResult.size();
+    guiLogger.info("Sample sheet contains %s completely new extract ID%s", count, plural(count));
     APDList dummies = new APDList();
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
     NaturalisNote note;
@@ -194,11 +196,11 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
       return null;
     }
-    guiLogger.debugf(() -> format("Line %s: %s", x, toJson(values, false)));
+    guiLogger.debugf(() -> format("Line %s: %s", x, toJson(values)));
     SmplNoteFactory factory = new SmplNoteFactory(x, row);
     try {
       NaturalisNote note = factory.createNote();
-      guiLogger.debugf(() -> format("Note created: %s", toJson(note, false)));
+      guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
       return note;
     } catch (InvalidRowException e) {
       guiLogger.error(e.getMessage());

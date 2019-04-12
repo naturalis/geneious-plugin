@@ -13,7 +13,7 @@ public class DebugUtil {
   private static final ObjectWriter noteWriter = mapper.writerFor(NaturalisNote.class);
 
   public static String toJson(NaturalisNote note) {
-    return toJson(note, true);
+    return toJson(note, false);
   }
 
   public static String toJson(NaturalisNote note, boolean pretty) {

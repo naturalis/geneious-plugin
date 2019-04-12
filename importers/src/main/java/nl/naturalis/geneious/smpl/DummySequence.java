@@ -6,7 +6,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
-import nl.naturalis.geneious.note.NaturalisField;
+import static nl.naturalis.geneious.note.NaturalisField.*;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
@@ -60,8 +60,9 @@ public class DummySequence extends DefaultNucleotideSequence {
   public AnnotatedPluginDocument wrap() {
     AnnotatedPluginDocument document = DocumentUtilities.createAnnotatedPluginDocument(this);
     note.setDocumentVersion(0);
-    note.castAndSet(NaturalisField.SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
-    note.castAndSet(NaturalisField.SEQ_MARKER, DUMMY_MARKER);
+    note.castAndSet(SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
+    note.castAndSet(SEQ_MARKER, DUMMY_MARKER);
+    note.castAndSet(SEQ_EXTRACT_ID, note.get(SMPL_EXTRACT_ID));
     note.attachTo(document);
     return document;
   }
