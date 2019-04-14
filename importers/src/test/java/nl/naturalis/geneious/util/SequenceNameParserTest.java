@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.*;
 
 public class SequenceNameParserTest {
 
@@ -23,6 +23,9 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_EXTRACT_ID, "e4012524841");
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
+    expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
+    System.out.println(DebugUtil.toJson(actual, true));
+    System.out.println(DebugUtil.toJson(expected, true));
     assertEquals(expected, actual);
   }
 
@@ -35,6 +38,7 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_EXTRACT_ID, "e4012524841");
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
+    expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
     assertEquals(expected, actual);
   }
 
