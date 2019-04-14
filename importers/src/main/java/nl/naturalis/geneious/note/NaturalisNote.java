@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.util.StoredDocument;
+import nl.naturalis.geneious.StoredDocument;
 
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
@@ -138,6 +138,16 @@ public final class NaturalisNote implements Note {
   }
 
   /**
+   * Initializes this note with values from the specified document.
+   */
+  public void readFrom(AnnotatedPluginDocument document) {
+    DocumentNotes notes = document.getDocumentNotes(false);
+    for (NaturalisField field : NaturalisField.values()) {
+      data.put(field, field.readFrom(notes));
+    }
+  }
+
+  /**
    * Copies all values of this note <i>except the document version</i> to the other note, overwriting any previous values
    * the other note may have had. Returns true if there was a change in the target note, false otherwise.
    * 
@@ -180,22 +190,12 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Initializes this note with values from the specified document.
-   */
-  public void readFrom(AnnotatedPluginDocument document) {
-    DocumentNotes notes = document.getDocumentNotes(false);
-    for (NaturalisField field : NaturalisField.values()) {
-      data.put(field, field.readFrom(notes));
-    }
-  }
-
-  /**
    * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes}, but does not save the notes to the
    * database.
    * 
    * @param document
    */
-  public void attachTo(DocumentNotes notes) {
+  public void copyTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
     }
@@ -208,7 +208,7 @@ public final class NaturalisNote implements Note {
    */
   public void attachTo(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(true);
-    attachTo(notes);
+    copyTo(notes);
     notes.saveNotes(false);
   }
 

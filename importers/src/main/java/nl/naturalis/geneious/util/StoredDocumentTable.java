@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import nl.naturalis.geneious.StoredDocument;
+
 /**
  * An extension of {@code HashMap} that maps some property of a {@code StoredDocument} to a list of
  * {@code StoredDocument} instances sharing the same value for that property. For sample sheet imports the property will

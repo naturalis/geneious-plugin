@@ -17,7 +17,7 @@ public class ImportedFromNote implements Note {
     this.file = importedFrom;
   }
 
-  public void attachTo(DocumentNotes notes) {
+  public void copyTo(DocumentNotes notes) {
     DocumentNote note = notes.getNote(NOTE_TYPE.getCode());
     if (note == null) {
       note = NOTE_TYPE.createDocumentNote();

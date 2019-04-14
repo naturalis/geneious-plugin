@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 

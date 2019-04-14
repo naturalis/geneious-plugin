@@ -10,11 +10,11 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.util.StoredDocument;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;

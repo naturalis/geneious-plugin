@@ -7,13 +7,13 @@ import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 

@@ -11,6 +11,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -18,7 +19,6 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.QueryUtils;
-import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
@@ -72,11 +72,12 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(unselectedExtractIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int count = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
+    guiLogger.info("Sample sheet contains %s row%s matching selected documents", rows.size(), plural(rows));
     guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", count, plural(count));
     guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
-    count = extractIds.size() - count - searchResult.size();
-    guiLogger.info("Sample sheet contains %s completely new extract ID%s", count, plural(count));
-    APDList dummies = new APDList();
+    int dummyCount = extractIds.size() - count - unselected.keySet().size();
+    guiLogger.info("Sample sheet contains %s brand new extract ID%s (will become dummies)", dummyCount, plural(dummyCount));
+    StoredDocumentList updatesOrDummies = new StoredDocumentList(count + dummyCount);
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
@@ -93,7 +94,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         StoredDocumentList docs1 = unselected.get(id);
         if (docs1 == null) {
           guiLogger.debugf(() -> format("Not found. Creating dummy document for extract ID %s", id));
-          dummies.add(new DummySequence(note).wrap());
+          updatesOrDummies.add(new DummySequence(note).wrap());
         } else {
           ++unused;
           if (guiLogger.isDebugEnabled()) {
@@ -104,7 +105,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         String fmt = "Found %1$s document%2$s. Updating document%2$s";
         guiLogger.debugf(() -> format(fmt, docs0.size(), plural(docs0)));
         for (StoredDocument doc : docs0) {
-          if (note.attachTo(doc)) {
+          if (doc.attach(note)) {
+            updatesOrDummies.add(doc);
             if (doc.isDummy()) {
               ++updatedDummies;
             } else {
@@ -117,6 +119,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         }
       }
     }
+    updatesOrDummies.forEach(StoredDocument::saveAnnotations);
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updated - updatedDummies;
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
@@ -126,19 +129,24 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
     guiLogger.info("Number of updated documents ................: %3d", updated);
     guiLogger.info("Number of updated dummies ..................: %3d", updatedDummies);
-    guiLogger.info("Number of dummy documents created ..........: %3d", dummies.size());
+    guiLogger.info("Number of dummy documents created ..........: %3d", dummyCount);
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID was found in an");
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    return dummies.isEmpty() ? null : dummies;
+    return updatesOrDummies
+        .stream()
+        .filter(StoredDocument::isDummy)
+        .map(StoredDocument::getGeneiousDocument)
+        .collect(Collectors.toCollection(APDList::new));
   }
 
   private APDList updateOnly() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
-    int good = 0, bad = 0, updated = 0, unused = 0;
+    StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
+    int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
     for (int i = 1; i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
@@ -156,8 +164,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
         for (StoredDocument doc : docs) {
-          if (note.attachTo(doc)) {
-            ++updated;
+          if (doc.attach(note)) {
+            updates.add(doc);
           } else {
             String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
             guiLogger.debugf(() -> format(fmt, id));
@@ -165,19 +173,20 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         }
       }
     }
+    updates.forEach(StoredDocument::saveAnnotations);
     int selected = cfg.getSelectedDocuments().size();
-    int unchanged = selected - updated;
+    int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
     guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
     guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
     guiLogger.info("Number of selected documents ...............: %3d", selected);
-    guiLogger.info("Number of updated documents ................: %3d", updated);
+    guiLogger.info("Number of updated documents ................: %3d", updates.size());
     guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID did not correspond");
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    return null; // Tells Geneious that we didn't create any new documents.
+    return null; // No new documents, oly updates
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {

@@ -11,9 +11,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.StoredDocument;
 import nl.naturalis.geneious.util.StoredDocumentComparator;
 
 /**

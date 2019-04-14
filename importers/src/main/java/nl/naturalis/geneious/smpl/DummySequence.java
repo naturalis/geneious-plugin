@@ -6,8 +6,13 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
-import static nl.naturalis.geneious.note.NaturalisField.*;
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
+
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 /**
  * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create dummy documents. The dummy
@@ -53,18 +58,17 @@ public class DummySequence extends DefaultNucleotideSequence {
   }
 
   /**
-   * Wraps the sequence into a Geneious document and saves it to the database.
+   * Wraps the sequence into a {@code StoredDoucment}.
    * 
    * @return
    */
-  public AnnotatedPluginDocument wrap() {
-    AnnotatedPluginDocument document = DocumentUtilities.createAnnotatedPluginDocument(this);
+  public StoredDocument wrap() {
+    AnnotatedPluginDocument apd = DocumentUtilities.createAnnotatedPluginDocument(this);
     note.setDocumentVersion(0);
     note.castAndSet(SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
     note.castAndSet(SEQ_MARKER, DUMMY_MARKER);
     note.castAndSet(SEQ_EXTRACT_ID, note.get(SMPL_EXTRACT_ID));
-    note.attachTo(document);
-    return document;
+    return new StoredDocument(apd, note);
   }
 
   private static String name(NaturalisNote note) {

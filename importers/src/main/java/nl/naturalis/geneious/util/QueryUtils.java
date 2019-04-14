@@ -13,6 +13,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
