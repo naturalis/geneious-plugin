@@ -11,8 +11,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.StoredDocument;
-
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
@@ -200,34 +198,8 @@ public final class NaturalisNote implements Note {
    */
   public void copyTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
-      System.out.println("XXXXX " + field + ": " + data.get(field));
       field.castAndWrite(notes, data.get(field));
     }
-  }
-
-  /**
-   * Attaches this note to the specified document and saves it immediately.
-   * 
-   * @param document
-   */
-  public void attachTo(AnnotatedPluginDocument document) {
-    DocumentNotes notes = document.getDocumentNotes(true);
-    copyTo(notes);
-    notes.saveNotes(false);
-  }
-
-  /**
-   * Attaches this note to the specified document and saves it immediately.
-   * 
-   * @param document
-   * @return
-   */
-  public boolean attachTo(StoredDocument document) {
-    if (copyTo(document.getNaturalisNote())) {
-      attachTo(document.getGeneiousDocument());
-      return true;
-    }
-    return false;
   }
 
   /**

@@ -3,11 +3,13 @@ package nl.naturalis.geneious.seq;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -16,7 +18,7 @@ import nl.naturalis.geneious.util.APDList;
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
  */
-class SequenceImporter extends SwingWorker<APDList, Void> {
+class SequenceImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImporter.class);
 
@@ -32,8 +34,9 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
   }
 
   @Override
-  protected APDList doInBackground() {
-    return importSequences();
+  protected Void doInBackground() {
+    importSequences();
+    return null;
   }
 
   /**
@@ -43,7 +46,7 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  private APDList importSequences() {
+  private void importSequences() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<ImportableDocument> docs = new ArrayList<>();
       AB1Importer ab1Importer = null;
@@ -95,10 +98,9 @@ class SequenceImporter extends SwingWorker<APDList, Void> {
       }
       APDList result = new APDList(docs.size());
       docs.forEach((d) -> result.add(d.getGeneiousDocument()));
-      return result;
+      DocumentUtilities.addGeneratedDocuments(result, true, Collections.emptyList());
     } catch (Throwable t) {
       guiLogger.fatal(t.getMessage(), t);
-      return APDList.emptyList();
     }
   }
 

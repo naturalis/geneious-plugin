@@ -2,7 +2,6 @@ package nl.naturalis.geneious.seq;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFileChooser;
 
@@ -30,6 +29,7 @@ import nl.naturalis.geneious.util.RuntimeSettings;
  */
 public class SequenceImportDocumentOperation extends DocumentOperation {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImportDocumentOperation.class);
 
   public SequenceImportDocumentOperation() {
@@ -54,9 +54,6 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
         try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
           SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
           importer.execute();
-          return importer.get();
-        } catch (InterruptedException | ExecutionException e) {
-          guiLogger.info("Cancelling operation");
         }
       }
     }
