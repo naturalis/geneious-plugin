@@ -143,7 +143,10 @@ public final class NaturalisNote implements Note {
   public void readFrom(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(false);
     for (NaturalisField field : NaturalisField.values()) {
-      data.put(field, field.readFrom(notes));
+      Object val = field.readFrom(notes);
+      if (val != null) {
+        data.put(field, val);
+      }
     }
   }
 
@@ -197,6 +200,7 @@ public final class NaturalisNote implements Note {
    */
   public void copyTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
+      System.out.println("XXXXX " + field + ": " + data.get(field));
       field.castAndWrite(notes, data.get(field));
     }
   }

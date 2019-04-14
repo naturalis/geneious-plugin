@@ -43,16 +43,12 @@ class CrsImporter extends SwingWorker<APDList, Void> {
     return importCrsFile();
   }
 
-  @SuppressWarnings("unused")
-  private APDList importCrsFile() throws DatabaseServiceException {
-    return updateOnly();
-  }
-
-  private APDList updateOnly() {
+  private APDList importCrsFile() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
-    int good = 0, bad = 0, updated = 0, unused = 0;
+    StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
+    int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
@@ -70,8 +66,8 @@ class CrsImporter extends SwingWorker<APDList, Void> {
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
         for (StoredDocument doc : docs) {
-          if (note.attachTo(doc)) {
-            ++updated;
+          if (doc.attach(note)) {
+            updates.add(doc);
           } else {
             String fmt = "Document with reg.no. %s not updated (no new values in CRS file)";
             guiLogger.debugf(() -> format(fmt, regno));
@@ -79,13 +75,14 @@ class CrsImporter extends SwingWorker<APDList, Void> {
         }
       }
     }
+    updates.forEach(StoredDocument::saveAnnotations);
     int selected = cfg.getSelectedDocuments().size();
-    int unchanged = selected - updated;
+    int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in CRS file .......: %3d", good);
     guiLogger.info("Number of empty/bad rows in CRS file ...: %3d", bad);
     guiLogger.info("Number of unused rows in CRS file ......: %3d", unused);
     guiLogger.info("Number of selected documents ...........: %3d", selected);
-    guiLogger.info("Number of updated documents ............: %3d", updated);
+    guiLogger.info("Number of updated documents ............: %3d", updates.size());
     guiLogger.info("Number of unchanged documents ..........: %3d", unchanged);
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");

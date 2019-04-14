@@ -56,7 +56,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     if (cfg.isCreateDummies()) {
       return updateOrCreateDummies();
     }
-    return updateOnly();
+    return updateSelectedDocuments();
   }
 
   private APDList updateOrCreateDummies() throws DatabaseServiceException {
@@ -141,7 +141,7 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         .collect(Collectors.toCollection(APDList::new));
   }
 
-  private APDList updateOnly() {
+  private APDList updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
