@@ -27,6 +27,7 @@ import static java.util.function.Predicate.not;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
@@ -49,6 +50,8 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
    */
   @Override
   protected APDList doInBackground() throws DatabaseServiceException {
+    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
+    getTargetDatabase().waitForSearchIndexingToComplete();
     return importSampleSheet();
   }
 

@@ -9,11 +9,14 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.APDList;
+
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
@@ -35,6 +38,8 @@ class SequenceImporter extends SwingWorker<Void, Void> {
 
   @Override
   protected Void doInBackground() {
+    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
+    getTargetDatabase().waitForSearchIndexingToComplete();
     importSequences();
     return null;
   }
@@ -65,7 +70,12 @@ class SequenceImporter extends SwingWorker<Void, Void> {
       if (docs.size() != 0) {
         annotator = new Annotator(docs);
         annotator.annotateDocuments();
-        docs.forEach(ImportableDocument::saveAnnotations);
+        APDList apds = new APDList(docs.size());
+        docs.forEach(doc -> {
+          doc.saveAnnotations();
+          apds.add(doc.getGeneiousDocument());
+        });
+        addGeneratedDocuments(apds, true, Collections.emptyList());
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {
@@ -96,9 +106,6 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         guiLogger.info("Total number of documents annotated ...: %3d", annotator.getSuccessCount());
         guiLogger.info("Total number of annotation failures ...: %3d", annotator.getFailureCount());
       }
-      APDList result = new APDList(docs.size());
-      docs.forEach((d) -> result.add(d.getGeneiousDocument()));
-      DocumentUtilities.addGeneratedDocuments(result, true, Collections.emptyList());
     } catch (Throwable t) {
       guiLogger.fatal(t.getMessage(), t);
     }
