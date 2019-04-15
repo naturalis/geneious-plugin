@@ -4,15 +4,12 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
@@ -20,11 +17,12 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 /**
  * Does the actual work of importing a CRS file into Geneious.
  */
-class CrsImporter extends SwingWorker<APDList, Void> {
+class CrsImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsImporter.class);
 
@@ -39,11 +37,18 @@ class CrsImporter extends SwingWorker<APDList, Void> {
    * to the selected documents using the registration number annotation (set during sample sheet import).
    */
   @Override
-  protected APDList doInBackground() throws DatabaseServiceException {
-    return importCrsFile();
+  protected Void doInBackground() {
+    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
+    getTargetDatabase().waitForSearchIndexingToComplete();
+    try {
+      importCrsFile();
+    } catch (Throwable t) {
+      guiLogger.fatal(t);
+    }
+    return null;
   }
 
-  private APDList importCrsFile() {
+  private void importCrsFile() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
@@ -87,7 +92,6 @@ class CrsImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    return null; // Tells Geneious that we didn't create any new documents.
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
