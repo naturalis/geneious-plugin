@@ -1,5 +1,6 @@
 package nl.naturalis.geneious.smpl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,8 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 
 import static java.util.function.Predicate.not;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
@@ -33,7 +36,7 @@ import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter extends SwingWorker<APDList, Void> {
+class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
@@ -49,20 +52,26 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
    * sheet records if their extract ID does not exist yet.
    */
   @Override
-  protected APDList doInBackground() throws DatabaseServiceException {
+  protected Void doInBackground() throws DatabaseServiceException {
     guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
     getTargetDatabase().waitForSearchIndexingToComplete();
-    return importSampleSheet();
+    importSampleSheet();
+    return null;
   }
 
-  private APDList importSampleSheet() throws DatabaseServiceException {
-    if (cfg.isCreateDummies()) {
-      return updateOrCreateDummies();
+  private void importSampleSheet() {
+    try {
+      if (cfg.isCreateDummies()) {
+        updateOrCreateDummies();
+      } else {
+        updateSelectedDocuments();
+      }
+    } catch (Throwable t) {
+      guiLogger.fatal(t);
     }
-    return updateSelectedDocuments();
   }
 
-  private APDList updateOrCreateDummies() throws DatabaseServiceException {
+  private void updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
@@ -74,13 +83,15 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         .collect(Collectors.toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(unselectedExtractIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
-    int count = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
+    int overlap = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
     guiLogger.info("Sample sheet contains %s row%s matching selected documents", rows.size(), plural(rows));
-    guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", count, plural(count));
+    guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", overlap, plural(overlap));
     guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
-    int dummyCount = extractIds.size() - count - unselected.keySet().size();
-    guiLogger.info("Sample sheet contains %s brand new extract ID%s (will become dummies)", dummyCount, plural(dummyCount));
-    StoredDocumentList updatesOrDummies = new StoredDocumentList(count + dummyCount);
+    // Note that this is only an estimate of the amount of dummies to be created. The involved rows in the sample sheet
+    // may not pass validation.
+    int dummyCount = extractIds.size() - overlap - unselected.keySet().size();
+    guiLogger.info("Sample sheet contains %s brand new extract ID%s", dummyCount, plural(dummyCount));
+    StoredDocumentList updatesOrDummies = new StoredDocumentList(overlap + dummyCount);
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
@@ -122,7 +133,16 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
         }
       }
     }
-    updatesOrDummies.forEach(StoredDocument::saveAnnotations);
+    APDList newDummies = new APDList(dummyCount);
+    updatesOrDummies.forEach(doc -> {
+      doc.saveAnnotations();
+      if (doc.isDummy()) {
+        newDummies.add(doc.getGeneiousDocument());
+      }
+    });
+    if (!newDummies.isEmpty()) {
+      addGeneratedDocuments(newDummies, true, Collections.emptyList());
+    }
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updated - updatedDummies;
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
@@ -132,19 +152,14 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
     guiLogger.info("Number of updated documents ................: %3d", updated);
     guiLogger.info("Number of updated dummies ..................: %3d", updatedDummies);
-    guiLogger.info("Number of dummy documents created ..........: %3d", dummyCount);
+    guiLogger.info("Number of dummy documents created ..........: %3d", newDummies.size());
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID was found in an");
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    return updatesOrDummies
-        .stream()
-        .filter(StoredDocument::isDummy)
-        .map(StoredDocument::getGeneiousDocument)
-        .collect(Collectors.toCollection(APDList::new));
   }
 
-  private APDList updateSelectedDocuments() {
+  private void updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
@@ -189,7 +204,6 @@ class SampleSheetImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    return null; // No new documents, oly updates
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {

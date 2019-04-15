@@ -1,8 +1,6 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
@@ -23,6 +21,7 @@ import nl.naturalis.geneious.util.CommonUtils;
  */
 public class SampleSheetDocumentOperation extends DocumentOperation {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentOperation.class);
 
   public SampleSheetDocumentOperation() {
@@ -60,12 +59,9 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
         SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
         SampleSheetImporter importer = new SampleSheetImporter(opts.createImportConfig());
         importer.execute();
-        return importer.get();
-      } catch (InterruptedException | ExecutionException e) {
-        guiLogger.fatal(e);
       }
     }
-    return Collections.emptyList();
+    return null;
   }
 
 }
