@@ -1,6 +1,11 @@
 package nl.naturalis.geneious.smpl;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.NoteFactory;
@@ -12,6 +17,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_PLATE_POSITION;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGNO_PLUS_SCI_NAME;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_SCIENTIFIC_NAME;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.EXTRACTION_METHOD;
@@ -45,6 +51,13 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
     setValue(note, SMPL_SCIENTIFIC_NAME, SCIENTIFIC_NAME);
     setValue(note, SMPL_EXTRACTION_METHOD, EXTRACTION_METHOD);
     note.castAndSet(SMPL_AMPLIFICATION_STAFF, CONSTANT_VALUE_AMPL_STAFF);
+    String s = Arrays.asList(get(REGISTRATION_NUMBER), get(SCIENTIFIC_NAME))
+        .stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.joining(" "));
+    if (StringUtils.isNotBlank(s)) {
+      note.castAndSet(SMPL_REGNO_PLUS_SCI_NAME, s);
+    }
   }
 
   private String getExtractPlateId(String val) throws InvalidRowException {
