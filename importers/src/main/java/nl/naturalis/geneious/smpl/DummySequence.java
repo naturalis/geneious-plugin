@@ -65,8 +65,12 @@ public class DummySequence extends DefaultNucleotideSequence {
   public StoredDocument wrap() {
     AnnotatedPluginDocument apd = DocumentUtilities.createAnnotatedPluginDocument(this);
     note.setDocumentVersion(0);
-    note.castAndSet(SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
-    note.castAndSet(SEQ_MARKER, DUMMY_MARKER);
+    if (note.get(SEQ_PCR_PLATE_ID) == null) {
+      note.castAndSet(SEQ_PCR_PLATE_ID, DUMMY_PCR_PLATE_ID);
+    }
+    if (note.get(SEQ_MARKER) == null) {
+      note.castAndSet(SEQ_MARKER, DUMMY_MARKER);
+    }
     note.castAndSet(SEQ_EXTRACT_ID, note.get(SMPL_EXTRACT_ID));
     return new StoredDocument(apd, note);
   }

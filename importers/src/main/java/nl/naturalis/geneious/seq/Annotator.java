@@ -63,7 +63,7 @@ class Annotator {
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
       queryCache.findDummy(extractId).ifPresent(dummy -> {
         guiLogger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
-        dummy.getNaturalisNote().copyTo(note);
+        dummy.getNaturalisNote().mergeInto(note);
         obsoleteDummies.add(dummy);
         guiLogger.debug(() -> "Dummy document queued for deletion");
       });

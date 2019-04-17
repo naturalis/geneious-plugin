@@ -149,8 +149,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Copies all values of this note <i>except the document version</i> to the other note, overwriting any previous values
-   * the other note may have had. Returns true if there was a change in the target note, false otherwise.
+   * Copies all values of this note to the other note, overwriting any previous values the other note may have had.
+   * Returns true if there was a change in the target note, false otherwise.
    * 
    * @param other
    * @return
@@ -168,17 +168,14 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Copies all values of this note <i>except the document version</i> to the other note. Returns true if there was a
-   * change in the target note, false otherwise.
+   * Copies all values of this note to the other note without overwriting values in the other note. Returns true if there
+   * was a change in the target note, false otherwise.
    * 
    * @param other
    * @param overwrite Whether or not to overwrite the values in the other note.
    * @return
    */
-  public boolean copyTo(NaturalisNote other, boolean overwrite) {
-    if (overwrite) {
-      return copyTo(other);
-    }
+  public boolean mergeInto(NaturalisNote other) {
     boolean changed = false;
     for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
       Object val = other.data.get(e.getKey());
@@ -191,14 +188,28 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes}, but does not save the notes to the
-   * database.
+   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} overwriting any previous values, but does
+   * not save the notes to the database.
    * 
    * @param document
    */
   public void copyTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
+    }
+  }
+
+  /**
+   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} without overwriting any values, but does
+   * not save the notes to the database.
+   * 
+   * @param document
+   */
+  public void mergeInto(DocumentNotes notes) {
+    for (NaturalisField field : data.keySet()) {
+      if (field.readFrom(notes) == null) {
+        field.castAndWrite(notes, data.get(field));
+      }
     }
   }
 
