@@ -32,7 +32,7 @@ class VersionTracker {
    * @param doc
    */
   void setDocumentVersion(ImportableDocument doc) {
-    Key key = new Key(doc);
+    Key key = new Key(doc.getSequenceInfo().getDocumentType(), doc.getSequenceInfo().getName());
     MutableInt version = cache.get(key);
     if (version == null) {
       version = new MutableInt(1);
@@ -40,7 +40,7 @@ class VersionTracker {
     } else {
       version.increment();
       if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Document version of %s document with extract ID %s set to %s", key.dt, key.id, version);
+        guiLogger.debug("Document version of %s document with extract ID %s set to %s", key.docType, key.field, version);
       }
     }
     doc.getSequenceInfo().getNaturalisNote().setDocumentVersion(version.intValue());

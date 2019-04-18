@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Java bean containing and providing version info for the Tools -> Preferences dialog.
+ *
+ * @author Ayco Holleman
+ */
 public class PluginInfo {
 
   private static PluginInfo instance;
@@ -40,22 +45,47 @@ public class PluginInfo {
     commitCount = props.getProperty("git.total.commit.count");
   }
 
+  /**
+   * Returns the version of the plugin
+   * 
+   * @return
+   */
   public String getVersion() {
     return version;
   }
 
+  /**
+   * Returns the build date of the plugin
+   * 
+   * @return
+   */
   public String getBuildDate() {
     return buildDate;
   }
 
+  /**
+   * Returns the git branch on which the release was built.
+   * 
+   * @return
+   */
   public String getGitBranch() {
     return gitBranch;
   }
 
+  /**
+   * Returns the commit hash.
+   * 
+   * @return
+   */
   public String getGitCommit() {
     return gitCommit;
   }
 
+  /**
+   * Returns the total number of git commits.
+   * 
+   * @return
+   */
   public String getCommitCount() {
     return commitCount;
   }
