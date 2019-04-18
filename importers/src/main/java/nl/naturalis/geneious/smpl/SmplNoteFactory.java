@@ -54,7 +54,8 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
     String s = Arrays.asList(get(REGISTRATION_NUMBER), get(SCIENTIFIC_NAME))
         .stream()
         .filter(Objects::nonNull)
-        .collect(Collectors.joining(" "));
+        .map(x -> x.replaceAll("\\s", "_"))
+        .collect(Collectors.joining("_"));
     if (StringUtils.isNotBlank(s)) {
       note.castAndSet(SMPL_REGNO_PLUS_SCI_NAME, s);
     }
