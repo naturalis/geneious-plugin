@@ -48,7 +48,7 @@ class Annotator {
    * @throws DatabaseServiceException
    */
   void annotateDocuments() throws DatabaseServiceException {
-    guiLogger.info("Annotating documents");
+    guiLogger.info("Creating annotations");
     List<ImportableDocument> documents = getAnnotatableDocuments();
     guiLogger.debug(() -> "Collecting extract IDs");
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
@@ -71,6 +71,7 @@ class Annotator {
     guiLogger.info("Setting document versions");
     VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
     documents.forEach(versioner::setDocumentVersion);
+    guiLogger.info("Attaching annotations");
     documents.forEach(ImportableDocument::attachNaturalisNote);
     if (!obsoleteDummies.isEmpty()) {
       guiLogger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));

@@ -37,10 +37,13 @@ class VersionTracker {
     if (version == null) {
       version = new MutableInt(1);
       cache.put(key, version);
+      if (guiLogger.isDebugEnabled()) {
+        guiLogger.debug("No other %s document with name \"%s\" exists. Document version set to 1", key.docType, key.field);
+      }
     } else {
       version.increment();
       if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Document version of %s document with extract ID %s set to %s", key.docType, key.field, version);
+        guiLogger.debug("Another %s document with name \"%s\" already exists. Document version set to %s", key.docType, key.field, version);
       }
     }
     doc.getSequenceInfo().getNaturalisNote().setDocumentVersion(version.intValue());

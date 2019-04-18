@@ -16,8 +16,8 @@ import static nl.naturalis.geneious.DocumentType.UNKNOWN;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 
 /**
- * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class, with its annotations pre-fetched into a
- * {@link NaturalisNote} extracted from the Geneious document.
+ * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all Naturalis-specific annotations
+ * pre-fetched into a {@link NaturalisNote} extracted from the Geneious document.
  */
 public class StoredDocument {
 
@@ -82,7 +82,7 @@ public class StoredDocument {
    */
   public void saveAnnotations() {
     note.copyTo(getDocumentNotes());
-    getDocumentNotes().saveNotes(false);
+    getDocumentNotes().saveNotes(true);
   }
 
   public DocumentType getType() {

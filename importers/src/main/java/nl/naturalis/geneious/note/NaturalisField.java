@@ -195,12 +195,14 @@ public enum NaturalisField {
    */
   @SuppressWarnings("unchecked")
   <T> T cast(Object val) {
-    try {
-      return (T) dataType.cast(val);
-    } catch (ClassCastException e) {
-      guiLogger.error("Cannot cast %s (%s) to %s for field %s", val, val.getClass(), dataType, this);
-      return null;
+    if (val != null) {
+      try {
+        return (T) dataType.cast(val);
+      } catch (ClassCastException e) {
+        guiLogger.error("Cannot cast %s (%s) to %s for field %s", val, val.getClass(), dataType, this);
+      }
     }
+    return null;
   }
 
   <T> T readFrom(DocumentNotes notes) {

@@ -16,7 +16,9 @@ import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 /**
- * A containing for all annotations that can be added using the Naturalis plugin.
+ * A containing for all annotations that can be added using the Naturalis plugin. All methods allowing you to manipulate
+ * the contents of the note enforce that you never enter a null value or (in case of string fields) a blank value.
+ * Consequently all getter are guaranteed to return non-null, non-blank values.
  *
  * @author Ayco Holleman
  */
@@ -93,17 +95,6 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Removes the specified field (and its value) from the note. Returns true if this note did have a value for the
-   * specified field, false otherwise.
-   * 
-   * @param field
-   * @return
-   */
-  public boolean remove(NaturalisField field) {
-    return data.remove(field) != null;
-  }
-
-  /**
    * Convenience method for retrieving the ubiquitous extract ID.
    * 
    * @return
@@ -114,8 +105,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Convenience method for retrieving the ubiquitous document version. N.B. In version 1 the document version was stored
-   * as a string, and it is not trivial to repair this.
+   * Convenience method for retrieving the ubiquitous document version. N.B. we are dealing with a legacy in which the
+   * document version was stored as a string, and it is not trivial to repair this.
    * 
    * @return
    */
@@ -129,9 +120,7 @@ public final class NaturalisNote implements Note {
    * @param version
    */
   public void setDocumentVersion(int version) {
-    if (version < 0) {
-      throw new IllegalArgumentException("Invalid document version: " + version);
-    }
+    Preconditions.checkArgument(version >= 0, "Invalid document version: " + version);
     data.put(DOCUMENT_VERSION, String.valueOf(version));
   }
 
