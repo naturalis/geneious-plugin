@@ -23,7 +23,7 @@ public class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn
   }
 
   @Override
-  protected String getLabelForFileName() {
+  protected String getDefaultFileSelectionLabel() {
     return "Sample sheet";
   }
 

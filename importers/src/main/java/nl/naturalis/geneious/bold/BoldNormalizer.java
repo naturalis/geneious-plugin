@@ -8,8 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import static nl.naturalis.geneious.gui.log.GuiLogger.*;
-import static nl.naturalis.geneious.bold.BoldColumn.*;
+
+import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
+import static nl.naturalis.geneious.bold.BoldColumn.BIN;
+import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.IMAGE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
+import static nl.naturalis.geneious.bold.BoldColumn.PROCCES_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
+import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
+import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 
 /**
  * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets
@@ -24,23 +34,28 @@ public class BoldNormalizer {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
-  private String[] header;
+  private BoldImportConfig cfg;
   private List<String[]> lines;
 
-  public BoldNormalizer(String[] header, List<String[]> lines) {
-    this.header = header;
+  public BoldNormalizer(BoldImportConfig cfg, List<String[]> lines) {
+    this.cfg = cfg;
     this.lines = lines;
   }
 
-  public List<String[]> normalize() throws BoldNormalizationException {
+  public List<String[]> normalizeRows() throws BoldNormalizationException {
+    if (lines.size() < cfg.getSkipLines()) {
+      throw new BoldNormalizationException("Number of rows in BOLD file must be greater than number of lines to skip");
+    }
+    String[] header = lines.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
-    checkHeader();
-    List<String> markers = getMarkers();
+    checkHeader(header);
+    List<String> markers = getMarkers(header);
     List<String[]> normalized = new ArrayList<>(lines.size() * markers.size());
-    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
+    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining("  ")));
     for (int i = 0; i < markers.size(); ++i) {
-      guiLogger.info("Extracting rows for marker \"%s\"");
-      for (String[] line : lines) {
+      guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
+      for (int j = cfg.getSkipLines(); j < lines.size(); ++j) {
+        String[] line = lines.get(j);
         String[] compact = new String[BoldColumn.values().length];
         compact[PROJECT_CODE.ordinal()] = line[0];
         compact[PROCCES_ID.ordinal()] = line[1];
@@ -58,7 +73,7 @@ public class BoldNormalizer {
     return normalized;
   }
 
-  private List<String> getMarkers() {
+  private static List<String> getMarkers(String[] header) {
     List<String> markers = new ArrayList<>(5);
     for (int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
       markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim());
@@ -66,7 +81,7 @@ public class BoldNormalizer {
     return markers;
   }
 
-  private void checkHeader() throws BoldNormalizationException {
+  private static void checkHeader(String[] header) throws BoldNormalizationException {
     if (header.length < 10) {
       throw new BoldNormalizationException("Not enough columns in header: " + header.length);
     }

@@ -6,7 +6,10 @@ public enum ErrorCode {
    * No errors detected
    */
   OK,
-
+  /**
+   * file.encoding is not UTF-8
+   */
+  BAD_CHARSET(1),
   /**
    * one or more documents come from another database than the target database for the operation (e.g. because of a
    * query). This is currently not supported.
@@ -30,9 +33,14 @@ public enum ErrorCode {
   CSV_NO_FILE_PROVIDED,
 
   /**
-   * The user-selected file did not have a csv, tsv, txt, xls or xlsx extension
+   * The user-selected file did not have a csv, tsv, txt or xls extension
    */
-  CSV_UNSUPPORTED_FILE_TYPE(1);
+  CSV_UNSUPPORTED_FILE_TYPE(1),
+
+  /**
+   * The user specified 0 for lines to skip, but BOLD files <i>must</i> have a header
+   */
+  BOLD_NO_HEADER;
 
   private final int msgArgCount;
 

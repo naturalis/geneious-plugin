@@ -30,7 +30,6 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addG
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
@@ -52,22 +51,20 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
    * sheet records if their extract ID does not exist yet.
    */
   @Override
-  protected Void doInBackground() throws DatabaseServiceException {
-    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
-    getTargetDatabase().waitForSearchIndexingToComplete();
-    importSampleSheet();
+  protected Void doInBackground() {
+    try {
+      importSampleSheet();
+    } catch (Throwable t) {
+      guiLogger.fatal(t);
+    }
     return null;
   }
 
-  private void importSampleSheet() {
-    try {
-      if (cfg.isCreateDummies()) {
-        updateOrCreateDummies();
-      } else {
-        updateSelectedDocuments();
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t);
+  private void importSampleSheet() throws DatabaseServiceException {
+    if (cfg.isCreateDummies()) {
+      updateOrCreateDummies();
+    } else {
+      updateSelectedDocuments();
     }
   }
 
@@ -176,7 +173,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
-        int line = cfg.getLine(i);
+        int line = line(i);
         guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
         ++unused;
       } else {
@@ -216,7 +213,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
-    int x = cfg.getLine(rownum);
+    int x = line(rownum);
     SampleSheetRow row = new SampleSheetRow(cfg.getColumnNumbers(), values);
     if (row.isEmpty()) {
       guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
@@ -243,15 +240,19 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         .collect(Collectors.toSet());
   }
 
-  private void logUnusedRow(StoredDocumentList docs, int row) {
+  private static void logUnusedRow(StoredDocumentList docs, int row) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
     if (docs.size() == 1) {
       String fmt = "Row at line %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.debug(fmt, cfg.getLine(row), extractId);
+      guiLogger.debug(fmt, line(row), extractId);
     } else {
       String fmt = "Row at line %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.debug(fmt, cfg.getLine(row), extractId, docs.size());
+      guiLogger.debug(fmt, line(row), extractId, docs.size());
     }
+  }
+
+  private static int line(int zeroBased) {
+    return zeroBased + 1;
   }
 
 }

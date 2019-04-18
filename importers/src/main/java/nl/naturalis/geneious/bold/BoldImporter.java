@@ -1,11 +1,8 @@
 package nl.naturalis.geneious.bold;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.SwingWorker;
-
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
@@ -13,19 +10,20 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
+import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
+import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.*;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
-import static nl.naturalis.geneious.bold.BoldColumn.*;
 
 /**
- * Does the actual work of importing a CRS file into Geneious.
+ * Does the actual work of importing a BOLD file into Geneious.
  */
-class BoldImporter extends SwingWorker<APDList, Void> {
+class BoldImporter extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
 
@@ -40,13 +38,20 @@ class BoldImporter extends SwingWorker<APDList, Void> {
    * to the selected documents using the registration number annotation (set during sample sheet import).
    */
   @Override
-  protected APDList doInBackground() throws DatabaseServiceException {
-    return importBoldFile();
+  protected Void doInBackground() {
+    try {
+      importBoldFile();
+    } catch (Throwable t) {
+      guiLogger.fatal(t);
+    }
+    return null;
   }
 
-  private APDList importBoldFile() {
+  private void importBoldFile() throws BoldNormalizationException {
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    BoldNormalizer normalizer = new BoldNormalizer(cfg, rows);
+    rows = normalizer.normalizeRows();
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
@@ -99,7 +104,6 @@ class BoldImporter extends SwingWorker<APDList, Void> {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number and marker");
     guiLogger.info("          did not correspond to any of the selected documents, but");
     guiLogger.info("          they may or may not correspond to other, unselected documents.");
-    return null; // Tells Geneious that we didn't create any new documents.
   }
 
   private static NaturalisNote createNote(int line, BoldRow row) {
@@ -123,20 +127,16 @@ class BoldImporter extends SwingWorker<APDList, Void> {
   private BoldKey getBoldKey(StoredDocument sd) {
     String marker = sd.getNaturalisNote().get(SEQ_MARKER);
     if (marker != null) {
-      String extractId = sd.getNaturalisNote().getExtractId();
-      if (extractId != null) {
-        return new BoldKey(extractId, marker);
+      String regno = sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
+      if (regno != null) {
+        return new BoldKey(regno, marker);
       }
     }
     return null; // do not add to StoredDocumentTable
   }
 
-  private int line(int zeroBased) {
-    return zeroBased + cfg.getSkipLines() + 1;
-  }
-
-  private static String plural(Collection<?> c) {
-    return c.size() == 1 ? "" : "s";
+  private static int line(int zeroBased) {
+    return zeroBased + 1;
   }
 
 }

@@ -6,8 +6,10 @@
 
 BAD_DOCUMENT_DATABASE
 	Selecting documents from mulitple databases not supported. Please make sure all
-	documents belong to database "%s" or select a different folder
+	documents belong to database "%s" or select a different folder.
 	
+BAD_CHARSET
+	The Java VM runs using an unsupported character encoding: "%s". Contact support.	
 	
 SMPL_MISSING_SAMPLE_SHEET
 	Please select a sample sheet
@@ -19,5 +21,9 @@ CSV_NO_FILE_PROVIDED
 	Please select a CSV file or spreadsheet to import
 
 CSV_UNSUPPORTED_FILE_TYPE
-	Unsupported file type: "%s". Allowed file types: csv, tsv, txt, xls, xlsx
+	Unsupported file type: "%s". Allowed file types: csv, tsv, txt, xls
+	
+BOLD_NO_HEADER
+	Bold file must have at least one header containing the column names (usually at line 3).
+	"Lines to skip" must not be 0 (zero).
 	

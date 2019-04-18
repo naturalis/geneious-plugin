@@ -43,14 +43,14 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       new OptionValue(";", ";"),
       new OptionValue("|", "|"));
 
-  private static final Set<String> ALLOWED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls", "xlsx");
+  private static final Set<String> ALLOWED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls");
 
-  private final String identifier;
-  private final List<AnnotatedPluginDocument> documents;
-  private final FileSelectionOption file;
-  private final IntegerOption linesToSkip;
-  private final ComboBoxOption<OptionValue> delimiter;
-  private final ComboBoxOption<OptionValue> sheet; // Name of sheet (tab) within the spreadsheet
+  protected final String identifier;
+  protected final List<AnnotatedPluginDocument> documents;
+  protected final FileSelectionOption file;
+  protected final IntegerOption linesToSkip;
+  protected final ComboBoxOption<OptionValue> delimiter;
+  protected final ComboBoxOption<OptionValue> sheet; // Name of sheet (tab) within the spreadsheet
 
   public CsvImportOptions(List<AnnotatedPluginDocument> documents, String identifier) {
     this.documents = documents;
@@ -94,16 +94,16 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return cfg;
   }
 
-  protected String getLabelForFileName() {
+  protected String getDefaultFileSelectionLabel() {
     return "File";
   }
 
-  protected int getNumberOfLinesToSkip() {
+  protected int getDefaultNumLinesToSkip() {
     return 1;
   }
 
   private FileSelectionOption addFileSelectionOption() {
-    FileSelectionOption opt = addFileSelectionOption(name(FILE), getLabelForFileName(), "");
+    FileSelectionOption opt = addFileSelectionOption(name(FILE), getDefaultFileSelectionLabel(), "");
     opt.setAllowMultipleSelection(false);
     opt.setFillHorizontalSpace(true);
     opt.setValue("");
@@ -113,7 +113,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   private IntegerOption addLinesToSkipOption() {
     String descr = "The number of lines to skip within the selected file";
-    IntegerOption opt = addIntegerOption(name(LINES_TO_SKIP), "Lines to skip", getNumberOfLinesToSkip(), 0, Integer.MAX_VALUE);
+    IntegerOption opt = addIntegerOption(name(LINES_TO_SKIP), "Lines to skip", getDefaultNumLinesToSkip(), 0, Integer.MAX_VALUE);
     opt.setDescription(descr);
     return opt;
   }

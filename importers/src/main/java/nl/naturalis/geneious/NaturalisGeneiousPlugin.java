@@ -13,6 +13,7 @@ import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
+import nl.naturalis.geneious.bold.BoldDocumentOperation;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
@@ -58,7 +59,10 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
-        new SequenceImportDocumentOperation(), new SampleSheetDocumentOperation(), new CrsDocumentOperation()
+        new SequenceImportDocumentOperation(),
+        new SampleSheetDocumentOperation(),
+        new CrsDocumentOperation(),
+        new BoldDocumentOperation()
     };
   }
 

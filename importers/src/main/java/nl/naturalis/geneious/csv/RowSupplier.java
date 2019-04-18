@@ -35,13 +35,11 @@ public class RowSupplier {
       if (CsvImportUtil.isSpreadsheet(file.getName())) {
         SpreadSheetReader ssr = new SpreadSheetReader(file);
         ssr.setSheetNumber(cfg.getSheetNumber());
-        ssr.setSkipRows(cfg.getSkipLines());
         rows = ssr.readAllRows();
       } else if (CsvImportUtil.isCsvFile(file.getName())) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
         settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
-        settings.setNumberOfRowsToSkip(cfg.getSkipLines());
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
       } else {

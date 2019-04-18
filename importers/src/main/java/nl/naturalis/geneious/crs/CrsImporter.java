@@ -17,7 +17,6 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 /**
  * Does the actual work of importing a CRS file into Geneious.
@@ -38,8 +37,6 @@ class CrsImporter extends SwingWorker<Void, Void> {
    */
   @Override
   protected Void doInBackground() {
-    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
-    getTargetDatabase().waitForSearchIndexingToComplete();
     try {
       importCrsFile();
     } catch (Throwable t) {
@@ -55,7 +52,7 @@ class CrsImporter extends SwingWorker<Void, Void> {
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 0; i < rows.size(); ++i) {
+    for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
@@ -65,7 +62,7 @@ class CrsImporter extends SwingWorker<Void, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for reg.no. %s", regno));
       StoredDocumentList docs = selectedDocuments.get(regno);
       if (docs == null) {
-        int line = cfg.getLine(i);
+        int line = line(i);
         guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
         ++unused;
       } else {
@@ -97,11 +94,11 @@ class CrsImporter extends SwingWorker<Void, Void> {
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     CrsRow row = new CrsRow(cfg.getColumnNumbers(), rows.get(rownum));
     if (row.isEmpty()) {
-      guiLogger.debugf(() -> format("Ignoring empty row at line %s", cfg.getLine(rownum)));
+      guiLogger.debugf(() -> format("Ignoring empty row at line %s", line(rownum)));
       return null;
     }
-    guiLogger.debugf(() -> format("Line %s: %s", cfg.getLine(rownum), toJson(rows.get(rownum))));
-    CrsNoteFactory factory = new CrsNoteFactory(cfg.getLine(rownum), row);
+    guiLogger.debugf(() -> format("Line %s: %s", line(rownum), toJson(rows.get(rownum))));
+    CrsNoteFactory factory = new CrsNoteFactory(line(rownum), row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
@@ -114,6 +111,10 @@ class CrsImporter extends SwingWorker<Void, Void> {
 
   private String getRegno(StoredDocument sd) {
     return sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
+  }
+
+  private static int line(int zeroBased) {
+    return zeroBased + 1;
   }
 
 }

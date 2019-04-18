@@ -11,6 +11,7 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.MessageProvider.Message;
 
+import static nl.naturalis.geneious.ErrorCode.BAD_CHARSET;
 import static nl.naturalis.geneious.ErrorCode.BAD_DOCUMENT_DATABASE;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
@@ -27,6 +28,25 @@ public class SharedPreconditionValidator {
   }
 
   public Message validate() {
+    Message message;
+    if (null != (message = checkEncoding())) {
+      return message;
+    }
+    if (null != (message = checkAllDocsWritableAndInSameDatabase())) {
+      return message;
+    }
+    return MessageProvider.OK_MESSAGE;
+  }
+
+  private static Message checkEncoding() {
+    String enc = System.getProperty("file.encoding", "").toLowerCase();
+    if (!enc.equals("utf-8") && !enc.equals("utf8")) {
+      return MessageProvider.messageFor(BAD_CHARSET, System.getProperty("file.encoding", ""));
+    }
+    return null;
+  }
+
+  private Message checkAllDocsWritableAndInSameDatabase() {
     WritableDatabaseService svc = ServiceUtilities.getResultsDestination();
     WritableDatabaseService root = svc.getPrimaryDatabaseRoot();
     for (AnnotatedPluginDocument doc : selected) {
@@ -39,7 +59,7 @@ public class SharedPreconditionValidator {
         return MessageProvider.messageFor(BAD_DOCUMENT_DATABASE, getTargetDatabaseName());
       }
     }
-    return MessageProvider.OK_MESSAGE;
+    return null;
   }
 
 }

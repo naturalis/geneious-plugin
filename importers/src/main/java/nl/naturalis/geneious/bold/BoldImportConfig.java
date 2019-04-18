@@ -4,7 +4,7 @@ import nl.naturalis.common.collection.EnumToIntMap;
 import nl.naturalis.geneious.csv.CsvImportConfig;
 
 /**
- * Contains configuration settings for CRS imports.
+ * Contains configuration settings for BOLD imports.
  *
  * @author Ayco Holleman
  */
