@@ -7,11 +7,14 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.note.SeqPass;
 
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
-import static nl.naturalis.geneious.note.NaturalisField.*;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PASS;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_SEQUENCING_STAFF;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
 /**
@@ -47,6 +50,7 @@ public class SequenceNameParser {
     n.castAndSet(SEQ_PCR_PLATE_ID, processPcrPlateID(segments[3]));
     n.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     n.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
+    n.castAndSet(SEQ_PASS, SeqPass.UNDETERMINED);
     guiLogger.debugf(() -> format("Note created: %s", toJson(n, false)));
     return n;
   }

@@ -22,6 +22,7 @@ import static java.util.Collections.emptyList;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createBooleanNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createDecimalNoteField;
+import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createEnumeratedNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createIntegerNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.createTextNoteField;
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
@@ -35,7 +36,7 @@ public enum NaturalisField {
 
   SEQ_EXTRACT_ID("ExtractIDCode_Seq", "Extract ID (Seq)"),
   SEQ_MARKER("MarkerCode_Seq", "Marker (Seq)"),
-  SEQ_PASS("ConsensusSeqPassCode_Seq", "Pass (Seq)"),
+  SEQ_PASS("ConsensusSeqPassCode_Seq", "Pass (Seq)", SeqPass.class),
   SEQ_PCR_PLATE_ID("PCRplateIDCode_Seq", "PCR plate ID (Seq)"),
   SEQ_SEQUENCING_STAFF("SequencingStaffCode_FixedValue_Seq", "Seq-staff (Seq)"),
 
@@ -142,6 +143,9 @@ public enum NaturalisField {
         queryField = DocumentField.createIntegerField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
       } else if (dataType == Double.class) {
         queryField = DocumentField.createDoubleField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
+      } else if (dataType.isEnum()) {
+        String[] values = Arrays.stream(dataType.getEnumConstants()).map(Object::toString).toArray(String[]::new);
+        queryField = DocumentField.createEnumeratedField(values, name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
       } else {
         queryField = DocumentField.createStringField(name, NO_DESCRIPTION, noteTypeCode + "." + code, true, true);
       }
@@ -179,6 +183,8 @@ public enum NaturalisField {
       t = (T) Integer.valueOf(str);
     } else if (dataType == Double.class) {
       t = (T) Double.valueOf(str);
+    } else if (dataType.isEnum()) {
+      t = (T) new EnumParser(dataType).parse(str);
     } else {
       t = (T) str;
     }
@@ -187,7 +193,7 @@ public enum NaturalisField {
 
   /**
    * Casts the provided object (presumably already processed by a {@link NoteFactory} to an object of this field's
-   * datatype. Since the not factory probably already returned the right datatype, this is just an extra type check. If
+   * datatype. Since the note factory probably already returned the right datatype, this is just an extra type check. If
    * the casting throws a {@code ClassCastException}, an error is logged and this method returns null.
    * 
    * @param val
@@ -205,13 +211,21 @@ public enum NaturalisField {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   <T> T readFrom(DocumentNotes notes) {
     DocumentNote note = notes.getNote(getNoteType().getCode());
     if (note == null) {
       return null;
     }
     Object val = note.getFieldValue(code);
-    return val == null ? null : cast(val);
+    if (val == null) {
+      return null;
+    }
+    if (dataType.isEnum()) {
+      // So-called "Enumerated fields" are actually just strings in Geneious
+      return (T) new EnumParser(dataType).parse(val.toString());
+    }
+    return cast(val);
   }
 
   void parseAndwrite(DocumentNotes notes, String value) {
@@ -219,13 +233,16 @@ public enum NaturalisField {
     if (note == null) {
       if (value != null) {
         note = getNoteType().createDocumentNote();
-        note.setFieldValue(code, parse(value));
+        // So-called "Enumerated fields" are actually just strings in Geneious
+        Object val = dataType.isEnum() ? parse(value).toString() : parse(value);
+        note.setFieldValue(code, val);
         notes.setNote(note);
       }
     } else if (value == null) {
       notes.removeNote(getNoteType().getCode());
     } else {
-      note.setFieldValue(code, parse(value));
+      Object val = dataType.isEnum() ? parse(value).toString() : parse(value);
+      note.setFieldValue(code, val);
       notes.setNote(note);
     }
   }
@@ -235,13 +252,15 @@ public enum NaturalisField {
     if (note == null) {
       if (value != null) {
         note = getNoteType().createDocumentNote();
-        note.setFieldValue(code, cast(value));
+        Object val = dataType.isEnum() ? cast(value).toString() : cast(value);
+        note.setFieldValue(code, val);
         notes.setNote(note);
       }
     } else if (value == null) {
       notes.removeNote(getNoteType().getCode());
     } else {
-      note.setFieldValue(code, cast(value));
+      Object val = dataType.isEnum() ? cast(value).toString() : cast(value);
+      note.setFieldValue(code, val);
       notes.setNote(note);
     }
   }
@@ -262,6 +281,9 @@ public enum NaturalisField {
       noteField = createIntegerNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
     } else if (dataType == Double.class) {
       noteField = createDecimalNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
+    } else if (dataType.isEnum()) {
+      String[] values = Arrays.stream(dataType.getEnumConstants()).map(Object::toString).toArray(String[]::new);
+      noteField = createEnumeratedNoteField(values, name, NO_DESCRIPTION, code, false);
     } else {
       noteField = createTextNoteField(name, NO_DESCRIPTION, code, emptyList(), false);
     }

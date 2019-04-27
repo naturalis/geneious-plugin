@@ -1,29 +1,24 @@
 package nl.naturalis.geneious.split;
 
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
-import com.biomatters.geneious.publicapi.plugin.DocumentAction;
+import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-public class CreateNoteFromFileNameDocumentAction extends DocumentAction {
+public class SplitNameDocumentOperation extends DocumentOperation {
 
   @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CreateNoteFromFileNameDocumentAction.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameDocumentOperation.class);
 
-  @Override
-  public void actionPerformed(AnnotatedPluginDocument[] selectedDocuments) {
-  }
-
-  @Override
+   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools)
-        .setInMainToolbar(true)
-        .setInPopupMenu(true)
+    return new GeneiousActionOptions("Split")
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99991)
+        .setInMainToolbar(true, .99995)
+        .setInPopupMenu(true, .99995)
         .setAvailableToWorkflows(true);
   }
 
