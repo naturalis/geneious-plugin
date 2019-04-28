@@ -41,7 +41,7 @@ public class NaturalisPreferencesOptions extends Options {
 
     addDivider("General Options ");
     BooleanOption bOpt1 = addBooleanOption("nl.naturalis.geneious.log.debug", "Show debug info in plugin logs", Boolean.FALSE);
-    bOpt1.setHelp("Provide more detailed information as the Naturalis plugin is working.  Enable when creating "
+    bOpt1.setHelp("Provide more detailed information as the Naturalis plugin is working. Enable when creating "
         + "support tickets for bugs or perfomance issues.");
     bOpt1.addChangeListener(() -> {
       GuiLogManager.setDebug(bOpt1.getValue());
@@ -53,7 +53,7 @@ public class NaturalisPreferencesOptions extends Options {
     bOpt2.setHelp("When importing fasta files, they are first split into single nucleotide sequences. If you import "
         + "fewer than 500 fasta files, this is all done in-memory; otherwise the nucleotide sequence is written to a "
         + "temporary file. This option allows you to force the plugin to always create temporary files so you could "
-        + "inspect or use them afterwards");
+        + "inspect or use them afterwards.");
     bOpt2.addChangeListener(() -> state.disableFastaCache = bOpt2.getValue());
     state.disableFastaCache = bOpt2.getValue();
 
@@ -62,7 +62,7 @@ public class NaturalisPreferencesOptions extends Options {
     bOpt3.setHelp("When you import a large number of fasta files at once, a lot of temporary files will be created. "
         + "Ordinarily these temporary fasta files are deleted once the import is finished. This option allows you to "
         + "keep them on the file system. The plugin will tell you where they are. Please make sure you delete them "
-        + "yourself when you are done with them!");
+        + "yourself when you are done with them.");
     bOpt3.addChangeListener(() -> state.deleteTmpFastaFiles = bOpt3.getValue());
     state.deleteTmpFastaFiles = bOpt3.getValue();
 
@@ -80,6 +80,9 @@ public class NaturalisPreferencesOptions extends Options {
     ButtonOption butOpt1 =
         addButtonOption("nl.naturalis.geneious.updateAnnotationMetadata", "", "Update annotation metadata");
     butOpt1.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
+
+    StringOption sOpt3 = addStringOption(Setting.OPERATION_FINISHED.getName(), "", "");
+    sOpt3.setHidden();
 
     addDivider("Version Info ");
     addLabel("Version: " + PluginInfo.getInstance().getVersion());

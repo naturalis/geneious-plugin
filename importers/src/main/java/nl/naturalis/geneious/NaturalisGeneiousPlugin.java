@@ -24,7 +24,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public Icons getIcons() {
-    return IconUtilities.getIconsFromJar(getClass(), "/naturalis.jpg");
+    return IconUtilities.getIconsFromJar(getClass(), "/rood.ico");
   }
 
   /*

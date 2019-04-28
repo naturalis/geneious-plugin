@@ -22,7 +22,7 @@ public class NaturalisPluginPreferences extends PluginPreferences<NaturalisPrefe
 
   @Override
   public Icon getTabIcon() {
-    return /* NaturalisIcons.NATURALIS.getIcon16() */ null;
+    return null;
   }
 
 }

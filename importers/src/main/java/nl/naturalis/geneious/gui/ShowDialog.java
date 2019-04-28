@@ -61,4 +61,9 @@ public class ShowDialog {
     return GuiUtilities.getMainFrame();
   }
 
+  public static void waitTimeNotOverYet() {
+    String msg = "Wait time not over yet";
+    showMessageDialog(frame(), msg, "Wait time not over yet", ERROR_MESSAGE);
+  }
+
 }
