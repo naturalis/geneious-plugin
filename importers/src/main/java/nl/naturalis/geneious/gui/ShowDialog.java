@@ -1,5 +1,11 @@
 package nl.naturalis.geneious.gui;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import org.virion.jam.framework.AbstractFrame;
@@ -57,13 +63,20 @@ public class ShowDialog {
     return answer == OK_OPTION;
   }
 
-  private static AbstractFrame frame() {
-    return GuiUtilities.getMainFrame();
+  public static void waitTimeNotOverYet() {
+    JDialog dlg = new JDialog(frame(), "Waiting for indexing to complete ...", true);
+    JProgressBar dpb = new JProgressBar(0, 500);
+    dlg.add(BorderLayout.CENTER, dpb);
+    dlg.add(BorderLayout.NORTH, new JLabel("Progress..."));
+    dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+     dlg.setSize(300, 75);
+    dlg.setLocationRelativeTo(frame());
+    dlg.pack();
+    dlg.setVisible(true);
   }
 
-  public static void waitTimeNotOverYet() {
-    String msg = "Wait time not over yet";
-    showMessageDialog(frame(), msg, "Wait time not over yet", ERROR_MESSAGE);
+  private static AbstractFrame frame() {
+    return GuiUtilities.getMainFrame();
   }
 
 }
