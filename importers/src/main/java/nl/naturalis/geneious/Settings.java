@@ -23,6 +23,7 @@ import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
 import static nl.naturalis.geneious.Setting.LAST_FINISHED;
 import static nl.naturalis.geneious.Setting.MIN_WAIT_TIME;
+import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
 
 /**
  * An easy means of accessing the settings in the <i>Tools -> Preferences</i> tab. This class mainly exists to work
@@ -65,8 +66,8 @@ public class Settings {
    * @param value
    */
   public void update(Setting setting, Object value) {
-    System.out.println(String.format("%s updated to: \"%s\"", setting, value, value.getClass().getName()));
     cache.put(setting, value);
+    // System.out.println(String.format("%s updated to: \"%s\"", setting, value));
   }
 
   /**
@@ -102,6 +103,15 @@ public class Settings {
    */
   public boolean isDebug() {
     return (Boolean) cache.get(DEBUG);
+  }
+
+  /**
+   * Show pretty notes when in DEBUG mode.
+   * 
+   * @return
+   */
+  public boolean isPrettyNotes() {
+    return (Boolean) cache.get(PRETTY_NOTES);
   }
 
   /**

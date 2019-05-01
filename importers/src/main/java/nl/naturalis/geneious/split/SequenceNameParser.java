@@ -51,7 +51,7 @@ public class SequenceNameParser {
     n.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     n.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
     n.castAndSet(SEQ_PASS, SeqPass.UNDETERMINED);
-    guiLogger.debugf(() -> format("Note created: %s", toJson(n, false)));
+    guiLogger.debugf(() -> format("Note created: %s", toJson(n)));
     return n;
   }
 

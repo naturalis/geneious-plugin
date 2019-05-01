@@ -15,6 +15,10 @@ public enum Setting {
    */
   DEBUG("nl.naturalis.geneious.log.debug"),
   /**
+   * Show pretty notes when in DEBUG mode.
+   */
+  PRETTY_NOTES("nl.naturalis.geneious.log.prettyNotes"),
+  /**
    * The end time of the previous operation executed by the user
    */
   LAST_FINISHED("nl.naturalis.geneious.operation.lastEndTime"),

@@ -7,18 +7,16 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import nl.naturalis.geneious.WrappedException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
+import static nl.naturalis.geneious.Settings.settings;
+
 public class DebugUtil {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final ObjectWriter noteWriter = mapper.writerFor(NaturalisNote.class);
 
   public static String toJson(NaturalisNote note) {
-    return toJson(note, false);
-  }
-
-  public static String toJson(NaturalisNote note, boolean pretty) {
     try {
-      if (pretty) {
+      if (settings().isPrettyNotes()) {
         return noteWriter.withDefaultPrettyPrinter().writeValueAsString(note);
       }
       return noteWriter.writeValueAsString(note);
@@ -35,12 +33,9 @@ public class DebugUtil {
     }
   }
 
-  public static String toJson(Object obj, boolean pretty) {
+  public static String toPrettyJson(Object obj) {
     try {
-      if (pretty) {
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-      }
-      return mapper.writeValueAsString(obj);
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new WrappedException(e);
     }
