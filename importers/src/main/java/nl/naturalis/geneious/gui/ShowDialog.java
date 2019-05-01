@@ -1,11 +1,5 @@
 package nl.naturalis.geneious.gui;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import org.virion.jam.framework.AbstractFrame;
@@ -61,18 +55,6 @@ public class ShowDialog {
     String msg = String.format(fmt, QueryUtils.getTargetDatabaseName());
     int answer = showConfirmDialog(frame(), msg, "Update annotation metadata?", OK_CANCEL_OPTION, WARNING_MESSAGE);
     return answer == OK_OPTION;
-  }
-
-  public static void waitTimeNotOverYet() {
-    JDialog dlg = new JDialog(frame(), "Waiting for indexing to complete ...", true);
-    JProgressBar dpb = new JProgressBar(0, 500);
-    dlg.add(BorderLayout.CENTER, dpb);
-    dlg.add(BorderLayout.NORTH, new JLabel("Progress..."));
-    dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-     dlg.setSize(300, 75);
-    dlg.setLocationRelativeTo(frame());
-    dlg.pack();
-    dlg.setVisible(true);
   }
 
   private static AbstractFrame frame() {

@@ -8,12 +8,11 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
-import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.split.NotParsableException;
 
-import static nl.naturalis.geneious.NaturalisPreferencesOptions.disableFastaCache;
+import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.DocumentUtils.isAb1File;
 import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
@@ -21,8 +20,8 @@ import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
 /**
  * Separates AB1 files from fasta files and then calls the {@link FastaFileSplitter} to split the fasta files into
  * individual nucleotide sequences. Note that this is an Autocloseable class. You SHOULD create instances of it using a
- * try-with-resources block. This will ensure that the temporary files created by the fasta will be deleted once the
- * import completes.
+ * try-with-resources block. This will ensure that the temporary files created by the {@code FastaFileSplitter} will be
+ * deleted once the import completes.
  * 
  * {@link FastaFileSplitter}.
  */
@@ -31,7 +30,7 @@ class SequenceInfoProvider implements AutoCloseable {
   /**
    * The maximum number of user-selected fasta files that will be dealt with in-memory (500). If the user selects more
    * than this number of fasta files, or if he/she has disabled fasta file caching in the Prefences panel, the individual
-   * nucleotide sequences will be written to temporary files.
+   * nucleotide sequences will be written to temporary files, otherwise they will be processed in-memory.
    */
   static final int MAX_FASTAS_IN_MEMORY = 500;
 
@@ -50,7 +49,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * @throws NotParsableException
    */
   SequenceInfoProvider(File[] files) {
-    this.inMemory = !disableFastaCache() && files.length <= MAX_FASTAS_IN_MEMORY;
+    this.inMemory = !settings().isDisableFastaCache() && files.length <= MAX_FASTAS_IN_MEMORY;
     this.splitter = new FastaFileSplitter(inMemory);
     this.ab1Sequences = new ArrayList<>();
     this.fastaSequences = new ArrayList<>();
@@ -101,7 +100,7 @@ class SequenceInfoProvider implements AutoCloseable {
   public void close() throws IOException {
     if (!inMemory) {
       File dir = splitter.getFastaTempDirectory();
-      if (NaturalisPreferencesOptions.deleteTmpFastaFiles()) {
+      if (settings().isDeleteTmpFastas()) {
         guiLogger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getPath()));
         FileUtils.deleteDirectory(dir);
       } else {

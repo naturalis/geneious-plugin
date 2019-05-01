@@ -4,15 +4,15 @@ import javax.swing.Icon;
 
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 
-public class NaturalisPluginPreferences extends PluginPreferences<NaturalisPreferencesOptions> {
+public class NaturalisPluginPreferences extends PluginPreferences<NaturalisOptions> {
   
   public NaturalisPluginPreferences() {
     super();
   }
 
   @Override
-  protected NaturalisPreferencesOptions createOptions() {
-    return new NaturalisPreferencesOptions();
+  protected NaturalisOptions createOptions() {
+    return new NaturalisOptions();
   }
 
   @Override

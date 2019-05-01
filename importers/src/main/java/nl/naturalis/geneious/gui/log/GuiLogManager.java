@@ -2,9 +2,6 @@ package nl.naturalis.geneious.gui.log;
 
 import java.util.HashMap;
 
-import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
-import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
-
 /**
  * Keeps track of, and manages the loggers created by the classes participating in the various plugin actions.
  *
@@ -25,14 +22,12 @@ public class GuiLogManager {
   }
 
   /**
-   * Called by action listener on checkbox in Tools -> Preferences.
+   * Creates a new log session. Log sessions should be created using a try-with-resources block. Logger should only log
+   * messages within the try-with-resources block, otherwise the user will not see them.
    * 
    * @param title
+   * @return
    */
-  public static void setDebug(boolean debug) {
-    instance.writer.setLogLevel(debug ? DEBUG : INFO);
-  }
-
   public static LogSession startSession(String title) {
     return new LogSession(instance.writer, title);
   }
@@ -43,7 +38,7 @@ public class GuiLogManager {
   private GuiLogManager() {
     this.writer = new LogWriter();
     this.loggers = new HashMap<>();
-  };
+  }
 
   private GuiLogger getOrCreateLogger(Class<?> clazz) {
     GuiLogger logger = loggers.get(clazz);

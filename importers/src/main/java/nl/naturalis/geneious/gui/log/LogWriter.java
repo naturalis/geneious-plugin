@@ -14,6 +14,8 @@ import static nl.naturalis.common.base.NStrings.rpad;
 import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
 
+import static nl.naturalis.geneious.Settings.*;
+
 /**
  * Accepts log records from loggers and turns them into messages, which it then sends to the Geneious GUI.
  *
@@ -24,12 +26,17 @@ class LogWriter {
   private static final String NEWLINE = System.getProperty("line.separator");
   private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss SSS");
 
-  private LogLevel level = INFO;
+  private LogLevel logLevel = INFO;
   private JScrollPane pane;
   private JScrollBar scrollbar;
   private JTextArea area;
 
+  LogWriter() {
+    logLevel = settings().isDebug() ? DEBUG : INFO;
+  }
+
   void initialize() {
+    logLevel = settings().isDebug() ? DEBUG : INFO;
     area = new JTextArea();
     area.setEditable(false);
     area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -39,10 +46,8 @@ class LogWriter {
 
   void write(LogRecord record) {
     if (area == null) {
-      /*
-       * A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while
-       * initializing. It should never happen when the plugin itself is in control !!
-       */
+      // A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while
+      // initializing. It should never happen when the plugin itself is in control !!
       System.out.println("[OUTSIDE LOG SESSION] - " + toString(record));
     } else {
       area.append(toString(record));
@@ -52,11 +57,11 @@ class LogWriter {
   }
 
   LogLevel getLogLevel() {
-    return level;
+    return logLevel;
   }
 
   void setLogLevel(LogLevel level) {
-    this.level = level;
+    this.logLevel = level;
   }
 
   JScrollPane getScrollPane() {
@@ -71,7 +76,7 @@ class LogWriter {
     String terminator = " | ";
     StringBuilder sb = new StringBuilder(160);
     sb.append(rpad(dtf.format(record.timestamp), 23, terminator));
-    if (level == DEBUG) {
+    if (logLevel == DEBUG) {
       sb.append(rpad(record.clazz.getSimpleName(), 30, terminator));
     }
     sb.append(rpad(record.level, 6, terminator));

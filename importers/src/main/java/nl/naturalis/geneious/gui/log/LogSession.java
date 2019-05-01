@@ -8,9 +8,9 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
 
 /**
- * An Object defining the boundaries within which logger can safely log messages. In other words, loggers must not be used outside the
- * boundaries of a log session. That means it's best to set up a log session in a top-level class (which in our case means: the
- * framework-plumbing classes like {@link SequenceImportDocumentOperation}).
+ * An Object defining the boundaries within which loggers can safely log messages. In other words, loggers must not be
+ * used outside the boundaries of a log session. It's best to set up a log session in a top-level class, which in our
+ * case means: the {@code DocumentOperation} implementation classes like {@link SequenceImportDocumentOperation}.
  *
  * @author Ayco Holleman
  */
@@ -40,6 +40,5 @@ public final class LogSession implements AutoCloseable {
     dialog.setLocationRelativeTo(null);
     dialog.setVisible(true);
   }
-
 
 }

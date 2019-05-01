@@ -14,7 +14,6 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 
 import org.apache.commons.io.FileUtils;
 
-import nl.naturalis.geneious.NaturalisPreferencesOptions;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -22,6 +21,8 @@ import nl.naturalis.geneious.note.NaturalisField;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
+
+import static nl.naturalis.geneious.Settings.settings;
 
 /**
  * Various methods related to Geneious documents.
@@ -41,7 +42,8 @@ public class DocumentUtils {
   }
 
   /**
-   * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences panel.
+   * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences
+   * panel.
    * 
    * @param f
    * @return
@@ -61,7 +63,8 @@ public class DocumentUtils {
   }
 
   /**
-   * Whether or not the specified file is a fasta file as per the user-provided file extensions in the Geneious Preferences panel.
+   * Whether or not the specified file is a fasta file as per the user-provided file extensions in the Geneious
+   * Preferences panel.
    * 
    * @param f
    * @return
@@ -83,7 +86,7 @@ public class DocumentUtils {
     }
     return false;
   }
-  
+
   public static boolean isDummyDocument(StoredDocument document) {
     String marker = document.getNaturalisNote().get(NaturalisField.SEQ_MARKER);
     return Objects.equals(marker, "Dum");
@@ -96,7 +99,7 @@ public class DocumentUtils {
    */
   public static Set<String> getAb1Extensions() {
     Set<String> exts = new HashSet<>();
-    String s = NaturalisPreferencesOptions.getAb1Extensions();
+    String s = settings().getAb1FileExtensions();
     if (s != null && !(s = stripEnd(s, ", ")).equals("*")) {
       Arrays.stream(s.split(",")).forEach(ext -> {
         ext = ext.trim().toLowerCase();
@@ -118,7 +121,7 @@ public class DocumentUtils {
    */
   public static Set<String> getFastaExtensions() {
     Set<String> exts = new HashSet<>();
-    String s = NaturalisPreferencesOptions.getFastaExtensions();
+    String s = settings().getFastaFileExtensions();
     if (s != null && !(s = stripEnd(s, ", ")).equals("*")) {
       Arrays.stream(s.split(",")).forEach(ext -> {
         ext = ext.trim().toLowerCase();
