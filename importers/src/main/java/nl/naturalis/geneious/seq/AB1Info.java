@@ -32,7 +32,7 @@ final class AB1Info extends SequenceInfo {
 
   @Override
   String getName() {
-    return name;
+    return name + " (ab1)";
   }
 
   @Override

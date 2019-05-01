@@ -41,10 +41,9 @@ final class FastaInfo extends SequenceInfo {
     return DocumentType.FASTA;
   }
 
-
   @Override
   public String getName() {
-    return name;
+    return name + " (fasta)";
   }
 
   @Override
@@ -79,8 +78,8 @@ final class FastaInfo extends SequenceInfo {
   }
 
   /**
-   * Returns the temporary single-sequence fasta file extracted from the original, user-selected fasta file. If fasta sequence processing is
-   * done in-memory, this method returns null;
+   * Returns the temporary single-sequence fasta file extracted from the original, user-selected fasta file. If fasta
+   * sequence processing is done in-memory, this method returns null;
    * 
    * @return
    */

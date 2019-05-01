@@ -25,21 +25,20 @@ class QueryCache {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryCache.class);
 
   /**
-   * A compound key consisting that can be used as a key for the query cache. The key consists of at least the document
-   * type (dummy/fasta/ab1), along which you want to differentiate documents most of the time, plus an arbitrary other
-   * property of a document.
+   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document
+   * type (dummy/fasta/ab1) plus an arbitrary other property of the document.
    *
    * @author Ayco Holleman
    */
   static class Key {
     final DocumentType docType;
-    final String field;
+    final Object value;
     final int hash;
 
-    Key(DocumentType docType, String field) {
+    Key(DocumentType docType, Object value) {
       Objects.requireNonNull(this.docType = docType, "Document type must not be null");
-      Objects.requireNonNull(this.field = field, "ID must not be null");
-      hash = (docType.ordinal() * 31) + field.hashCode();
+      Objects.requireNonNull(this.value = value, "Value must not be null");
+      hash = (docType.ordinal() * 31) + value.hashCode();
     }
 
     /**
@@ -57,13 +56,24 @@ class QueryCache {
      * @param doc
      */
     Key(ImportableDocument doc) {
-      this(doc.getSequenceInfo().getDocumentType(), doc.getSequenceInfo().getNaturalisNote().getExtractId());
+      this(doc, doc.getSequenceInfo().getNaturalisNote().getExtractId());
+    }
+
+    /**
+     * Creates a cache key using the provided document's type and the provided value (presumably also retrieved from the
+     * document).
+     * 
+     * @param doc
+     * @param val
+     */
+    Key(ImportableDocument doc, Object val) {
+      this(doc.getSequenceInfo().getDocumentType(), val);
     }
 
     @Override
     public boolean equals(Object obj) {
       Key other = (Key) obj;
-      return docType == other.docType && field.equals(other.field);
+      return docType == other.docType && value.equals(other.value);
     }
 
     @Override
@@ -105,15 +115,19 @@ class QueryCache {
    */
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
-    cache.entrySet().stream().filter(entry -> !entry.getValue().isDummy()).forEach(e -> {
-      String version = e.getValue().getNaturalisNote().getDocumentVersion();
-      if (version == null) {
-        guiLogger.warn("Bad %s document. Extract ID is set (%s) but document version is not", e.getKey().docType, e.getKey().field);
-      } else {
-        String name = e.getValue().getGeneiousDocument().getName();
-        versions.put(new Key(e.getKey().docType, name), new MutableInt(version));
-      }
-    });
+    cache.entrySet()
+        .stream()
+        .filter(entry -> !entry.getValue().isDummy())
+        .forEach(entry -> {
+          String version = entry.getValue().getNaturalisNote().getDocumentVersion();
+          if (version == null) {
+            String fmt = "Corrupt %s document. Extract ID is set (%s) but document version is not";
+            guiLogger.warn(fmt, entry.getKey().docType, entry.getKey().value);
+          } else {
+            String name = entry.getValue().getGeneiousDocument().getName();
+            versions.put(new Key(entry.getKey().docType, name), new MutableInt(version));
+          }
+        });
     return versions;
   }
 
