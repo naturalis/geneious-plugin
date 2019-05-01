@@ -6,7 +6,8 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
 /**
- * Symbolic constants for document types that are relevant to the Naturalis plugin.
+ * Symbolic constants for document types that are relevant to the Naturalis plugin (which is a limited subset of the
+ * document types supported by Geneious).
  */
 public enum DocumentType {
 

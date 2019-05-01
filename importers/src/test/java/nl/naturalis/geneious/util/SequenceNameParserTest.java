@@ -15,8 +15,9 @@ import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PASS;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.*;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_SEQUENCING_STAFF;
 
 public class SequenceNameParserTest {
 

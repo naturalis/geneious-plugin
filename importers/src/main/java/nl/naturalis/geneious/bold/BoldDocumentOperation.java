@@ -11,6 +11,7 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.gui.WaitTimer;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
@@ -59,9 +60,12 @@ public class BoldDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("BOLD import")) {
-      BoldImportOptions opts = (BoldImportOptions) options;
-      BoldImporter importer = new BoldImporter(opts.createImportConfig());
-      importer.execute();
+      if (WaitTimer.isOperationAllowed()) {
+        BoldImportOptions opts = (BoldImportOptions) options;
+        BoldImporter importer = new BoldImporter(opts.createImportConfig());
+        importer.execute();
+        WaitTimer.setNewEndTime();
+      }
     }
     return null;
   }

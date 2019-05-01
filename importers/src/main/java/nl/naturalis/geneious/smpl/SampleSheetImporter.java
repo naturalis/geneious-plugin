@@ -98,10 +98,10 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       }
       ++good;
       String id = note.getExtractId();
-      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      guiLogger.debugf(() -> format("Searching selected documents for extract ID %s", id));
       StoredDocumentList docs0 = selectedDocuments.get(id);
       if (docs0 == null) {
-        guiLogger.debugf(() -> format("Not found. Scanning query cache for unselected documents with extract ID %s", id));
+        guiLogger.debugf(() -> format("Not found. Searching query cache for unselected documents with extract ID %s", id));
         StoredDocumentList docs1 = unselected.get(id);
         if (docs1 == null) {
           guiLogger.debugf(() -> format("Not found. Creating dummy document for extract ID %s", id));
@@ -113,7 +113,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
           }
         }
       } else {
-        String fmt = "Found %1$s document%2$s. Updating document%2$s";
+        String fmt = "Found %s document%s. Scanning documents for obsolete values";
         guiLogger.debugf(() -> format(fmt, docs0.size(), plural(docs0)));
         for (StoredDocument doc : docs0) {
           if (doc.attach(note)) {
