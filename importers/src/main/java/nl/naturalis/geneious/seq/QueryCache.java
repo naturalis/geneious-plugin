@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import nl.naturalis.geneious.DocumentType;
@@ -125,6 +126,9 @@ class QueryCache {
             guiLogger.warn(fmt, entry.getKey().docType, entry.getKey().value);
           } else {
             String name = entry.getValue().getGeneiousDocument().getName();
+            name = StringUtils.removeEnd(name, ".ab1"); // v1 document naming convention
+            name = StringUtils.removeEnd(name, AB1Importer.NAME_SUFFIX); // v2 document naming convention
+            name = StringUtils.removeEnd(name, FastaImporter.NAME_SUFFIX); // v2 document naming convention
             versions.put(new Key(entry.getKey().docType, name), new MutableInt(version));
           }
         });

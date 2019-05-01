@@ -23,6 +23,8 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
  */
 class FastaImporter {
 
+  static final String NAME_SUFFIX = " (fasta)";
+
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaImporter.class);
 
   private final List<FastaInfo> sequences;
@@ -54,7 +56,8 @@ class FastaImporter {
       for (FastaInfo info : fastas.get(motherFile)) {
         ++processed;
         guiLogger.debugf(() -> format("--> Importing sequence %s", info.getName()));
-        sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
+        String name = info.getName() + NAME_SUFFIX;
+        sequence = new DefaultNucleotideSequence(name, null, info.getSequence(), date);
         apd = createAnnotatedPluginDocument(sequence);
         ++imported;
         ImportableDocument doc = new ImportableDocument(apd, info);

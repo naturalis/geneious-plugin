@@ -19,6 +19,8 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.format;
  */
 class AB1Importer {
 
+  static final String NAME_SUFFIX = " (ab1)";
+
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(AB1Importer.class);
 
   private final List<AB1Info> sequences;
@@ -53,7 +55,7 @@ class AB1Importer {
           throw new IllegalStateException(msg);
         }
         AnnotatedPluginDocument doc = apds.get(0);
-        doc.setName(info.getName());
+        doc.setName(info.getName() + NAME_SUFFIX);
         importables.add(new ImportableDocument(doc, info));
         ++imported;
       } catch (DocumentImportException e) {

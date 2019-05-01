@@ -45,25 +45,23 @@ class ImportableDocument {
   }
 
   /**
-   * Attaches the provided annotation to the Geneious document, but does not save the annotation to the database.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
    */
   void attach(Note note) {
     note.copyTo(notes);
   }
 
   /**
-   * Attaches the internal {@link NaturalisNote} to the Geneious document, but does not save the annotations to the
-   * database.
+   * Attaches the {@link NaturalisNote} to the Geneious document, but does not save the document to the database.
    */
   void attachNaturalisNote() {
     sequenceInfo.getNaturalisNote().copyTo(notes);
   }
 
   /**
-   * Saves all annotations added via {@code attach} and {@code attachNaturalisNote} to the database. Note that, although
-   * the {@link NaturalisNote} that is already present within this {@code ImportableDocument} is the greatest contributor
-   * of document notes, it is not the only one. For example for fasta document we also create the native-Geneious
-   * "Imported from" note.
+   * Saves the annotations to the database. Note that, although the {@link NaturalisNote} that is already present within
+   * this {@code ImportableDocument} is the big Gorilla here, it is not the only source of annotations. For fasta
+   * documents, for example, we also create the native-Geneious "Imported from" note.
    */
   void saveAnnotations() {
     notes.saveNotes(false);

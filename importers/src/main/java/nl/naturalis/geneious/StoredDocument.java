@@ -63,22 +63,22 @@ public class StoredDocument {
   }
 
   /**
-   * Attaches the provided annotation to the Geneious document, but does not save the annotation to the database.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
    */
   public void attach(Note note) {
     note.copyTo(getDocumentNotes());
   }
 
   /**
-   * Merges the provided annotations with the annotations already present on the document. Returns {@code true} if the
-   * document actually changed as a consequence, {@code false} otherwise.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
+   * Returns {@code true} if the document actually changed as a consequence, {@code false} otherwise.
    */
   public boolean attach(NaturalisNote note) {
     return note.copyTo(this.note);
   }
 
   /**
-   * Saves all annotations added via {@code attach} and {@code attachNaturalisNote} to the database.
+   * Saves the annotations to the database.
    */
   public void saveAnnotations() {
     note.copyTo(getDocumentNotes());

@@ -25,8 +25,8 @@ import static nl.naturalis.common.io.NFiles.newFile;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 
 /**
- * Splits a fasta file in a set of new fasta files, each containing a single nucleotide sequence, and saves the newly created fasta files to
- * a temporary directory.
+ * Splits a fasta file into separate sequences. Depending on how the plugin is configured it may save the sequences to
+ * tempoerary files.
  */
 class FastaFileSplitter {
 
@@ -41,8 +41,8 @@ class FastaFileSplitter {
   /**
    * Creates a new {@code FastaFileSplitter}.
    * 
-   * @param inMemory If {@code true}, the splitter will create {@link FastaInfo} instances with the sequence data already set.
-   *        Otherwise it will save the sequence to temporaray, single-sequence fasta files.
+   * @param inMemory If {@code true}, the splitter will create {@link FastaInfo} instances with the sequence data already
+   *        set. Otherwise it will save the sequence to temporaray, single-sequence fasta files.
    */
   FastaFileSplitter(boolean inMemory) {
     if (this.inMemory = inMemory) {
@@ -53,7 +53,8 @@ class FastaFileSplitter {
   }
 
   /**
-   * Splits the specified fasta file into one or more nucleotide sequences, wrapping them into {@code FastaSequenceInfo} objects.
+   * Splits the specified fasta file into one or more nucleotide sequences, wrapping them into {@code FastaSequenceInfo}
+   * objects.
    * 
    * @param motherFile
    * @return

@@ -43,7 +43,7 @@ final class FastaInfo extends SequenceInfo {
 
   @Override
   public String getName() {
-    return name + " (fasta)";
+    return name;
   }
 
   @Override

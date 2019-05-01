@@ -4,12 +4,12 @@ import java.io.File;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.commons.io.FilenameUtils;
-
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.NotParsableException;
 import nl.naturalis.geneious.split.SequenceNameParser;
+
+import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 /**
  * Provides information about an AB1-encoded sequence.
@@ -22,7 +22,7 @@ final class AB1Info extends SequenceInfo {
 
   AB1Info(File sourceFile) {
     super(sourceFile);
-    name = FilenameUtils.getBaseName(getSourceFile().getName());
+    name = getBaseName(getSourceFile().getName());
   }
 
   @Override
@@ -32,7 +32,7 @@ final class AB1Info extends SequenceInfo {
 
   @Override
   String getName() {
-    return name + " (ab1)";
+    return name;
   }
 
   @Override
