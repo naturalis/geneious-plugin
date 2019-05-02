@@ -10,7 +10,9 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.seq.QueryCache.Key;
 
 /**
- * Keeps track of, increments, and hands out version numbers for documents based on their {@link DocumentType} and name.
+ * Keeps track of, increments, and hands out version numbers for documents based on their {@link DocumentType} and name
+ * (not including name suffixes like ".ab1", " (ab1)" and " (fasta)"). A {@code VersionTracker} starts out with a set of
+ * initial document versions, which are the document versions of the most recent historical documents.
  *
  * @author Ayco Holleman
  */
@@ -26,7 +28,7 @@ class VersionTracker {
 
   /**
    * Sets the document version on the provided document and then increments the document version for the combination of
-   * {@link DocumentType} and extract ID found within the document.
+   * {@link DocumentType} and name found within the document.
    * 
    * @param doc
    */
