@@ -57,7 +57,7 @@ public enum NaturalisField {
   CRS_COUNTRY("CountryCode_CRS", "Country (CRS)"),
   CRS_DATE("CollectingDateCode_CRS", "Date (CRS)"),
   CRS_FAMILY("FamilyCode_CRS", "Family (CRS)"),
-  CRS_FLAG("CRSCode_CRS", "CRS (CRS)", Boolean.class),
+  CRS_CRS("CRSCode_CRS", "CRS (CRS)", Boolean.class),
   CRS_GENUS("GenusCode_CRS", "Genus (CRS)"),
   CRS_IDENTIFIER("IdentifierCode_CRS", "Identifier (CRS)"),
   CRS_LATITUDE("LatitudeDecimalCode_CRS", "Lat (CRS)"),

@@ -17,6 +17,7 @@ import nl.naturalis.geneious.bold.BoldDocumentOperation;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
+import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
@@ -29,10 +30,9 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
    * We must instantiate a NaturalisPluginPreferences object as soon as possible (which we do above) and certainly before
-   * getDocumentActions() and getDocumentOperations() is called. These methods return our implementation classes, and
-   * these in turn may have static initalizers that depend on the preferences being set and readable (see
-   * NaturalisPreferencesOptions). But we must also always return a new instance of NaturalisPluginPreferences. Geneious
-   * will throw an exception if you don't.
+   * getDocumentOperations() is called. These methods return our implementation classes, and these in turn may have static initalizers that
+   * depend on the preferences being set and readable (see NaturalisPreferencesOptions). But we must also always return a new instance of
+   * NaturalisPluginPreferences. Geneious will throw an exception if you don't.
    */
   @Override
   @SuppressWarnings("rawtypes")
@@ -47,22 +47,13 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   }
 
   @Override
-  public void initialize(File pluginUserDirectory, File pluginDirectory) {
-    super.initialize(pluginUserDirectory, pluginDirectory);
-  }
-
-  @Override
-  public DocumentAction[] getDocumentActions() {
-    return new DocumentAction[0];
-  }
-
-  @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
         new SequenceImportDocumentOperation(),
         new SampleSheetDocumentOperation(),
         new CrsDocumentOperation(),
-        new BoldDocumentOperation()
+        new BoldDocumentOperation(),
+        new SplitNameDocumentOperation()
     };
   }
 
@@ -104,7 +95,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public String getVersion() {
     /*
-     * Geneious does not allow version name like V2.0.0-ALPHA. Only 2.0.0 is allowed for this particular example.
+     * Geneious does not allow version name like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular example.
      */
     String version = PluginInfo.getInstance().getVersion();
     int i = version.indexOf('-');

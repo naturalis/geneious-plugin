@@ -18,16 +18,16 @@
         <!-- ==================================================================== -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
-        <!-- *** Path to the Geneious installation directory, which contains *** -->
-        <!-- *** external, non-maven-managed dependencies, and which also is *** -->        
-        <!-- *** the working directory from which to launch Geneious.        *** -->
-        <!-- *** When using the Geneious development kit (rather than a      *** -->
-        <!-- *** regular installation, this directory is named               *** -->
-        <!-- *** "GeneiousFiles". Note, however, that apart from examples    *** -->
-        <!-- *** and tutorials you can develop just as well against a        *** -->
-        <!-- *** regular installation.                                       *** -->
-        <!-- geneious.home>/home/ayco/apps/geneious-2019.0.4-devkit/examples/GeneiousFiles</geneious.home -->              
-        <geneious.home>/home/ayco/apps/Geneious_Prime</geneious.home>              
+        <!-- *** Path to the Geneious installation directory, which contains  *** -->
+        <!-- *** external, non-maven-managed dependencies, and which also is  *** -->        
+        <!-- *** the working directory from which to launch Geneious.         *** -->
+        <!-- *** When using the Geneious development kit (rather than a       *** -->
+        <!-- *** regular installation), this directory is named               *** -->
+        <!-- *** "GeneiousFiles". Note, however, that apart from the          *** -->
+        <!-- *** examples and tutorials, you can develop just as well         *** -->
+        <!-- *** against a regular installation.                              *** -->
+        <geneious.home>/home/ayco/apps/geneious-2019.1.3-devkit/examples/GeneiousFiles</geneious.home>              
+        <!-- geneious.home>/home/ayco/apps/Geneious_Prime</geneious.home -->              
 
         <!-- ==================================================================== -->
         <!-- ***  Library dependencies                                        *** -->

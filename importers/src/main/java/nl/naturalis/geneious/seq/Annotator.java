@@ -62,7 +62,8 @@ class Annotator {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
       queryCache.findDummy(extractId).ifPresent(dummy -> {
-        guiLogger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
+        guiLogger.debugf(
+            () -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
         dummy.getNaturalisNote().mergeInto(note);
         obsoleteDummies.add(dummy);
         guiLogger.debug(() -> "Dummy document queued for deletion");
@@ -89,8 +90,7 @@ class Annotator {
   }
 
   /**
-   * Returns the number of documents which could not be annotated (most likely because the sequence name could not be
-   * parsed).
+   * Returns the number of documents which could not be annotated (most likely because the sequence name could not be parsed).
    * 
    * @return
    */

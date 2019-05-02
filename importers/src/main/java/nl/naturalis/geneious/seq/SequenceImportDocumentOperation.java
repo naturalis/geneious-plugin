@@ -61,7 +61,7 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
         }
       }
     }
-    return Collections.emptyList();
+    return null;
   }
 
   @Override

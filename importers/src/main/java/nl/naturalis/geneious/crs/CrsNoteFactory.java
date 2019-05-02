@@ -29,7 +29,7 @@ import static nl.naturalis.geneious.note.NaturalisField.CRS_COLLECTOR;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_COUNTRY;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_DATE;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_FAMILY;
-import static nl.naturalis.geneious.note.NaturalisField.CRS_FLAG;
+import static nl.naturalis.geneious.note.NaturalisField.CRS_CRS;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_GENUS;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_IDENTIFIER;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_LATITUDE;
@@ -55,7 +55,7 @@ class CrsNoteFactory extends NoteFactory<CrsColumn> {
 
   @Override
   protected void populate(NaturalisNote note) throws InvalidRowException {
-    note.castAndSet(CRS_FLAG, Boolean.TRUE);
+    note.castAndSet(CRS_CRS, Boolean.TRUE);
     setRequiredValue(note, SMPL_REGISTRATION_NUMBER, REGISTRATION_NUMBER);
     setRequiredValue(note, CRS_SCIENTIFIC_NAME, FULL_SCIENTIFIC_NAME);
     setValue(note, CRS_IDENTIFIER, IDENTIFIED_BY);
