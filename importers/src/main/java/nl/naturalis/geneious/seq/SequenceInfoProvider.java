@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.split.NotParsableException;
+import nl.naturalis.geneious.name.NotParsableException;
 
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;

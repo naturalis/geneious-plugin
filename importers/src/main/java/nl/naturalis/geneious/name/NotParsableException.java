@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.split;
+package nl.naturalis.geneious.name;
 
 /**
  * Thrown when the name of an AB1 file or the header of a fasta sequence could not be broken up into meaningful segments.

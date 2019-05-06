@@ -1,33 +1,32 @@
-package nl.naturalis.geneious.seq;
+package nl.naturalis.geneious;
 
 import java.io.File;
 
-import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.name.NotParsableException;
+import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.split.SequenceNameParser;
 
 /**
  * Abstract base class for classes providing information about a single nucleotide sequence. {@code SequenceInfo} objects are responsible
  * for producing a {@link NaturalisNote} (to be attached to a Geneious document} by parsing the name of the sequence. The actual parsing,
  * however, is delegated to a {@link SequenceNameParser}.
  */
-abstract class SequenceInfo {
+public abstract class SequenceInfo {
 
-  private final File sourceFile;
+  private final File importedFrom;
 
-  SequenceInfo(File sourceFile) {
-    this.sourceFile = sourceFile;
+  public SequenceInfo(File sourceFile) {
+    this.importedFrom = sourceFile;
   }
 
   /**
    * Returns the file that contained the nucleotide sequence(s). For fasta sequences this is the original file, selected by the user, which
-   * may or may not contain multiple nucleotide sequences.
+   * may or may not contain multiple nucleotide sequences (saved to temporary files).
    * 
    * @return
    */
-  File getSourceFile() {
-    return sourceFile;
+  public File getImportedFrom() {
+    return importedFrom;
   }
 
   /**
@@ -35,7 +34,7 @@ abstract class SequenceInfo {
    * 
    * @return
    */
-  abstract DocumentType getDocumentType();
+  public abstract DocumentType getDocumentType();
 
   /**
    * Returns the name associated with the nucleotide sequence. For AB1 files it is the file name minus the file extension. For Fasta files
@@ -43,13 +42,14 @@ abstract class SequenceInfo {
    * 
    * @return
    */
-  abstract String getName();
+  public abstract String getName();
 
   /**
    * Creates a {@link NaturalisNote} instance containing the annotations that were parsed out of the sequence name. This method must be
-   * called before {@link #getNaturalisNote() getNote}.
+   * called before {@link #getNaturalisNote() getNote}. Although there is currently no difference between parsing AB1 file names and fasta
+   * headers, we don't rely on it, so this method must be implemented by subclasses.
    */
-  abstract void createNote() throws NotParsableException;
+  public abstract void createNote() throws NotParsableException;
 
   /**
    * Returns the Naturalis annotation, obtained by parsing the name.
@@ -57,6 +57,6 @@ abstract class SequenceInfo {
    * @return
    * @throws NotParsableException
    */
-  abstract NaturalisNote getNaturalisNote();
+  public abstract NaturalisNote getNaturalisNote();
 
 }

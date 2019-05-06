@@ -40,7 +40,7 @@ public class DocumentUtils {
     }
     return d;
   }
-
+  
   /**
    * Whether or not the specified file is an AB1 file as per the user-provided file extensions in the Geneious Preferences
    * panel.

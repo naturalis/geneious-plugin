@@ -5,9 +5,10 @@ import java.io.File;
 import com.google.common.base.Preconditions;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.SequenceInfo;
+import nl.naturalis.geneious.name.NotParsableException;
+import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.split.SequenceNameParser;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 
@@ -22,26 +23,26 @@ final class AB1Info extends SequenceInfo {
 
   AB1Info(File sourceFile) {
     super(sourceFile);
-    name = getBaseName(getSourceFile().getName());
+    name = getBaseName(getImportedFrom().getName());
   }
 
   @Override
-  DocumentType getDocumentType() {
+  public DocumentType getDocumentType() {
     return DocumentType.AB1;
   }
 
   @Override
-  String getName() {
+  public String getName() {
     return name;
   }
 
   @Override
-  void createNote() throws NotParsableException {
+  public void createNote() throws NotParsableException {
     note = new SequenceNameParser(name).parseName();
   }
 
   @Override
-  NaturalisNote getNaturalisNote() {
+  public NaturalisNote getNaturalisNote() {
     Preconditions.checkNotNull(note, "Note not yet created");
     return note;
   }

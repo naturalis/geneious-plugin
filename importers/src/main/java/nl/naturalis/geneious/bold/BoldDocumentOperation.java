@@ -38,23 +38,8 @@ public class BoldDocumentOperation extends DocumentOperation {
   }
 
   @Override
-  public String getHelp() {
-    return "Updates documents with BOLD data";
-  }
-
-  @Override
-  public DocumentSelectionSignature[] getSelectionSignatures() {
-    return new DocumentSelectionSignature[0];
-  }
-
-  @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
     return new BoldImportOptions(DocumentUtilities.getSelectedDocuments());
-  }
-
-  @Override
-  public boolean isDocumentGenerator() {
-    return false;
   }
 
   @Override
@@ -68,6 +53,21 @@ public class BoldDocumentOperation extends DocumentOperation {
       }
     }
     return null;
+  }
+
+  @Override
+  public String getHelp() {
+    return "Updates documents with BOLD data";
+  }
+
+  @Override
+  public DocumentSelectionSignature[] getSelectionSignatures() {
+    return new DocumentSelectionSignature[0];
+  }
+
+  @Override
+  public boolean isDocumentGenerator() {
+    return false;
   }
 
 }

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.seq;
+package nl.naturalis.geneious.name;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,14 +8,16 @@ import java.util.Optional;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.StoredDocumentComparator;
+
+import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
 
 /**
  * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
@@ -56,7 +58,7 @@ class QueryCache {
      * 
      * @param doc
      */
-    Key(ImportableDocument doc) {
+    Key(StorableDocument doc) {
       this(doc, doc.getSequenceInfo().getNaturalisNote().getExtractId());
     }
 
@@ -67,7 +69,7 @@ class QueryCache {
      * @param doc
      * @param val
      */
-    Key(ImportableDocument doc, Object val) {
+    Key(StorableDocument doc, Object val) {
       this(doc.getSequenceInfo().getDocumentType(), val);
     }
 
@@ -125,10 +127,7 @@ class QueryCache {
             String fmt = "Corrupt %s document. Extract ID is set (%s) but document version is not";
             guiLogger.warn(fmt, entry.getKey().docType, entry.getKey().value);
           } else {
-            String name = entry.getValue().getGeneiousDocument().getName();
-            name = StringUtils.removeEnd(name, ".ab1"); // v1 document naming convention
-            name = StringUtils.removeEnd(name, AB1Importer.NAME_SUFFIX); // v2 document naming convention
-            name = StringUtils.removeEnd(name, FastaImporter.NAME_SUFFIX); // v2 document naming convention
+            String name = removeKnownSuffixes(entry.getValue().getGeneiousDocument().getName());
             versions.put(new Key(entry.getKey().docType, name), new MutableInt(version));
           }
         });

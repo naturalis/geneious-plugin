@@ -3,10 +3,10 @@ package nl.naturalis.geneious.util;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import nl.naturalis.geneious.name.NotParsableException;
+import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.SeqPass;
-import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.split.SequenceNameParser;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +37,7 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
     expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
-    expected.castAndSet(SEQ_PASS, SeqPass.UNDETERMINED);
+    expected.castAndSet(SEQ_PASS, SeqPass.OK);
     System.out.println("Expected: " + DebugUtil.toJson(expected));
     System.out.println("Actual: " + DebugUtil.toJson(actual));
     assertEquals(expected, actual);
@@ -53,7 +53,7 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
     expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
-    expected.castAndSet(SEQ_PASS, SeqPass.UNDETERMINED);
+    expected.castAndSet(SEQ_PASS, SeqPass.OK);
     assertEquals(expected, actual);
   }
 

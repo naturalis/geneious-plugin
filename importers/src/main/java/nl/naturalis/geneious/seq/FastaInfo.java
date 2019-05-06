@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.SequenceInfo;
+import nl.naturalis.geneious.name.NotParsableException;
+import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.split.NotParsableException;
-import nl.naturalis.geneious.split.SequenceNameParser;
 
 /**
  * Provides information about a fasta-encoded sequence.
@@ -37,7 +38,7 @@ final class FastaInfo extends SequenceInfo {
   }
 
   @Override
-  DocumentType getDocumentType() {
+  public DocumentType getDocumentType() {
     return DocumentType.FASTA;
   }
 
@@ -47,12 +48,12 @@ final class FastaInfo extends SequenceInfo {
   }
 
   @Override
-  void createNote() throws NotParsableException {
+  public void createNote() throws NotParsableException {
     note = new SequenceNameParser(name).parseName();
   }
 
   @Override
-  NaturalisNote getNaturalisNote() {
+  public NaturalisNote getNaturalisNote() {
     return note;
   }
 

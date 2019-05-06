@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
-import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -33,11 +31,6 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   }
 
   @Override
-  public String getHelp() {
-    return "Parses and splits documents names";
-  }
-
-  @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
     return new NameSplitterOptions(DocumentUtilities.getSelectedDocuments());
   }
@@ -56,11 +49,18 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   }
 
   @Override
+  public String getHelp() {
+    return "Parses and splits documents names";
+  }
+
+  @Override
   public DocumentSelectionSignature[] getSelectionSignatures() {
-    return new DocumentSelectionSignature[] {
-        new DocumentSelectionSignature(NucleotideSequenceDocument.class, 0, Integer.MAX_VALUE),
-        new DocumentSelectionSignature(DefaultNucleotideGraphSequence.class, 0, Integer.MAX_VALUE)
-    };
+    return new DocumentSelectionSignature[0];
+  }
+
+  @Override
+  public boolean isDocumentGenerator() {
+    return false;
   }
 
 }

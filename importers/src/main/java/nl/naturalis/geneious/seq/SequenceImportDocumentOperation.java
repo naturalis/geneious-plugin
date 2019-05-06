@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.seq;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFileChooser;

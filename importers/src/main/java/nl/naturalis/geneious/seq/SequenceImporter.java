@@ -10,8 +10,10 @@ import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
+import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.util.APDList;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
@@ -53,10 +55,10 @@ class SequenceImporter extends SwingWorker<Void, Void> {
    */
   private void importSequences() {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
-      List<ImportableDocument> docs = new ArrayList<>();
+      List<StorableDocument> docs = new ArrayList<>();
+      List<StorableDocument> annotated = null;
       AB1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
-      Annotator annotator = null;
       List<AB1Info> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
         ab1Importer = new AB1Importer(ab1s);
@@ -68,11 +70,15 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         docs.addAll(fastaImporter.importFiles());
       }
       if (docs.size() != 0) {
-        annotator = new Annotator(docs);
-        annotator.annotateDocuments();
+        Annotator annotator = new Annotator(docs);
+        annotated = annotator.annotateDocuments();
         APDList apds = new APDList(docs.size());
+        /*
+         * We should not just save the "annotated" documents (documents with Naturalis-specific notes). The generic "ImportedFrom" note
+         * is also set during the sequence import operation.
+         */
         docs.forEach(doc -> {
-          doc.saveAnnotations();
+          doc.saveAnnotations(false);
           apds.add(doc.getGeneiousDocument());
         });
         addGeneratedDocuments(apds, true, Collections.emptyList());
@@ -102,9 +108,9 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         guiLogger.info("Total number of documents rejected ....: %3d", rejected);
         guiLogger.info("Total number of documents imported ....: %3d", imported);
       }
-      if (annotator != null) {
-        guiLogger.info("Total number of documents annotated ...: %3d", annotator.getSuccessCount());
-        guiLogger.info("Total number of annotation failures ...: %3d", annotator.getFailureCount());
+      if (annotated != null) {
+        guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
+        guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
     } catch (Throwable t) {
       guiLogger.fatal(t.getMessage(), t);

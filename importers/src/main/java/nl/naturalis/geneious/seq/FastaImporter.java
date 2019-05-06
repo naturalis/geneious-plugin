@@ -10,6 +10,7 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
+import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.ImportedFromNote;
@@ -44,9 +45,9 @@ class FastaImporter {
    * @return
    * @throws IOException
    */
-  List<ImportableDocument> importFiles() throws IOException {
+  List<StorableDocument> importFiles() throws IOException {
     processed = imported = rejected = 0;
-    List<ImportableDocument> importables = new ArrayList<>();
+    List<StorableDocument> importables = new ArrayList<>();
     LinkedHashMap<File, ArrayList<FastaInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument apd;
@@ -60,7 +61,7 @@ class FastaImporter {
         sequence = new DefaultNucleotideSequence(name, null, info.getSequence(), date);
         apd = createAnnotatedPluginDocument(sequence);
         ++imported;
-        ImportableDocument doc = new ImportableDocument(apd, info);
+        StorableDocument doc = new StorableDocument(apd, info);
         doc.attach(new ImportedFromNote(motherFile));
         importables.add(doc);
       }
@@ -83,10 +84,10 @@ class FastaImporter {
   private LinkedHashMap<File, ArrayList<FastaInfo>> mapMothersToChildren() {
     LinkedHashMap<File, ArrayList<FastaInfo>> map = new LinkedHashMap<>();
     for (FastaInfo info : sequences) {
-      ArrayList<FastaInfo> infos = map.get(info.getSourceFile());
+      ArrayList<FastaInfo> infos = map.get(info.getImportedFrom());
       if (infos == null) {
         infos = new ArrayList<>();
-        map.put(info.getSourceFile(), infos);
+        map.put(info.getImportedFrom(), infos);
       }
       infos.add(info);
     }

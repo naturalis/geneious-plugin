@@ -8,7 +8,8 @@ class NameSplitterConfig {
 
   private List<AnnotatedPluginDocument> selectedDocuments;
   private boolean ignoreDocsWithNaturalisNote;
-  private boolean ignoreDocsWithoutSuffix;
+  private boolean ignoreDocsWithSuffix;
+  private boolean ignoreDummies;
 
   List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
@@ -26,12 +27,21 @@ class NameSplitterConfig {
     this.ignoreDocsWithNaturalisNote = ignoreDocsWithNaturalisNote;
   }
 
-  boolean isIgnoreDocsWithoutSuffix() {
-    return ignoreDocsWithoutSuffix;
+  boolean isIgnoreDocsWithSuffix() {
+    return ignoreDocsWithSuffix;
   }
 
-  void setIgnoreDocsWithoutSuffix(boolean ignoreDocsWithoutSuffix) {
-    this.ignoreDocsWithoutSuffix = ignoreDocsWithoutSuffix;
+  void setIgnoreDocsWithSuffix(boolean ignoreDocsWithoutSuffix) {
+    this.ignoreDocsWithSuffix = ignoreDocsWithoutSuffix;
+  }
+
+  public boolean isIgnoreDummies() {
+    return ignoreDummies;
+  }
+
+  public void setIgnoreDummies(boolean ignoreDummies) {
+    this.ignoreDummies = ignoreDummies;
+
   }
 
 }

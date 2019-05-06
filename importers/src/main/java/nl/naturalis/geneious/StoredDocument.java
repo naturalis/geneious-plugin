@@ -16,8 +16,9 @@ import static nl.naturalis.geneious.DocumentType.UNKNOWN;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 
 /**
- * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all Naturalis-specific annotations
- * pre-fetched into a {@link NaturalisNote} extracted from the Geneious document.
+ * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched
+ * into a {@link NaturalisNote}. A {@code StoredDocument} has presumably been retrieved through some database query and upon instantiation
+ * is exactly like the database record.
  */
 public class StoredDocument {
 
@@ -70,8 +71,8 @@ public class StoredDocument {
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
-   * Returns {@code true} if the document actually changed as a consequence, {@code false} otherwise.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the database. Returns
+   * {@code true} if the document actually changed as a consequence, {@code false} otherwise.
    */
   public boolean attach(NaturalisNote note) {
     return note.copyTo(this.note);

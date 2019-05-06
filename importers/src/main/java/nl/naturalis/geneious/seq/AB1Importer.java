@@ -9,6 +9,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
+import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
@@ -40,12 +41,12 @@ class AB1Importer {
    * @return
    * @throws IOException
    */
-  List<ImportableDocument> importFiles() throws IOException {
+  List<StorableDocument> importFiles() throws IOException {
     processed = imported = rejected = 0;
-    List<ImportableDocument> importables = new ArrayList<>(sequences.size());
+    List<StorableDocument> importables = new ArrayList<>(sequences.size());
     for (AB1Info info : sequences) {
       ++processed;
-      File f = info.getSourceFile();
+      File f = info.getImportedFrom();
       guiLogger.debugf(() -> format("Importing file %s", f.getName()));
       try {
         List<AnnotatedPluginDocument> apds = PluginUtilities.importDocuments(f, null);
@@ -56,7 +57,7 @@ class AB1Importer {
         }
         AnnotatedPluginDocument doc = apds.get(0);
         doc.setName(info.getName() + NAME_SUFFIX);
-        importables.add(new ImportableDocument(doc, info));
+        importables.add(new StorableDocument(doc, info));
         ++imported;
       } catch (DocumentImportException e) {
         guiLogger.error("Error processing file %s", e, f.getAbsolutePath());

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.split;
+package nl.naturalis.geneious.name;
 
 import java.util.regex.Pattern;
 
@@ -50,7 +50,7 @@ public class SequenceNameParser {
     n.castAndSet(SEQ_PCR_PLATE_ID, processPcrPlateID(segments[3]));
     n.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     n.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
-    n.castAndSet(SEQ_PASS, SeqPass.UNDETERMINED);
+    n.castAndSet(SEQ_PASS, SeqPass.OK);
     guiLogger.debugf(() -> format("Note created: %s", toJson(n)));
     return n;
   }

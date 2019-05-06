@@ -36,6 +36,11 @@ public class CrsDocumentOperation extends DocumentOperation {
         .setInPopupMenu(true, .99992)
         .setAvailableToWorkflows(true);
   }
+  @Override
+  public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
+    return new CrsImportOptions(DocumentUtilities.getSelectedDocuments());
+  }
+
 
   @Override
   public String getHelp() {
@@ -45,11 +50,6 @@ public class CrsDocumentOperation extends DocumentOperation {
   @Override
   public DocumentSelectionSignature[] getSelectionSignatures() {
     return new DocumentSelectionSignature[0];
-  }
-
-  @Override
-  public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    return new CrsImportOptions(DocumentUtilities.getSelectedDocuments());
   }
 
   @Override
