@@ -11,7 +11,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.gui.WaitTimer;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
@@ -57,12 +56,9 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     if (CommonUtils.checkTargetFolderNotNull()) {
       try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
-        if (WaitTimer.isOperationAllowed()) {
-          SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
-          SampleSheetImporter importer = new SampleSheetImporter(opts.createImportConfig());
-          importer.execute();
-          WaitTimer.setNewEndTime();
-        }
+        SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
+        SampleSheetImporter importer = new SampleSheetImporter(opts.createImportConfig());
+        importer.execute();
       }
     }
     return null;

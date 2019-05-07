@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.gui;
+package nl.naturalis.geneious;
 
 import java.time.LocalDateTime;
 

@@ -82,8 +82,9 @@ public class StoredDocument {
    * Saves the annotations to the database.
    */
   public void saveAnnotations() {
-    note.copyTo(getDocumentNotes());
-    getDocumentNotes().saveNotes(true);
+    DocumentNotes notes = getDocumentNotes();
+    note.copyTo(notes);
+    notes.saveNotes(true);
   }
 
   public DocumentType getType() {

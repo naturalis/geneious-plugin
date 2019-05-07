@@ -19,6 +19,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
+import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -46,9 +47,9 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records
-   * are linked using their extract ID. In addition, if requested, this routine will create dummy documents from sample
-   * sheet records if their extract ID does not exist yet.
+   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records are linked using
+   * their extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID
+   * does not exist yet.
    */
   @Override
   protected Void doInBackground() {
@@ -61,10 +62,13 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
   }
 
   private void importSampleSheet() throws DatabaseServiceException {
-    if (cfg.isCreateDummies()) {
-      updateOrCreateDummies();
-    } else {
-      updateSelectedDocuments();
+    if (Ping.resume()) {
+      if (cfg.isCreateDummies()) {
+        updateOrCreateDummies();
+      } else {
+        updateSelectedDocuments();
+      }
+      Ping.start();
     }
   }
 
@@ -154,6 +158,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
+    guiLogger.info("Operation completed successfully");
   }
 
   private void updateSelectedDocuments() {
@@ -201,6 +206,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
+    guiLogger.info("Operation completed successfully");
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {

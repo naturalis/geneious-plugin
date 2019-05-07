@@ -12,9 +12,9 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.WaitTimer;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
-import nl.naturalis.geneious.gui.WaitTimer;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
