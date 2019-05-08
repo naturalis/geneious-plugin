@@ -1,5 +1,12 @@
 package nl.naturalis.geneious.smpl;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+import static java.util.function.Predicate.not;
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -7,11 +14,13 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingWorker;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import org.apache.commons.lang3.StringUtils;
-
+import nl.naturalis.geneious.ErrorCode;
+import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
@@ -23,15 +32,6 @@ import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
-
-import static java.util.function.Predicate.not;
-
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -47,9 +47,9 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records are linked using
-   * their extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID
-   * does not exist yet.
+   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records are linked using their
+   * extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID does not
+   * exist yet.
    */
   @Override
   protected Void doInBackground() {
@@ -63,16 +63,19 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private void importSampleSheet() throws DatabaseServiceException {
     if (Ping.resume()) {
+      boolean didUpdate;
       if (cfg.isCreateDummies()) {
-        updateOrCreateDummies();
+        didUpdate = updateOrCreateDummies();
       } else {
-        updateSelectedDocuments();
+        didUpdate = updateSelectedDocuments();
       }
-      Ping.start();
+      if (didUpdate) {
+        Ping.start();
+      }
     }
   }
 
-  private void updateOrCreateDummies() throws DatabaseServiceException {
+  private boolean updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
@@ -158,10 +161,11 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    guiLogger.info("Operation completed successfully");
+    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    return updatesOrDummies.size() != 0;
   }
 
-  private void updateSelectedDocuments() {
+  private boolean updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
@@ -206,7 +210,8 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    guiLogger.info("Operation completed successfully");
+    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    return updates.size() != 0;
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {

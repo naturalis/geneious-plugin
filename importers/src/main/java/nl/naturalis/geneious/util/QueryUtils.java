@@ -79,6 +79,19 @@ public class QueryUtils {
   }
 
   /**
+   * Retrieves the ping document with the specified value, or null if the document has not been indexed yet.
+   * 
+   * @param pingValue
+   * @return
+   * @throws DatabaseServiceException
+   */
+  public static AnnotatedPluginDocument getPingDocument(String pingValue) throws DatabaseServiceException {
+    Query query = createFieldQuery(QF_EXTRACT_ID, EQUAL, pingValue);
+    List<AnnotatedPluginDocument> response = getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
+    return response.isEmpty() ? null : response.get(0);
+  }
+
+  /**
    * Deletes the specified documents. The documents may reside in multiple databases.
    * 
    * @param documents

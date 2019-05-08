@@ -11,7 +11,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.WaitTimer;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
@@ -38,12 +37,9 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("Split name")) {
-      if (WaitTimer.isOperationAllowed()) {
-        NameSplitterOptions opts = (NameSplitterOptions) options;
-        NameSplitter nameSplitter = new NameSplitter(opts.createNameSplitterConfig());
-        nameSplitter.execute();
-        WaitTimer.setNewEndTime();
-      }
+      NameSplitterOptions opts = (NameSplitterOptions) options;
+      NameSplitter nameSplitter = new NameSplitter(opts.createNameSplitterConfig());
+      nameSplitter.execute();
     }
     return null;
   }

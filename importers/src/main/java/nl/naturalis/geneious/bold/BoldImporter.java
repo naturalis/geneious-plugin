@@ -1,24 +1,28 @@
 package nl.naturalis.geneious.bold;
 
+import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
+import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.util.DebugUtil.toJson;
+
 import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import nl.naturalis.geneious.ErrorCode;
+import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
-
-import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
-import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
-import static nl.naturalis.geneious.note.NaturalisField.*;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
 /**
  * Does the actual work of importing a BOLD file into Geneious.
@@ -34,20 +38,24 @@ class BoldImporter extends SwingWorker<Void, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched
-   * to the selected documents using the registration number annotation (set during sample sheet import).
+   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched to the selected
+   * documents using the registration number annotation (set during sample sheet import).
    */
   @Override
   protected Void doInBackground() {
     try {
-      importBoldFile();
+      if (Ping.resume()) {
+        if (importBoldFile()) {
+          Ping.start();
+        }
+      }
     } catch (Throwable t) {
       guiLogger.fatal(t);
     }
     return null;
   }
 
-  private void importBoldFile() throws BoldNormalizationException {
+  private boolean importBoldFile() throws BoldNormalizationException {
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     BoldNormalizer normalizer = new BoldNormalizer(cfg, rows);
@@ -104,6 +112,8 @@ class BoldImporter extends SwingWorker<Void, Void> {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number and marker");
     guiLogger.info("          did not correspond to any of the selected documents, but");
     guiLogger.info("          they may or may not correspond to other, unselected documents.");
+    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    return updates.size() != 0;
   }
 
   private static NaturalisNote createNote(int line, BoldRow row) {

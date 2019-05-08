@@ -1,8 +1,8 @@
 package nl.naturalis.geneious.util;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import static com.biomatters.geneious.publicapi.utilities.GuiUtilities.getMainFrame;
+import static nl.naturalis.geneious.Settings.settings;
+import static nl.naturalis.geneious.util.QueryUtils.getPingDocument;
 
 import javax.swing.ProgressMonitor;
 
@@ -11,98 +11,123 @@ import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.common.base.NStrings;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static com.biomatters.geneious.publicapi.utilities.GuiUtilities.getMainFrame;
-
+/**
+ * Pings the database to ascertain that all documents have been indexed.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class Ping {
 
-  private static final int MAX_NUM_ATTEMPTS = 100;
-  private static final double ATTEMPT_INTERVAL_SECS = 2.5;
+  private static final int TRY_COUNT = 100;
+  private static final double TRY_INTERVAL = 3.0; // seconds
+
+  private static final String MSG0 = "Waiting for indexing to complete ...";
+  private static final String MSG1 = "Wait aborted after %d attempts";
+  private static final String MSG2 = "Please do not delete the ping document";
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
 
-  private static String prevPingVal;
-
-  public static boolean resume() throws DatabaseServiceException {
-    return new Ping(prevPingVal).doResume();
-  }
-
+  /**
+   * Sends a ping value to the database and then starts a ping loop that only ends if [1] the ping value came back from the database; [2] the
+   * user cancelled the ping loop; [3] the number of pings exceeds 100 (equivalent to about 5 minutes of pinging). If [1] we assume that all
+   * documents have been indexed (because the temporary document containing the ping value is itself apparently indexed) and the ping value is
+   * cleared. If [2] or [3] the ping value will be stored and subsequent operation are prevented from proceeding until {@link #resume()}
+   * returns {@code true}. Must be called at the very end of a {@code DocumentOperation}.
+   * 
+   * @return
+   * @throws DatabaseServiceException
+   */
   public static boolean start() throws DatabaseServiceException {
     return new Ping().doStart();
   }
 
-  private final String pingValue;
-
-  private Ping() {
-    pingValue = (prevPingVal = newPingValue());
+  /**
+   * Checks for a lingering ping value and, if present, starts the ping loop all over again. Must be called at the very beginning of a
+   * {@code DocumentOperation}.
+   * 
+   * @return
+   * @throws DatabaseServiceException
+   */
+  public static boolean resume() throws DatabaseServiceException {
+    return new Ping().doResume();
   }
 
-  private Ping(String pingValue) {
-    this.pingValue = pingValue;
-  }
+  private Ping() {}
 
   private boolean doStart() throws DatabaseServiceException {
-    guiLogger.info("Waiting for indexing to complete ... ");
+    guiLogger.info(MSG0);
+    guiLogger.info(MSG2);
+    long timestamp = System.currentTimeMillis();
+    String pingValue = getPingValue(timestamp);
+    settings().setPingTime(String.valueOf(timestamp));
     PingSequence sequence = new PingSequence(pingValue);
-    guiLogger.debug("Creating ping document");
     sequence.save();
-    return startPingLoop();
+    return startPingLoop(pingValue);
   }
 
   private boolean doResume() throws DatabaseServiceException {
-    if (pingValue == null) {
+    String s = settings().getPingTime();
+    if (s.isEmpty()) {
       return true;
     }
-    guiLogger.info("Waiting for indexing to complete ... ");
-    return startPingLoop();
+    guiLogger.info(MSG0);
+    long timestamp = Long.parseLong(s);
+    String pingValue = getPingValue(timestamp);
+    if ((timestamp + (60 * 60 * 1000)) < System.currentTimeMillis()) {
+      guiLogger.warn("Resuming with old ping value: %s", pingValue);
+      guiLogger.warn("Go to Tools -> Preferences (Naturalis tab) to clear old ping values and documents");
+    }
+    return startPingLoop(pingValue);
   }
 
-  private boolean startPingLoop() throws DatabaseServiceException {
-    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), "Waiting for indexing to complete ... ", "Ping ... ", 0, MAX_NUM_ATTEMPTS);
-    guiLogger.debug("Waiting for ping document to come back");
-    for (int i = 0; i < MAX_NUM_ATTEMPTS; ++i) {
+  @SuppressWarnings("static-method")
+  private boolean startPingLoop(String pingValue) throws DatabaseServiceException {
+    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG0, "Ping", 0, TRY_COUNT);
+    pm.setMillisToDecideToPopup(0);
+    pm.setMillisToPopup(0);
+    for (int i = 1; i <= TRY_COUNT; ++i) {
+      pm.setProgress(i);
+      pm.setNote(String.format("Ping %d of %d", i, TRY_COUNT));
       sleep();
       if (pm.isCanceled()) {
-        guiLogger.warn("Wait aborted. Do not manually delete the ping document.");
         pm.close();
+        guiLogger.warn(MSG1, i);
+        guiLogger.warn(MSG2);
         return false;
       }
-      pm.setProgress(i);
-      pm.setNote(String.format("Ping ... (attempt %d of %d)", i, MAX_NUM_ATTEMPTS));
-      AnnotatedPluginDocument apd = ping();
+      AnnotatedPluginDocument apd = getPingDocument(pingValue);
       if (apd != null) {
-        guiLogger.debug("Deleting ping document");
+        pm.setProgress(TRY_COUNT);
+        pm.setNote("Ready!");
+        settings().setPingTime("");
         ((WritableDatabaseService) apd.getDatabase()).removeDocument(apd, ProgressListener.EMPTY);
-        pm.close();
-        prevPingVal = null;
         guiLogger.info("Indexing complete");
+        pm.close();
         return true;
       }
     }
-    guiLogger.warn("Aborting wait after %d pings", MAX_NUM_ATTEMPTS);
+    pm.close();
+    guiLogger.warn(MSG1, TRY_COUNT);
     return false;
-  }
-
-  private AnnotatedPluginDocument ping() throws DatabaseServiceException {
-    List<AnnotatedPluginDocument> result = QueryUtils.findByExtractID(Arrays.asList(pingValue));
-    return result.isEmpty() ? null : result.get(0);
   }
 
   private static void sleep() {
     try {
-      Thread.sleep((long) ATTEMPT_INTERVAL_SECS * 1000);
+      Thread.sleep((long) TRY_INTERVAL * 1000);
     } catch (InterruptedException e) {
     }
   }
 
-  private static String newPingValue() {
-    return new StringBuilder().append('!')
-        .append(NStrings.zpad(new Random().nextInt(10000), 4))
-        .append('/')
-        .append(System.currentTimeMillis())
+  private static String getPingValue(long timestamp) {
+    return new StringBuilder()
+        .append("!ping:")
+        .append(System.getProperty("user.name"))
+        .append("//")
+        .append(timestamp)
         .toString();
   }
 

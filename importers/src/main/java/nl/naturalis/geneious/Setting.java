@@ -19,26 +19,25 @@ public enum Setting {
    */
   PRETTY_NOTES("nl.naturalis.geneious.log.prettyNotes"),
   /**
-   * The end time of the previous operation executed by the user
+   * The value to wait for as an indication that indexing is complete.
    */
-  LAST_FINISHED("nl.naturalis.geneious.operation.lastEndTime"),
-  /**
-   * The minimum wait time (in seconds) between any two operations. This works around a bug in Geneious, which currently
-   * does not provide a reliable way of establishing whether all documents have ben indexed.
-   */
-  MIN_WAIT_TIME("nl.naturalis.geneious.operation.minWaitTime"),
+  PING_TIME("nl.naturalis.geneious.pingTime"),
+
   /**
    * AB1 file extensions.
    */
   AB1_EXTS("nl.naturalis.geneious.seq.ext.ab1"),
+
   /**
    * Fasta file extensions.
    */
   FASTA_EXTS("nl.naturalis.geneious.seq.ext.fasta"),
+
   /**
    * Always write fasta sequences to temporary files.
    */
   DISABLE_FASTA_CACHE("nl.naturalis.geneious.seq.disableFastaCache"),
+
   /**
    * Remove tempoerary fasta files from file system when done.
    */
@@ -51,8 +50,7 @@ public enum Setting {
   }
 
   /**
-   * Returns the setting corresponding to the provided name, which is supposed to be the fully-qualified name known to
-   * Geneious.
+   * Returns the setting corresponding to the provided name, which is supposed to be the fully-qualified name known to Geneious.
    * 
    * @param name
    * @return

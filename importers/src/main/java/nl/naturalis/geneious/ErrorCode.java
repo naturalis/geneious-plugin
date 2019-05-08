@@ -36,6 +36,11 @@ public enum ErrorCode {
    * The user-selected file did not have a csv, tsv, txt or xls extension
    */
   CSV_UNSUPPORTED_FILE_TYPE(1),
+  
+  /**
+   * Generic success message for plugin actions.
+   */
+  OPERATION_SUCCESS,
 
   /**
    * The user specified 0 for lines to skip, but BOLD files <i>must</i> have a header

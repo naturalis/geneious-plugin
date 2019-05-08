@@ -1,10 +1,8 @@
 package nl.naturalis.geneious;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import com.biomatters.geneious.publicapi.plugin.DocumentAction;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.Geneious;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
@@ -74,7 +72,8 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getHelp() {
-    return "Under construction";
+    return "Provides operations for enriching sequence documents with information from CRS, BOLD and information extracted "
+        + "from the document names themselves";
   }
 
   @Override
@@ -94,9 +93,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getVersion() {
-    /*
-     * Geneious does not allow version name like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular example.
-     */
+    // Geneious does not allow version strings like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular example.
     String version = PluginInfo.getInstance().getVersion();
     int i = version.indexOf('-');
     if (i == -1) {

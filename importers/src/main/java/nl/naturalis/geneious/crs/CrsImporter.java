@@ -10,6 +10,7 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
@@ -32,20 +33,24 @@ class CrsImporter extends SwingWorker<Void, Void> {
   }
 
   /**
-   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched
-   * to the selected documents using the registration number annotation (set during sample sheet import).
+   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched to the selected
+   * documents using the registration number annotation (set during sample sheet import).
    */
   @Override
   protected Void doInBackground() {
     try {
-      importCrsFile();
+      if (Ping.resume()) {
+        if (importCrsFile()) {
+          Ping.start();
+        }
+      }
     } catch (Throwable t) {
       guiLogger.fatal(t);
     }
     return null;
   }
 
-  private void importCrsFile() {
+  private boolean importCrsFile() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
@@ -89,6 +94,8 @@ class CrsImporter extends SwingWorker<Void, Void> {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
+    guiLogger.info("Operation completed successfully");
+    return updates.size() != 0;
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {

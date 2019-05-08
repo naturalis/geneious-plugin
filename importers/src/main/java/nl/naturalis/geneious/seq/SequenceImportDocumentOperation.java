@@ -12,7 +12,6 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.WaitTimer;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -22,8 +21,7 @@ import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do
- * most of the work.
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do most of the work.
  *
  * @author Ayco Holleman
  */
@@ -52,11 +50,8 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
       if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
         RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
         try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-          if (WaitTimer.isOperationAllowed()) {
-            SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
-            importer.execute();
-            WaitTimer.setNewEndTime();
-          }
+          SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
+          importer.execute();
         }
       }
     }

@@ -1,21 +1,19 @@
 package nl.naturalis.geneious;
 
-import com.biomatters.geneious.publicapi.plugin.Options;
-
-import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
-
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-
 import static nl.naturalis.geneious.Setting.AB1_EXTS;
 import static nl.naturalis.geneious.Setting.DEBUG;
 import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
-import static nl.naturalis.geneious.Setting.LAST_FINISHED;
-import static nl.naturalis.geneious.Setting.MIN_WAIT_TIME;
+import static nl.naturalis.geneious.Setting.PING_TIME;
 import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
 import static nl.naturalis.geneious.Settings.settings;
+
+import com.biomatters.geneious.publicapi.plugin.Options;
+
+import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 
 public class NaturalisOptions extends Options {
 
@@ -36,10 +34,10 @@ public class NaturalisOptions extends Options {
   }
 
   private void addHiddenOptions() {
-    final StringOption lastFinished = addStringOption(LAST_FINISHED.getName(), "", "");
-    lastFinished.setHidden();
-    settings().update(LAST_FINISHED, lastFinished.getValue());
-    lastFinished.addChangeListener(() -> settings().update(LAST_FINISHED, lastFinished.getValue()));
+    final StringOption pingTime = addStringOption(PING_TIME.getName(), "", "");
+    pingTime.setHidden();
+    settings().update(PING_TIME, pingTime.getValue());
+    pingTime.addChangeListener(() -> settings().update(PING_TIME, pingTime.getValue()));
   }
 
   private void addGeneralOptions() {
@@ -56,16 +54,8 @@ public class NaturalisOptions extends Options {
     settings().update(PRETTY_NOTES, prettyNotes.getValue());
     prettyNotes.addChangeListener(() -> settings().update(PRETTY_NOTES, prettyNotes.getValue()));
 
-    IntegerOption minWaitTime = addIntegerOption(MIN_WAIT_TIME.getName(), "Min. wait time (secs)", 60, 1, Integer.MAX_VALUE);
-    minWaitTime.setHelp("The minimum amount of time (in seconds) the plugin will force you to wait between two operations "
-        + "(e.g. a Sample sheet import followed by a CRS import). This setting is a work-around for a Geneious bug and will be "
-        + "removed once the bug has been fixed. Warning: if you set the minimum wait time too low, you may end up with wrongly "
-        + "annotated documents!");
-    settings().update(MIN_WAIT_TIME, minWaitTime.getValue());
-    minWaitTime.addChangeListener(() -> settings().update(MIN_WAIT_TIME, minWaitTime.getValue()));
-
-    ButtonOption general04 = addButtonOption("foo", "", "Update annotation metadata");
-    general04.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
+    ButtonOption button = addButtonOption("foo", "", "Update annotation metadata");
+    button.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
   }
 
   private void addAb1FastaImportOptions() {

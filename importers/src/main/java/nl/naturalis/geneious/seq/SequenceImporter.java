@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.seq;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,10 +17,7 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.util.APDList;
-
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
-
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
+import nl.naturalis.geneious.util.Ping;
 
 /**
  * Does the actual work of importing ab1/fasta files into Geneious.
@@ -40,9 +39,15 @@ class SequenceImporter extends SwingWorker<Void, Void> {
 
   @Override
   protected Void doInBackground() {
-    guiLogger.info("Waiting for document indexing to complete. This may take a while ...");
-    getTargetDatabase().waitForSearchIndexingToComplete();
-    importSequences();
+    try {
+      if (Ping.resume()) {
+        if (importSequences()) {
+          Ping.start();
+        }
+      }
+    } catch (Throwable t) {
+      guiLogger.fatal(t.getMessage(), t);
+    }
     return null;
   }
 
@@ -53,7 +58,7 @@ class SequenceImporter extends SwingWorker<Void, Void> {
    * @throws IOException
    * @throws DatabaseServiceException
    */
-  private void importSequences() {
+  private boolean importSequences() throws IOException, DatabaseServiceException {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<StorableDocument> docs = new ArrayList<>();
       List<StorableDocument> annotated = null;
@@ -74,8 +79,8 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         annotated = annotator.annotateDocuments();
         APDList apds = new APDList(docs.size());
         /*
-         * We should not just save the "annotated" documents (documents with Naturalis-specific notes). The generic "ImportedFrom" note
-         * is also set during the sequence import operation.
+         * We should not just save the "annotated" documents (documents with Naturalis-specific notes). The generic "ImportedFrom" note is also set
+         * during the sequence import operation.
          */
         docs.forEach(doc -> {
           doc.saveAnnotations(false);
@@ -112,8 +117,7 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
         guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
-    } catch (Throwable t) {
-      guiLogger.fatal(t.getMessage(), t);
+      return docs.size() != 0;
     }
   }
 

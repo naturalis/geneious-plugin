@@ -11,7 +11,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.WaitTimer;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
@@ -36,11 +35,11 @@ public class CrsDocumentOperation extends DocumentOperation {
         .setInPopupMenu(true, .99992)
         .setAvailableToWorkflows(true);
   }
+
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
     return new CrsImportOptions(DocumentUtilities.getSelectedDocuments());
   }
-
 
   @Override
   public String getHelp() {
@@ -60,12 +59,9 @@ public class CrsDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("CRS import")) {
-      if (WaitTimer.isOperationAllowed()) {
-        CrsImportOptions opts = (CrsImportOptions) options;
-        CrsImporter importer = new CrsImporter(opts.createImportConfig());
-        importer.execute();
-        WaitTimer.setNewEndTime();
-      }
+      CrsImportOptions opts = (CrsImportOptions) options;
+      CrsImporter importer = new CrsImporter(opts.createImportConfig());
+      importer.execute();
     }
     return null;
   }
