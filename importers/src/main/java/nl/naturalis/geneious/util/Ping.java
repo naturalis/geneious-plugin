@@ -27,7 +27,7 @@ public class Ping {
 
   private static final String MSG0 = "Waiting for indexing to complete ...";
   private static final String MSG1 = "Wait aborted after %d attempts";
-  private static final String MSG2 = "Please do not delete the ping document";
+  private static final String MSG2 = "Please do not delete ping document %s";
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
 
@@ -60,12 +60,12 @@ public class Ping {
 
   private boolean doStart() throws DatabaseServiceException {
     guiLogger.info(MSG0);
-    guiLogger.info(MSG2);
     long timestamp = System.currentTimeMillis();
     String pingValue = getPingValue(timestamp);
     settings().setPingTime(String.valueOf(timestamp));
     PingSequence sequence = new PingSequence(pingValue);
     sequence.save();
+    guiLogger.info(MSG2, pingValue);
     return startPingLoop(pingValue);
   }
 
@@ -86,17 +86,17 @@ public class Ping {
 
   @SuppressWarnings("static-method")
   private boolean startPingLoop(String pingValue) throws DatabaseServiceException {
-    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG0, "Ping", 0, TRY_COUNT);
+    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG0, "", 0, TRY_COUNT);
     pm.setMillisToDecideToPopup(0);
     pm.setMillisToPopup(0);
     for (int i = 1; i <= TRY_COUNT; ++i) {
       pm.setProgress(i);
-      pm.setNote(String.format("Ping %d of %d", i, TRY_COUNT));
+      //pm.setNote(String.format("Attempt %d of %d", i, TRY_COUNT));
       sleep();
       if (pm.isCanceled()) {
         pm.close();
         guiLogger.warn(MSG1, i);
-        guiLogger.warn(MSG2);
+        guiLogger.warn(MSG2, pingValue);
         return false;
       }
       AnnotatedPluginDocument apd = getPingDocument(pingValue);

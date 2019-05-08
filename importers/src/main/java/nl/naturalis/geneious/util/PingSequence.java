@@ -49,7 +49,7 @@ public class PingSequence extends DefaultNucleotideSequence {
    * No-arg constructor, required by Geneious framework, but it seems we can rely on the other constructor being called when it matters.
    */
   public PingSequence(String pingValue) {
-    super(pingValue + " (ping)", "", PING_SEQUENCE, new Date());
+    super(pingValue, "", PING_SEQUENCE, new Date());
     this.pingValue = pingValue;
   }
 

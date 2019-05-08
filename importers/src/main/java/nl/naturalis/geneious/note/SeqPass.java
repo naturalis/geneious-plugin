@@ -2,12 +2,17 @@ package nl.naturalis.geneious.note;
 
 public enum SeqPass {
 
-  OK, MEDIUM, LOW, CONTAMINATION, ENDO_CONTAMINATION, EXO_CONTAMINATION;
+  NOT_DETERMINED("not determined"),
+  OK("OK"), MEDIUM("medium"),
+  LOW("low"),
+  CONTAMINATION("contamination"),
+  ENDO_CONTAMINATION("endo-contamination"),
+  EXO_CONTAMINATION("exo-contamination");
 
   private final String value;
 
-  private SeqPass() {
-    value = name().equals("OK") ? name() : name().toLowerCase().replace('_', '-');
+  private SeqPass(String value) {
+    this.value = value;
   }
 
   @Override

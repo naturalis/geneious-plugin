@@ -68,8 +68,8 @@ public class StorableDocument {
    * {@code ImportableDocument} is the big Gorilla here, it is not the only source of annotations. For fasta documents, for example, we also
    * create the native-Geneious "Imported from" note.
    */
-  public void saveAnnotations(boolean updateDateModified) {
-    notes.saveNotes(updateDateModified);
+  public void saveAnnotations() {
+    notes.saveNotes(true);
   }
 
 }

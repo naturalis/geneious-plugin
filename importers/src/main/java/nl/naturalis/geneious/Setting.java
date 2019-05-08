@@ -18,8 +18,9 @@ public enum Setting {
    * Show pretty notes when in DEBUG mode.
    */
   PRETTY_NOTES("nl.naturalis.geneious.log.prettyNotes"),
+
   /**
-   * The value to wait for as an indication that indexing is complete.
+   * The timestamp used to construct a ping value. See {@link Ping} class.
    */
   PING_TIME("nl.naturalis.geneious.pingTime"),
 

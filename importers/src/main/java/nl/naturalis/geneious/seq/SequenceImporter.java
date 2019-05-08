@@ -12,6 +12,8 @@ import javax.swing.SwingWorker;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
+import nl.naturalis.geneious.ErrorCode;
+import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -78,12 +80,8 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         Annotator annotator = new Annotator(docs);
         annotated = annotator.annotateDocuments();
         APDList apds = new APDList(docs.size());
-        /*
-         * We should not just save the "annotated" documents (documents with Naturalis-specific notes). The generic "ImportedFrom" note is also set
-         * during the sequence import operation.
-         */
         docs.forEach(doc -> {
-          doc.saveAnnotations(false);
+          doc.saveAnnotations();
           apds.add(doc.getGeneiousDocument());
         });
         addGeneratedDocuments(apds, true, Collections.emptyList());
@@ -117,6 +115,7 @@ class SequenceImporter extends SwingWorker<Void, Void> {
         guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
         guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
+      guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
       return docs.size() != 0;
     }
   }

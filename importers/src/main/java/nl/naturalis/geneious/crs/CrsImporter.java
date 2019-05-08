@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import nl.naturalis.geneious.ErrorCode;
+import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
@@ -94,7 +96,7 @@ class CrsImporter extends SwingWorker<Void, Void> {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    guiLogger.info("Operation completed successfully");
+    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
     return updates.size() != 0;
   }
 

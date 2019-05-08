@@ -6,7 +6,7 @@ import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
 import static nl.naturalis.geneious.Setting.PING_TIME;
-import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
+import static nl.naturalis.geneious.Setting.*;
 
 import java.util.EnumMap;
 
@@ -51,7 +51,6 @@ public class Settings {
    */
   public void update(Setting setting, Object value) {
     cache.put(setting, value);
-    // System.out.println(String.format("%s updated to: \"%s\"", setting, value));
   }
 
   /**
@@ -64,7 +63,7 @@ public class Settings {
   }
 
   /**
-   * Returns the most recent ping signal used to poll whether document indexing has finished.
+   * Returns the timestamp used to construct a ping value.
    * 
    * @return
    */
@@ -73,7 +72,7 @@ public class Settings {
   }
 
   /**
-   * Stores the ping signal used to poll whether document indexing has finished (so it will survive Geneious sessions).
+   * Stores the timestamp used to construct a ping value (so it will survive Geneious sessions).
    * 
    * @param timestamp
    */

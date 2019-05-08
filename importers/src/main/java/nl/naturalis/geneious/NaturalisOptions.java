@@ -8,7 +8,7 @@ import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
 import static nl.naturalis.geneious.Setting.PING_TIME;
-import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
+import static nl.naturalis.geneious.Setting.*;
 import static nl.naturalis.geneious.Settings.settings;
 
 import com.biomatters.geneious.publicapi.plugin.Options;
@@ -34,7 +34,7 @@ public class NaturalisOptions extends Options {
   }
 
   private void addHiddenOptions() {
-    final StringOption pingTime = addStringOption(PING_TIME.getName(), "", "");
+    StringOption pingTime = addStringOption(PING_TIME.getName(), "", "");
     pingTime.setHidden();
     settings().update(PING_TIME, pingTime.getValue());
     pingTime.addChangeListener(() -> settings().update(PING_TIME, pingTime.getValue()));
@@ -42,7 +42,7 @@ public class NaturalisOptions extends Options {
 
   private void addGeneralOptions() {
     addDivider("General ");
-
+    
     BooleanOption debug = addBooleanOption(DEBUG.getName(), "Show debug info in plugin logs", FALSE);
     debug.setHelp("Provide more detailed information as the Naturalis plugin is working. Enable when creating "
         + "support tickets for bugs or perfomance issues.");
