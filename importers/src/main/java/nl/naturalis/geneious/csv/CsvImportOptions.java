@@ -1,10 +1,21 @@
 package nl.naturalis.geneious.csv;
 
+import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
+import static nl.naturalis.geneious.ErrorCode.CSV_NO_FILE_PROVIDED;
+import static nl.naturalis.geneious.ErrorCode.CSV_UNSUPPORTED_FILE_TYPE;
+import static org.apache.commons.io.FilenameUtils.getExtension;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.JFileChooser;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -12,20 +23,10 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.collect.ImmutableSet;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.MessageProvider.Message;
 import nl.naturalis.geneious.util.SharedPreconditionValidator;
-
-import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
-
-import static nl.naturalis.geneious.ErrorCode.CSV_NO_FILE_PROVIDED;
-import static nl.naturalis.geneious.ErrorCode.CSV_UNSUPPORTED_FILE_TYPE;
 
 public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
 
@@ -34,14 +35,16 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private static final String DELIMITER = "nl.naturalis.geneious.%s.delim";
   private static final String SHEET_NAME = "nl.naturalis.geneious.%s.sheet";
 
-  private static final OptionValue NO_SHEET = new OptionValue("0", "--- (spreadsheet) ---");
-  private static final OptionValue NO_DELIM = new OptionValue("0", "--- (CSV) ---");
+  private static final OptionValue OPT_NOT_APPLICABLE = new OptionValue("0", "  n/a  ");
+
+  private static final OptionValue DELIM_INIT = new OptionValue("0", "  --- csv/tsv/txt ---  ");
+  private static final OptionValue SHEET_INIT = new OptionValue("0", "  --- spreadsheet ---  ");
 
   private static final List<OptionValue> DELIM_OPTIONS = Arrays.asList(
-      new OptionValue("\t", "\\t"),
-      new OptionValue(",", ","),
-      new OptionValue(";", ";"),
-      new OptionValue("|", "|"));
+      new OptionValue("\t", "  tab  "),
+      new OptionValue(",", "  comma  "),
+      new OptionValue(";", "  semi-colon  "),
+      new OptionValue("|", "  pipe  "));
 
   private static final Set<String> ALLOWED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls");
 
@@ -76,7 +79,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     if (StringUtils.isBlank(file.getValue())) {
       return MessageProvider.get(CSV_NO_FILE_PROVIDED);
     }
-    String ext = FilenameUtils.getExtension(file.getValue());
+    String ext = getExtension(file.getValue());
     if (!ALLOWED_FILE_TYPES.contains(ext.toLowerCase())) {
       return MessageProvider.get(CSV_UNSUPPORTED_FILE_TYPE, ext);
     }
@@ -103,11 +106,18 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private FileSelectionOption addFileSelectionOption() {
-    FileSelectionOption opt = addFileSelectionOption(name(FILE), getDefaultFileSelectionLabel(), "");
+    FileSelectionOption opt = addFileSelectionOption(
+        name(FILE),
+        getDefaultFileSelectionLabel(),
+        "",
+        new String[0],
+        "Select",
+        (x, y) -> ALLOWED_FILE_TYPES.contains(getExtension(y)));
     opt.setAllowMultipleSelection(false);
     opt.setFillHorizontalSpace(true);
+    opt.setSelectionType(JFileChooser.FILES_ONLY);
     opt.setValue("");
-    opt.setDescription("Select a sample sheet to import (allowed formats: *.csv *.tsv *.txt *.xls *.xlsx)");
+    opt.setDescription("Select a sample sheet to import. Supported formats: *.csv *.tsv *.txt *.xls");
     return opt;
   }
 
@@ -119,48 +129,54 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private ComboBoxOption<OptionValue> addDelimiterOption() {
-    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(DELIMITER), "Field separator", Arrays.asList(NO_DELIM), NO_DELIM);
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(DELIMITER), "Field separator", Arrays.asList(DELIM_INIT), DELIM_INIT);
     opt.setDescription("The character used to separate values within a row");
-    if (CsvImportUtil.isCsvFile(file.getValue())) {
-      opt.setPossibleValues(DELIM_OPTIONS);
-      opt.setDefaultValue(DELIM_OPTIONS.get(0));
-      opt.setEnabled(true);
-    } else {
-      opt.setEnabled(false);
-    }
+    opt.setEnabled(false);
     return opt;
   }
 
   private ComboBoxOption<OptionValue> addSheetNameOption() {
-    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(SHEET_NAME), "Sheet name", Arrays.asList(NO_SHEET), NO_SHEET);
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(SHEET_NAME), "Sheet name", Arrays.asList(SHEET_INIT), SHEET_INIT);
     opt.setFillHorizontalSpace(true);
-    opt.setDescription("The name of the sheet (tab) within the spreadsheet.");
-    if (CsvImportUtil.isSpreadsheet(file.getValue())) {
-      opt.setEnabled(true);
-      loadSheetNames();
-    } else {
-      opt.setEnabled(false);
-    }
+    opt.setDescription("The name of the sheet (a.k.a. tab) within the spreadsheet.");
+    opt.setEnabled(false);
     return opt;
   }
 
   private void fileChanged() {
+    if (StringUtils.isBlank(file.getValue())) {
+      /*
+       * When a file has already been selected, and then you select another file, the change listener apparently fires twice. The first time the
+       * file is empty again (useful if you want to do a System.exit in between or so). The second time you get the new file.
+       */
+      return;
+    }
     sheet.setEnabled(false);
     delimiter.setEnabled(false);
-    sheet.setPossibleValues(Arrays.asList(NO_SHEET));
-    sheet.setDefaultValue(NO_SHEET);
-    delimiter.setPossibleValues(Arrays.asList(NO_DELIM));
-    delimiter.setDefaultValue(NO_DELIM);
     if (CsvImportUtil.isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
+      delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
+      delimiter.setDefaultValue(OPT_NOT_APPLICABLE);
     } else if (CsvImportUtil.isCsvFile(file.getValue())) {
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
+      sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
+      sheet.setDefaultValue(OPT_NOT_APPLICABLE);
     } else {
-      String msg = "Unsupported file type";
-      showMessageDialog(msg, msg, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
+      sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
+      sheet.setDefaultValue(SHEET_INIT);
+      delimiter.setPossibleValues(Arrays.asList(DELIM_INIT));
+      delimiter.setDefaultValue(DELIM_INIT);
+      String title = "Unsupported file type";
+      StringBuilder sb = new StringBuilder(32);
+      sb.append(title);
+      String ext = getExtension(file.getValue());
+      if (StringUtils.isNotBlank(ext)) {
+        sb.append(": *.").append(ext);
+      }
+      showMessageDialog(sb.toString(), title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
     }
   }
 
@@ -169,7 +185,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       Workbook workbook = WorkbookFactory.create(new File(file.getValue()));
       List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
       for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
-        names.add(new OptionValue(String.valueOf(i), workbook.getSheetAt(i).getSheetName()));
+        names.add(new OptionValue(String.valueOf(i), "  " + workbook.getSheetAt(i).getSheetName() + "  "));
       }
       sheet.setPossibleValues(names);
       sheet.setDefaultValue(names.get(0));

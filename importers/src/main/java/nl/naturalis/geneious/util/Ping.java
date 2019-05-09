@@ -3,14 +3,13 @@ package nl.naturalis.geneious.util;
 import static com.biomatters.geneious.publicapi.utilities.GuiUtilities.getMainFrame;
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.util.QueryUtils.getPingDocument;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 import javax.swing.ProgressMonitor;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
@@ -21,13 +20,22 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
  *
  */
 public class Ping {
+  
+  public static final String PING_FOLDER_NAME = "#ping";
 
   private static final int TRY_COUNT = 100;
   private static final double TRY_INTERVAL = 3.0; // seconds
 
+  // The weight (expressed as progress bar progress) of the 1st ping attempts. Since indexing is likely to complete within the 1st batch of
+  // pings, we want to make it look as though we're making a lot of progress here (at the expense of the progress bar seeming to grind to a
+  // halt if indexing happens to take a lot of time). Tune according to taste.
+  private static final int batch0TryCount = 10;
+  private static final int batch0TryWeight = 20;
+  private static final int batch1TryCount = 10;
+  private static final int batch1TryWeight = 5;
+
   private static final String MSG0 = "Waiting for indexing to complete ...";
   private static final String MSG1 = "Wait aborted after %d attempts";
-  private static final String MSG2 = "Please do not delete ping document %s";
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
 
@@ -64,8 +72,7 @@ public class Ping {
     String pingValue = getPingValue(timestamp);
     settings().setPingTime(String.valueOf(timestamp));
     PingSequence sequence = new PingSequence(pingValue);
-    sequence.save();
-    guiLogger.info(MSG2, pingValue);
+    sequence.save(PING_FOLDER_NAME);
     return startPingLoop(pingValue);
   }
 
@@ -86,25 +93,23 @@ public class Ping {
 
   @SuppressWarnings("static-method")
   private boolean startPingLoop(String pingValue) throws DatabaseServiceException {
-    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG0, "", 0, TRY_COUNT);
+    ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG0, "", 0, getProgressMax());
     pm.setMillisToDecideToPopup(0);
     pm.setMillisToPopup(0);
     for (int i = 1; i <= TRY_COUNT; ++i) {
-      pm.setProgress(i);
-      //pm.setNote(String.format("Attempt %d of %d", i, TRY_COUNT));
+      pm.setProgress(getProgress(i));
       sleep();
       if (pm.isCanceled()) {
         pm.close();
         guiLogger.warn(MSG1, i);
-        guiLogger.warn(MSG2, pingValue);
         return false;
       }
       AnnotatedPluginDocument apd = getPingDocument(pingValue);
       if (apd != null) {
-        pm.setProgress(TRY_COUNT);
+        pm.setProgress(getProgressMax());
         pm.setNote("Ready!");
         settings().setPingTime("");
-        ((WritableDatabaseService) apd.getDatabase()).removeDocument(apd, ProgressListener.EMPTY);
+        getTargetDatabase().removeChildFolder(PING_FOLDER_NAME);
         guiLogger.info("Indexing complete");
         pm.close();
         return true;
@@ -131,4 +136,15 @@ public class Ping {
         .toString();
   }
 
+  private static int getProgressMax() {
+    return (batch0TryCount * batch0TryWeight) + (batch1TryCount * batch1TryWeight) + (TRY_COUNT - batch0TryCount - batch1TryCount);
+  }
+
+  private static int getProgress(int i) {
+    return (i * batch0TryWeight) + (max(i - batch0TryCount) * batch1TryWeight) + max(i - batch0TryCount - batch1TryCount);
+  }
+
+  private static int max(int x) {
+    return Math.max(x, 0);
+  }
 }

@@ -1,10 +1,18 @@
 package nl.naturalis.geneious.util;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
+
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
@@ -12,12 +20,6 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.note.NaturalisNote;
-
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 /**
  * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create dummy documents. The dummy documents will be
@@ -57,8 +59,11 @@ public class PingSequence extends DefaultNucleotideSequence {
    * Wraps the sequence into a {@code StoredDoucment}.
    * 
    * @return
+   * @throws DatabaseServiceException
    */
-  public void save() {
+  public void save(String folderName) throws DatabaseServiceException {
+    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(folderName);
+    pingFolder.setColor(Color.lightGray);
     AnnotatedPluginDocument apd = DocumentUtilities.createAnnotatedPluginDocument(this);
     NaturalisNote note = new NaturalisNote();
     note.setDocumentVersion(0);
@@ -71,7 +76,7 @@ public class PingSequence extends DefaultNucleotideSequence {
         Arrays.asList(apd),
         false,
         Collections.emptyList(),
-        getTargetDatabase());
+        pingFolder);
     if (apds.size() != 1) {
       throw new NaturalisPluginException("Error while saving ping value");
     }

@@ -12,7 +12,7 @@ public class CsvImportUtil {
       return false;
     }
     ext = ext.toLowerCase();
-    return ext.equals("xls") || ext.equals("xlsx");
+    return ext.equals("xls"); // xlsx not supported yet
   }
 
   public static boolean isCsvFile(String fileName) {
