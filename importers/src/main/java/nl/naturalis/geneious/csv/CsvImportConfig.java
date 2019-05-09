@@ -20,6 +20,13 @@ public abstract class CsvImportConfig<T extends Enum<T>> {
   private int skipLines;
   private int sheetNumber;
 
+  /**
+   * Returns a one-based line number accounting for the trimmed-away header lines (see {@link RowSupplier}).
+   */
+  public int getRealLine(int zerobased) {
+    return skipLines + zerobased + 1;
+  }
+
   public List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
   }
@@ -61,8 +68,8 @@ public abstract class CsvImportConfig<T extends Enum<T>> {
   }
 
   /**
-   * Returns a mapping of symbolic column names to actual column numbers. N.B. all subclasses of CsvImportConfig currently
-   * return a hard-coded map. However in the future, we might need user input to properly configure a column mapping.
+   * Returns a mapping of symbolic column names to actual column numbers. N.B. all subclasses of CsvImportConfig currently return a hard-coded
+   * map. However in the future, we might need user input to properly configure a column mapping.
    * 
    * @return
    */

@@ -77,7 +77,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private boolean updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    List<String[]> rows = new RowSupplier(cfg).getDataRows();
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
@@ -88,13 +88,13 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(unselectedExtractIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int overlap = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
-    guiLogger.info("Sample sheet contains %s row%s matching selected documents", rows.size(), plural(rows));
+    guiLogger.info("Sample sheet contains %s row%s", rows.size(), plural(rows));
     guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", overlap, plural(overlap));
     guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
     // Note that this is only an estimate of the amount of dummies to be created. The involved rows in the sample sheet
     // may not pass validation.
     int dummyCount = extractIds.size() - overlap - unselected.keySet().size();
-    guiLogger.info("Sample sheet contains %s brand new extract ID%s", dummyCount, plural(dummyCount));
+    guiLogger.info("Sample sheet contains %s new extract ID%s", dummyCount, plural(dummyCount));
     StoredDocumentList updatesOrDummies = new StoredDocumentList(overlap + dummyCount);
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
     NaturalisNote note;
@@ -167,12 +167,12 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private boolean updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    List<String[]> rows = new RowSupplier(cfg).getDataRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 1; i < rows.size(); ++i) {
+    for (int i = 0; i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
@@ -182,7 +182,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
-        int line = line(i);
+        int line = cfg.getRealLine(i);
         guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
         ++unused;
       } else {
@@ -224,14 +224,14 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
-    int x = line(rownum);
+    int line = cfg.getRealLine(rownum);
     SampleSheetRow row = new SampleSheetRow(cfg.getColumnNumbers(), values);
     if (row.isEmpty()) {
-      guiLogger.debugf(() -> format("Ignoring empty row at line %s", x));
+      guiLogger.debugf(() -> format("Ignoring empty row at line %s", line));
       return null;
     }
-    guiLogger.debugf(() -> format("Line %s: %s", x, toJson(values)));
-    SmplNoteFactory factory = new SmplNoteFactory(x, row);
+    guiLogger.debugf(() -> format("Line %s: %s", line, toJson(values)));
+    SmplNoteFactory factory = new SmplNoteFactory(line, row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
@@ -251,19 +251,15 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         .collect(Collectors.toSet());
   }
 
-  private static void logUnusedRow(StoredDocumentList docs, int row) {
+  private void logUnusedRow(StoredDocumentList docs, int rownum) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
     if (docs.size() == 1) {
       String fmt = "Row at line %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.debug(fmt, line(row), extractId);
+      guiLogger.debug(fmt, cfg.getRealLine(rownum), extractId);
     } else {
       String fmt = "Row at line %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.debug(fmt, line(row), extractId, docs.size());
+      guiLogger.debug(fmt, cfg.getRealLine(rownum), extractId, docs.size());
     }
-  }
-
-  private static int line(int zeroBased) {
-    return zeroBased + 1;
   }
 
 }

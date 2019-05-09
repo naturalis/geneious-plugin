@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
@@ -35,27 +36,23 @@ public class BoldNormalizer {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
   private BoldImportConfig cfg;
-  private List<String[]> lines;
 
-  public BoldNormalizer(BoldImportConfig cfg, List<String[]> lines) {
+  public BoldNormalizer(BoldImportConfig cfg) {
     this.cfg = cfg;
-    this.lines = lines;
-  }
+   }
 
   public List<String[]> normalizeRows() throws BoldNormalizationException {
-    if (lines.size() < cfg.getSkipLines()) {
-      throw new BoldNormalizationException("Number of rows in BOLD file must be greater than number of lines to skip");
-    }
-    String[] header = lines.get(cfg.getSkipLines() - 1);
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
     checkHeader(header);
     List<String> markers = getMarkers(header);
-    List<String[]> normalized = new ArrayList<>(lines.size() * markers.size());
+    List<String[]> normalized = new ArrayList<>(rows.size() * markers.size());
     guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining("  ")));
     for (int i = 0; i < markers.size(); ++i) {
       guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
-      for (int j = cfg.getSkipLines(); j < lines.size(); ++j) {
-        String[] line = lines.get(j);
+      for (int j = cfg.getSkipLines(); j < rows.size(); ++j) {
+        String[] line = rows.get(j);
         String[] compact = new String[BoldColumn.values().length];
         compact[PROJECT_CODE.ordinal()] = line[0];
         compact[PROCCES_ID.ordinal()] = line[1];

@@ -16,7 +16,6 @@ import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
-import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
@@ -57,15 +56,13 @@ class BoldImporter extends SwingWorker<Void, Void> {
 
   private boolean importBoldFile() throws BoldNormalizationException {
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    BoldNormalizer normalizer = new BoldNormalizer(cfg, rows);
-    rows = normalizer.normalizeRows();
+    List<String[]> rows = new BoldNormalizer(cfg).normalizeRows();
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
     for (int i = 0; i < rows.size(); ++i) {
-      int line = line(i);
+      int line = i+i; //TODO: Infer line number in original, non-normalized file
       BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
       if (row.isEmpty()) {
         guiLogger.debugf(() -> format("Ignoring empty row at line %s", line));
@@ -142,11 +139,7 @@ class BoldImporter extends SwingWorker<Void, Void> {
         return new BoldKey(regno, marker);
       }
     }
-    return null; // do not add to StoredDocumentTable
-  }
-
-  private static int line(int zeroBased) {
-    return zeroBased + 1;
+    return null; // do not add to lookup table
   }
 
 }
