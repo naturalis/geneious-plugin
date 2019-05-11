@@ -15,9 +15,7 @@ import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.WrappedException;
 
 /**
- * A simple reader for the types of files the plugin deal with: CSV files, TSV files and spreadsheet. Not meant to be generic or adaptable,
- * but sufficient for our needs. Reads the entire file into memory. This class will read .txt files, but they will always be presumed to
- * contain tab-delimited columns (i.e. they will be parsed like TSV files).
+ * A simple reader for all types of delimited formats suported by the plugin: CSV files, TSV files and spreadsheet.
  *
  * @author Ayco Holleman
  */
@@ -29,29 +27,11 @@ public class RowSupplier {
     this.cfg = config;
   }
 
-  public List<String[]> getDataRows() {
-    File file = cfg.getFile();
-    List<String[]> rows;
-    try {
-      if (CsvImportUtil.isSpreadsheet(file.getName())) {
-        SpreadSheetReader ssr = new SpreadSheetReader(file);
-        ssr.setSheetNumber(cfg.getSheetNumber());
-        rows = ssr.readAllRows();
-      } else if (CsvImportUtil.isCsvFile(file.getName())) {
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.getFormat().setLineSeparator("\n");
-        settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
-        CsvParser parser = new CsvParser(settings);
-        rows = parser.parseAll(file);
-      } else {
-        throw new NaturalisPluginException("Unknown file type");
-      }
-      return trim(rows, true);
-    } catch (Throwable t) {
-      throw new WrappedException(t);
-    }
-  }
-
+  /**
+   * Returns all rows, including header rows, within the file.
+   * 
+   * @return
+   */
   public List<String[]> getAllRows() {
     File file = cfg.getFile();
     List<String[]> rows;
@@ -69,14 +49,14 @@ public class RowSupplier {
       } else {
         throw new NaturalisPluginException("Unknown file type");
       }
-      return trim(rows, false);
+      return trim(rows);
     } catch (Throwable t) {
       throw new WrappedException(t);
     }
   }
 
   // Removes any trailing whitespace-only rows.
-  private List<String[]> trim(List<String[]> rows, boolean skipHeader) {
+  private List<String[]> trim(List<String[]> rows) {
     int skip = cfg.getSkipLines();
     if (rows.size() != 0) {
       int i;
@@ -89,7 +69,7 @@ public class RowSupplier {
         String msg = String.format("No rows remaining after skipping %d line%s", skip, plural(skip));
         throw new NaturalisPluginException(msg);
       }
-      if ((skipHeader && skip != 0) || i != rows.size() - 1) {
+      if (i != rows.size() - 1) {
         return rows.subList(skip, i + 1);
       }
     }

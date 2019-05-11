@@ -54,12 +54,12 @@ class CrsImporter extends SwingWorker<Void, Void> {
 
   private boolean importCrsFile() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getDataRows();
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 0; i < rows.size(); ++i) {
+    for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
@@ -69,8 +69,9 @@ class CrsImporter extends SwingWorker<Void, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for reg.no. %s", regno));
       StoredDocumentList docs = selectedDocuments.get(regno);
       if (docs == null) {
-        int line = cfg.getRealLine(i);
-        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+        if (guiLogger.isDebugEnabled()) {
+          guiLogger.debug("Not found. Row at line %s remains unused", i + 1);
+        }
         ++unused;
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
@@ -101,13 +102,10 @@ class CrsImporter extends SwingWorker<Void, Void> {
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
-    CrsRow row = new CrsRow(cfg.getColumnNumbers(), rows.get(rownum));
-    if (row.isEmpty()) {
-      guiLogger.debugf(() -> format("Ignoring empty row at line %s", cfg.getRealLine(rownum)));
-      return null;
-    }
-    guiLogger.debugf(() -> format("Line %s: %s", cfg.getRealLine(rownum), toJson(rows.get(rownum))));
-    CrsNoteFactory factory = new CrsNoteFactory(cfg.getRealLine(rownum), row);
+    String[] values = rows.get(rownum);
+    CrsRow row = new CrsRow(cfg.getColumnNumbers(), values);
+    guiLogger.debugf(() -> format("Line %s: %s", rownum + 1, toJson(values)));
+    CrsNoteFactory factory = new CrsNoteFactory(rownum + 1, row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));

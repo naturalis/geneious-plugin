@@ -15,6 +15,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import nl.naturalis.geneious.NaturalisPluginException;
 
+/**
+ * A simple reader for MS spreadsheets, loading and returning all rows at once.
+ * @author Ayco Holleman
+ *
+ */
 public class SpreadSheetReader {
 
   private final File file;

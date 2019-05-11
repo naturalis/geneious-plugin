@@ -9,6 +9,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingWorker;
 
@@ -56,43 +57,43 @@ class BoldImporter extends SwingWorker<Void, Void> {
 
   private boolean importBoldFile() throws BoldNormalizationException {
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
-    List<String[]> rows = new BoldNormalizer(cfg).normalizeRows();
+    Map<String, List<String[]>> allRows = new BoldNormalizer(cfg).normalizeRows();
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 0; i < rows.size(); ++i) {
-      int line = i+i; //TODO: Infer line number in original, non-normalized file
-      BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
-      if (row.isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring empty row at line %s", line));
-        ++bad;
-        continue;
-      }
-      if (!row.hasValueFor(SAMPLE_ID, MARKER)) {
-        guiLogger.debugf(() -> format("Missing registration number and/or marker in line %s", line));
-        ++bad;
-        continue;
-      }
-      if ((note = createNote(line, row)) == null) {
-        ++bad;
-        continue;
-      }
-      ++good;
-      BoldKey key = new BoldKey(row.get(SAMPLE_ID), row.get(MARKER));
-      guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
-      StoredDocumentList docs = selectedDocuments.get(key);
-      if (docs == null) {
-        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
-        ++unused;
-      } else {
-        guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
-        for (StoredDocument doc : docs) {
-          if (doc.attach(note)) {
-            updates.add(doc);
-          } else {
-            String fmt = "Document with %s not updated (no new values in BOLD file)";
-            guiLogger.debugf(() -> format(fmt, key));
+    for (String marker : allRows.keySet()) {
+      guiLogger.info("Processing marker \"%s\"", marker);
+      List<String[]> rows = allRows.get(marker);
+      for (int i = 0; i < rows.size(); ++i) {
+        // Convert i to user-friendly (one-based) line number
+        int line = cfg.getSkipLines() + i + 1;
+        BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
+        if (!row.hasValueFor(SAMPLE_ID, MARKER)) {
+          guiLogger.debugf(() -> format("Missing registration number and/or marker in line %s", line));
+          ++bad;
+          continue;
+        }
+        if ((note = createNote(line, row)) == null) {
+          ++bad;
+          continue;
+        }
+        ++good;
+        BoldKey key = new BoldKey(row.get(SAMPLE_ID), row.get(MARKER));
+        guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
+        StoredDocumentList docs = selectedDocuments.get(key);
+        if (docs == null) {
+          guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+          ++unused;
+        } else {
+          guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
+          for (StoredDocument doc : docs) {
+            if (doc.attach(note)) {
+              updates.add(doc);
+            } else {
+              String fmt = "Document with %s not updated (no new values in BOLD file)";
+              guiLogger.debugf(() -> format(fmt, key));
+            }
           }
         }
       }

@@ -77,7 +77,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private boolean updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getDataRows();
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
@@ -98,7 +98,7 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     StoredDocumentList updatesOrDummies = new StoredDocumentList(overlap + dummyCount);
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 0; i < rows.size(); ++i) {
+    for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
@@ -167,12 +167,12 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private boolean updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getDataRows();
+    List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (int i = 0; i < rows.size(); ++i) {
+    for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
@@ -182,8 +182,9 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
       guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
-        int line = cfg.getRealLine(i);
-        guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+        if (guiLogger.isDebugEnabled()) {
+          guiLogger.debug("Not found. Row at line %s remains unused", i + 1);
+        }
         ++unused;
       } else {
         guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
@@ -224,14 +225,10 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
-    int line = cfg.getRealLine(rownum);
     SampleSheetRow row = new SampleSheetRow(cfg.getColumnNumbers(), values);
-    if (row.isEmpty()) {
-      guiLogger.debugf(() -> format("Ignoring empty row at line %s", line));
-      return null;
-    }
-    guiLogger.debugf(() -> format("Line %s: %s", line, toJson(values)));
-    SmplNoteFactory factory = new SmplNoteFactory(line, row);
+    // Convert rownum to user-friendly (one-based) line number
+    guiLogger.debugf(() -> format("Line %s: %s", rownum + 1, toJson(values)));
+    SmplNoteFactory factory = new SmplNoteFactory(rownum + 1, row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
@@ -251,14 +248,14 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
         .collect(Collectors.toSet());
   }
 
-  private void logUnusedRow(StoredDocumentList docs, int rownum) {
+  private static void logUnusedRow(StoredDocumentList docs, int rownum) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
     if (docs.size() == 1) {
       String fmt = "Row at line %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.debug(fmt, cfg.getRealLine(rownum), extractId);
+      guiLogger.debug(fmt, rownum + 1, extractId);
     } else {
       String fmt = "Row at line %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.debug(fmt, cfg.getRealLine(rownum), extractId, docs.size());
+      guiLogger.debug(fmt, rownum + 1, extractId, docs.size());
     }
   }
 

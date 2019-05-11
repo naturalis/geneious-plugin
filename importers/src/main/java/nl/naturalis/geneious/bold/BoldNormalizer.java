@@ -1,15 +1,5 @@
 package nl.naturalis.geneious.bold;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import nl.naturalis.geneious.csv.RowSupplier;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
-
 import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
 import static nl.naturalis.geneious.bold.BoldColumn.BIN;
 import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
@@ -22,12 +12,23 @@ import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
 import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import nl.naturalis.geneious.csv.RowSupplier;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
+
 /**
- * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets
- * and CRS files). It takes the rows in a BOLD file as input and produces a new set of rows, each one having just one
- * quartet of marker column. (The original BOLD file only has three marker-related columns, with the name of the marker
- * being implicit in the headers of those columns. In the output produced by the {@code BoldNormalizer} the name of the
- * marker becomes a value in a 4th column.)
+ * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets and CRS files). It
+ * takes the rows in a BOLD file as input and produces a new set of rows, each one having just one quartet of marker column. (The original
+ * BOLD file only has three marker-related columns, with the name of the marker being implicit in the headers of those columns. In the
+ * output produced by the {@code BoldNormalizer} the name of the marker becomes a value in a 4th column.)
  *
  * @author Ayco Holleman
  */
@@ -39,18 +40,20 @@ public class BoldNormalizer {
 
   public BoldNormalizer(BoldImportConfig cfg) {
     this.cfg = cfg;
-   }
+  }
 
-  public List<String[]> normalizeRows() throws BoldNormalizationException {
+  public Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
     checkHeader(header);
     List<String> markers = getMarkers(header);
-    List<String[]> normalized = new ArrayList<>(rows.size() * markers.size());
-    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining("  ")));
+    Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
+    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
     for (int i = 0; i < markers.size(); ++i) {
       guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
+      List<String[]> markerRows = new ArrayList<>(rows.size() - cfg.getSkipLines());
+      normalized.put(markers.get(i), markerRows);
       for (int j = cfg.getSkipLines(); j < rows.size(); ++j) {
         String[] line = rows.get(j);
         String[] compact = new String[BoldColumn.values().length];
@@ -64,7 +67,7 @@ public class BoldNormalizer {
         compact[TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
         compact[ACCESSION.ordinal()] = line[8 + (i * 3)];
         compact[IMAGE_COUNT.ordinal()] = line[9];
-        normalized.add(compact);
+        markerRows.add(compact);
       }
     }
     return normalized;

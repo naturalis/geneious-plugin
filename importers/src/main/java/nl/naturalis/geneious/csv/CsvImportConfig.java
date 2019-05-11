@@ -20,13 +20,6 @@ public abstract class CsvImportConfig<T extends Enum<T>> {
   private int skipLines;
   private int sheetNumber;
 
-  /**
-   * Returns a one-based line number accounting for the trimmed-away header lines (see {@link RowSupplier}).
-   */
-  public int getRealLine(int zerobased) {
-    return skipLines + zerobased + 1;
-  }
-
   public List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
   }
