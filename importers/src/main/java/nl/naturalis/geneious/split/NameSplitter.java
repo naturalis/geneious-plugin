@@ -2,19 +2,17 @@ package nl.naturalis.geneious.split;
 
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
-import nl.naturalis.geneious.util.Ping;
 
-public class NameSplitter extends SwingWorker<Void, Void> {
+public class NameSplitter extends NaturalisPluginWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameSplitter.class);
 
@@ -25,20 +23,7 @@ public class NameSplitter extends SwingWorker<Void, Void> {
   }
 
   @Override
-  protected Void doInBackground() {
-    try {
-      if (Ping.resume()) {
-        if (splitNames()) {
-          Ping.start();
-        }
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t.getMessage(), t);
-    }
-    return null;
-  }
-
-  public boolean splitNames() throws DatabaseServiceException {
+  protected boolean performOperation() throws DatabaseServiceException {
     DocumentFilter filter = new DocumentFilter(cfg);
     List<StorableDocument> docs = filter.filterAndConvert();
     Annotator annotator = new Annotator(docs);

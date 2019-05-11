@@ -8,59 +8,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.Ping;
 
 /**
- * Does the actual work of importing ab1/fasta files into Geneious.
+ * Does the actual work of importing AB1/fasta files into Geneious.
  */
-class SequenceImporter extends SwingWorker<Void, Void> {
+class SequenceImporter extends NaturalisPluginWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImporter.class);
 
   private final File[] files;
 
-  /**
-   * Creates a new trace file importer that imports the specified files.
-   * 
-   * @param files The ab1/files selected by the user
-   */
   SequenceImporter(File[] files) {
     this.files = files;
   }
 
   @Override
-  protected Void doInBackground() {
-    try {
-      if (Ping.resume()) {
-        if (importSequences()) {
-          Ping.start();
-        }
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t.getMessage(), t);
-    }
-    return null;
-  }
-
-  /**
-   * Imports the trace files.
-   * 
-   * @return
-   * @throws IOException
-   * @throws DatabaseServiceException
-   */
-  private boolean importSequences() throws IOException, DatabaseServiceException {
+  protected boolean performOperation() throws IOException, DatabaseServiceException {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<StorableDocument> docs = new ArrayList<>();
       List<StorableDocument> annotated = null;

@@ -11,23 +11,21 @@ import static nl.naturalis.geneious.util.DebugUtil.toJson;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.SwingWorker;
-
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 /**
  * Does the actual work of importing a BOLD file into Geneious.
  */
-class BoldImporter extends SwingWorker<Void, Void> {
+class BoldImporter extends NaturalisPluginWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
 
@@ -37,25 +35,8 @@ class BoldImporter extends SwingWorker<Void, Void> {
     this.cfg = cfg;
   }
 
-  /**
-   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched to the selected
-   * documents using the registration number annotation (set during sample sheet import).
-   */
   @Override
-  protected Void doInBackground() {
-    try {
-      if (Ping.resume()) {
-        if (importBoldFile()) {
-          Ping.start();
-        }
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t);
-    }
-    return null;
-  }
-
-  private boolean importBoldFile() throws BoldNormalizationException {
+  protected boolean performOperation() throws BoldNormalizationException {
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
     Map<String, List<String[]>> allRows = new BoldNormalizer(cfg).normalizeRows();
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();

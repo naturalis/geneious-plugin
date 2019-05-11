@@ -43,6 +43,9 @@ public class BoldNormalizer {
   }
 
   public Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
+    if (cfg.getSkipLines() == 0) {
+      throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
+    }
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
@@ -50,6 +53,7 @@ public class BoldNormalizer {
     List<String> markers = getMarkers(header);
     Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
     guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
+    guiLogger.info("Normalizing BOLD file");
     for (int i = 0; i < markers.size(); ++i) {
       guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
       List<String[]> markerRows = new ArrayList<>(rows.size() - cfg.getSkipLines());

@@ -1,5 +1,11 @@
 package nl.naturalis.geneious;
 
+/**
+ * Base class for runtime exceptions thrown by the plugin.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class NaturalisPluginException extends RuntimeException {
 
   public NaturalisPluginException(String message) {

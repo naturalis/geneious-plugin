@@ -1,30 +1,28 @@
 package nl.naturalis.geneious.crs;
 
-import java.util.List;
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
-import javax.swing.SwingWorker;
+import java.util.List;
 
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
 /**
  * Does the actual work of importing a CRS file into Geneious.
  */
-class CrsImporter extends SwingWorker<Void, Void> {
+class CrsImporter extends NaturalisPluginWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsImporter.class);
 
@@ -34,25 +32,8 @@ class CrsImporter extends SwingWorker<Void, Void> {
     this.cfg = cfg;
   }
 
-  /**
-   * Enriches the documents selected within the GUI with data from a CRS file. The rows within the CRS files are matched to the selected
-   * documents using the registration number annotation (set during sample sheet import).
-   */
   @Override
-  protected Void doInBackground() {
-    try {
-      if (Ping.resume()) {
-        if (importCrsFile()) {
-          Ping.start();
-        }
-      }
-    } catch (Throwable t) {
-      guiLogger.fatal(t);
-    }
-    return null;
-  }
-
-  private boolean importCrsFile() {
+  protected boolean performOperation() {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);

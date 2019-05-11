@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.swing.SwingWorker;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
@@ -21,6 +19,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
+import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
@@ -28,7 +27,6 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
-import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -36,7 +34,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter extends SwingWorker<Void, Void> {
+class SampleSheetImporter extends NaturalisPluginWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
@@ -46,33 +44,12 @@ class SampleSheetImporter extends SwingWorker<Void, Void> {
     this.cfg = cfg;
   }
 
-  /**
-   * Enriches the documents selected within the GUI with data from the sample sheet. Documents and sample sheet records are linked using their
-   * extract ID. In addition, if requested, this routine will create dummy documents from sample sheet records if their extract ID does not
-   * exist yet.
-   */
   @Override
-  protected Void doInBackground() {
-    try {
-      importSampleSheet();
-    } catch (Throwable t) {
-      guiLogger.fatal(t);
+  protected boolean performOperation() throws DatabaseServiceException {
+    if (cfg.isCreateDummies()) {
+      return updateOrCreateDummies();
     }
-    return null;
-  }
-
-  private void importSampleSheet() throws DatabaseServiceException {
-    if (Ping.resume()) {
-      boolean didUpdate;
-      if (cfg.isCreateDummies()) {
-        didUpdate = updateOrCreateDummies();
-      } else {
-        didUpdate = updateSelectedDocuments();
-      }
-      if (didUpdate) {
-        Ping.start();
-      }
-    }
+    return updateSelectedDocuments();
   }
 
   private boolean updateOrCreateDummies() throws DatabaseServiceException {
