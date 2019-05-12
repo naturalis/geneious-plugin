@@ -1,14 +1,17 @@
 package nl.naturalis.geneious.name;
 
+import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StorableDocument;
@@ -17,19 +20,16 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.util.StoredDocumentComparator;
 
-import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
-
 /**
- * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
- * database query.
+ * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a database query.
  */
 class QueryCache {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryCache.class);
 
   /**
-   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document
-   * type (dummy/fasta/ab1) plus an arbitrary other property of the document.
+   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document type (dummy/fasta/ab1)
+   * plus an arbitrary other property of the document.
    *
    * @author Ayco Holleman
    */
@@ -63,8 +63,7 @@ class QueryCache {
     }
 
     /**
-     * Creates a cache key using the provided document's type and the provided value (presumably also retrieved from the
-     * document).
+     * Creates a cache key using the provided document's type and the provided value (presumably retrieved from the same document).
      * 
      * @param doc
      * @param val
@@ -83,13 +82,18 @@ class QueryCache {
     public int hashCode() {
       return hash;
     }
+
+    @JsonValue
+    @Override
+    public String toString() {
+      return value + " (" + docType + ")";
+    }
   }
 
   private final HashMap<Key, StoredDocument> cache;
 
   /**
-   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the
-   * cache key.
+   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the cache key.
    * 
    * @param documents
    */
@@ -101,8 +105,8 @@ class QueryCache {
   }
 
   /**
-   * Return an {@code Optional} containing a dummy document with the specified extract ID or an empty {@code Optional} if
-   * there is no such dummy document.
+   * Return an {@code Optional} containing a dummy document with the specified extract ID or an empty {@code Optional} if there is no such
+   * dummy document.
    * 
    * @param extractID
    * @return
@@ -118,19 +122,17 @@ class QueryCache {
    */
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
-    cache.entrySet()
-        .stream()
-        .filter(entry -> !entry.getValue().isDummy())
-        .forEach(entry -> {
-          String version = entry.getValue().getNaturalisNote().getDocumentVersion();
-          if (version == null) {
-            String fmt = "Corrupt %s document. Extract ID is set (%s) but document version is not";
-            guiLogger.warn(fmt, entry.getKey().docType, entry.getKey().value);
-          } else {
-            String name = removeKnownSuffixes(entry.getValue().getGeneiousDocument().getName());
-            versions.put(new Key(entry.getKey().docType, name), new MutableInt(version));
-          }
-        });
+    for (Key key : cache.keySet()) {
+      StoredDocument sd = cache.get(key);
+      String version = sd.getNaturalisNote().getDocumentVersion();
+      if (version == null) {
+        String fmt = "Corrupt %s document: extract ID is set (%s) but document version is not";
+        guiLogger.warn(fmt, key.docType, key.value);
+      } else if (!sd.isDummy()) {
+        String name = removeKnownSuffixes(sd.getGeneiousDocument().getName());
+         versions.put(new Key(key.docType, name), new MutableInt(version));
+      }
+    }
     return versions;
   }
 

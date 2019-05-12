@@ -11,6 +11,7 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
+import nl.naturalis.geneious.name.NameUtil;
 
 public class NameSplitter extends NaturalisPluginWorker {
 
@@ -28,7 +29,12 @@ public class NameSplitter extends NaturalisPluginWorker {
     List<StorableDocument> docs = filter.filterAndConvert();
     Annotator annotator = new Annotator(docs);
     List<StorableDocument> annotated = annotator.annotateDocuments();
-    annotated.forEach(doc -> doc.saveAnnotations());
+    annotated.forEach(doc -> {
+      String name = doc.getSequenceInfo().getName() + NameUtil.getDefaultSuffix(doc);
+      doc.getGeneiousDocument().setName(name);
+      doc.saveAnnotations();
+      doc.save();
+    });
     int selected = cfg.getSelectedDocuments().size();
     guiLogger.info("Number of selected documents ..........: %3d", selected);
     guiLogger.info("Number of documents passing filters ...: %3d", docs.size());

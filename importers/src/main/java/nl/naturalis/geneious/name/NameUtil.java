@@ -1,23 +1,35 @@
 package nl.naturalis.geneious.name;
 
-import java.util.EnumMap;
-
-import org.apache.commons.lang3.StringUtils;
-
-import nl.naturalis.common.base.NArrays;
-import nl.naturalis.geneious.DocumentType;
-
 import static nl.naturalis.geneious.DocumentType.AB1;
 import static nl.naturalis.geneious.DocumentType.DUMMY;
 import static nl.naturalis.geneious.DocumentType.FASTA;
 import static nl.naturalis.geneious.DocumentType.UNKNOWN;
 
+import java.util.EnumMap;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideGraphSequence;
+import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
+
+import nl.naturalis.common.base.NArrays;
+import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.geneious.StorableDocument;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.smpl.DummySequence;
+
 public class NameUtil {
 
-  // V1 plugin uses file name extension type suffixes; V2 plugin appends the type between parentheses
-  public static final String[] ab1Suffixes = {".ab1", " (ab1)"};
-  public static final String[] fastaSuffixes = {".fas", ".fasta", " (fasta)"};
-  public static final String[] dummySuffixes = {".dum", " (dummy)"};
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameUtil.class);
+
+  // V1 plugin uses file name extension type suffixes; V2 plugin appends the type between parentheses. The V2 suffixes are (and must be)
+  // listed first. They are now the default suffixes and other code depends on them being listed first.
+  public static final String[] ab1Suffixes = {" (ab1)", ".ab1"};
+  public static final String[] fastaSuffixes = {" (fasta)", ".fas", ".fasta"};
+  public static final String[] dummySuffixes = {" (dummy)", ".dum"};
 
   private static final String[] all = NArrays.combine(ab1Suffixes, fastaSuffixes, dummySuffixes);
 
@@ -32,26 +44,52 @@ public class NameUtil {
   private NameUtil() {}
 
   /**
-   * Infer the document type from the specified name (presumably a document name). Not water proof because users could change the name of
-   * the document.
+   * Infer the document type from the specified name (presumably a document name). Not water proof because users could change the name of the
+   * document.
    * 
    * @param name
    * @return
    */
-  public static DocumentType inferDocumentTypeFromName(String name) {
+  public static DocumentType getDocumentType(AnnotatedPluginDocument apd) {
+    if (apd.getDocumentClass() == DummySequence.class) {
+      // That's 100% certainty, but this class was only introduced in version 2 of the plugin.
+      return DUMMY;
+    }
+    DocumentType guess1;
+    if (apd.getDocumentClass() == DefaultNucleotideSequence.class) {
+      guess1 = FASTA;
+    } else if (apd.getDocumentClass() == DefaultNucleotideGraphSequence.class) {
+      guess1 = AB1;
+    } else {
+      String fmt = "Document \"%s\": unexpected document class: %s";
+      String msg = String.format(fmt, apd.getName(), apd.getDocumentClass());
+      throw new NaturalisPluginException(msg);
+    }
+    DocumentType guess2 = UNKNOWN;
     for (DocumentType t : suffixes.keySet()) {
       for (String suffix : suffixes.get(t)) {
-        if (name.endsWith(suffix)) {
-          return t;
+        if (apd.getName().endsWith(suffix)) {
+          guess2 = t;
+          break;
         }
       }
     }
-    return UNKNOWN;
+    if (guess2 == UNKNOWN) {
+      return guess1;
+    }
+    if (guess1 != guess2) {
+      guiLogger.error("Document \"%s\": mismatch between suffix (\"%s\") and class (%s)",
+          apd.getName(),
+          guess2,
+          apd.getDocumentClass());
+      return UNKNOWN;
+    }
+    return guess1;
   }
 
   /**
-   * Whether or not the provided name is a name that the plugin uses for AB1 documents. Not water proof because users could change the name
-   * of the document.
+   * Whether or not the provided name is a name that the plugin uses for AB1 documents. Not water proof because users could change the name of
+   * the document.
    * 
    * @param name
    * @return
@@ -66,8 +104,8 @@ public class NameUtil {
   }
 
   /**
-   * Whether or not the provided name is a name that the plugin uses for fasta documents. Not water proof because users could change the
-   * name of the document.
+   * Whether or not the provided name is a name that the plugin uses for fasta documents. Not water proof because users could change the name
+   * of the document.
    * 
    * @param name
    * @return
@@ -82,8 +120,8 @@ public class NameUtil {
   }
 
   /**
-   * Whether or not the provided name is a name that the plugin uses for dummy documents. Not water proof because users could change the
-   * name of the document.
+   * Whether or not the provided name is a name that the plugin uses for dummy documents. Not water proof because users could change the name
+   * of the document.
    * 
    * @param name
    * @return
@@ -104,11 +142,9 @@ public class NameUtil {
    * @return
    */
   public static String removeKnownSuffixes(String name) {
-    int x;
     for (String suffix : all) {
-      x = name.length();
-      if (x != (name = StringUtils.removeEnd(name, suffix)).length()) {
-        break;
+      if (name.endsWith(suffix)) {
+        return StringUtils.removeEnd(name, suffix);
       }
     }
     return name;
@@ -142,6 +178,24 @@ public class NameUtil {
       }
     }
     return null;
+  }
+
+  /**
+   * Returns the default suffix for the provided document, based on its {@link DocumentType}.
+   * 
+   * @param doc
+   * @return
+   */
+  public static String getDefaultSuffix(StorableDocument doc) {
+    switch (doc.getSequenceInfo().getDocumentType()) {
+      case AB1:
+        return ab1Suffixes[0];
+      case FASTA:
+        return fastaSuffixes[0];
+      case DUMMY:
+        return dummySuffixes[0];
+    }
+    throw new IllegalArgumentException("Cannot return name suffix for unknown document type");
   }
 
 }

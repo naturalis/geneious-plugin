@@ -23,7 +23,7 @@ public class DefaultSequenceInfo extends SequenceInfo {
   public DefaultSequenceInfo(AnnotatedPluginDocument document) {
     super(new ImportedFromNote(document).getFile());
     name = NameUtil.removeKnownSuffixes(document.getName());
-    type = NameUtil.inferDocumentTypeFromName(document.getName());
+    type = NameUtil.getDocumentType(document);
     note = new NaturalisNote(document); // Should be empty, certainly if the user opted to ignoreDocsWithNaturalisNote.
   }
 

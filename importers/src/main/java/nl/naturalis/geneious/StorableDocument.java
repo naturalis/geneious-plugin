@@ -48,7 +48,7 @@ public class StorableDocument {
   public AnnotatedPluginDocument getGeneiousDocument() {
     return document;
   }
-
+  
   /**
    * Adds the annotations present in the provided note to this document, but does not save the document to the database.
    */
@@ -70,6 +70,14 @@ public class StorableDocument {
    */
   public void saveAnnotations() {
     notes.saveNotes(true);
+  }
+
+  /**
+   * Saves the entire document to the database. Required if setting attributes that are not part of the {@code DocumentNotes} (e.g. the
+   * document's name).
+   */
+  public void save() {
+    document.save(true);
   }
 
 }
