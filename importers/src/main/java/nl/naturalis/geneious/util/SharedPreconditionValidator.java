@@ -41,7 +41,7 @@ public class SharedPreconditionValidator {
   private static Message checkEncoding() {
     String enc = System.getProperty("file.encoding", "").toLowerCase();
     if (!enc.equals("utf-8") && !enc.equals("utf8")) {
-      return MessageProvider.messageFor(BAD_CHARSET, System.getProperty("file.encoding", ""));
+      return MessageProvider.messageFor(BAD_CHARSET, System.getProperty("file.encoding"));
     }
     return null;
   }

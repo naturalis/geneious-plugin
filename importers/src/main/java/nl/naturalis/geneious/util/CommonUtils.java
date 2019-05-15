@@ -1,5 +1,8 @@
 package nl.naturalis.geneious.util;
 
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+
 import java.util.Optional;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
@@ -32,7 +35,7 @@ public class CommonUtils {
    * @return
    */
   public static boolean allDocumentsWritableAndInSameFolder(AnnotatedPluginDocument[] docs) {
-    Preconditions.checkArgument(notEmpty(docs), "At least one document required");
+    Preconditions.checkArgument(isNotEmpty(docs), "At least one document required");
     String id = null;
     for (AnnotatedPluginDocument doc : docs) {
       DatabaseService db = doc.getDatabase();
@@ -56,7 +59,7 @@ public class CommonUtils {
    * @return
    */
   public static boolean allDocumentsWritableAndInSameDatabase(AnnotatedPluginDocument[] docs) {
-    Preconditions.checkArgument(notEmpty(docs), "At least one document required");
+    Preconditions.checkArgument(isNotEmpty(docs), "At least one document required");
     String id = null;
     for (AnnotatedPluginDocument doc : docs) {
       DatabaseService db = doc.getDatabase();
@@ -76,9 +79,8 @@ public class CommonUtils {
   }
 
   /**
-   * Returns the folder to be used for document queries, updates and inserts. If the user has selected any documents, the
-   * folder of the first document is returned, else the folder selected by the user in the GUI. If no folder was selected
-   * either, an empty Optional is returned.
+   * Returns the folder to be used for document queries, updates and inserts. If the user has selected any documents, the folder of the first
+   * document is returned, else the folder selected by the user in the GUI. If no folder was selected either, an empty Optional is returned.
    * 
    * @param docs
    * @return
@@ -100,9 +102,9 @@ public class CommonUtils {
   }
 
   /**
-   * Returns the database (root folder) to be used for document queries, updates and inserts. If the user has selected any
-   * documents, the root folder of the first document is returned, else the root folder of the folder selected by the user
-   * in the GUI. If no folder was selected either, an empty Optional is returned.
+   * Returns the database (root folder) to be used for document queries, updates and inserts. If the user has selected any documents, the root
+   * folder of the first document is returned, else the root folder of the folder selected by the user in the GUI. If no folder was selected
+   * either, an empty Optional is returned.
    * 
    * @param docs
    * @return
@@ -121,26 +123,6 @@ public class CommonUtils {
     }
     WritableDatabaseService wdb = ((WritableDatabaseService) db).getPrimaryDatabaseRoot();
     return Optional.of(wdb);
-  }
-
-  /**
-   * Whether or not the specified array is null or has zero elements.
-   * 
-   * @param array
-   * @return
-   */
-  public static boolean isEmpty(Object[] array) {
-    return array == null || array.length == 0;
-  }
-
-  /**
-   * Whether or not the specified array is not null and contains at least one element.
-   * 
-   * @param array
-   * @return
-   */
-  public static boolean notEmpty(Object[] array) {
-    return array != null && array.length != 0;
   }
 
   private CommonUtils() {}

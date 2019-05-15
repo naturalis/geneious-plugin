@@ -1,7 +1,13 @@
 package nl.naturalis.geneious.note;
 
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+
 import java.util.EnumMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
@@ -9,16 +15,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
-import org.apache.commons.lang3.StringUtils;
-
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
-
 /**
- * A containing for all annotations that can be added using the Naturalis plugin. All methods allowing you to manipulate the contents of the
- * note enforce that you never enter a null value or (in case of string fields) a blank value. Consequently all getter are guaranteed to
- * return non-null, non-blank values.
+ * A container for all annotations that can be added using the Naturalis plugin. All setters within this class prevent you from entering
+ * null or (in case of string fields) blank values, throwing in {@link IllegalArgumentException} if you try.
  *
  * @author Ayco Holleman
  */
@@ -137,8 +136,7 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Copies all values of this note to the other note, overwriting any previous values the other note may have had. Returns true if the
-   * other note's content changed as a result, false otherwise.
+   * Overwrites the other note with the values in this note. Returns true if the other note's content changed as a result, false otherwise.
    * 
    * @param other
    * @return
@@ -185,28 +183,14 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} overwriting any previous values, but does not save the notes
-   * to the database.
+   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} overwriting any previous values, but does not save the notes to
+   * the database.
    * 
    * @param document
    */
   public void copyTo(DocumentNotes notes) {
     for (NaturalisField field : data.keySet()) {
       field.castAndWrite(notes, data.get(field));
-    }
-  }
-
-  /**
-   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} without overwriting any values, but does not save the notes
-   * to the database.
-   * 
-   * @param document
-   */
-  public void mergeInto(DocumentNotes notes) {
-    for (NaturalisField field : data.keySet()) {
-      if (field.readFrom(notes) == null) {
-        field.castAndWrite(notes, data.get(field));
-      }
     }
   }
 
@@ -220,6 +204,7 @@ public final class NaturalisNote implements Note {
     return ImmutableMap.copyOf(data);
   }
 
+  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -230,6 +215,7 @@ public final class NaturalisNote implements Note {
     return data.equals(((NaturalisNote) obj).data);
   }
 
+  @Override
   public int hashCode() {
     return data.hashCode();
   }

@@ -1,14 +1,5 @@
 package nl.naturalis.geneious.name;
 
-import java.util.regex.Pattern;
-
-import nl.naturalis.geneious.csv.NoteFactory;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.note.NaturalisField;
-import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.note.SeqPass;
-
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
@@ -17,9 +8,17 @@ import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_SEQUENCING_STAFF;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
 
+import java.util.regex.Pattern;
+
+import nl.naturalis.geneious.csv.NoteFactory;
+import nl.naturalis.geneious.gui.log.GuiLogManager;
+import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.note.SeqPass;
+
 /**
- * Extracts information from the name of an ab1/fasta file and creates a {@link NaturalisNote} from it. This is in
- * effect a {@link NoteFactory} for the SEQ_XXX anotations (see {@link NaturalisField}).
+ * Parses an AB1 file name or fasta sequence header and creates a {@link NaturalisNote} from the extracted information. This is in effect a
+ * {@link NoteFactory} for the AB1/Fasta Import opration and the Split Name operation.
  * 
  * @author Ayco Holleman
  *
@@ -36,10 +35,21 @@ public class SequenceNameParser {
 
   private final String name;
 
+  /**
+   * Creates a name parser for the provded name.
+   * 
+   * @param name
+   */
   public SequenceNameParser(String name) {
     this.name = name;
   }
 
+  /**
+   * Parses the name passed to the {@link #SequenceNameParser(String) constructor} and turns it into a {@code NaturalisNote}.
+   * 
+   * @return
+   * @throws NotParsableException
+   */
   public NaturalisNote parseName() throws NotParsableException {
     String[] segments = name.split(Pattern.quote("_"));
     if (segments.length < 5) {

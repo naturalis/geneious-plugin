@@ -59,17 +59,18 @@ class SampleSheetImporter extends NaturalisPluginWorker {
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     guiLogger.info("Searching database %s for matching extract IDs", getTargetDatabaseName());
+    // Get all extract IDs in sample sheet that do not correspond to the selected documents
     Set<String> unselectedExtractIds = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(unselectedExtractIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
     int overlap = (int) extractIds.stream().filter(selectedDocuments::containsKey).count();
-    guiLogger.info("Sample sheet contains %s row%s", rows.size(), plural(rows));
+    int numRows = rows.size() - cfg.getSkipLines();
+    guiLogger.info("Sample sheet contains %s row%s", numRows, plural(numRows));
     guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", overlap, plural(overlap));
     guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
-    // Note that this is only an estimate of the amount of dummies to be created. The involved rows in the sample sheet
-    // may not pass validation.
+    // Estimate only! If some of the rows containing new exract IDs are invalid, it will be less:
     int dummyCount = extractIds.size() - overlap - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", dummyCount, plural(dummyCount));
     StoredDocumentList updatesOrDummies = new StoredDocumentList(overlap + dummyCount);
@@ -93,12 +94,14 @@ class SampleSheetImporter extends NaturalisPluginWorker {
         } else {
           ++unused;
           if (guiLogger.isDebugEnabled()) {
-            logUnusedRow(docs1, i);
+            logUnusedRow(docs1);
           }
         }
       } else {
-        String fmt = "Found %s document%s. Scanning documents for obsolete values";
-        guiLogger.debugf(() -> format(fmt, docs0.size(), plural(docs0)));
+        if (guiLogger.isDebugEnabled()) {
+          String fmt = "Found %1$s document%2$s. Comparing values in sample sheet with values in document%2$s (updating document%2$s if necessary)";
+          guiLogger.debug(fmt, docs0.size(), plural(docs0));
+        }
         for (StoredDocument doc : docs0) {
           if (doc.attach(note)) {
             updatesOrDummies.add(doc);
@@ -107,9 +110,8 @@ class SampleSheetImporter extends NaturalisPluginWorker {
             } else {
               ++updated;
             }
-          } else {
-            String fmt1 = "Document with extract ID %s not updated (no new values in sample sheet)";
-            guiLogger.debugf(() -> format(fmt1, id));
+          } else if (guiLogger.isDebugEnabled()) {
+            guiLogger.debug("Document with extract ID %s not updated (no new values in sample sheet)", id);
           }
         }
       }
@@ -156,7 +158,7 @@ class SampleSheetImporter extends NaturalisPluginWorker {
       }
       ++good;
       String id = note.getExtractId();
-      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      guiLogger.debugf(() -> format("Searching selected documents for extract ID %s", id));
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
         if (guiLogger.isDebugEnabled()) {
@@ -164,13 +166,15 @@ class SampleSheetImporter extends NaturalisPluginWorker {
         }
         ++unused;
       } else {
-        guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
+        if (guiLogger.isDebugEnabled()) {
+          String fmt = "Found %1$s document%2$s. Comparing values in sample sheet with values in document%2$s (updating document%2$s if necessary)";
+          guiLogger.debug(fmt, docs.size(), plural(docs));
+        }
         for (StoredDocument doc : docs) {
           if (doc.attach(note)) {
             updates.add(doc);
-          } else {
-            String fmt = "Document with extract ID %s not updated (no new values in sample sheet)";
-            guiLogger.debugf(() -> format(fmt, id));
+          } else if (guiLogger.isDebugEnabled()) {
+            guiLogger.debug("Document with extract ID %s not updated (no new values in sample sheet)", id);
           }
         }
       }
@@ -218,21 +222,23 @@ class SampleSheetImporter extends NaturalisPluginWorker {
 
   private Set<String> collectExtractIds(List<String[]> rows) {
     int colno = cfg.getColumnNumbers().get(SampleSheetColumn.EXTRACT_ID);
-    return rows.stream()
+    return rows.subList(cfg.getSkipLines(), rows.size())
+        .stream()
         .filter(row -> colno < row.length)
         .filter(row -> StringUtils.isNotBlank(row[colno]))
         .map(row -> "e" + row[colno])
         .collect(Collectors.toSet());
   }
 
-  private static void logUnusedRow(StoredDocumentList docs, int rownum) {
+  private static void logUnusedRow(StoredDocumentList docs) {
     String extractId = docs.get(0).getNaturalisNote().getExtractId();
+    String fmt;
     if (docs.size() == 1) {
-      String fmt = "Row at line %s (%s) corresponds to an existing document, but the document was not selected and therefore not updated";
-      guiLogger.debug(fmt, rownum + 1, extractId);
+      fmt = "Found %s %s document with extract ID %s, but the document was not selected and therefore not updated";
+      guiLogger.debug(fmt, docs.size(), docs.get(0).getType(), extractId);
     } else {
-      String fmt = "Row at line %s (%s) corresponds to %s existing documents, but they were not selected and therefore not updated";
-      guiLogger.debug(fmt, rownum + 1, extractId, docs.size());
+      fmt = "Found %s documents with extract ID %s, but the documents were not selected and therefore not updated";
+      guiLogger.debug(fmt, docs.size(), extractId);
     }
   }
 

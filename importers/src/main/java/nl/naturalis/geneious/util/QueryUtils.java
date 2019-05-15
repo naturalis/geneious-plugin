@@ -1,5 +1,12 @@
 package nl.naturalis.geneious.util;
 
+import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
+import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
+import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,13 +24,6 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
-import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
-import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
-
 /**
  * Methods for accessing the Geneious database.
  *
@@ -33,7 +33,8 @@ public class QueryUtils {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
 
-  private static final DocumentField QF_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
+  private static final DocumentField QF_SEQ_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
+  private static final DocumentField QF_SMPL_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
 
   private QueryUtils() {}
 
@@ -72,8 +73,13 @@ public class QueryUtils {
     if (extractIds.size() == 0) {
       return APDList.emptyList();
     }
-    Query[] subqueries = extractIds.stream().map(id -> createFieldQuery(QF_EXTRACT_ID, EQUAL, id)).toArray(Query[]::new);
-    Query query = createOrQuery(subqueries, Collections.emptyMap());
+    Query[] constraints = new Query[extractIds.size()*2];
+    int i = 0;
+    for (String id : extractIds) {
+      constraints[i++] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id);
+      constraints[i++] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id);
+    }
+    Query query = createOrQuery(constraints, Collections.emptyMap());
     guiLogger.debugf(() -> format("Executing query: %s", query));
     return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
   }
@@ -86,7 +92,7 @@ public class QueryUtils {
    * @throws DatabaseServiceException
    */
   public static AnnotatedPluginDocument getPingDocument(String pingValue) throws DatabaseServiceException {
-    Query query = createFieldQuery(QF_EXTRACT_ID, EQUAL, pingValue);
+    Query query = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, pingValue);
     List<AnnotatedPluginDocument> response = getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
     return response.isEmpty() ? null : response.get(0);
   }

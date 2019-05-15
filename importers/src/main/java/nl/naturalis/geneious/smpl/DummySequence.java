@@ -1,5 +1,8 @@
 package nl.naturalis.geneious.smpl;
 
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
+
 import java.util.Date;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -8,11 +11,6 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
-
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 /**
  * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create dummy documents. The dummy
@@ -71,7 +69,6 @@ public class DummySequence extends DefaultNucleotideSequence {
     if (note.get(SEQ_MARKER) == null) {
       note.castAndSet(SEQ_MARKER, DUMMY_MARKER);
     }
-    note.castAndSet(SEQ_EXTRACT_ID, note.get(SMPL_EXTRACT_ID));
     return new StoredDocument(apd, note);
   }
 

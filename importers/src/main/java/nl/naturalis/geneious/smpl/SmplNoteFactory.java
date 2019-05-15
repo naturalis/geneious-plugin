@@ -1,16 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import nl.naturalis.geneious.csv.InvalidRowException;
-import nl.naturalis.geneious.csv.NoteFactory;
-import nl.naturalis.geneious.note.NaturalisNote;
-
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_AMPLIFICATION_STAFF;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACTION_METHOD;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
@@ -28,14 +17,25 @@ import static nl.naturalis.geneious.smpl.SampleSheetColumn.REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.SAMPLE_PLATE_ID;
 import static nl.naturalis.geneious.smpl.SampleSheetColumn.SCIENTIFIC_NAME;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import nl.naturalis.geneious.csv.InvalidRowException;
+import nl.naturalis.geneious.csv.NoteFactory;
+import nl.naturalis.geneious.note.NaturalisNote;
+
 /**
  * Produces a {@link NaturalisNote} from the data in a {@link SampleSheetRow}.
  */
 class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 
-  private static final Pattern PT_EXTRACT_ID = Pattern.compile("^\\d{4,16}$");
-
+  private static final Pattern PTTRN_EXTRACT_ID = Pattern.compile("^\\d{4,16}$");
   private static final String CONSTANT_VALUE_AMPL_STAFF = "Naturalis Biodiversity Center Laboratories";
+  private static final String ERR_MSSING_HYPHEN = "missing hyphen ('-') in value for %s: %s";
 
   SmplNoteFactory(int rownum, SampleSheetRow row) {
     super(rownum, row);
@@ -64,13 +64,13 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
   private String getExtractPlateId(String val) throws InvalidRowException {
     int i = val.indexOf('-');
     if (i == -1) {
-      throw InvalidRowException.custom(this, "missing hyphen ('-') in value for %s: %s", SMPL_SAMPLE_PLATE_ID, val);
+      throw InvalidRowException.custom(this, ERR_MSSING_HYPHEN, SMPL_SAMPLE_PLATE_ID, val);
     }
     return val.substring(0, i);
   }
 
   private String getExtractId(String val) throws InvalidRowException {
-    if (PT_EXTRACT_ID.matcher(val).matches()) {
+    if (PTTRN_EXTRACT_ID.matcher(val).matches()) {
       return "e" + val;
     }
     throw InvalidRowException.custom(this, "Invalid extract ID: \"%s\"", val);
