@@ -33,8 +33,14 @@ public class QueryUtils {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
 
-  private static final DocumentField QF_SEQ_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
-  private static final DocumentField QF_SMPL_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
+  /**
+   * The {@code DocumentField} to use for queries on the "Extract ID (Seq)" field
+   */
+  public static final DocumentField QF_SEQ_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
+  /**
+   * The {@code DocumentField} to use for queries on the "Extract ID (Samples)" field
+   */
+  public static final DocumentField QF_SMPL_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
 
   private QueryUtils() {}
 
@@ -73,7 +79,7 @@ public class QueryUtils {
     if (extractIds.size() == 0) {
       return APDList.emptyList();
     }
-    Query[] constraints = new Query[extractIds.size()*2];
+    Query[] constraints = new Query[extractIds.size() * 2];
     int i = 0;
     for (String id : extractIds) {
       constraints[i++] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id);
@@ -85,16 +91,18 @@ public class QueryUtils {
   }
 
   /**
-   * Retrieves the ping document with the specified value, or null if the document has not been indexed yet.
+   * Return the documents containing the specified extract ID.
    * 
-   * @param pingValue
+   * @param extractId
    * @return
    * @throws DatabaseServiceException
    */
-  public static AnnotatedPluginDocument getPingDocument(String pingValue) throws DatabaseServiceException {
-    Query query = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, pingValue);
-    List<AnnotatedPluginDocument> response = getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
-    return response.isEmpty() ? null : response.get(0);
+  public static List<AnnotatedPluginDocument> findByExtractID(String extractId) throws DatabaseServiceException {
+    Query[] constraints = new Query[2];
+    constraints[0] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, extractId);
+    constraints[1] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, extractId);
+    Query query = createOrQuery(constraints, Collections.emptyMap());
+    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
   }
 
   /**

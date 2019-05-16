@@ -20,9 +20,9 @@ public enum Setting {
   PRETTY_NOTES("nl.naturalis.geneious.log.prettyNotes"),
 
   /**
-   * The timestamp used to construct a ping value. See {@link Ping} class.
+   * A JSON string serializing ping history: per database the timestamp used to construct a ping value.
    */
-  PING_TIME("nl.naturalis.geneious.pingTime"),
+  PING_HISTORY("nl.naturalis.geneious.pingHistory"),
 
   /**
    * AB1 file extensions.

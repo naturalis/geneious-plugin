@@ -50,6 +50,11 @@ public class ShowDialog {
     showMessageDialog(frame(), msg, "No target folder selected", ERROR_MESSAGE);
   }
 
+  public static void pleaseSelectDatabase() {
+    String msg = "Please select a database";
+    showMessageDialog(frame(), msg, "No database selected", ERROR_MESSAGE);
+  }
+
   public static boolean confirmRegenerateAnnotationMetadata() {
     String fmt = "This is advanced functionality! Do you really want to update Naturalis annotation metadata for database \"%s\"?";
     String msg = String.format(fmt, QueryUtils.getTargetDatabaseName());

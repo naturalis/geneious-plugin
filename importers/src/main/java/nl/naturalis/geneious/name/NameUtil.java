@@ -31,7 +31,7 @@ public class NameUtil {
   public static final String[] fastaSuffixes = {" (fasta)", ".fas", ".fasta"};
   public static final String[] dummySuffixes = {" (dummy)", ".dum"};
 
-  private static final String[] all = NArrays.combine(ab1Suffixes, fastaSuffixes, dummySuffixes);
+  private static final String[] all = NArrays.concat(ab1Suffixes, fastaSuffixes, dummySuffixes);
 
   private static EnumMap<DocumentType, String[]> suffixes = new EnumMap<>(DocumentType.class);
 

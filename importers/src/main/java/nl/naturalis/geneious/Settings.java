@@ -5,7 +5,7 @@ import static nl.naturalis.geneious.Setting.DEBUG;
 import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
-import static nl.naturalis.geneious.Setting.PING_TIME;
+import static nl.naturalis.geneious.Setting.PING_HISTORY;
 import static nl.naturalis.geneious.Setting.*;
 
 import java.util.EnumMap;
@@ -63,21 +63,21 @@ public class Settings {
   }
 
   /**
-   * Returns the timestamp used to construct a ping value.
+   * Returns ping history as a JSON string.
    * 
    * @return
    */
-  public String getPingTime() {
-    return (String) cache.get(PING_TIME);
+  public String getPingHistory() {
+    return (String) cache.get(PING_HISTORY);
   }
 
   /**
-   * Stores the timestamp used to construct a ping value (so it will survive Geneious sessions).
+   * Sets the ping history as a JSON string (so it will survive Geneious sessions).
    * 
    * @param timestamp
    */
-  public void setPingTime(String timestamp) {
-    cache.put(PING_TIME, timestamp);
+  public void setPingHistory(String timestamp) {
+    cache.put(PING_HISTORY, timestamp);
   }
 
   /**

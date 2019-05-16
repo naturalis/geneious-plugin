@@ -7,13 +7,13 @@ import static nl.naturalis.geneious.Setting.DEBUG;
 import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
-import static nl.naturalis.geneious.Setting.PING_TIME;
-import static nl.naturalis.geneious.Setting.*;
+import static nl.naturalis.geneious.Setting.PING_HISTORY;
+import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
 import static nl.naturalis.geneious.Settings.settings;
 
 import com.biomatters.geneious.publicapi.plugin.Options;
 
-import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
+import nl.naturalis.geneious.util.Ping;
 
 public class NaturalisOptions extends Options {
 
@@ -34,15 +34,15 @@ public class NaturalisOptions extends Options {
   }
 
   private void addHiddenOptions() {
-    StringOption pingTime = addStringOption(PING_TIME.getName(), "", "");
+    StringOption pingTime = addStringOption(PING_HISTORY.getName(), "", "");
     pingTime.setHidden();
-    settings().update(PING_TIME, pingTime.getValue());
-    pingTime.addChangeListener(() -> settings().update(PING_TIME, pingTime.getValue()));
+    settings().update(PING_HISTORY, pingTime.getValue());
+    pingTime.addChangeListener(() -> settings().update(PING_HISTORY, pingTime.getValue()));
   }
 
   private void addGeneralOptions() {
     addDivider("General ");
-    
+
     BooleanOption debug = addBooleanOption(DEBUG.getName(), "Show debug info in plugin logs", FALSE);
     debug.setHelp("Provide more detailed information as the Naturalis plugin is working. Enable when creating "
         + "support tickets for bugs or perfomance issues.");
@@ -54,8 +54,13 @@ public class NaturalisOptions extends Options {
     settings().update(PRETTY_NOTES, prettyNotes.getValue());
     prettyNotes.addChangeListener(() -> settings().update(PRETTY_NOTES, prettyNotes.getValue()));
 
-    ButtonOption button = addButtonOption("foo", "", "Update annotation metadata");
-    button.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
+    ButtonOption clearPingdata = addButtonOption("foo-0", "", "Clear ping data");
+    clearPingdata.setHelp("Press this button if you accidentally deleted a \"ping\" folder while waiting for document "
+        + "indexing to complete. Make sure you all documents have been indexed before continuing to use the plugin");
+    clearPingdata.addActionListener(e -> Ping.clear());
+
+    // ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata");
+    // updateMetadata.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
   }
 
   private void addAb1FastaImportOptions() {

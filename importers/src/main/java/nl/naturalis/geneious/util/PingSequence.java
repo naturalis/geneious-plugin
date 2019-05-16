@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -22,36 +23,42 @@ import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create dummy documents. The dummy documents will be
- * removed as soon as the real fasta and AB1 sequences are imported, providing them with the annotations saved to the dummy document.
+ * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create "ping documents".
  *
  * @author Ayco Holleman
  */
 public class PingSequence extends DefaultNucleotideSequence {
 
-  /**
-   * The nucleotide sequence used for all ping documents: "AAAAAAAAAA"
-   */
-  public static final String PING_SEQUENCE = "AAAAAAAAAA";
-  /**
-   * The marker used for all documents: "Ping"
-   */
-  public static final String DUMMY_MARKER = "Ping";
+  private static final String NUCLEOTIDES = "AAAAAAAAAA";
+  private static final String DUMMY_MARKER = "Ping";
+
+  private static final String pingFolderName = "@ping";
+  private static final String userFolderName = System.getProperty("user.name");
+  private static final String geneiousFolderPrefix = "Folder: ";
+
+  static void delete(AnnotatedPluginDocument pingDocument) throws DatabaseServiceException {
+    DatabaseService userFolder = pingDocument.getDatabase();
+    if (userFolder.getName().equals(geneiousFolderPrefix + userFolderName)) {
+      WritableDatabaseService pingFolder = (WritableDatabaseService) userFolder.getParentService();
+      if (pingFolder.getName().equals(geneiousFolderPrefix + pingFolderName)) {
+        pingFolder.removeChildFolder(userFolderName);
+        return;
+      }
+    }
+    throw new NaturalisPluginException("Unexpected location for ping document: " + pingDocument.getDatabase().getFullPath());
+  }
 
   private final String pingValue;
 
   /**
-   * No-arg constructor, required by Geneious framework, but it seems we can rely on the other constructor being called when it matters.
+   * No-arg constructor required by Geneious framework.
    */
   public PingSequence() {
     this("shouldn't happen");
   }
 
-  /**
-   * No-arg constructor, required by Geneious framework, but it seems we can rely on the other constructor being called when it matters.
-   */
-  public PingSequence(String pingValue) {
-    super(pingValue, "", PING_SEQUENCE, new Date());
+  PingSequence(String pingValue) {
+    super(pingValue, "", NUCLEOTIDES, new Date());
     this.pingValue = pingValue;
   }
 
@@ -61,9 +68,11 @@ public class PingSequence extends DefaultNucleotideSequence {
    * @return
    * @throws DatabaseServiceException
    */
-  public void save(String folderName) throws DatabaseServiceException {
-    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(folderName);
+  void save() throws DatabaseServiceException {
+    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(pingFolderName);
+    WritableDatabaseService userFolder = pingFolder.createChildFolder(userFolderName);
     pingFolder.setColor(Color.lightGray);
+    userFolder.setColor(Color.lightGray);
     AnnotatedPluginDocument apd = DocumentUtilities.createAnnotatedPluginDocument(this);
     NaturalisNote note = new NaturalisNote();
     note.setDocumentVersion(0);
@@ -76,9 +85,9 @@ public class PingSequence extends DefaultNucleotideSequence {
         Arrays.asList(apd),
         false,
         Collections.emptyList(),
-        pingFolder);
+        userFolder);
     if (apds.size() != 1) {
-      throw new NaturalisPluginException("Error while saving ping value");
+      throw new NaturalisPluginException("Error saving ping document");
     }
   }
 
