@@ -5,6 +5,8 @@ import static java.util.function.Predicate.not;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 import java.util.Collections;
@@ -17,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.ErrorCode;
-import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
@@ -32,7 +32,6 @@ import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
-import static nl.naturalis.geneious.util.PreconditionValidator.*;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -149,7 +148,7 @@ class SampleSheetImporter extends NaturalisPluginWorker {
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    guiLogger.info("Operation completed successfully");
     return updatesOrDummies.size() != 0;
   }
 
@@ -201,7 +200,7 @@ class SampleSheetImporter extends NaturalisPluginWorker {
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    guiLogger.info("Operation completed successfully");
     return updates.size() != 0;
   }
 

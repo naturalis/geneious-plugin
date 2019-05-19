@@ -1,8 +1,6 @@
 package nl.naturalis.geneious.csv;
 
 import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
-import static nl.naturalis.geneious.ErrorCode.CSV_NO_FILE_PROVIDED;
-import static nl.naturalis.geneious.ErrorCode.CSV_UNSUPPORTED_FILE_TYPE;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 import java.io.File;
@@ -22,8 +20,6 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.collect.ImmutableSet;
-
-import nl.naturalis.geneious.MessageProvider;
 
 public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
 
@@ -69,11 +65,11 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       return msg;
     }
     if (StringUtils.isBlank(file.getValue())) {
-      return MessageProvider.get(CSV_NO_FILE_PROVIDED);
+      return "Please select a CSV file or spreadsheet to import";
     }
     String ext = getExtension(file.getValue());
     if (!ALLOWED_FILE_TYPES.contains(ext.toLowerCase())) {
-      return MessageProvider.get(CSV_UNSUPPORTED_FILE_TYPE, ext);
+      return "Unsupported file type. Allowed file types: *.csv, *.tsv, *.txt, *.xls";
     }
     return null; // Signals to Geneious it can continue
   }

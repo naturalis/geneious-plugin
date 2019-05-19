@@ -4,10 +4,7 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.csv.CsvImportOptions;
-
-import static nl.naturalis.geneious.ErrorCode.CSV_UNSUPPORTED_FILE_TYPE;
 
 class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
 
@@ -32,7 +29,8 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
       return msg;
     }
     if (linesToSkip.getValue() == 0) {
-      return MessageProvider.get(CSV_UNSUPPORTED_FILE_TYPE);
+      return "\"Lines to skip\" must not be 0 (zero). Bold files must have at least one header line containing " + 
+          "the column names (usually line 3).";
     }
     return null;
   }

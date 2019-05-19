@@ -6,8 +6,6 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
-import nl.naturalis.geneious.ErrorCode;
-import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StorableDocument;
@@ -47,7 +45,7 @@ public class NameSplitter extends NaturalisPluginWorker {
     guiLogger.info("Number of documents passing filters ...: %3d", docs.size());
     guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
     guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
-    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    guiLogger.info("Operation completed successfully");
     return annotated.size() != 0;
   }
 

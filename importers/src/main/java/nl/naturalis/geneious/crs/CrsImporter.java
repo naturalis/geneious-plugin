@@ -9,8 +9,6 @@ import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCU
 
 import java.util.List;
 
-import nl.naturalis.geneious.ErrorCode;
-import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
@@ -85,7 +83,7 @@ class CrsImporter extends NaturalisPluginWorker {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    guiLogger.info(MessageProvider.get(ErrorCode.OPERATION_SUCCESS));
+    guiLogger.info("Operation completed successfully");
     return updates.size() != 0;
   }
 
