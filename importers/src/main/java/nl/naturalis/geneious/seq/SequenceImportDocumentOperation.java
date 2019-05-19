@@ -17,7 +17,6 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.gui.log.LogSession;
-import nl.naturalis.geneious.util.CommonUtils;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
@@ -45,14 +44,12 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    if (CommonUtils.checkTargetFolderNotNull()) {
-      JFileChooser fc = newFileChooser();
-      if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-        RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
-        try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-          SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
-          importer.execute();
-        }
+    JFileChooser fc = newFileChooser();
+    if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+      RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
+      try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
+        SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
+        importer.execute();
       }
     }
     return null;

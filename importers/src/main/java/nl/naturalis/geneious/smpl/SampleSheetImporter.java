@@ -20,6 +20,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
@@ -27,9 +28,11 @@ import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.APDList;
+import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
+import static nl.naturalis.geneious.util.PreconditionValidator.*;
 
 /**
  * Does the actual work of importing a sample sheet into Geneious.
@@ -45,10 +48,16 @@ class SampleSheetImporter extends NaturalisPluginWorker {
   }
 
   @Override
-  protected boolean performOperation() throws DatabaseServiceException {
+  protected boolean performOperation() throws DatabaseServiceException, NonFatalException {
     if (cfg.isCreateDummies()) {
+      int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
+      PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
+      validator.validate();
       return updateOrCreateDummies();
     }
+    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
+    PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
+    validator.validate();
     return updateSelectedDocuments();
   }
 

@@ -11,8 +11,13 @@ public enum ErrorCode {
    */
   BAD_CHARSET(1),
   /**
-   * one or more documents come from another database than the target database for the operation (e.g. because of a
-   * query). This is currently not supported.
+   * User has not select a target database. In princpliple this can't happen because Geneious will force the user to select a target database
+   * before handing control over to the plugin. However so much code depends on the target database not being null that we check it anyway.
+   */
+  NO_DATABASE,
+  /**
+   * one or more of the select documents are in another database than the database selected by the user (probably because of a query returning
+   * documents from/across multiple databases). This is currently not supported.
    */
   BAD_DOCUMENT_DATABASE(1),
 
@@ -22,8 +27,8 @@ public enum ErrorCode {
   SMPL_MISSING_SAMPLE_SHEET,
 
   /**
-   * The user did not selected any documents and also unchecked the "Create dummies" checkbox. He/she must either select
-   * at least one document or check the "Create dummies" checkbox.
+   * The user did not selected any documents and also unchecked the "Create dummies" checkbox. He/she must either select at least one document
+   * or check the "Create dummies" checkbox.
    */
   SMPL_NO_DOCUMENTS_SELECTED,
 
@@ -36,7 +41,7 @@ public enum ErrorCode {
    * The user-selected file did not have a csv, tsv, txt or xls extension
    */
   CSV_UNSUPPORTED_FILE_TYPE(1),
-  
+
   /**
    * Generic success message for plugin actions.
    */

@@ -24,12 +24,10 @@ public abstract class NaturalisPluginWorker extends SwingWorker<Void, Void> {
           Ping.start();
         }
       }
+    } catch (NonFatalException e) {
+      guiLogger.error(e.getMessage());
     } catch (Throwable t) {
-      if (t instanceof NonFatalException) {
-        guiLogger.error(t.getMessage());
-      } else {
-        guiLogger.fatal(t);
-      }
+      guiLogger.fatal(t);
     }
     return null;
   }
@@ -40,8 +38,8 @@ public abstract class NaturalisPluginWorker extends SwingWorker<Void, Void> {
    * should return false.
    * 
    * @return
-   * @throws Throwable
+   * @throws Exception
    */
-  protected abstract boolean performOperation() throws Throwable;
+  protected abstract boolean performOperation() throws Exception;
 
 }

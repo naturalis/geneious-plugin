@@ -23,10 +23,7 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.collect.ImmutableSet;
 
-import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
-import nl.naturalis.geneious.MessageProvider.Message;
-import nl.naturalis.geneious.util.SharedPreconditionValidator;
 
 public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
 
@@ -70,11 +67,6 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     String msg = super.verifyOptionsAreValid();
     if (msg != null) {
       return msg;
-    }
-    SharedPreconditionValidator validator = new SharedPreconditionValidator(documents);
-    Message message = validator.validate();
-    if (message.getCode() != ErrorCode.OK) {
-      return message.getMessage();
     }
     if (StringUtils.isBlank(file.getValue())) {
       return MessageProvider.get(CSV_NO_FILE_PROVIDED);

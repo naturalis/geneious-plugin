@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.split;
 
+import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
+
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
@@ -7,11 +9,13 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.NameUtil;
+import nl.naturalis.geneious.util.PreconditionValidator;
 
 public class NameSplitter extends NaturalisPluginWorker {
 
@@ -24,7 +28,10 @@ public class NameSplitter extends NaturalisPluginWorker {
   }
 
   @Override
-  protected boolean performOperation() throws DatabaseServiceException {
+  protected boolean performOperation() throws DatabaseServiceException, NonFatalException {
+    int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
+    PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
+    validator.validate();
     DocumentFilter filter = new DocumentFilter(cfg);
     List<StorableDocument> docs = filter.filterAndConvert();
     Annotator annotator = new Annotator(docs);

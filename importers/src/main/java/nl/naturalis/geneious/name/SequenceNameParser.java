@@ -60,7 +60,7 @@ public class SequenceNameParser {
     n.castAndSet(SEQ_PCR_PLATE_ID, processPcrPlateID(segments[3]));
     n.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     n.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
-    n.castAndSet(SEQ_PASS, SeqPass.OK);
+    n.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
     guiLogger.debugf(() -> format("Note created: %s", toJson(n)));
     return n;
   }

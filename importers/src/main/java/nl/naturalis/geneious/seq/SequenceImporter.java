@@ -1,6 +1,7 @@
 package nl.naturalis.geneious.seq;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+import static nl.naturalis.geneious.util.PreconditionValidator.BASIC;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +14,13 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.util.APDList;
+import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
  * Does the actual work of importing AB1/fasta files into Geneious.
@@ -33,7 +36,9 @@ class SequenceImporter extends NaturalisPluginWorker {
   }
 
   @Override
-  protected boolean performOperation() throws IOException, DatabaseServiceException {
+  protected boolean performOperation() throws IOException, DatabaseServiceException, NonFatalException {
+    PreconditionValidator validator = new PreconditionValidator(BASIC);
+    validator.validate();
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<StorableDocument> docs = new ArrayList<>();
       List<StorableDocument> annotated = null;

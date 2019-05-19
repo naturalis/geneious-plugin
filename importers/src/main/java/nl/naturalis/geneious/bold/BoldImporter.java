@@ -7,6 +7,8 @@ import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
 import java.util.List;
 import java.util.Map;
@@ -14,11 +16,13 @@ import java.util.Map;
 import nl.naturalis.geneious.ErrorCode;
 import nl.naturalis.geneious.MessageProvider;
 import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
@@ -36,7 +40,10 @@ class BoldImporter extends NaturalisPluginWorker {
   }
 
   @Override
-  protected boolean performOperation() throws BoldNormalizationException {
+  protected boolean performOperation() throws NonFatalException {
+    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
+    PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
+    validator.validate();
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
     Map<String, List<String[]>> allRows = new BoldNormalizer(cfg).normalizeRows();
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();

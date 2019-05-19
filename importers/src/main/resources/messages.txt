@@ -9,7 +9,10 @@ BAD_DOCUMENT_DATABASE
 	documents belong to database "%s" or select a different folder.
 	
 BAD_CHARSET
-	The Java VM runs using an unsupported character encoding: "%s". Contact support.	
+	The Java VM runs using an unsupported character encoding: "%s". Contact support.
+	
+NO_DATABASE
+	No database (folder) selected	
 		
 SMPL_MISSING_SAMPLE_SHEET
 	Please select a sample sheet
