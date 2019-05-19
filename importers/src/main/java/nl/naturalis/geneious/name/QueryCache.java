@@ -1,9 +1,12 @@
 package nl.naturalis.geneious.name;
 
+import static nl.naturalis.geneious.DocumentType.DUMMY;
 import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,7 +21,6 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.util.StoredDocumentComparator;
 
 /**
  * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a database query.
@@ -90,7 +92,7 @@ class QueryCache {
     }
   }
 
-  private final HashMap<Key, StoredDocument> cache;
+  private final HashMap<Key, List<StoredDocument>> cache;
 
   /**
    * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the cache key.
@@ -99,9 +101,16 @@ class QueryCache {
    */
   QueryCache(Collection<AnnotatedPluginDocument> documents) {
     cache = new HashMap<>(documents.size(), 1F);
-    documents.stream()
-        .map(StoredDocument::new)
-        .forEach(sd -> cache.merge(new Key(sd), sd, StoredDocumentComparator::chooseLatest));
+    for (AnnotatedPluginDocument doc : documents) {
+      StoredDocument sd = new StoredDocument(doc);
+      Key key = new Key(sd);
+      List<StoredDocument> sds = cache.get(key);
+      if (sds == null) {
+        sds = new ArrayList<StoredDocument>(8);
+        cache.put(key, sds);
+      }
+      sds.add(sd);
+    }
   }
 
   /**
@@ -112,7 +121,10 @@ class QueryCache {
    * @return
    */
   Optional<StoredDocument> findDummy(String extractId) {
-    return Optional.ofNullable(cache.get(new Key(DocumentType.DUMMY, extractId)));
+    List<StoredDocument> value = cache.get(new Key(DUMMY, extractId));
+    // For dummy documents the list size will always be one, because per extract ID there can only be one dummy document (that's how sample
+    // sheet rows are matched and merged with existing dummy documents).
+    return value == null ? Optional.empty() : Optional.of(value.get(0));
   }
 
   /**
@@ -123,14 +135,24 @@ class QueryCache {
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
     for (Key key : cache.keySet()) {
-      StoredDocument sd = cache.get(key);
-      String version = sd.getNaturalisNote().getDocumentVersion();
-      if (version == null) {
-        String fmt = "Corrupt %s document: extract ID is set (%s) but document version is not";
-        guiLogger.warn(fmt, key.docType, key.value);
-      } else if (!sd.isDummy()) {
+      List<StoredDocument> sds = cache.get(key);
+      for (StoredDocument sd : sds) {
+        if (sd.isDummy()) {
+          continue;
+        }
         String name = removeKnownSuffixes(sd.getGeneiousDocument().getName());
-         versions.put(new Key(key.docType, name), new MutableInt(version));
+        String version = sd.getNaturalisNote().getDocumentVersion();
+        Key newKey = new Key(sd.getType(), name);
+        MutableInt mi1 = new MutableInt(version);
+        MutableInt mi2 = versions.get(newKey);
+        if (mi2 == null) {
+          versions.put(newKey, mi1);
+        } else if (mi1.intValue() > mi2.intValue()) {
+          mi2.setValue(mi1.intValue());
+        } else if (mi1.intValue() == mi2.intValue()) {
+          String fmt = "Corrupt %s documents: two documents with the same name (%s) and the same document version (%s)";
+          guiLogger.warn(fmt, key.docType, name, version);
+        }
       }
     }
     return versions;

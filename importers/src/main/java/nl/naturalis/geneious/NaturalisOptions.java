@@ -13,6 +13,7 @@ import static nl.naturalis.geneious.Settings.settings;
 
 import com.biomatters.geneious.publicapi.plugin.Options;
 
+import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 import nl.naturalis.geneious.util.Ping;
 
 public class NaturalisOptions extends Options {
@@ -59,8 +60,8 @@ public class NaturalisOptions extends Options {
         + "indexing to complete. Make sure you all documents have been indexed before continuing to use the plugin");
     clearPingdata.addActionListener(e -> Ping.clear());
 
-    // ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata");
-    // updateMetadata.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
+    ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata");
+    updateMetadata.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
   }
 
   private void addAb1FastaImportOptions() {
