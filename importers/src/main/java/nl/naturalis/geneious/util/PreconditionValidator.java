@@ -2,7 +2,6 @@ package nl.naturalis.geneious.util;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;

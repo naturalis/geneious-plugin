@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
-import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -23,7 +23,7 @@ import nl.naturalis.geneious.util.PreconditionValidator;
 /**
  * Does the actual work of importing AB1/fasta files into Geneious.
  */
-class SequenceImporter extends NaturalisPluginWorker {
+class SequenceImporter extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImporter.class);
 

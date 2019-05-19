@@ -25,7 +25,7 @@ public class PingHistory {
 
   private static final String user = System.getProperty("user.name");
 
-  private final Map<String, String> cache;
+  final Map<String, String> cache;
   private final String key;
 
   public PingHistory() {
@@ -53,14 +53,20 @@ public class PingHistory {
 
   public boolean isOlderThan(int minutes) {
     String pingValue = cache.get(key);
-    long timestamp = Long.parseLong(pingValue.substring(pingValue.lastIndexOf('/')));
+    long timestamp = Long.parseLong(pingValue.substring(pingValue.lastIndexOf('/') + 1));
     return (System.currentTimeMillis() - timestamp) > (minutes * 60 * 1000);
   }
 
-  public String newPingValue() {
+  public String generateNewPingValue() {
     if (isClear()) {
       String value = "ping:" + key + "//" + System.currentTimeMillis();
       cache.put(key, value);
+      try {
+        String json = writer.writeValueAsString(cache);
+        settings().setPingHistory(json);
+      } catch (JsonProcessingException e) {
+        throw new NaturalisPluginException(e);
+      }
       return value;
     }
     throw Ping.pingCorrupted();

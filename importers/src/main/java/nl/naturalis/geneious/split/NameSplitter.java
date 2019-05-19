@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 
-import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -15,7 +15,7 @@ import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
-public class NameSplitter extends NaturalisPluginWorker {
+public class NameSplitter extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameSplitter.class);
 

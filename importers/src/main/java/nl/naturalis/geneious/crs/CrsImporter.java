@@ -9,7 +9,7 @@ import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCU
 
 import java.util.List;
 
-import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
@@ -24,7 +24,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 /**
  * Does the actual work of importing a CRS file into Geneious.
  */
-class CrsImporter extends NaturalisPluginWorker {
+class CrsImporter extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsImporter.class);
 

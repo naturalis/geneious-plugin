@@ -12,9 +12,9 @@ import nl.naturalis.geneious.util.Ping;
  * @author Ayco Holleman
  *
  */
-public abstract class NaturalisPluginWorker extends SwingWorker<Void, Void> {
+public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NaturalisPluginWorker.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(PluginSwingWorker.class);
 
   @Override
   protected Void doInBackground() {

@@ -13,7 +13,7 @@ import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCU
 import java.util.List;
 import java.util.Map;
 
-import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
@@ -27,7 +27,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 /**
  * Does the actual work of importing a BOLD file into Geneious.
  */
-class BoldImporter extends NaturalisPluginWorker {
+class BoldImporter extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
 

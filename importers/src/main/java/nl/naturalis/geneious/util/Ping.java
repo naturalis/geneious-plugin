@@ -88,6 +88,8 @@ public class Ping {
     if (svc == null) {
       ShowDialog.pleaseSelectDatabase();
     } else {
+      new PingHistory().clear();
+      ShowDialog.pingHistoryCleared();
     }
   }
 
@@ -99,7 +101,7 @@ public class Ping {
 
   private boolean doStart() throws DatabaseServiceException {
     guiLogger.info(MSG_WAITING);
-    PingSequence sequence = new PingSequence(history.newPingValue());
+    PingSequence sequence = new PingSequence(history.generateNewPingValue());
     sequence.save();
     return startPingLoop();
   }
@@ -131,10 +133,10 @@ public class Ping {
       }
       AnnotatedPluginDocument document = ping();
       if (document != null) {
-        history.clear();
         pm.close();
-        guiLogger.info("Indexing complete");
         PingSequence.delete(document);
+        history.clear();
+        guiLogger.info("Indexing complete");
         return true;
       }
     }

@@ -9,7 +9,7 @@ import nl.naturalis.geneious.util.QueryUtils;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_OPTION;
-import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.*;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 
@@ -64,6 +64,11 @@ public class ShowDialog {
 
   private static AbstractFrame frame() {
     return GuiUtilities.getMainFrame();
+  }
+
+  public static void pingHistoryCleared() {
+    showMessageDialog(frame(), "Ping history cleared");
+
   }
 
 }

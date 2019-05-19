@@ -55,9 +55,9 @@ public class NaturalisOptions extends Options {
     settings().update(PRETTY_NOTES, prettyNotes.getValue());
     prettyNotes.addChangeListener(() -> settings().update(PRETTY_NOTES, prettyNotes.getValue()));
 
-    ButtonOption clearPingdata = addButtonOption("foo-0", "", "Clear ping data");
+    ButtonOption clearPingdata = addButtonOption("foo-0", "", "Clear ping history");
     clearPingdata.setHelp("Press this button if you accidentally deleted a \"ping\" folder while waiting for document "
-        + "indexing to complete. Make sure you all documents have been indexed before continuing to use the plugin");
+        + "indexing to complete. Make sure all documents have been indexed before continuing to use the plugin");
     clearPingdata.addActionListener(e -> Ping.clear());
 
     ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata");

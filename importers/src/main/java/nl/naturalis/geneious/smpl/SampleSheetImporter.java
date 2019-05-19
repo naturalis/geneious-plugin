@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.NaturalisPluginWorker;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
@@ -36,7 +36,7 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 /**
  * Does the actual work of importing a sample sheet into Geneious.
  */
-class SampleSheetImporter extends NaturalisPluginWorker {
+class SampleSheetImporter extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
 
