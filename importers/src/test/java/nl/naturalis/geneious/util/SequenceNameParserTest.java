@@ -37,7 +37,7 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
     expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
-    expected.castAndSet(SEQ_PASS, SeqPass.OK);
+    expected.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
     System.out.println("Expected: " + DebugUtil.toJson(expected));
     System.out.println("Actual: " + DebugUtil.toJson(actual));
     assertEquals(expected, actual);
@@ -53,7 +53,7 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_PCR_PLATE_ID, "RL031");
     expected.parseAndSet(SEQ_MARKER, "COI");
     expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
-    expected.castAndSet(SEQ_PASS, SeqPass.OK);
+    expected.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
     assertEquals(expected, actual);
   }
 

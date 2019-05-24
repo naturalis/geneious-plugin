@@ -19,29 +19,24 @@ import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
-  private NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
+  /*
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is called. This method
+   * returns our implementation classes these in turn have static initalizers that depend on the preferences being set and readable. That's
+   * the only reason why we have this (unused) class variable here. (See also NaturalisPreferencesOptions)
+   */
+  @SuppressWarnings("unused")
+  private static final NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
 
   @Override
   public Icons getIcons() {
     return IconUtilities.getIconsFromJar(getClass(), "/rood.ico");
   }
 
-  /*
-   * We must instantiate a NaturalisPluginPreferences object as soon as possible (which we do above) and certainly before
-   * getDocumentOperations() is called. These methods return our implementation classes, and these in turn may have static initalizers that
-   * depend on the preferences being set and readable (see NaturalisPreferencesOptions). But we must also always return a new instance of
-   * NaturalisPluginPreferences. Geneious will throw an exception if you don't.
-   */
   @Override
   @SuppressWarnings("rawtypes")
   public List<PluginPreferences> getPluginPreferences() {
-    NaturalisPluginPreferences prefs = this.prefs;
-    if (prefs == null) {
-      prefs = new NaturalisPluginPreferences();
-    } else {
-      this.prefs = null;
-    }
-    return Arrays.asList(prefs);
+    // Must always return a new instance, otherwise Geneious will throw an exception.
+    return Arrays.asList(new NaturalisPluginPreferences());
   }
 
   @Override
@@ -62,7 +57,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getAuthors() {
-    return "Rudy Broekhuizen, Wilfred Gerritsen, Ayco Holleman, Judith Slaa, Chantal SlegtenHorst, Nick Stolk, Oscar Vorst";
+    return "Rudy Broekhuizen, Wilfred Gerritsen, Ayco Holleman, Judith Slaa, Chantal SlegtenHorst, Oscar Vorst";
   }
 
   @Override

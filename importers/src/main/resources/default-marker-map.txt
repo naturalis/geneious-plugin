@@ -1,0 +1,14 @@
+# BOLD -> Naturalis
+COI-5P -> COI, COI-5P
+nucLSU -> LSU
+rbcL -> rbcL
+matK -> matK
+UPA -> UPA
+tufA -> tufA
+12S -> 12S
+16S -> 16S
+18S -> 18S
+28S -> 28S
+ND6 -> ND6
+MutS-like -> MSH
+ITS -> ITS

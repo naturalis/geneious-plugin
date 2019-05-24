@@ -25,6 +25,11 @@ public enum Setting {
   PING_HISTORY("nl.naturalis.geneious.pingHistory"),
 
   /**
+   * A JSON string serializing the BOLD-to-Naturalis marker mappings
+   */
+  MARKER_MAP("nl.naturalis.geneious.bold.markerMap"),
+
+  /**
    * AB1 file extensions.
    */
   AB1_EXTS("nl.naturalis.geneious.seq.ext.ab1"),

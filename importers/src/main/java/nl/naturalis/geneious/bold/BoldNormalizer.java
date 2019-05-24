@@ -32,17 +32,19 @@ import nl.naturalis.geneious.gui.log.GuiLogger;
  *
  * @author Ayco Holleman
  */
-public class BoldNormalizer {
+class BoldNormalizer {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
   private BoldImportConfig cfg;
 
-  public BoldNormalizer(BoldImportConfig cfg) {
+  private ArrayList<String> markers;
+
+  BoldNormalizer(BoldImportConfig cfg) {
     this.cfg = cfg;
   }
 
-  public Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
+  Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
     if (cfg.getSkipLines() == 0) {
       throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
     }
@@ -50,9 +52,9 @@ public class BoldNormalizer {
     String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
     checkHeader(header);
-    List<String> markers = getMarkers(header);
-    Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
+    markers = getMarkers(header);
     guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
+    Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
     guiLogger.info("Normalizing BOLD file");
     for (int i = 0; i < markers.size(); ++i) {
       guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
@@ -77,8 +79,15 @@ public class BoldNormalizer {
     return normalized;
   }
 
-  private static List<String> getMarkers(String[] header) {
-    List<String> markers = new ArrayList<>(5);
+  List<String> getMarkers() {
+    if (markers == null) {
+      throw new IllegalStateException("Can only provide markers after normalization");
+    }
+    return markers;
+  }
+
+  private static ArrayList<String> getMarkers(String[] header) {
+    ArrayList<String> markers = new ArrayList<>(5);
     for (int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
       markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim());
     }
@@ -96,5 +105,6 @@ public class BoldNormalizer {
       throw new BoldNormalizationException("At least one marker required. Instead found: " + header[6]);
     }
   }
+
 
 }

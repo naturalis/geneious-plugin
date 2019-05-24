@@ -81,6 +81,24 @@ public class Settings {
   }
 
   /**
+   * Returns the BOLD-to-Naturalis marker mapping as a JSON string.
+   * 
+   * @return
+   */
+  public String getMarkerMap() {
+    return (String) cache.get(MARKER_MAP);
+  }
+
+  /**
+   * Sets the BOLD-to-Naturalis marker mapping as a JSON string.
+   * 
+   * @param markerMap
+   */
+  public void setMarkerMap(String markerMap) {
+    cache.put(MARKER_MAP, markerMap);
+  }
+
+  /**
    * Show pretty notes when in DEBUG mode.
    * 
    * @return

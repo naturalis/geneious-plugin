@@ -13,8 +13,8 @@ import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCU
 import java.util.List;
 import java.util.Map;
 
-import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
@@ -43,7 +43,10 @@ class BoldImporter extends PluginSwingWorker {
     PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
     validator.validate();
     guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
-    Map<String, List<String[]>> allRows = new BoldNormalizer(cfg).normalizeRows();
+    BoldNormalizer normalizer = new BoldNormalizer(cfg);
+    Map<String, List<String[]>> allRows = normalizer.normalizeRows();
+    MarkerMap markerMap = new MarkerMap(normalizer.getMarkers());
+    guiLogger.debugf(()->format("Will use these BOLD-to-Naturalis marker mappings: %s", toJson(markerMap)));
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updates = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
@@ -65,20 +68,24 @@ class BoldImporter extends PluginSwingWorker {
           continue;
         }
         ++good;
-        BoldKey key = new BoldKey(row.get(SAMPLE_ID), row.get(MARKER));
-        guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
-        StoredDocumentList docs = selectedDocuments.get(key);
-        if (docs == null) {
-          guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
-          ++unused;
-        } else {
-          guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
-          for (StoredDocument doc : docs) {
-            if (doc.attach(note)) {
-              updates.add(doc);
-            } else {
-              String fmt = "Document with %s not updated (no new values in BOLD file)";
-              guiLogger.debugf(() -> format(fmt, key));
+        String boldMarker = row.get(MARKER);
+        String[] mapsTo = markerMap.get(boldMarker);
+        for (String naturalisMarker : mapsTo) {
+          BoldKey key = new BoldKey(row.get(SAMPLE_ID), naturalisMarker);
+          guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
+          StoredDocumentList docs = selectedDocuments.get(key);
+          if (docs == null) {
+            guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+            ++unused;
+          } else {
+            guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
+            for (StoredDocument doc : docs) {
+              if (doc.attach(note)) {
+                updates.add(doc);
+              } else {
+                String fmt = "Document with %s not updated (no new values in BOLD file)";
+                guiLogger.debugf(() -> format(fmt, key));
+              }
             }
           }
         }
@@ -126,7 +133,7 @@ class BoldImporter extends PluginSwingWorker {
         return new BoldKey(regno, marker);
       }
     }
-    return null; // do not add to lookup table
+    return null; // ignore document; do not add to lookup table
   }
 
 }
