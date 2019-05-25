@@ -8,6 +8,7 @@ import nl.naturalis.geneious.csv.CsvImportOptions;
 
 class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
 
+
   public BoldImportOptions(List<AnnotatedPluginDocument> documents) {
     super(documents, "bold");
   }
@@ -15,11 +16,6 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
   @Override
   public BoldImportConfig createImportConfig() {
     return initializeStandardOptions(new BoldImportConfig());
-  }
-
-  @Override
-  protected int getDefaultNumLinesToSkip() {
-    return 3;
   }
 
   @Override
@@ -35,4 +31,13 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
     return null;
   }
 
+  @Override
+  protected int getDefaultNumLinesToSkip() {
+    return 3;
+  }
+
+  @Override
+  protected boolean supportSpreadsheet() {
+    return true;
+  }
 }

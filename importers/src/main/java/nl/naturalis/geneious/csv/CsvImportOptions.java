@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
@@ -54,7 +55,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     this.file = addFileSelectionOption();
     this.linesToSkip = addLinesToSkipOption();
     this.delimiter = addDelimiterOption();
-    this.sheet = addSheetNameOption();
+    this.sheet = supportSpreadsheet() ? addSheetNameOption() : null;
     file.addChangeListener(this::fileChanged);
   }
 
@@ -69,7 +70,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     }
     String ext = getExtension(file.getValue());
     if (!ALLOWED_FILE_TYPES.contains(ext.toLowerCase())) {
-      return "Unsupported file type. Allowed file types: *.csv, *.tsv, *.txt, *.xls";
+      return "Unsupported file type. Supported file types: " + supportedFileTypesAsString();
     }
     return null; // Signals to Geneious it can continue
   }
@@ -81,7 +82,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     cfg.setFile(new File(file.getValue()));
     cfg.setSkipLines(linesToSkip.getValue());
     cfg.setDelimiter(delimiter.getValue().getName());
-    cfg.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
+    if (supportSpreadsheet()) {
+      cfg.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
+    }
     return cfg;
   }
 
@@ -91,6 +94,10 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   protected int getDefaultNumLinesToSkip() {
     return 1;
+  }
+
+  protected boolean supportSpreadsheet() {
+    return false;
   }
 
   private FileSelectionOption addFileSelectionOption() {
@@ -105,7 +112,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     opt.setFillHorizontalSpace(true);
     opt.setSelectionType(JFileChooser.FILES_ONLY);
     opt.setValue("");
-    opt.setDescription("Select a sample sheet to import. Supported formats: *.csv *.tsv *.txt *.xls");
+    opt.setDescription("Select a sample sheet to import. Supported formats: " + supportedFileTypesAsString());
     return opt;
   }
 
@@ -139,9 +146,11 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
        */
       return;
     }
-    sheet.setEnabled(false);
+    if (supportSpreadsheet()) {
+      sheet.setEnabled(false);
+    }
     delimiter.setEnabled(false);
-    if (CsvImportUtil.isSpreadsheet(file.getValue())) {
+    if (supportSpreadsheet() && CsvImportUtil.isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
       delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
@@ -150,11 +159,15 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
-      sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
-      sheet.setDefaultValue(OPT_NOT_APPLICABLE);
+      if (supportSpreadsheet()) {
+        sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
+        sheet.setDefaultValue(OPT_NOT_APPLICABLE);
+      }
     } else {
-      sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
-      sheet.setDefaultValue(SHEET_INIT);
+      if (supportSpreadsheet()) {
+        sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
+        sheet.setDefaultValue(SHEET_INIT);
+      }
       delimiter.setPossibleValues(Arrays.asList(DELIM_INIT));
       delimiter.setDefaultValue(DELIM_INIT);
       String title = "Unsupported file type";
@@ -186,6 +199,19 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   private String name(String format) {
     return String.format(format, identifier);
+  }
+
+  private ArrayList<String> supportedFileTypes() {
+    ArrayList<String> types = new ArrayList<>();
+    types.addAll(Arrays.asList("csv", "tsv", "txt"));
+    if (supportSpreadsheet()) {
+      types.add("xls");
+    }
+    return types;
+  }
+
+  private String supportedFileTypesAsString() {
+    return supportedFileTypes().stream().map(s -> "*." + s).collect(Collectors.joining("  "));
   }
 
 }
