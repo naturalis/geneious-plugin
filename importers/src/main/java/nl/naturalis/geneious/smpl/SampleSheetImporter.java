@@ -126,7 +126,7 @@ class SampleSheetImporter extends PluginSwingWorker {
     }
     APDList newDummies = new APDList(dummyCount);
     updatesOrDummies.forEach(doc -> {
-      doc.saveAnnotations();
+      doc.saveAnnotationsAndMakeUnread();
       if (doc.isDummy()) {
         newDummies.add(doc.getGeneiousDocument());
       }
@@ -187,7 +187,7 @@ class SampleSheetImporter extends PluginSwingWorker {
         }
       }
     }
-    updates.forEach(StoredDocument::saveAnnotations);
+    updates.forEach(StoredDocument::saveAnnotationsAndMakeUnread);
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);

@@ -57,7 +57,7 @@ class SequenceImporter extends PluginSwingWorker {
         annotated = annotator.annotateDocuments();
         APDList apds = new APDList(docs.size());
         docs.forEach(doc -> {
-          doc.saveAnnotations();
+          doc.saveAnnotationsAndMakeUnread();
           apds.add(doc.getGeneiousDocument());
         });
         addGeneratedDocuments(apds, true, Collections.emptyList());

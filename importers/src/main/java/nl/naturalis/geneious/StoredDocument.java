@@ -79,12 +79,13 @@ public class StoredDocument {
   }
 
   /**
-   * Saves the annotations to the database.
+   * Saves the annotations to the database and changes the document's status to "unread".
    */
-  public void saveAnnotations() {
+  public void saveAnnotationsAndMakeUnread() {
     DocumentNotes notes = getDocumentNotes();
     note.copyTo(notes);
     notes.saveNotes(true);
+    doc.setUnread(true);
   }
 
   public DocumentType getType() {

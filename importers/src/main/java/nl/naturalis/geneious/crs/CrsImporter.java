@@ -71,7 +71,7 @@ class CrsImporter extends PluginSwingWorker {
         }
       }
     }
-    updates.forEach(StoredDocument::saveAnnotations);
+    updates.forEach(StoredDocument::saveAnnotationsAndMakeUnread);
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in CRS file .......: %3d", good);

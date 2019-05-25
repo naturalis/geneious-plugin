@@ -37,7 +37,7 @@ public class NameSplitter extends PluginSwingWorker {
     annotated.forEach(doc -> {
       String name = doc.getSequenceInfo().getName() + NameUtil.getDefaultSuffix(doc);
       doc.getGeneiousDocument().setName(name);
-      doc.saveAnnotations();
+      doc.saveAnnotationsAndMakeUnread();
       doc.save();
     });
     int selected = cfg.getSelectedDocuments().size();
