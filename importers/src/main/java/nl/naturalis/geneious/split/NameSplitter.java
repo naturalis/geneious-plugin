@@ -1,19 +1,21 @@
 package nl.naturalis.geneious.split;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
-import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 public class NameSplitter extends PluginSwingWorker {
@@ -27,7 +29,7 @@ public class NameSplitter extends PluginSwingWorker {
   }
 
   @Override
-  protected  List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
+  protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
     PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
     validator.validate();
@@ -35,19 +37,23 @@ public class NameSplitter extends PluginSwingWorker {
     List<StorableDocument> docs = filter.filterAndConvert();
     Annotator annotator = new Annotator(docs);
     List<StorableDocument> annotated = annotator.annotateDocuments();
-    annotated.forEach(doc -> {
-      String name = doc.getSequenceInfo().getName() + NameUtil.getDefaultSuffix(doc);
+    List<AnnotatedPluginDocument> all = new ArrayList<>(annotated.size());
+    for (StorableDocument doc : annotated) {
+      String name = doc.getSequenceInfo().getName();
       doc.getGeneiousDocument().setName(name);
       doc.saveAnnotations();
-      doc.save();
-    });
+      all.add(doc.getGeneiousDocument());
+    }
+    if (!all.isEmpty()) {
+      all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
+    }
     int selected = cfg.getSelectedDocuments().size();
     guiLogger.info("Number of selected documents ..........: %3d", selected);
     guiLogger.info("Number of documents passing filters ...: %3d", docs.size());
     guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
     guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
     guiLogger.info("Operation completed successfully");
-    return null;
+    return all;
   }
 
 }

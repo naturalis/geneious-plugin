@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.seq;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.*;
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static nl.naturalis.geneious.util.PreconditionValidator.BASIC;
 
 import java.io.File;
@@ -12,13 +12,12 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
-import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
