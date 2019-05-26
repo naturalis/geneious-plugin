@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.seq;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.*;
 import static nl.naturalis.geneious.util.PreconditionValidator.BASIC;
 
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
@@ -34,9 +35,10 @@ class SequenceImporter extends PluginSwingWorker {
   }
 
   @Override
-  protected boolean performOperation() throws IOException, DatabaseServiceException, NonFatalException {
+  protected List<AnnotatedPluginDocument> performOperation() throws IOException, DatabaseServiceException, NonFatalException {
     PreconditionValidator validator = new PreconditionValidator(BASIC);
     validator.validate();
+    List<AnnotatedPluginDocument> created = null;
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<StorableDocument> docs = new ArrayList<>();
       List<StorableDocument> annotated = null;
@@ -55,12 +57,12 @@ class SequenceImporter extends PluginSwingWorker {
       if (docs.size() != 0) {
         Annotator annotator = new Annotator(docs);
         annotated = annotator.annotateDocuments();
-        APDList apds = new APDList(docs.size());
-        docs.forEach(doc -> {
-          doc.saveAnnotationsAndMakeUnread();
-          apds.add(doc.getGeneiousDocument());
-        });
-        addGeneratedDocuments(apds, true, Collections.emptyList());
+        created = new ArrayList<>(docs.size());
+        for (StorableDocument doc : docs) {
+          doc.saveAnnotations();
+          created.add(doc.getGeneiousDocument());
+        } ;
+        created = addAndReturnGeneratedDocuments(created, true, Collections.emptyList());
       }
       int processed = 0, rejected = 0, imported = 0;
       if (ab1Importer != null) {
@@ -92,7 +94,7 @@ class SequenceImporter extends PluginSwingWorker {
         guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
       guiLogger.info("Operation completed successfully");
-      return docs.size() != 0;
+      return created;
     }
   }
 

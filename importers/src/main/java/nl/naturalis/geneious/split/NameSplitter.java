@@ -5,6 +5,7 @@ import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
@@ -26,7 +27,7 @@ public class NameSplitter extends PluginSwingWorker {
   }
 
   @Override
-  protected boolean performOperation() throws DatabaseServiceException, NonFatalException {
+  protected  List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
     PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
     validator.validate();
@@ -37,7 +38,7 @@ public class NameSplitter extends PluginSwingWorker {
     annotated.forEach(doc -> {
       String name = doc.getSequenceInfo().getName() + NameUtil.getDefaultSuffix(doc);
       doc.getGeneiousDocument().setName(name);
-      doc.saveAnnotationsAndMakeUnread();
+      doc.saveAnnotations();
       doc.save();
     });
     int selected = cfg.getSelectedDocuments().size();
@@ -46,7 +47,7 @@ public class NameSplitter extends PluginSwingWorker {
     guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
     guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
     guiLogger.info("Operation completed successfully");
-    return annotated.size() != 0;
+    return null;
   }
 
 }

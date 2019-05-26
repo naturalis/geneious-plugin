@@ -1,6 +1,10 @@
 package nl.naturalis.geneious;
 
+import java.util.List;
+
 import javax.swing.SwingWorker;
+
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
@@ -20,8 +24,9 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
   protected Void doInBackground() {
     try {
       if (Ping.resume()) {
-        if (performOperation()) {
-          Ping.start();
+        List<AnnotatedPluginDocument> createdOrUpdated=performOperation();
+        if (!createdOrUpdated.isEmpty()) {
+          Ping.start(createdOrUpdated);
         }
       }
     } catch (NonFatalException e) {
@@ -40,6 +45,6 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
    * @return
    * @throws Exception
    */
-  protected abstract boolean performOperation() throws Exception;
+  protected abstract List<AnnotatedPluginDocument> performOperation() throws Exception;
 
 }

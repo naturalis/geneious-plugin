@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.smpl;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addGeneratedDocuments;
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static java.util.function.Predicate.not;
 import static nl.naturalis.geneious.gui.log.GuiLogger.format;
 import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
@@ -19,15 +19,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.APDList;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
@@ -47,7 +46,7 @@ class SampleSheetImporter extends PluginSwingWorker {
   }
 
   @Override
-  protected boolean performOperation() throws DatabaseServiceException, NonFatalException {
+  protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     if (cfg.isCreateDummies()) {
       int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
       PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
@@ -60,14 +59,14 @@ class SampleSheetImporter extends PluginSwingWorker {
     return updateSelectedDocuments();
   }
 
-  private boolean updateOrCreateDummies() throws DatabaseServiceException {
+  private List<AnnotatedPluginDocument> updateOrCreateDummies() throws DatabaseServiceException {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     guiLogger.info("Collecting extract IDs");
     Set<String> extractIds = collectExtractIds(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     guiLogger.info("Searching database %s for matching extract IDs", getTargetDatabaseName());
-    // Get all extract IDs in sample sheet that do not correspond to the selected documents
+    // Get all extract IDs in sample sheet that do not correspond to any of the selected documents
     Set<String> unselectedExtractIds = extractIds.stream()
         .filter(not(selectedDocuments::containsKey))
         .collect(Collectors.toSet());
@@ -81,8 +80,9 @@ class SampleSheetImporter extends PluginSwingWorker {
     // Estimate only! If some of the rows containing new exract IDs are invalid, it will be less:
     int dummyCount = extractIds.size() - overlap - unselected.keySet().size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", dummyCount, plural(dummyCount));
-    StoredDocumentList updatesOrDummies = new StoredDocumentList(overlap + dummyCount);
     int good = 0, bad = 0, updated = 0, updatedDummies = 0, unused = 0;
+    StoredDocumentList upd = new StoredDocumentList(overlap);
+    StoredDocumentList dum = new StoredDocumentList(dummyCount);
     NaturalisNote note;
     for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
       if ((note = createNote(rows, i)) == null) {
@@ -98,7 +98,7 @@ class SampleSheetImporter extends PluginSwingWorker {
         StoredDocumentList docs1 = unselected.get(id);
         if (docs1 == null) {
           guiLogger.debugf(() -> format("Not found. Creating dummy document for extract ID %s", id));
-          updatesOrDummies.add(new DummySequence(note).wrap());
+          dum.add(new DummySequence(note).wrap());
         } else {
           ++unused;
           if (guiLogger.isDebugEnabled()) {
@@ -112,7 +112,7 @@ class SampleSheetImporter extends PluginSwingWorker {
         }
         for (StoredDocument doc : docs0) {
           if (doc.attach(note)) {
-            updatesOrDummies.add(doc);
+            upd.add(doc);
             if (doc.isDummy()) {
               ++updatedDummies;
             } else {
@@ -124,16 +124,16 @@ class SampleSheetImporter extends PluginSwingWorker {
         }
       }
     }
-    APDList newDummies = new APDList(dummyCount);
-    updatesOrDummies.forEach(doc -> {
-      doc.saveAnnotationsAndMakeUnread();
-      if (doc.isDummy()) {
-        newDummies.add(doc.getGeneiousDocument());
-      }
-    });
+    upd.forEach(StoredDocument::saveAnnotations);
+    dum.forEach(StoredDocument::saveAnnotations);
+
+    List<AnnotatedPluginDocument> newDummies = dum.unwrap();
+    newDummies.addAll(upd.unwrap());
     if (!newDummies.isEmpty()) {
-      addGeneratedDocuments(newDummies, true, Collections.emptyList());
+      newDummies = addAndReturnGeneratedDocuments(newDummies, true, Collections.emptyList());
     }
+
+    
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updated - updatedDummies;
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
@@ -149,10 +149,10 @@ class SampleSheetImporter extends PluginSwingWorker {
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
     guiLogger.info("Operation completed successfully");
-    return updatesOrDummies.size() != 0;
+    return newDummies;
   }
 
-  private boolean updateSelectedDocuments() {
+  private List<AnnotatedPluginDocument> updateSelectedDocuments() {
     guiLogger.info("Loading sample sheet " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
@@ -187,7 +187,7 @@ class SampleSheetImporter extends PluginSwingWorker {
         }
       }
     }
-    updates.forEach(StoredDocument::saveAnnotationsAndMakeUnread);
+    updates.forEach(StoredDocument::saveAnnotations);
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
@@ -201,7 +201,7 @@ class SampleSheetImporter extends PluginSwingWorker {
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
     guiLogger.info("Operation completed successfully");
-    return updates.size() != 0;
+    return null;
   }
 
   private StoredDocumentTable<String> createLookupTableForSelectedDocuments() {

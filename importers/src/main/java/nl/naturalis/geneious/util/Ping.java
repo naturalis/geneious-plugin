@@ -52,11 +52,13 @@ public class Ping {
    * cleared. If [2] or [3] the ping value will be stored and subsequent operation are prevented from proceeding until {@link #resume()}
    * returns {@code true}. Must be called at the very end of a {@code DocumentOperation}.
    * 
+   * @param createdOrUpdated
+   * 
    * @return
    * @throws DatabaseServiceException
    */
-  public static boolean start() throws DatabaseServiceException {
-    return new Ping().doStart();
+  public static boolean start(List<AnnotatedPluginDocument> createdOrUpdated) throws DatabaseServiceException {
+    return new Ping().doStart(createdOrUpdated);
   }
 
   /**
@@ -99,11 +101,15 @@ public class Ping {
     history = new PingHistory();
   }
 
-  private boolean doStart() throws DatabaseServiceException {
+  private boolean doStart(List<AnnotatedPluginDocument> createdOrUpdated) throws DatabaseServiceException {
     guiLogger.info(MSG_WAITING);
     PingSequence sequence = new PingSequence(history.generateNewPingValue());
     sequence.save();
-    return startPingLoop();
+    try {
+      return startPingLoop();
+    } finally {
+      createdOrUpdated.forEach(doc -> doc.setUnread(true));
+    }
   }
 
   private boolean doResume() throws DatabaseServiceException {

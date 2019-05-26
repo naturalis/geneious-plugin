@@ -9,6 +9,8 @@ import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCU
 
 import java.util.List;
 
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
@@ -35,7 +37,7 @@ class CrsImporter extends PluginSwingWorker {
   }
 
   @Override
-  protected boolean performOperation() throws NonFatalException {
+  protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
     PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
     validator.validate();
@@ -71,7 +73,6 @@ class CrsImporter extends PluginSwingWorker {
         }
       }
     }
-    updates.forEach(StoredDocument::saveAnnotationsAndMakeUnread);
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updates.size();
     guiLogger.info("Number of valid rows in CRS file .......: %3d", good);
@@ -84,7 +85,7 @@ class CrsImporter extends PluginSwingWorker {
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
     guiLogger.info("Operation completed successfully");
-    return updates.size() != 0;
+    return null;
   }
 
   private NaturalisNote createNote(List<String[]> rows, int rownum) {

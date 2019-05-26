@@ -1,5 +1,11 @@
 package nl.naturalis.geneious;
 
+import static nl.naturalis.geneious.DocumentType.AB1;
+import static nl.naturalis.geneious.DocumentType.DUMMY;
+import static nl.naturalis.geneious.DocumentType.FASTA;
+import static nl.naturalis.geneious.DocumentType.UNKNOWN;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -8,12 +14,6 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.Docum
 
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
-
-import static nl.naturalis.geneious.DocumentType.AB1;
-import static nl.naturalis.geneious.DocumentType.DUMMY;
-import static nl.naturalis.geneious.DocumentType.FASTA;
-import static nl.naturalis.geneious.DocumentType.UNKNOWN;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 
 /**
  * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched
@@ -71,8 +71,8 @@ public class StoredDocument {
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database. Returns
-   * {@code true} if the document actually changed as a consequence, {@code false} otherwise.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the database. Returns {@code true}
+   * if the document actually changed as a consequence, {@code false} otherwise.
    */
   public boolean attach(NaturalisNote note) {
     return note.copyTo(this.note);
@@ -81,11 +81,10 @@ public class StoredDocument {
   /**
    * Saves the annotations to the database and changes the document's status to "unread".
    */
-  public void saveAnnotationsAndMakeUnread() {
+  public void saveAnnotations() {
     DocumentNotes notes = getDocumentNotes();
     note.copyTo(notes);
     notes.saveNotes(true);
-    doc.setUnread(true);
   }
 
   public DocumentType getType() {

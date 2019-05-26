@@ -48,7 +48,7 @@ public class StorableDocument {
   public AnnotatedPluginDocument getGeneiousDocument() {
     return document;
   }
-  
+
   /**
    * Adds the annotations present in the provided note to this document, but does not save the document to the database.
    */
@@ -68,9 +68,8 @@ public class StorableDocument {
    * {@code ImportableDocument} is the big Gorilla here, it is not the only source of annotations. For fasta documents, for example, we also
    * create the native-Geneious "Imported from" note.
    */
-  public void saveAnnotationsAndMakeUnread() {
+  public void saveAnnotations() {
     notes.saveNotes(true);
-    document.setUnread(true);
   }
 
   /**
@@ -79,7 +78,6 @@ public class StorableDocument {
    */
   public void save() {
     document.save(true);
-    document.setUnread(true);
   }
 
 }
