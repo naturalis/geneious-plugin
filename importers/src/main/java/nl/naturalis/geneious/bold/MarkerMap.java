@@ -54,7 +54,8 @@ class MarkerMap extends HashMap<String, String[]> {
   }
 
   private static BoldNormalizationException invalidMarkerMapping(String line, int lineNo) {
-    String msg = String.format("Invalid/malformed marker mapping at line %d: %s", lineNo, line);
+    String msg = String.format("Invalid marker mapping at line %d: %s. Go to Tools -> Preferences (Marker mappings) to fix this problem",
+        lineNo, line);
     return new BoldNormalizationException(msg);
   }
 
