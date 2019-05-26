@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.seq;
 
+import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,14 +15,10 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
 
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-
 /**
  * Imports the AB1 files selected by the user into Geneious.
  */
 class AB1Importer {
-
-  static final String NAME_SUFFIX = " (ab1)";
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(AB1Importer.class);
 
@@ -56,7 +54,7 @@ class AB1Importer {
           throw new IllegalStateException(msg);
         }
         AnnotatedPluginDocument doc = apds.get(0);
-        doc.setName(info.getName() + NAME_SUFFIX);
+        doc.setName(info.getName());
         importables.add(new StorableDocument(doc, info));
         ++imported;
       } catch (DocumentImportException e) {
