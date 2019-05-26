@@ -30,7 +30,7 @@ class DocumentFilter {
     List<StorableDocument> filtered = new ArrayList<StorableDocument>(cfg.getSelectedDocuments().size());
     for (AnnotatedPluginDocument apd : cfg.getSelectedDocuments()) {
       String name = apd.getName();
-      if (cfg.isIgnoreDummies() && isDummy(name)) {
+      if (isDummy(apd)) {
         guiLogger.debugf(() -> format("Ignoring dummy document \"%s\".", name));
         continue;
       }

@@ -15,21 +15,19 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 
 import nl.naturalis.common.base.NArrays;
 import nl.naturalis.geneious.DocumentType;
-import nl.naturalis.geneious.NaturalisPluginException;
-import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.gui.log.GuiLogManager;
 import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisField;
+import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.smpl.DummySequence;
 
 public class NameUtil {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameUtil.class);
 
-  // V1 plugin uses file name extension type suffixes; V2 plugin appends the type between parentheses. The V2 suffixes are (and must be)
-  // listed first. They are now the default suffixes and other code depends on them being listed first.
-  public static final String[] ab1Suffixes = {" (ab1)", ".ab1"};
-  public static final String[] fastaSuffixes = {" (fasta)", ".fas", ".fasta"};
-  public static final String[] dummySuffixes = {" (dummy)", ".dum"};
+  public static final String[] ab1Suffixes = {".ab1"};
+  public static final String[] fastaSuffixes = {".fas", ".fasta"};
+  public static final String[] dummySuffixes = {".dum"};
 
   private static final String[] all = NArrays.concat(ab1Suffixes, fastaSuffixes, dummySuffixes);
 
@@ -55,68 +53,21 @@ public class NameUtil {
       // That's 100% certainty, but this class was only introduced in version 2 of the plugin.
       return DUMMY;
     }
-    DocumentType guess1;
+    DocumentType guess;
     if (apd.getDocumentClass() == DefaultNucleotideSequence.class) {
-      guess1 = FASTA;
+      NaturalisNote note = new NaturalisNote(apd);
+      if (note.isEmpty() || !note.get(NaturalisField.SEQ_MARKER).equals("Dum")) {
+        guess = FASTA;
+      } else {
+        guess = DUMMY;
+      }
     } else if (apd.getDocumentClass() == DefaultNucleotideGraphSequence.class) {
-      guess1 = AB1;
+      guess = AB1;
     } else {
-      String fmt = "Document \"%s\": unexpected document class: %s";
-      String msg = String.format(fmt, apd.getName(), apd.getDocumentClass());
-      throw new NaturalisPluginException(msg);
+      guiLogger.error("Document \"%s\": unexpected document class: %s", apd.getName(), apd.getDocumentClass());
+      guess = UNKNOWN;
     }
-    DocumentType guess2 = UNKNOWN;
-    for (DocumentType t : suffixes.keySet()) {
-      for (String suffix : suffixes.get(t)) {
-        if (apd.getName().endsWith(suffix)) {
-          guess2 = t;
-          break;
-        }
-      }
-    }
-    if (guess2 == UNKNOWN) {
-      return guess1;
-    }
-    if (guess1 != guess2) {
-      guiLogger.error("Document \"%s\": mismatch between suffix (\"%s\") and class (%s)",
-          apd.getName(),
-          guess2,
-          apd.getDocumentClass());
-      return UNKNOWN;
-    }
-    return guess1;
-  }
-
-  /**
-   * Whether or not the provided name is a name that the plugin uses for AB1 documents. Not water proof because users could change the name of
-   * the document.
-   * 
-   * @param name
-   * @return
-   */
-  public static boolean isAb1(String name) {
-    for (String suffix : ab1Suffixes) {
-      if (name.endsWith(suffix)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Whether or not the provided name is a name that the plugin uses for fasta documents. Not water proof because users could change the name
-   * of the document.
-   * 
-   * @param name
-   * @return
-   */
-  public static boolean isFasta(String name) {
-    for (String suffix : fastaSuffixes) {
-      if (name.endsWith(suffix)) {
-        return true;
-      }
-    }
-    return false;
+    return guess;
   }
 
   /**
@@ -126,13 +77,8 @@ public class NameUtil {
    * @param name
    * @return
    */
-  public static boolean isDummy(String name) {
-    for (String suffix : dummySuffixes) {
-      if (name.endsWith(suffix)) {
-        return true;
-      }
-    }
-    return false;
+  public static boolean isDummy(AnnotatedPluginDocument apd) {
+    return getDocumentType(apd) == DUMMY;
   }
 
   /**
@@ -148,54 +94,6 @@ public class NameUtil {
       }
     }
     return name;
-  }
-
-  /**
-   * Whether or not the provided name ends with one of the known suffixes for document names.
-   * 
-   * @param name
-   * @return
-   */
-  public static boolean hasKnownSuffix(String name) {
-    for (String suffix : all) {
-      if (name.endsWith(suffix)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * If the provided name has one of the suffixes known to the plugin, it will return that suffix, otherwise null.
-   * 
-   * @param name
-   * @return
-   */
-  public static String getKnownSuffix(String name) {
-    for (String suffix : all) {
-      if (name.endsWith(suffix)) {
-        return suffix;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Returns the default suffix for the provided document, based on its {@link DocumentType}.
-   * 
-   * @param doc
-   * @return
-   */
-  public static String getDefaultSuffix(StorableDocument doc) {
-    switch (doc.getSequenceInfo().getDocumentType()) {
-      case AB1:
-        return ab1Suffixes[0];
-      case FASTA:
-        return fastaSuffixes[0];
-      case DUMMY:
-        return dummySuffixes[0];
-    }
-    throw new IllegalArgumentException("Cannot return name suffix for unknown document type");
   }
 
 }
