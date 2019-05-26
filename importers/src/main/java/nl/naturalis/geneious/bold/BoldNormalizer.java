@@ -49,6 +49,8 @@ class BoldNormalizer {
       throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
     }
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    int numRows = rows.size() - cfg.getSkipLines();
+    guiLogger.info("BOLD file contains %s row%s", numRows, plural(numRows));
     String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
     checkHeader(header);
@@ -76,6 +78,8 @@ class BoldNormalizer {
         markerRows.add(compact);
       }
     }
+    numRows *= markers.size();
+    guiLogger.info("BOLD file contains %s normalized row%s", numRows, plural(numRows));
     return normalized;
   }
 
@@ -105,6 +109,5 @@ class BoldNormalizer {
       throw new BoldNormalizationException("At least one marker required. Instead found: " + header[6]);
     }
   }
-
 
 }

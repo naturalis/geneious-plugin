@@ -45,6 +45,8 @@ class CrsImporter extends PluginSwingWorker {
     validator.validate();
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
+    int numRows = rows.size() - cfg.getSkipLines();
+    guiLogger.info("CRS file contains %s row%s", numRows, plural(numRows));
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
     StoredDocumentList updated = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;

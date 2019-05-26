@@ -46,7 +46,7 @@ public class RowSupplier {
         settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
-      } else {
+      } else { // Shouldn't happen (already checked)
         throw new NaturalisPluginException("Unknown file type");
       }
       return trim(rows);

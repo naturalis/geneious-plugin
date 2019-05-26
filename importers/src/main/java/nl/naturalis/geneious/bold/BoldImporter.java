@@ -50,7 +50,7 @@ class BoldImporter extends PluginSwingWorker {
     BoldNormalizer normalizer = new BoldNormalizer(cfg);
     Map<String, List<String[]>> allRows = normalizer.normalizeRows();
     MarkerMap markerMap = new MarkerMap(normalizer.getMarkers());
-    guiLogger.debugf(()->format("Will use these BOLD-to-Naturalis marker mappings: %s", toJson(markerMap)));
+    guiLogger.debugf(() -> format("Will use these BOLD-to-Naturalis marker mappings: %s", toJson(markerMap)));
     StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
     StoredDocumentList updated = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
@@ -74,14 +74,17 @@ class BoldImporter extends PluginSwingWorker {
         ++good;
         String boldMarker = row.get(MARKER);
         String[] mapsTo = markerMap.get(boldMarker);
+        /*
+         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected documents will the
+         * row in the BOLD file remain unused.
+         */
+        boolean used = false;
         for (String naturalisMarker : mapsTo) {
           BoldKey key = new BoldKey(row.get(SAMPLE_ID), naturalisMarker);
           guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
           StoredDocumentList docs = selectedDocuments.get(key);
-          if (docs == null) {
-            guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
-            ++unused;
-          } else {
+          if (docs != null) {
+            used = true;
             guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
             for (StoredDocument doc : docs) {
               if (doc.attach(note)) {
@@ -93,9 +96,13 @@ class BoldImporter extends PluginSwingWorker {
             }
           }
         }
+        if (!used) {
+          guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+          ++unused;
+        }
       }
     }
-    
+
     updated.forEach(StoredDocument::saveAnnotations);
     List<AnnotatedPluginDocument> all = updated.unwrap();
     all.addAll(updated.unwrap());

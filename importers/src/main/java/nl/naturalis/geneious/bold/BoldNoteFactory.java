@@ -39,8 +39,8 @@ class BoldNoteFactory extends NoteFactory<BoldColumn> {
   protected void populate(NaturalisNote note) throws InvalidRowException {
     setRequiredValue(note, BOLD_ID, PROJECT_CODE);
     setRequiredValue(note, BOLD_PROJECT_ID, PROCCES_ID);
-    setRequiredValue(note, BOLD_FIELD_ID, FIELD_ID);
     setRequiredValue(note, BOLD_NUCLEOTIDE_LENGTH, SEQ_LENGTH);
+    setValue(note, BOLD_FIELD_ID, FIELD_ID);
     setValue(note, BOLD_BIN_CODE, BIN);
     setValue(note, BOLD_NUM_TRACES, TRACE_COUNT);
     setValue(note, BOLD_GEN_BANK_ID, ACCESSION);
