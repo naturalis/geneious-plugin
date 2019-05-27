@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import nl.naturalis.geneious.NonFatalException;
 
@@ -14,6 +15,7 @@ public class PreconditionValidator {
   public static final int BASIC = 0;
   public static final int ALL_DOCUMENTS_IN_SAME_DATABASE = 1;
   public static final int AT_LEAST_ONE_DOCUMENT_SELECTED = 2;
+  public static final int VALID_TARGET_FOLDER = 4;
 
   private static final String encoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
 
@@ -39,6 +41,9 @@ public class PreconditionValidator {
     if (requires(ALL_DOCUMENTS_IN_SAME_DATABASE)) {
       checkAllDocsInSameDatabase();
     }
+    if (requires(VALID_TARGET_FOLDER)) {
+      checkValidTargetFolder();
+    }
   }
 
   private static void checkEncoding() throws NonFatalException {
@@ -51,6 +56,19 @@ public class PreconditionValidator {
     if (QueryUtils.getTargetDatabase() == null) {
       smash("No database (folder) selected");
     }
+  }
+
+  private static void checkValidTargetFolder() throws NonFatalException {
+    WritableDatabaseService svc = ServiceUtilities.getResultsDestination();
+    if (svc == null) { // Geneious will prevent this, but let's handle it anyhow.
+      throw new NonFatalException("Please select a target folder");
+    }
+    do {
+      if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
+        throw new NonFatalException("Illegal target folder: " + svc.getName());
+      }
+      svc = (WritableDatabaseService) svc.getParentService();
+    } while (svc != null);
   }
 
   private void checkAllDocsInSameDatabase() throws NonFatalException {

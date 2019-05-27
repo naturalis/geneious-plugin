@@ -29,10 +29,12 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public class PingSequence extends DefaultNucleotideSequence {
 
+  static final String PING_FOLER = "@ping";
+
   private static final String NUCLEOTIDES = "AAAAAAAAAA";
   private static final String DUMMY_MARKER = "Ping";
 
-  private static final String pingFolderName = "@ping";
+  
   private static final String userFolderName = System.getProperty("user.name");
   private static final String geneiousFolderPrefix = "Folder: ";
 
@@ -40,7 +42,7 @@ public class PingSequence extends DefaultNucleotideSequence {
     DatabaseService userFolder = pingDocument.getDatabase();
     if (userFolder.getName().equals(geneiousFolderPrefix + userFolderName)) {
       WritableDatabaseService pingFolder = (WritableDatabaseService) userFolder.getParentService();
-      if (pingFolder.getName().equals(geneiousFolderPrefix + pingFolderName)) {
+      if (pingFolder.getName().equals(geneiousFolderPrefix + PING_FOLER)) {
         pingFolder.removeChildFolder(userFolderName);
         return;
       }
@@ -69,7 +71,7 @@ public class PingSequence extends DefaultNucleotideSequence {
    * @throws DatabaseServiceException
    */
   void save() throws DatabaseServiceException {
-    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(pingFolderName);
+    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(PING_FOLER);
     WritableDatabaseService userFolder = pingFolder.createChildFolder(userFolderName);
     pingFolder.setColor(Color.lightGray);
     userFolder.setColor(Color.lightGray);

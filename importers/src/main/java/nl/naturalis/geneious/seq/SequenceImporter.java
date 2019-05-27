@@ -1,7 +1,7 @@
 package nl.naturalis.geneious.seq;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-import static nl.naturalis.geneious.util.PreconditionValidator.BASIC;
+import static nl.naturalis.geneious.util.PreconditionValidator.VALID_TARGET_FOLDER;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ class SequenceImporter extends PluginSwingWorker {
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws IOException, DatabaseServiceException, NonFatalException {
-    PreconditionValidator validator = new PreconditionValidator(BASIC);
+    PreconditionValidator validator = new PreconditionValidator(VALID_TARGET_FOLDER);
     validator.validate();
     List<AnnotatedPluginDocument> created = null;
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
