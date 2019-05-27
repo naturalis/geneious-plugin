@@ -11,13 +11,12 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
 
 import nl.naturalis.geneious.StorableDocument;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.ImportedFromNote;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.createAnnotatedPluginDocument;
-
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 
 /**
  * Imports the AB1 files selected by the user into Geneious.

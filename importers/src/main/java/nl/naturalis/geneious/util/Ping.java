@@ -16,8 +16,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.gui.ShowDialog;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 
 /**

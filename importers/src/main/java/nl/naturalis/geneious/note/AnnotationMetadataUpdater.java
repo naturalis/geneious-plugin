@@ -1,9 +1,9 @@
 package nl.naturalis.geneious.note;
 
 import nl.naturalis.geneious.gui.ShowDialog;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.gui.log.LogSession;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.QueryUtils;
 
 public class AnnotationMetadataUpdater {

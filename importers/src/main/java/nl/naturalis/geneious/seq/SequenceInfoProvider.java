@@ -8,12 +8,12 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.NotParsableException;
 
 import static nl.naturalis.geneious.Settings.settings;
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.util.DocumentUtils.isAb1File;
 import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
 

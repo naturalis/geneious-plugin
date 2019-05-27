@@ -13,8 +13,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -22,7 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.substring;
 
 import static nl.naturalis.common.io.NFiles.newFile;
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 
 /**
  * Splits a fasta file into separate sequences. Depending on how the plugin is configured it may save the sequences to

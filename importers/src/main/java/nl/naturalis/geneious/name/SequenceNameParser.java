@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.name;
 
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PASS;
@@ -11,8 +11,8 @@ import static nl.naturalis.geneious.util.DebugUtil.toJson;
 import java.util.regex.Pattern;
 
 import nl.naturalis.geneious.csv.NoteFactory;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.SeqPass;
 

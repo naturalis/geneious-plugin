@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.seq;
 
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,8 @@ import com.biomatters.geneious.publicapi.plugin.DocumentImportException;
 import com.biomatters.geneious.publicapi.plugin.PluginUtilities;
 
 import nl.naturalis.geneious.StorableDocument;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 
 /**
  * Imports the AB1 files selected by the user into Geneious.

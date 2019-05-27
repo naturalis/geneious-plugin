@@ -15,8 +15,8 @@ import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleot
 
 import nl.naturalis.common.base.NArrays;
 import nl.naturalis.geneious.DocumentType;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.smpl.DummySequence;

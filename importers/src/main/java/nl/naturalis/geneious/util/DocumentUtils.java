@@ -15,8 +15,8 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 import org.apache.commons.io.FileUtils;
 
 import nl.naturalis.geneious.StoredDocument;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;

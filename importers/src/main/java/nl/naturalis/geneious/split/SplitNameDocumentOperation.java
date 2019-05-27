@@ -11,9 +11,9 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
-import nl.naturalis.geneious.gui.log.LogSession;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.log.LogSession;
 
 public class SplitNameDocumentOperation extends DocumentOperation {
 

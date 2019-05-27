@@ -1,15 +1,14 @@
-package nl.naturalis.geneious.gui.log;
+package nl.naturalis.geneious.log;
 
 import java.util.Collection;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.copyOfRange;
-
-import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
-import static nl.naturalis.geneious.gui.log.LogLevel.ERROR;
-import static nl.naturalis.geneious.gui.log.LogLevel.FATAL;
-import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
-import static nl.naturalis.geneious.gui.log.LogLevel.WARN;
+import static nl.naturalis.geneious.log.LogLevel.DEBUG;
+import static nl.naturalis.geneious.log.LogLevel.ERROR;
+import static nl.naturalis.geneious.log.LogLevel.FATAL;
+import static nl.naturalis.geneious.log.LogLevel.INFO;
+import static nl.naturalis.geneious.log.LogLevel.WARN;
 
 /**
  * A logger implementation that is rather tightly coupled to Geneious and Swing, in that sends sends messages to a

@@ -1,8 +1,8 @@
 package nl.naturalis.geneious.crs;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.util.DebugUtil.toJson;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
@@ -18,8 +18,8 @@ import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RowSupplier;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;

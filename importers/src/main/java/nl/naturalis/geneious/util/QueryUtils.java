@@ -3,7 +3,7 @@ package nl.naturalis.geneious.util;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
-import static nl.naturalis.geneious.gui.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
@@ -21,8 +21,8 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.geneious.StoredDocument;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 
 /**
  * Methods for accessing the Geneious database.

@@ -1,4 +1,4 @@
-package nl.naturalis.geneious.gui.log;
+package nl.naturalis.geneious.log;
 
 import java.awt.Font;
 import java.time.format.DateTimeFormatter;
@@ -11,10 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static nl.naturalis.common.base.NExceptions.getRootStackTraceAsString;
 import static nl.naturalis.common.base.NStrings.rpad;
-import static nl.naturalis.geneious.gui.log.LogLevel.DEBUG;
-import static nl.naturalis.geneious.gui.log.LogLevel.INFO;
-
 import static nl.naturalis.geneious.Settings.*;
+import static nl.naturalis.geneious.log.LogLevel.DEBUG;
+import static nl.naturalis.geneious.log.LogLevel.INFO;
 
 /**
  * Accepts log records from loggers and turns them into messages, which it then sends to the Geneious GUI.

@@ -1,6 +1,6 @@
 package nl.naturalis.geneious.csv;
 
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
 
 import java.io.File;
 import java.util.Arrays;

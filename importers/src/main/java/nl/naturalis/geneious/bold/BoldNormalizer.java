@@ -10,7 +10,7 @@ import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
 import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
 import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
-import static nl.naturalis.geneious.gui.log.GuiLogger.plural;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.csv.RowSupplier;
-import nl.naturalis.geneious.gui.log.GuiLogManager;
-import nl.naturalis.geneious.gui.log.GuiLogger;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 
 /**
  * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets and CRS files). It
