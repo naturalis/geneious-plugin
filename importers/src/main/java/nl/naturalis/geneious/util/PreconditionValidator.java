@@ -10,11 +10,30 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import nl.naturalis.geneious.NonFatalException;
 
+/**
+ * Checks whether the preconditions for an operation (e.g. a BOLD import) are satisfied. There are a few preconditions
+ * that need to be checked no matter the operation. Individual operations can request additional checks.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class PreconditionValidator {
 
+  /**
+   * Only do basic checks.
+   */
   public static final int BASIC = 0;
+  /**
+   * Make sure all selected documents are in the same database.
+   */
   public static final int ALL_DOCUMENTS_IN_SAME_DATABASE = 1;
+  /**
+   * Make sure the user has selected at least one document.
+   */
   public static final int AT_LEAST_ONE_DOCUMENT_SELECTED = 2;
+  /**
+   * Make sure the user is allowed to use the selected folder as a destination.
+   */
   public static final int VALID_TARGET_FOLDER = 4;
 
   private static final String encoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
@@ -22,15 +41,33 @@ public class PreconditionValidator {
   private final List<AnnotatedPluginDocument> selected;
   private final int preconditions;
 
+  /**
+   * Create a {@code PreconditionValidator} that checks the provided preconditions. The preconditions are specified using
+   * a bitwise OR. E.g. {@link #ALL_DOCUMENTS_IN_SAME_DATABASE} | {@link PreconditionValidator#VALID_TARGET_FOLDER}. If
+   * you only want to check operation-independent preconditions, specify {@link #BASIC}.
+   * 
+   * @param preconditions
+   */
   public PreconditionValidator(int preconditions) {
     this(null, preconditions);
   }
 
+  /**
+   * Create a {@code PreconditionValidator} for the provided document selection and preconditions.
+   * 
+   * @param selected
+   * @param preconditions
+   */
   public PreconditionValidator(List<AnnotatedPluginDocument> selected, int preconditions) {
     this.selected = selected;
     this.preconditions = preconditions;
   }
 
+  /**
+   * Executes the validations.
+   * 
+   * @throws NonFatalException
+   */
   public void validate() throws NonFatalException {
     // Basic precondition checks:
     checkEncoding();
@@ -61,11 +98,11 @@ public class PreconditionValidator {
   private static void checkValidTargetFolder() throws NonFatalException {
     WritableDatabaseService svc = ServiceUtilities.getResultsDestination();
     if (svc == null) { // Geneious will prevent this, but let's handle it anyhow.
-      throw new NonFatalException("Please select a target folder");
+      smash("Please select a target folder");
     }
     do {
       if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
-        throw new NonFatalException("Illegal target folder: " + svc.getName());
+        smash("Illegal target folder: " + svc.getName());
       }
       if (svc.getParentService() instanceof WritableDatabaseService) {
         svc = (WritableDatabaseService) svc.getParentService();

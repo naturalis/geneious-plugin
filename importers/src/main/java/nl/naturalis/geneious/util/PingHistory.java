@@ -17,6 +17,14 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import nl.naturalis.geneious.NaturalisPluginException;
 
+/**
+ * Generates and saves unique ping values that are inserted as extract IDs into special, temporary documents. See the
+ * {@link Ping} class. The {@code PingHistory} survives Geneious sessions, so that pinging will resume until and unless
+ * one such special document comes back back from a query on its extract ID.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class PingHistory {
 
   private static final ObjectMapper mapper = new ObjectMapper();
@@ -33,10 +41,20 @@ public class PingHistory {
     key = user + '@' + getTargetDatabaseName();
   }
 
+  /**
+   * Whether or not operations can safely start doing what they are meant to do, knowing that any documents created or
+   * updated by a previous operation have now been indexed.
+   * 
+   * @return
+   */
   public boolean isClear() {
     return !cache.containsKey(key);
   }
 
+  /**
+   * Clears the ping history. An panic method in case a user accidentally deleted his own or someone else's ping folder,
+   * in which case operations will never get past the pinging phase.
+   */
   public void clear() {
     cache.remove(key);
     try {
@@ -47,16 +65,32 @@ public class PingHistory {
     }
   }
 
+  /**
+   * Returns the current ping value.
+   * 
+   * @return
+   */
   public String getPingValue() {
     return cache.get(key);
   }
 
+  /**
+   * Determines whether the current ping value was generated more than the specified number of minutes ago.
+   * 
+   * @param minutes
+   * @return
+   */
   public boolean isOlderThan(int minutes) {
     String pingValue = cache.get(key);
     long timestamp = Long.parseLong(pingValue.substring(pingValue.lastIndexOf('/') + 1));
     return (System.currentTimeMillis() - timestamp) > (minutes * 60 * 1000);
   }
 
+  /**
+   * Generates a new ping value.
+   * 
+   * @return
+   */
   public String generateNewPingValue() {
     if (isClear()) {
       String value = "ping:" + key + "//" + System.currentTimeMillis();
