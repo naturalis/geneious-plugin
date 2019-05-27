@@ -67,7 +67,11 @@ public class PreconditionValidator {
       if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
         throw new NonFatalException("Illegal target folder: " + svc.getName());
       }
-      svc = (WritableDatabaseService) svc.getParentService();
+      if (svc.getParentService() instanceof WritableDatabaseService) {
+        svc = (WritableDatabaseService) svc.getParentService();
+      } else {
+        break;
+      }
     } while (svc != null);
   }
 
