@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.bold;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -20,6 +22,9 @@ import nl.naturalis.geneious.log.LogSession;
  */
 public class BoldDocumentOperation extends DocumentOperation {
 
+  // Releative position with menu and toolbar
+  private static final double position = .99994;
+
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldDocumentOperation.class);
 
@@ -29,10 +34,10 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("BOLD Import")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99993)
-        .setInMainToolbar(true, .99993)
-        .setInPopupMenu(true, .99993)
+    return new GeneiousActionOptions("BOLD Import", "Enriches documents with BOLD data", getIconsFromJar(getClass(), "/images/nbc_green.png"))
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+        .setInMainToolbar(true, position)
+        .setInPopupMenu(true, position)
         .setAvailableToWorkflows(true);
   }
 
@@ -53,7 +58,7 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Updates documents with BOLD data";
+    return "Enriches documents with BOLD data";
   }
 
   @Override

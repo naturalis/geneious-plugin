@@ -1,5 +1,7 @@
 package nl.naturalis.geneious;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,7 +11,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
-import com.biomatters.geneious.publicapi.utilities.IconUtilities;
 
 import nl.naturalis.geneious.bold.BoldDocumentOperation;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
@@ -20,16 +21,17 @@ import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
-   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is called. This method
-   * returns our implementation classes these in turn have static initalizers that depend on the preferences being set and readable. That's
-   * the only reason why we have this (unused) class variable here. (See also NaturalisPreferencesOptions)
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is
+   * called. This method returns our implementation classes these in turn have static initalizers that depend on the
+   * preferences being set and readable. That's the only reason why we have this (unused) class variable here. (See also
+   * NaturalisPreferencesOptions)
    */
   @SuppressWarnings("unused")
   private static final NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
 
   @Override
   public Icons getIcons() {
-    return IconUtilities.getIconsFromJar(getClass(), "/rood.ico");
+    return getIconsFromJar(getClass(), "/images/nbc_red.png");
   }
 
   @Override

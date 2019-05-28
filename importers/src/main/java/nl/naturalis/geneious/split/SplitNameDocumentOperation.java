@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.split;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -16,16 +18,19 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 public class SplitNameDocumentOperation extends DocumentOperation {
+  
+  // Releative position with menu and toolbar
+  private static final double position = .99991;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameDocumentOperation.class);
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99995)
-        .setInMainToolbar(true, .99995)
-        .setInPopupMenu(true, .99995)
+    return new GeneiousActionOptions("Split Name", "Enriches documents by parsing their name", getIconsFromJar(getClass(), "/images/nbc_green.png"))
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+        .setInMainToolbar(true, position)
+        .setInPopupMenu(true, position)
         .setAvailableToWorkflows(true);
   }
 
@@ -46,7 +51,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Parses and splits documents names";
+    return "Enriches documents by parsing their name";
   }
 
   @Override

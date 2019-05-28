@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.seq;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -20,11 +22,15 @@ import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do most of the work.
+ * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do
+ * most of the work.
  *
  * @author Ayco Holleman
  */
 public class SequenceImportDocumentOperation extends DocumentOperation {
+
+  // Releative position with menu and toolbar
+  private static final double position = .99990;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImportDocumentOperation.class);
@@ -35,10 +41,10 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("AB1/Fasta Import")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99990)
-        .setInMainToolbar(true, .99990)
-        .setInPopupMenu(true, .99990)
+    return new GeneiousActionOptions("AB1/Fasta", "Imports one or more AB1/fasta files", getIconsFromJar(getClass(), "/images/nbc_red.png"))
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+        .setInMainToolbar(true, position)
+        .setInPopupMenu(true, position)
         .setAvailableToWorkflows(true);
   }
 

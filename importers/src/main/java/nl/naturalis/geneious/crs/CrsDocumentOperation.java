@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.crs;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -20,6 +22,9 @@ import nl.naturalis.geneious.log.LogSession;
  */
 public class CrsDocumentOperation extends DocumentOperation {
 
+  // Releative position with menu and toolbar
+  private static final double position = .99993;
+
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsDocumentOperation.class);
 
@@ -29,10 +34,10 @@ public class CrsDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("CRS Import")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99992)
-        .setInMainToolbar(true, .99992)
-        .setInPopupMenu(true, .99992)
+    return new GeneiousActionOptions("CRS Import","Enriches documents with CRS data", getIconsFromJar(getClass(), "/images/nbc_red.png"))
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+        .setInMainToolbar(true, position)
+        .setInPopupMenu(true, position)
         .setAvailableToWorkflows(true);
   }
 
@@ -43,7 +48,7 @@ public class CrsDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Updates documents with CRS data";
+    return "Enriches documents with CRS data";
   }
 
   @Override

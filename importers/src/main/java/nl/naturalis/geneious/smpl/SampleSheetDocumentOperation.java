@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.smpl;
 
+import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
+
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -20,6 +22,9 @@ import nl.naturalis.geneious.log.LogSession;
  */
 public class SampleSheetDocumentOperation extends DocumentOperation {
 
+  // Releative position with menu and toolbar
+  private static final double position = .99992;
+
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentOperation.class);
 
@@ -29,16 +34,16 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Samples")
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99991)
-        .setInMainToolbar(true, .99991)
-        .setInPopupMenu(true, .99991)
+    return new GeneiousActionOptions("Samples", "Enriches documents by parsing their name", getIconsFromJar(getClass(), "/images/nbc_blue.png"))
+        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+        .setInMainToolbar(true, position)
+        .setInPopupMenu(true, position)
         .setAvailableToWorkflows(true);
   }
 
   @Override
   public String getHelp() {
-    return "Updates documents with data from sample sheets";
+    return "Enrich documents with data sample sheet data";
   }
 
   @Override

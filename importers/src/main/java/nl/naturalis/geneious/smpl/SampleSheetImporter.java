@@ -126,14 +126,14 @@ class SampleSheetImporter extends PluginSwingWorker {
 
     int selected = cfg.getSelectedDocuments().size();
     int unchanged = selected - updated.size();
-    guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
-    guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
-    guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
-    guiLogger.info("Number of selected documents ...............: %3d", selected);
-    guiLogger.info("Number of updated documents ................: %3d", updated.size() - updatedDummies);
-    guiLogger.info("Number of updated dummies ..................: %3d", updatedDummies);
-    guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
-    guiLogger.info("Number of dummy documents created ..........: %3d", created.size());
+    guiLogger.info("Number of valid rows ................: %3d", good);
+    guiLogger.info("Number of empty/bad rows ............: %3d", bad);
+    guiLogger.info("Number of unused rows ...............: %3d", unused);
+    guiLogger.info("Number of selected documents ........: %3d", selected);
+    guiLogger.info("Number of updated documents .........: %3d", updated.size() - updatedDummies);
+    guiLogger.info("Number of updated dummies ...........: %3d", updatedDummies);
+    guiLogger.info("Number of unchanged documents .......: %3d", unchanged);
+    guiLogger.info("Number of dummy documents created ...: %3d", created.size());
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID was found in an");
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
