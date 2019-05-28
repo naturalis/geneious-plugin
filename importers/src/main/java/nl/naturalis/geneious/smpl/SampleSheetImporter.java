@@ -5,7 +5,7 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
@@ -27,6 +27,8 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.CommonStatistics;
+import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
@@ -72,7 +74,7 @@ class SampleSheetImporter extends PluginSwingWorker {
     Set<String> extraIds = idsInSampleSheet.stream().filter(not(selectedDocuments::containsKey)).collect(toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIds);
     StoredDocumentTable<String> unselected = createLookupTableForUnselectedDocuments(searchResult);
-    // The extract IDs that are both in the sample sheet and in the selected documents.
+    // The extract IDs that are both in the sample sheet and in the selected documents:
     int overlap = (int) idsInSampleSheet.stream().filter(selectedDocuments::containsKey).count();
     int numRows = rows.size() - cfg.getSkipLines();
     guiLogger.info("Sample sheet contains %s row%s", numRows, plural(numRows));
@@ -94,7 +96,7 @@ class SampleSheetImporter extends PluginSwingWorker {
       }
       ++good;
       String id = note.getExtractId();
-      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      Messages.scanningSelectedDocuments(guiLogger, "extract ID", id);
       StoredDocumentList docs0 = selectedDocuments.get(id);
       if (docs0 == null) {
         guiLogger.debugf(() -> format("Not found. Scanning query cache for unselected documents with extract ID %s", id));
@@ -128,15 +130,15 @@ class SampleSheetImporter extends PluginSwingWorker {
     guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
     guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
     guiLogger.info("Number of selected documents ...............: %3d", selected);
-    guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
     guiLogger.info("Number of updated documents ................: %3d", updated.size() - updatedDummies);
     guiLogger.info("Number of updated dummies ..................: %3d", updatedDummies);
-    guiLogger.info("Number of dummy documents created ..........: %3d", all.size());
+    guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
+    guiLogger.info("Number of dummy documents created ..........: %3d", created.size());
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID was found in an");
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    guiLogger.info("Operation completed successfully");
+    Messages.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
     return all;
   }
 
@@ -156,12 +158,10 @@ class SampleSheetImporter extends PluginSwingWorker {
       }
       ++good;
       String id = note.getExtractId();
-      guiLogger.debugf(() -> format("Scanning selected documents for extract ID %s", id));
+      Messages.scanningSelectedDocuments(guiLogger, "extract ID", id);
       StoredDocumentList docs = selectedDocuments.get(id);
       if (docs == null) {
-        if (guiLogger.isDebugEnabled()) {
-          guiLogger.debug("Not found. Row at line %s remains unused", i + 1);
-        }
+        Messages.noDocumentsMatchingKey(guiLogger, i + 1);
         ++unused;
       } else {
         annotateMatchingDocuments(docs, note, updated, id);
@@ -175,19 +175,16 @@ class SampleSheetImporter extends PluginSwingWorker {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
-    int selected = cfg.getSelectedDocuments().size();
-    int unchanged = selected - updated.size();
-    guiLogger.info("Number of valid rows in sample sheet .......: %3d", good);
-    guiLogger.info("Number of empty/bad rows in sample sheet ...: %3d", bad);
-    guiLogger.info("Number of unused rows in sample sheet ......: %3d", unused);
-    guiLogger.info("Number of selected documents ...............: %3d", selected);
-    guiLogger.info("Number of updated documents ................: %3d", updated.size());
-    guiLogger.info("Number of unchanged documents ..............: %3d", unchanged);
+    new CommonStatistics()
+        .rowStats(good, bad, unused)
+        .documentStats(cfg.getSelectedDocuments().size(), updated.size())
+        .write(guiLogger);
+
     guiLogger.info("UNUSED ROW (explanation): The row's extract ID did not correspond");
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    guiLogger.info("Operation completed successfully");
+    Messages.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
     return all;
   }
 
@@ -226,27 +223,19 @@ class SampleSheetImporter extends PluginSwingWorker {
   }
 
   private static int annotateMatchingDocuments(StoredDocumentList docs, NaturalisNote note, StoredDocumentList updated, String extractId) {
-    if (guiLogger.isDebugEnabled()) {
-      logMatchFound(docs);
-    }
+    Messages.foundDocumensMatchingKey(guiLogger, "sample sheet", docs);
     int updatedDummies = 0;
     for (StoredDocument doc : docs) {
       if (doc.attach(note)) {
         updated.add(doc);
-        // It's OK if a sample sheet row matches a dummy document. We just update the dummy document, but report that we do so.
         if (doc.isDummy()) {
           ++updatedDummies;
         }
       } else {
-        guiLogger.debugf(() -> format("Document with extract ID %s not updated (no new values in sample sheet)", extractId));
+        Messages.noNewValues(guiLogger, "sample sheet", "extract ID", extractId);
       }
     }
     return updatedDummies;
-  }
-
-  private static void logMatchFound(StoredDocumentList docs) {
-    String fmt = "Found %1$s document%2$s. Comparing values in sample sheet with values in document%2$s (updating document%2$s if necessary)";
-    guiLogger.debug(fmt, docs.size(), plural(docs));
   }
 
   private static void logUnusedRow(StoredDocumentList docs) {

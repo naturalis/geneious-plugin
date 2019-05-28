@@ -6,7 +6,7 @@ import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PASS;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_SEQUENCING_STAFF;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 import java.util.regex.Pattern;
 

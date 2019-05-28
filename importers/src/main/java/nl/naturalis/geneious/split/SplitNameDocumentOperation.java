@@ -22,7 +22,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split names")
+    return new GeneiousActionOptions("Split Name")
         .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, .99995)
         .setInMainToolbar(true, .99995)
         .setInPopupMenu(true, .99995)
@@ -36,7 +36,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (LogSession session = GuiLogManager.startSession("Split name")) {
+    try (LogSession session = GuiLogManager.startSession("Split Name")) {
       NameSplitterOptions opts = (NameSplitterOptions) options;
       NameSplitter nameSplitter = new NameSplitter(opts.createNameSplitterConfig());
       nameSplitter.execute();

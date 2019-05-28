@@ -4,10 +4,9 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addA
 import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
 import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
@@ -24,6 +23,8 @@ import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.CommonStatistics;
+import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -75,29 +76,28 @@ class BoldImporter extends PluginSwingWorker {
         String boldMarker = row.get(MARKER);
         String[] mapsTo = markerMap.get(boldMarker);
         /*
-         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected documents will the
-         * row in the BOLD file remain unused.
+         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected
+         * documents will the row in the BOLD file remain unused.
          */
         boolean used = false;
         for (String naturalisMarker : mapsTo) {
           BoldKey key = new BoldKey(row.get(SAMPLE_ID), naturalisMarker);
-          guiLogger.debugf(() -> format("Searching for selected documents with %s", key));
+          Messages.scanningSelectedDocuments(guiLogger, "key", key);
           StoredDocumentList docs = selectedDocuments.get(key);
           if (docs != null) {
+            Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
             used = true;
-            guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
             for (StoredDocument doc : docs) {
               if (doc.attach(note)) {
                 updated.add(doc);
               } else {
-                String fmt = "Document with %s not updated (no new values in BOLD file)";
-                guiLogger.debugf(() -> format(fmt, key));
+                Messages.noNewValues(guiLogger, "BOLD file", "key", key);
               }
             }
           }
         }
         if (!used) {
-          guiLogger.debugf(() -> format("Not found. Row at line %s remains unused", line));
+          Messages.noDocumentsMatchingKey(guiLogger, line);
           ++unused;
         }
       }
@@ -110,18 +110,15 @@ class BoldImporter extends PluginSwingWorker {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
-    int selected = cfg.getSelectedDocuments().size();
-    int unchanged = selected - updated.size();
-    guiLogger.info("Number of valid rows in BOLD file .......: %3d", good);
-    guiLogger.info("Number of empty/bad rows in BOLD file ...: %3d", bad);
-    guiLogger.info("Number of unused rows in BOLD file ......: %3d", unused);
-    guiLogger.info("Number of selected documents ............: %3d", selected);
-    guiLogger.info("Number of updated documents .............: %3d", updated.size());
-    guiLogger.info("Number of unchanged documents ...........: %3d", unchanged);
+    new CommonStatistics()
+        .rowStats(good, bad, unused)
+        .documentStats(cfg.getSelectedDocuments().size(), updated.size())
+        .write(guiLogger);
+    
     guiLogger.info("UNUSED ROW (explanation): The row's registration number and marker");
     guiLogger.info("          did not correspond to any of the selected documents, but");
     guiLogger.info("          they may or may not correspond to other, unselected documents.");
-    guiLogger.info("Operation completed successfully");
+    Messages.operationCompletedSuccessfully(guiLogger, "BOLD Import");
     return all;
   }
 
@@ -139,8 +136,7 @@ class BoldImporter extends PluginSwingWorker {
   }
 
   private StoredDocumentTable<BoldKey> createLookupTableForSelectedDocuments() {
-    StoredDocumentTable<BoldKey> sdt = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getBoldKey);
-    return sdt;
+    return new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getBoldKey);
   }
 
   private BoldKey getBoldKey(StoredDocument sd) {

@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
@@ -20,7 +19,6 @@ import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import com.google.common.collect.ImmutableSet;
 
 public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
 
@@ -40,7 +38,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       new OptionValue(";", "  semi-colon  "),
       new OptionValue("|", "  pipe  "));
 
-  private static final Set<String> ALLOWED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls");
+  // private static final Set<String> SUPPORTED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls");
 
   protected final String identifier;
   protected final List<AnnotatedPluginDocument> documents;
@@ -69,7 +67,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       return "Please select a CSV file or spreadsheet to import";
     }
     String ext = getExtension(file.getValue());
-    if (!ALLOWED_FILE_TYPES.contains(ext.toLowerCase())) {
+    if (!supportedFileTypes().contains(ext.toLowerCase())) {
       return "Unsupported file type. Supported file types: " + supportedFileTypesAsString();
     }
     return null; // Signals to Geneious it can continue
@@ -107,7 +105,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
         "",
         new String[0],
         "Select",
-        (x, y) -> ALLOWED_FILE_TYPES.contains(getExtension(y)));
+        (x, y) -> supportedFileTypes().contains(getExtension(y)));
     opt.setAllowMultipleSelection(false);
     opt.setFillHorizontalSpace(true);
     opt.setSelectionType(JFileChooser.FILES_ONLY);
@@ -141,8 +139,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private void fileChanged() {
     if (StringUtils.isBlank(file.getValue())) {
       /*
-       * When a file has already been selected, and then you select another file, the change listener apparently fires twice. The first time the
-       * file is empty again (useful if you want to do a System.exit in between or so). The second time you get the new file.
+       * When a file has already been selected, and then you select another file, the change listener apparently fires twice.
+       * The first time the file is empty again (useful if you want to do a System.exit in between or so). The second time you
+       * get the new file.
        */
       return;
     }
@@ -202,8 +201,10 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private ArrayList<String> supportedFileTypes() {
-    ArrayList<String> types = new ArrayList<>();
-    types.addAll(Arrays.asList("csv", "tsv", "txt"));
+    ArrayList<String> types = new ArrayList<>(4);
+    types.add("csv");
+    types.add("tsv");
+    types.add("txt");
     if (supportSpreadsheet()) {
       types.add("xls");
     }

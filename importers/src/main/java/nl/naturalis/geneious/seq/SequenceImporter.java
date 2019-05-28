@@ -18,6 +18,7 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
+import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -92,7 +93,7 @@ class SequenceImporter extends PluginSwingWorker {
         guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
         guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
-      guiLogger.info("Operation completed successfully");
+      Messages.operationCompletedSuccessfully(guiLogger, "AB1/Fasta Import");
       return created;
     }
   }

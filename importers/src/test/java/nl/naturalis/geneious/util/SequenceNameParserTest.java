@@ -38,8 +38,8 @@ public class SequenceNameParserTest {
     expected.parseAndSet(SEQ_MARKER, "COI");
     expected.parseAndSet(SEQ_SEQUENCING_STAFF, "Naturalis Biodiversity Center Laboratories");
     expected.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
-    System.out.println("Expected: " + DebugUtil.toJson(expected));
-    System.out.println("Actual: " + DebugUtil.toJson(actual));
+    System.out.println("Expected: " + JsonUtil.toJson(expected));
+    System.out.println("Actual: " + JsonUtil.toJson(actual));
     assertEquals(expected, actual);
   }
 

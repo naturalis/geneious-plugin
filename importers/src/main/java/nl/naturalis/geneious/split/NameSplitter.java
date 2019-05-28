@@ -16,6 +16,7 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
+import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 public class NameSplitter extends PluginSwingWorker {
@@ -52,7 +53,7 @@ public class NameSplitter extends PluginSwingWorker {
     guiLogger.info("Number of documents passing filters ...: %3d", docs.size());
     guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
     guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
-    guiLogger.info("Operation completed successfully");
+    Messages.operationCompletedSuccessfully(guiLogger, "Split Name");
     return all;
   }
 

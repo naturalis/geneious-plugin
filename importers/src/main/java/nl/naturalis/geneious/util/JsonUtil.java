@@ -9,7 +9,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 
 import static nl.naturalis.geneious.Settings.settings;
 
-public class DebugUtil {
+public class JsonUtil {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final ObjectWriter noteWriter = mapper.writerFor(NaturalisNote.class);
@@ -41,6 +41,6 @@ public class DebugUtil {
     }
   }
 
-  private DebugUtil() {}
+  private JsonUtil() {}
 
 }

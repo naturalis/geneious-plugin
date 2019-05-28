@@ -4,7 +4,7 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addA
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.util.DebugUtil.toJson;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
@@ -21,6 +21,8 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.CommonStatistics;
+import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -58,21 +60,18 @@ class CrsImporter extends PluginSwingWorker {
       }
       ++good;
       String regno = note.get(SMPL_REGISTRATION_NUMBER);
-      guiLogger.debugf(() -> format("Scanning selected documents for reg.no. %s", regno));
+      Messages.scanningSelectedDocuments(guiLogger, "reg.no", regno);
       StoredDocumentList docs = selectedDocuments.get(regno);
       if (docs == null) {
-        if (guiLogger.isDebugEnabled()) {
-          guiLogger.debug("Not found. Row at line %s remains unused", i + 1);
-        }
+        Messages.noDocumentsMatchingKey(guiLogger, i + 1);
         ++unused;
       } else {
-        guiLogger.debugf(() -> format("Found %1$s document%2$s. Updating document%2$s", docs.size(), plural(docs)));
+        Messages.foundDocumensMatchingKey(guiLogger, "CRS file", docs);
         for (StoredDocument doc : docs) {
           if (doc.attach(note)) {
             updated.add(doc);
           } else {
-            String fmt = "Document with reg.no. %s not updated (no new values in CRS file)";
-            guiLogger.debugf(() -> format(fmt, regno));
+            Messages.noNewValues(guiLogger, "CRS file", "reg.no", regno);
           }
         }
       }
@@ -85,18 +84,15 @@ class CrsImporter extends PluginSwingWorker {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
-    int selected = cfg.getSelectedDocuments().size();
-    int unchanged = selected - updated.size();
-    guiLogger.info("Number of valid rows in CRS file .......: %3d", good);
-    guiLogger.info("Number of empty/bad rows in CRS file ...: %3d", bad);
-    guiLogger.info("Number of unused rows in CRS file ......: %3d", unused);
-    guiLogger.info("Number of selected documents ...........: %3d", selected);
-    guiLogger.info("Number of updated documents ............: %3d", updated.size());
-    guiLogger.info("Number of unchanged documents ..........: %3d", unchanged);
+    new CommonStatistics()
+        .rowStats(good, bad, unused)
+        .documentStats(cfg.getSelectedDocuments().size(), updated.size())
+        .write(guiLogger);
+
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    guiLogger.info("Operation completed successfully");
+    Messages.operationCompletedSuccessfully(guiLogger, "CRS Import");
     return all;
   }
 
