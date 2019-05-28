@@ -2,6 +2,7 @@ package nl.naturalis.geneious.name;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import nl.naturalis.geneious.DocumentType;
@@ -9,6 +10,8 @@ import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.QueryCache.Key;
+import nl.naturalis.geneious.note.NaturalisNote;
+import static nl.naturalis.geneious.log.GuiLogger.*;
 
 /**
  * Keeps track of, and hands out version numbers for documents based on their {@link DocumentType} and name (not
@@ -34,21 +37,24 @@ class VersionTracker {
    * @param doc
    */
   void setDocumentVersion(StorableDocument doc) {
+    NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
+    if (StringUtils.isNotBlank(note.getDocumentVersion())) {
+      // Document versions are never overwritten
+      return;
+    }
     Key key = new Key(doc, doc.getSequenceInfo().getName());
     MutableInt version = cache.get(key);
     if (version == null) {
       version = new MutableInt(1);
       cache.put(key, version);
-      if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("No other %s document with name \"%s\" exists. Document version set to 1", key.docType, key.value);
-      }
+      guiLogger.debugf(() -> format("No other %s document with name \"%s\" exists. Document version set to 1", key.docType, key.value));
     } else {
       version.increment();
       if (guiLogger.isDebugEnabled()) {
         guiLogger.debug("Another %s document with name \"%s\" already exists. Document version set to %s", key.docType, key.value, version);
       }
     }
-    doc.getSequenceInfo().getNaturalisNote().setDocumentVersion(version.intValue());
+    note.setDocumentVersion(version.intValue());
   }
 
 }
