@@ -61,7 +61,7 @@ class SequenceImporter extends PluginSwingWorker {
         for (StorableDocument doc : docs) {
           doc.saveAnnotations();
           created.add(doc.getGeneiousDocument());
-        } ;
+        }
         created = addAndReturnGeneratedDocuments(created, true, Collections.emptyList());
       }
       int processed = 0, rejected = 0, imported = 0;
