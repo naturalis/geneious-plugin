@@ -38,8 +38,6 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       new OptionValue(";", "  semi-colon  "),
       new OptionValue("|", "  pipe  "));
 
-  // private static final Set<String> SUPPORTED_FILE_TYPES = ImmutableSet.of("csv", "tsv", "txt", "xls");
-
   protected final String identifier;
   protected final List<AnnotatedPluginDocument> documents;
   protected final FileSelectionOption file;
