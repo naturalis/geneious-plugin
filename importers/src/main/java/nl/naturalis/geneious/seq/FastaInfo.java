@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import nl.naturalis.geneious.DocumentType;
-import nl.naturalis.geneious.SequenceInfo;
 import nl.naturalis.geneious.name.NotParsableException;
+import nl.naturalis.geneious.name.SequenceInfo;
 import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
 

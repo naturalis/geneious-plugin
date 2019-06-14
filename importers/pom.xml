@@ -1,350 +1,368 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.naturalis.geneious</groupId>
-    <artifactId>naturalis-geneious-plugin</artifactId>
-    <version>1.0</version>
+	<groupId>nl.naturalis.geneious</groupId>
+	<artifactId>naturalis-geneious-plugin</artifactId>
+	<version>1.0</version>
 
-    <name>Naturalis Geneious Plugin</name>
-    <description>Naturalis Geneious Plugin</description>
+	<name>Naturalis Geneious Plugin</name>
+	<description>Naturalis Geneious Plugin</description>
 
-    <properties>
+	<properties>
 
-        <!-- ==================================================================== -->
-        <!-- ***  Build settings                                              *** -->
-        <!-- ==================================================================== -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
-        <!-- *** Path to the Geneious installation directory, which contains  *** -->
-        <!-- *** external, non-maven-managed dependencies, and which also is  *** -->        
-        <!-- *** the working directory from which to launch Geneious.         *** -->
-        <!-- *** When using the Geneious development kit (rather than a       *** -->
-        <!-- *** regular installation), this directory is named               *** -->
-        <!-- *** "GeneiousFiles". Note, however, that apart from the          *** -->
-        <!-- *** examples and tutorials, you can develop just as well         *** -->
-        <!-- *** against a regular installation.                              *** -->
-        <geneious.home>/home/ayco/apps/geneious-2019.1.3-devkit/examples/GeneiousFiles</geneious.home>              
-        <!-- geneious.home>/home/ayco/apps/Geneious_Prime</geneious.home -->              
+		<!-- ==================================================================== -->
+		<!-- *** Build settings *** -->
+		<!-- ==================================================================== -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- ==================================================================== -->
-        <!-- ***  Library dependencies                                        *** -->
-        <!-- ***  Check for updates: mvn versions:display-dependency-updates  *** -->
-        <!-- ***  Check dependencies: mvn dependency:analyze                  *** -->
-        <!-- ==================================================================== -->
-        <mysql-connector-java.version>5.1.47</mysql-connector-java.version>
-        <junit.version>4.12</junit.version>       
+		<!-- *** Path to the Geneious installation directory, which contains *** -->
+		<!-- *** external, non-maven-managed dependencies, and which also is *** -->
+		<!-- *** the working directory from which to launch Geneious. *** -->
+		<!-- *** When using the Geneious development kit (rather than a *** -->
+		<!-- *** regular installation), this directory is named *** -->
+		<!-- *** "GeneiousFiles". Note, however, that apart from the *** -->
+		<!-- *** examples and tutorials, you can develop just as well *** -->
+		<!-- *** against a regular installation. *** -->
+		<geneious.home>C:/java-dev/geneious-2019.1.3-devkit/examples/GeneiousFiles</geneious.home>
+		<!-- geneious.home>/home/ayco/apps/Geneious_Prime</geneious.home -->
 
-        <!-- ==================================================================== -->
-        <!-- ***  Maven plugin versions                                       *** -->
-        <!-- ***  Check for updates: mvn versions:display-plugin-updates      *** -->
-        <!-- ==================================================================== -->
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
-        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-        <git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
+		<!-- ==================================================================== -->
+		<!-- *** Library dependencies *** -->
+		<!-- *** Check for updates: mvn versions:display-dependency-updates *** -->
+		<!-- *** Check dependencies: mvn dependency:analyze *** -->
+		<!-- ==================================================================== -->
+		<mysql-connector-java.version>5.1.47</mysql-connector-java.version>
+		<junit.version>4.12</junit.version>
 
-    </properties>
+		<!-- ==================================================================== -->
+		<!-- *** Maven plugin versions *** -->
+		<!-- *** Check for updates: mvn versions:display-plugin-updates *** -->
+		<!-- ==================================================================== -->
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+		<git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
+
+	</properties>
 
 
-    <organization>
-        <name>Naturalis Biodiversity Center</name>
-        <url>http://www.naturalis.nl</url>
-    </organization>
+	<organization>
+		<name>Naturalis Biodiversity Center</name>
+		<url>http://www.naturalis.nl</url>
+	</organization>
 
-    <dependencies>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>GeneiousPublicAPI</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/GeneiousPublicAPI.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>jebl</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/jebl.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>nl.naturalis.common</groupId>
-            <artifactId>naturalis-common</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.univocity</groupId>
-            <artifactId>univocity-parsers</artifactId>
-            <version>2.7.6</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.47</version>
-        </dependency>
-        
-        <!-- TEST scope -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-        </dependency>
-        
-        <!-- The following libraries are already in the Geneious lib directory.    -->
-        <!-- We want to make sure we are in lockstep with Geneious to prevent      -->
-        <!-- dependency misery. When migrating to a newer Geneious version we      -->
-        <!-- may have to update the jar file names !!!                             -->
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/commons-lang3-3.3.2.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/commons-io-2.6.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>guava</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/guava-25.0-jre.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>biojava</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/biojava-1.5.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/jackson-core-2.7.5.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/jackson-databind-2.7.5.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>geneious</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>1</version>
-            <scope>system</scope>
-            <systemPath>${geneious.home}/lib/jackson-annotations-2.7.5.jar</systemPath>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>GeneiousPublicAPI</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/GeneiousPublicAPI.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>jebl</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/jebl.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>nl.naturalis.common</groupId>
+			<artifactId>naturalis-common</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.univocity</groupId>
+			<artifactId>univocity-parsers</artifactId>
+			<version>2.7.6</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.47</version>
+		</dependency>
 
-    <build>
+		<!-- TEST scope -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+		</dependency>
 
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/git-dummy</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
+		<!-- The following libraries are already in the Geneious lib directory. -->
+		<!-- We want to make sure we are in lockstep with Geneious to prevent -->
+		<!-- dependency misery. When migrating to a newer Geneious version we -->
+		<!-- may have to update the jar file names !!! -->
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/commons-lang3-3.3.2.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/commons-io-2.6.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>guava</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/guava-25.0-jre.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>biojava</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/biojava-1.5.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/jackson-core-2.7.5.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/jackson-databind-2.7.5.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/jackson-annotations-2.7.5.jar</systemPath>
+		</dependency>
+	</dependencies>
 
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${maven-dependency-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>pl.project13.maven</groupId>
-                    <artifactId>git-commit-id-plugin</artifactId>
-                    <version>${git-commit-id-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M3</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+	<build>
 
-        <plugins>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <configuration>
-                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <format>properties</format>
-                    <dateFormat>yyyy-MM-dd HH:mm</dateFormat>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>generate-git-properties</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <showDeprecation>true</showDeprecation>
-                    <release>11</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>echo_hello</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${project.basedir}/scripts/test.sh</executable>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <workingDirectory>${geneious.home}</workingDirectory>
-                    <environmentVariables>
-                        <LD_LIBRARY_PATH>./activation/linux64:./native_libs/linux64</LD_LIBRARY_PATH>
-                    </environmentVariables>
-                    <argLine>--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED</argLine>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>${geneious.home}/iSeek.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/resources</additionalClasspathElement>
-                        <!-- *** Everything below generated by class nl.naturalis.geneious.GenerateMavenTestClassPath *** -->
-                        <!-- *** (src/test/java). When migrating to a new Geneious version this list must be          *** -->
-                        <!-- *** re-generated because some libraries will likely have been updated by Geneious        *** -->
-                        <additionalClasspathElement>${geneious.home}/lib/CryptoUtilities.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/EccpressoAll.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/GeneiousPublicAPI.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/MacOsIntegration.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/MaskedShellFolderManager.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/ObjCBridge.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/PrivateAPI.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/UsageTrackingShared.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/VersionTestLibrary.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/WindowsIntegration.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/activation.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/avalon-framework-4.1.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/batik-all-1.10.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/bcpg-jdk15on-147.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/bcprov-jdk15on-147.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/biojava-1.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/bytecode.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/common.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-cli.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-collections4-4.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-compress-1.4.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-dbcp-1.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-io-2.6.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-lang3-3.3.2.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-logging-1.0.4.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-math3-3.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-net-1.4.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/commons-pool-1.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/crypto.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/dynclass.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/epsgraphics.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/flexlm.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/flexnetActivation.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/flexnetInstallerHelper.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/fop-2.2.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphics2d-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphicsbase-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-emf-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-java-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-swf-2.3.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-io-2.2.2.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/freehep-util-2.1.2.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/gag.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/geneiouscliapi-11.0.3-SNAPSHOT.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/glazedlists-1.6.0_java15.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/guava-25.0-jre.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/i4jruntime.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jackson-annotations-2.7.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jackson-core-2.7.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jackson-databind-2.7.5.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jakarta-oro-2.0.8.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jakarta-regexp-1.4.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/javassist-3.18.2-GA.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jcommander.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jdom-contrib.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jdom.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jebl.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jna-4.5.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jna-platform-4.5.1.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/jsr305-1.3.9.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/juniversalchardet-1.0.3.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/log4j-1.2.17.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/lucene-core-2.9.3.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/mail.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/org-netbeans-swing-outline.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/oshi-core-3.5.0.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/piccolo2d-core-1.3.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/piccolo_xml.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/slf4j-api-1.7.21.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/talkbackShared.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/threetenbp-1.3.6.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/truezip-6.8.3.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/webservices-api.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/webservices-rt.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/xml-apis-ext-1.3.04.jar</additionalClasspathElement>
-                        <additionalClasspathElement>${geneious.home}/lib/xmlgraphics-commons-2.2.jar</additionalClasspathElement>
-                    </additionalClasspathElements>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/git-dummy</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-compiler-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>${exec-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven-dependency-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>pl.project13.maven</groupId>
+					<artifactId>git-commit-id-plugin</artifactId>
+					<version>${git-commit-id-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.0.0-M3</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<format>properties</format>
+					<dateFormat>yyyy-MM-dd HH:mm</dateFormat>
+				</configuration>
+				<executions>
+					<execution>
+						<id>generate-git-properties</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<showDeprecation>true</showDeprecation>
+					<release>11</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>echo_hello</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${project.basedir}/scripts/test.sh</executable>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<workingDirectory>${geneious.home}</workingDirectory>
+					<environmentVariables>
+						<LD_LIBRARY_PATH>./activation/linux64:./native_libs/linux64</LD_LIBRARY_PATH>
+					</environmentVariables>
+					<argLine>--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED</argLine>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${geneious.home}/iSeek.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/resources</additionalClasspathElement>
+						<!-- *** Everything below generated by class nl.naturalis.geneious.GenerateMavenTestClassPath 
+							*** -->
+						<!-- *** (src/test/java). When migrating to a new Geneious version 
+							this list must be *** -->
+						<!-- *** re-generated because some libraries will likely have been 
+							updated by Geneious *** -->
+						<additionalClasspathElement>${geneious.home}/lib/CryptoUtilities.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/EccpressoAll.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/GeneiousPublicAPI.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/MacOsIntegration.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/MaskedShellFolderManager.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/ObjCBridge.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/PrivateAPI.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/UsageTrackingShared.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/VersionTestLibrary.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/WindowsIntegration.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/activation.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/avalon-framework-4.1.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/batik-all-1.10.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/bcpg-jdk15on-147.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/bcprov-jdk15on-147.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/biojava-1.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/bytecode.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/common.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-cli.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-collections4-4.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-compress-1.4.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-dbcp-1.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-io-2.6.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-lang3-3.3.2.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-logging-1.0.4.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-math3-3.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-net-1.4.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/commons-pool-1.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/crypto.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/dynclass.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/epsgraphics.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/flexlm.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/flexnetActivation.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/flexnetInstallerHelper.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/fop-2.2.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphics2d-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphicsbase-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-emf-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-java-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-graphicsio-swf-2.3.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-io-2.2.2.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/freehep-util-2.1.2.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/gag.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/geneiouscliapi-11.0.3-SNAPSHOT.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/glazedlists-1.6.0_java15.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/guava-25.0-jre.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/i4jruntime.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jackson-annotations-2.7.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jackson-core-2.7.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jackson-databind-2.7.5.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jakarta-oro-2.0.8.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jakarta-regexp-1.4.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/javassist-3.18.2-GA.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jcommander.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jdom-contrib.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jdom.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jebl.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jna-4.5.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jna-platform-4.5.1.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/jsr305-1.3.9.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/juniversalchardet-1.0.3.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/log4j-1.2.17.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/lucene-core-2.9.3.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/mail.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/org-netbeans-swing-outline.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/oshi-core-3.5.0.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/piccolo2d-core-1.3.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/piccolo_xml.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/slf4j-api-1.7.21.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/talkbackShared.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/threetenbp-1.3.6.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/truezip-6.8.3.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/webservices-api.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/webservices-rt.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/xml-apis-ext-1.3.04.jar</additionalClasspathElement>
+						<additionalClasspathElement>${geneious.home}/lib/xmlgraphics-commons-2.2.jar</additionalClasspathElement>
+					</additionalClasspathElements>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<!-- Default configuration for all reports -->
+					<failOnError>false</failOnError>
+					<failOnWarnings>false</failOnWarnings>
+					<quiet>true</quiet>
+					<doclint>none</doclint>
+					<show>package</show>
+					<excludes>src/test/**/*</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

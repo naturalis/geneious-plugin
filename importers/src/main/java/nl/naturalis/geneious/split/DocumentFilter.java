@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.name.StorableDocument;
 
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.name.NameUtil.isDummy;

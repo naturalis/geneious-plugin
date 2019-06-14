@@ -35,7 +35,10 @@ import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 /**
- * Does the actual work of importing a sample sheet into Geneious.
+ * Manages the Sample Sheet Import operation.
+ * 
+ * @author Ayco Holleman
+ *
  */
 class SampleSheetImporter extends PluginSwingWorker {
 
@@ -68,8 +71,10 @@ class SampleSheetImporter extends PluginSwingWorker {
     Set<String> idsInSampleSheet = collectIdsInSampleSheet(rows);
     StoredDocumentTable<String> selectedDocuments = createLookupTableForSelectedDocuments();
     guiLogger.info("Searching database %s for matching extract IDs", getTargetDatabaseName());
-    // First, get all extract IDs in the sample sheet that do not correspond to any of the selected documents. If an extract
-    // ID is found in a selected document, we don't again need to search for it in the database, because, well, that's
+    // First, get all extract IDs in the sample sheet that do not correspond to any of the selected documents. If
+    // an extract
+    // ID is found in a selected document, we don't again need to search for it in the database, because, well,
+    // that's
     // where the document came from.
     Set<String> extraIds = idsInSampleSheet.stream().filter(not(selectedDocuments::containsKey)).collect(toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIds);
@@ -80,8 +85,10 @@ class SampleSheetImporter extends PluginSwingWorker {
     guiLogger.info("Sample sheet contains %s row%s", numRows, plural(numRows));
     guiLogger.info("Sample sheet contains %s extract ID%s matching selected documents", overlap, plural(overlap));
     guiLogger.info("Sample sheet contains %s extract ID%s matching unselected documents", searchResult.size(), plural(searchResult));
-    // We must only create dummies for sample sheet rows that do not correspond to any document in the target database,
-    // selected or not. So newIds is lilkely the number of dummies we are going to create, unless the sample sheet rows
+    // We must only create dummies for sample sheet rows that do not correspond to any document in the target
+    // database,
+    // selected or not. So newIds is lilkely the number of dummies we are going to create, unless the sample sheet
+    // rows
     // containing them turn out to be invalid.
     int newIds = idsInSampleSheet.size() - overlap - unselected.size();
     guiLogger.info("Sample sheet contains %s new extract ID%s", newIds, plural(newIds));

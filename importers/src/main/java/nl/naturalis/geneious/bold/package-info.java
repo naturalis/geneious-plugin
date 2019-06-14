@@ -1,7 +1,6 @@
 /**
+ * Classes and interfaces dedicated to the BOLD Import operation.
  * 
- */
-/**
  * @author Ayco Holleman
  *
  */

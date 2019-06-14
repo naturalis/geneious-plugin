@@ -1,8 +1,9 @@
-package nl.naturalis.geneious;
+package nl.naturalis.geneious.name;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
 

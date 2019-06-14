@@ -17,8 +17,15 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
+/**
+ * Tells Geneious how to display the SplitName operation within the GUI and how to kick off the Split Name
+ * operation. The actual name splitting is delegated to and managed by the {@link NameSplitter} class.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class SplitNameDocumentOperation extends DocumentOperation {
-  
+
   // Releative position with menu and toolbar
   private static final double position = .99991;
 
@@ -27,11 +34,12 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name", "Enriches documents by parsing their name", getIconsFromJar(getClass(), "/images/nbc_green.png"))
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-        .setInMainToolbar(true, position)
-        .setInPopupMenu(true, position)
-        .setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("Split Name", "Enriches documents by parsing their name",
+        getIconsFromJar(getClass(), "/images/nbc_green.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+            .setInMainToolbar(true, position)
+            .setInPopupMenu(true, position)
+            .setAvailableToWorkflows(true);
   }
 
   @Override

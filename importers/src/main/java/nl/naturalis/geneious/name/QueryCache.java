@@ -17,7 +17,6 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import nl.naturalis.geneious.DocumentType;
-import nl.naturalis.geneious.StorableDocument;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
