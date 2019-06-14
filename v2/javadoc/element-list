@@ -1,10 +1,12 @@
 nl.naturalis.geneious
 nl.naturalis.geneious.bold
 nl.naturalis.geneious.crs
+nl.naturalis.geneious.csv
 nl.naturalis.geneious.gui
-nl.naturalis.geneious.gui.log
+nl.naturalis.geneious.log
+nl.naturalis.geneious.name
 nl.naturalis.geneious.note
-nl.naturalis.geneious.samplesheet
+nl.naturalis.geneious.seq
+nl.naturalis.geneious.smpl
 nl.naturalis.geneious.split
-nl.naturalis.geneious.trace
 nl.naturalis.geneious.util
