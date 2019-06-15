@@ -28,7 +28,9 @@ import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 /**
- * Does the actual work of importing a CRS file into Geneious.
+ * Manages and coordinates the import of CRS files into Geneious.
+ * 
+ * @author Ayco Holleman
  */
 class CrsImporter extends PluginSwingWorker {
 

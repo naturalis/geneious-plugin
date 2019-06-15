@@ -18,13 +18,20 @@ import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
+/**
+ * The main hook into the Geneious plugin architecture. Tells Geneious which services the plugin provide and
+ * which classes implement them.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
-   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is
-   * called. This method returns our implementation classes these in turn have static initalizers that depend on the
-   * preferences being set and readable. That's the only reason why we have this (unused) class variable here. (See also
-   * NaturalisPreferencesOptions)
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations()
+   * is called. This method returns our implementation classes these in turn have static initalizers that depend
+   * on the preferences being set and readable. That's the only reason why we have this (unused) class variable
+   * here. (See also NaturalisPreferencesOptions)
    */
   @SuppressWarnings("unused")
   private static final NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
@@ -90,7 +97,8 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   @Override
   public String getVersion() {
-    // Geneious does not allow version strings like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular example.
+    // Geneious does not allow version strings like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular
+    // example.
     String version = PluginInfo.getInstance().getVersion();
     int i = version.indexOf('-');
     if (i == -1) {

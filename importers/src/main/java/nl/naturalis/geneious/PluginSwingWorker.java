@@ -13,14 +13,14 @@ import nl.naturalis.geneious.util.Ping;
 /**
  * Base class of all {@code SwingWorker} classes within the plugin. These classes manage and coordinate the
  * actual number crunching for the various operations provided by the plugin (e.g. AB1/Fasta Import, Split
- * Name, etc.). Although in practice they finish very quickly, we follow Geneious's advice to do the number
+ * Name, etc.). Although in practice they finish quickly, we follow Geneious's advice to do the number
  * crunching on another thread than the GUI's event dispatch thread. The {@code PluginSwingWorker} class
  * itself establishes a global control flow for all operations:
  * <ol>
  * <li>Check that, in the operation preceding the one currently executing, the user waited for all documents
  * to be indexed. If not, the {@link Ping ping mechanism} is resumed and the currently executing operation
  * will not proceed until all documents are indexed after all.
- * <li>Delegate the operation-specific number crunching to the subclasses by calling the abstract
+ * <li>Delegate the operation-specific number crunching to subclasses by calling the abstract
  * {@link #performOperation() performOperation} method.
  * <li>If the number crunching resulting in any documents being created or updated, the
  * {@code PluginSwingWorker} class takes over again, and (again) kicks off the ping mechanism to ensure that
@@ -63,9 +63,9 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
   }
 
   /**
-   * To be implemented by subclasses: the actual number crunching. Implementations must return a list of all
-   * documents that were created or updated during the operation. If no document were created or updated, an
-   * empty list must be returned.
+   * To be implemented by subclasses: the actual number crunching required for the operation they manage and
+   * coordinate. Implementations must return a list of all documents that were created or updated during the
+   * operation. If no documents were created or updated, an empty list must be returned.
    * 
    */
   protected abstract List<AnnotatedPluginDocument> performOperation() throws Exception;

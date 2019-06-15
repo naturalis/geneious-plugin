@@ -16,9 +16,11 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
 
 /**
- * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched
- * into a {@link NaturalisNote}. A {@code StoredDocument} has presumably been retrieved through some database query and upon instantiation
- * is exactly like the database record.
+ * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its
+ * Naturalis-specific annotations pre-fetched into a {@link NaturalisNote} instance. A {@code StoredDocument}
+ * has presumably been retrieved through some database query and upon instantiation is exactly like the
+ * database record. As the operation proceeds the {@code NaturalisNote} instance may get updated, and, if so,
+ * will be saved back to the document.
  */
 public class StoredDocument {
 
@@ -35,10 +37,22 @@ public class StoredDocument {
 
   private DocumentNotes notes;
 
+  /**
+   * Creates a wrapper around the provided document.
+   * 
+   * @param document
+   */
   public StoredDocument(AnnotatedPluginDocument document) {
     this(document, new NaturalisNote(document));
   }
 
+  /**
+   * Creates a wrapper around the provided document with the annotations explicitly provided through the
+   * {@code note} argument. Only used to created yet-to-be-saved dummy documents.
+   * 
+   * @param doc
+   * @param note
+   */
   public StoredDocument(AnnotatedPluginDocument doc, NaturalisNote note) {
     this.doc = doc;
     this.note = note;
@@ -64,15 +78,16 @@ public class StoredDocument {
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the
+   * database.
    */
   public void attach(Note note) {
     note.copyTo(getDocumentNotes());
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database. Returns {@code true}
-   * if the document actually changed as a consequence, {@code false} otherwise.
+   * Adds the annotations present in the provided note to this document, but does not save the document to the
+   * database. Returns {@code true} if the document actually changed as a consequence, {@code false} otherwise.
    */
   public boolean attach(NaturalisNote note) {
     return note.copyTo(this.note);
@@ -87,18 +102,34 @@ public class StoredDocument {
     notes.saveNotes(true);
   }
 
+  /**
+   * Returns the document type (AB1, FASTA or DUMMY).
+   * @return
+   */
   public DocumentType getType() {
     return type;
   }
 
+  /**
+   * Whether or not this instance wraps an AB1 document.
+   * @return
+   */
   public boolean isAB1() {
     return type == AB1;
   }
 
+  /**
+   * Whether or not this instance wraps a FASTA document.
+   * @return
+   */
   public boolean isFasta() {
     return type == FASTA;
   }
 
+  /**
+   * Whether or not this instance wraps a DUMMY document.
+   * @return
+   */
   public boolean isDummy() {
     return type == DUMMY;
   }

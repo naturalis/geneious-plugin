@@ -18,11 +18,9 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Tells Geneious how to display the SplitName operation within the GUI and how to kick off the Split Name
- * operation. The actual name splitting is delegated to and managed by the {@link NameSplitter} class.
+ * Framework-plumbing class telling Geneious how to display and kick off the Split Name operation.
  * 
  * @author Ayco Holleman
- *
  */
 public class SplitNameDocumentOperation extends DocumentOperation {
 

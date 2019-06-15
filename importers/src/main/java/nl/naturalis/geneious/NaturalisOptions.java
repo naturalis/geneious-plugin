@@ -22,6 +22,12 @@ import com.google.common.base.Charsets;
 import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 import nl.naturalis.geneious.util.Ping;
 
+/**
+ * Sets up the Tools -&gt; Preferences panel for the Naturalis plugin.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class NaturalisOptions extends Options {
 
   public NaturalisOptions() {

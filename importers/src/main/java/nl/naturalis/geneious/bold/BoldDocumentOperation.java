@@ -18,7 +18,9 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class used to import sample sheets.
+ * Framework-plumbing class telling Geneious how to display and kick off the BOLD Import operation.
+ * 
+ * @author Ayco Holleman
  */
 public class BoldDocumentOperation extends DocumentOperation {
 
@@ -34,11 +36,12 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("BOLD Import", "Enriches documents with BOLD data", getIconsFromJar(getClass(), "/images/nbc_green.png"))
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-        .setInMainToolbar(true, position)
-        .setInPopupMenu(true, position)
-        .setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("BOLD Import", "Enriches documents with BOLD data",
+        getIconsFromJar(getClass(), "/images/nbc_green.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
+            .setInMainToolbar(true, position)
+            .setInPopupMenu(true, position)
+            .setAvailableToWorkflows(true);
   }
 
   @Override

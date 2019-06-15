@@ -35,10 +35,9 @@ import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 /**
- * Manages the Sample Sheet Import operation.
+ * Manages and coordinates the import of sample sheets into Geneious.
  * 
  * @author Ayco Holleman
- *
  */
 class SampleSheetImporter extends PluginSwingWorker {
 

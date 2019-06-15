@@ -12,7 +12,11 @@ import org.apache.commons.io.FileUtils;
 import nl.naturalis.common.io.NFiles;
 
 /**
- * Stores various kinds of user actions like the most recently selected folder for sample sheets.
+ * This class is currently only used for the AB1/Fasta Import operation and facilitates a custom way of
+ * requesting and storing user preferences. It should probably be deprecated in favour of using the Geneious
+ * API, which also provides this functionality. The other operations already use the Geneious API.
+ * 
+ * @author Ayco Holleman
  */
 public class RuntimeSettings {
 

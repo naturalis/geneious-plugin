@@ -4,8 +4,14 @@ import javax.swing.Icon;
 
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 
+/**
+ * Geneious framework plumbing class.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class NaturalisPluginPreferences extends PluginPreferences<NaturalisOptions> {
-  
+
   public NaturalisPluginPreferences() {
     super();
   }

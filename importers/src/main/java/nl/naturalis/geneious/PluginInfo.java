@@ -5,7 +5,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Java bean containing and providing version info for the Tools -> Preferences dialog.
+ * Contains and provides version-related information about the current release of the plugin. Used in the
+ * Tools -> Preferences dialog.
  *
  * @author Ayco Holleman
  */
@@ -46,7 +47,7 @@ public class PluginInfo {
   }
 
   /**
-   * Returns the version of the plugin
+   * Returns the version of the plugin.
    * 
    * @return
    */
@@ -55,7 +56,7 @@ public class PluginInfo {
   }
 
   /**
-   * Returns the build date of the plugin
+   * Returns the build date of the plugin.
    * 
    * @return
    */

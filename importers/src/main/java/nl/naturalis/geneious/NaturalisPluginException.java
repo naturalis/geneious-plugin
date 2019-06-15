@@ -1,7 +1,7 @@
 package nl.naturalis.geneious;
 
 /**
- * Base class for all fatal runtime exceptions thrown by the plugin.
+ * Base class for all runtime exceptions thrown by the plugin.
  * 
  * @see NonFatalException
  * 

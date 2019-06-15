@@ -11,8 +11,7 @@ import static nl.naturalis.geneious.log.LogLevel.INFO;
 import static nl.naturalis.geneious.log.LogLevel.WARN;
 
 /**
- * A logger implementation that is rather tightly coupled to Geneious and Swing, in that sends sends messages to a
- * JTextArea rather than to regular destinations like a file ro console.
+ * Provides various ways of logging messages that will appear in the Geneious GUI.
  * 
  * @author Ayco Holleman
  *
@@ -20,8 +19,8 @@ import static nl.naturalis.geneious.log.LogLevel.WARN;
 public class GuiLogger {
 
   /**
-   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the message
-   * pattern and the remaining arguments the message arguments passed to String.format.
+   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the
+   * message pattern and the remaining arguments the message arguments passed to String.format.
    * 
    * @param args
    * @return
@@ -33,10 +32,22 @@ public class GuiLogger {
     return objs;
   }
 
+  /**
+   * Returns "s" if the collection is empty or contains more than one element; otherwise an empty string.
+   * 
+   * @param c
+   * @return
+   */
   public static String plural(Collection<?> c) {
     return c.size() == 1 ? "" : "s";
   }
 
+  /**
+   * Returns "s" if {@code i} is 0 or greater than 1; otherwise an empty string.
+   * 
+   * @param i
+   * @return
+   */
   public static String plural(int i) {
     return i == 1 ? "" : "s";
   }
@@ -76,14 +87,29 @@ public class GuiLogger {
     return writer.getLogLevel().ordinal() >= WARN.ordinal();
   }
 
+  /**
+   * Logs a DEBUG message.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void debug(String message, Object... msgArgs) {
     record(DEBUG, message, null, msgArgs);
   }
 
+  /**
+   * 
+   * @param msgSupplier
+   */
   public void debug(Supplier<String> msgSupplier) {
     record(DEBUG, msgSupplier, null);
   }
 
+  /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the message to be logged.
+   * 
+   * @param msgSupplier
+   */
   public void debugf(Supplier<Object[]> msgSupplier) {
     recordf(DEBUG, msgSupplier, null);
   }

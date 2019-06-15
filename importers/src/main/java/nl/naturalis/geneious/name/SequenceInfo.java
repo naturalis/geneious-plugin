@@ -45,7 +45,7 @@ public abstract class SequenceInfo {
 
     /**
      * Returns the name associated with the nucleotide sequence. For AB1 files it is the file name minus the file
-     * extension. For Fasta files it is the header preceding the nucleotide sequence minus the '>' character.
+     * extension. For Fasta files it is the header preceding the nucleotide sequence minus the '&gt;' character.
      * 
      * @return
      */

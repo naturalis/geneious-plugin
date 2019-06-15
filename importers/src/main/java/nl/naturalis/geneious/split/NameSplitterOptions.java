@@ -5,6 +5,14 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
+/**
+ * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name}
+ * operation. Once the user click OK, this class produces a {@link NameSplitterConfig} object, which is then
+ * passed on to the {@link NameSplitter}.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 class NameSplitterOptions extends Options {
 
   private final List<AnnotatedPluginDocument> documents;

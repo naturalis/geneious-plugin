@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import nl.naturalis.geneious.WrappedException;
+import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 import static nl.naturalis.geneious.Settings.settings;

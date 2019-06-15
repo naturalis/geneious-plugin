@@ -18,7 +18,9 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class used to import sample sheets.
+ * Framework-plumbing class telling Geneious how to display and kick off the Sample Sheet Import operation.
+ * 
+ * @author Ayco Holleman
  */
 public class SampleSheetDocumentOperation extends DocumentOperation {
 

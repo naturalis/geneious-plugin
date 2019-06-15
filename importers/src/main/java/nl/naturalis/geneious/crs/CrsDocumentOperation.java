@@ -18,7 +18,9 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class used to import sample sheets.
+ * Framework-plumbing class telling Geneious how to display and kick off the CRS Import operation.
+ * 
+ * @author Ayco Holleman
  */
 public class CrsDocumentOperation extends DocumentOperation {
 
@@ -34,7 +36,7 @@ public class CrsDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("CRS Import","Enriches documents with CRS data", getIconsFromJar(getClass(), "/images/nbc_red.png"))
+    return new GeneiousActionOptions("CRS Import", "Enriches documents with CRS data", getIconsFromJar(getClass(), "/images/nbc_red.png"))
         .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
         .setInMainToolbar(true, position)
         .setInPopupMenu(true, position)

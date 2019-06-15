@@ -13,11 +13,12 @@ import java.util.EnumMap;
 import jebl.evolution.io.FastaImporter;
 
 /**
- * An easy means of accessing the settings in the <i>Tools -> Preferences</i> tab. This class mainly exists to work around an awkward
- * Geneious feature (if not bug) that makes directly accessing the options defined in the Preferences tab very tricky. Notably tricky are
- * the hidden settings. For these there are setters in this class that do not update the Settings cache directly, but in stead update the
- * corresponding option in the Preferences panel. That triggers a change listener which updates the value of the settings cache. That sounds
- * like it could be short-circuited. Be careful if you try.
+ * Provides access to the settings in the <i>Tools -&gt; Preferences</i> tab. This class mainly exists to work
+ * around an awkward Geneious feature (if not bug) that makes directly accessing the options defined in the
+ * Preferences tab tricky. Notably tricky are the hidden settings. For these there are setters in this class
+ * that do not update the internal settings cache directly, but in stead update the corresponding option in
+ * the Preferences panel. That in turn triggers a change listener which updates the settings cache. That
+ * sounds like it could be short-circuited. Be careful if you try.
  * 
  * @author Ayco Holleman
  */
@@ -41,7 +42,8 @@ public class Settings {
 
   private final EnumMap<Setting, Object> cache = new EnumMap<>(Setting.class);
 
-  private Settings() {}
+  private Settings() {
+  }
 
   /**
    * Callback method for the change listeners in {@link NaturalisOptions}.
@@ -63,7 +65,7 @@ public class Settings {
   }
 
   /**
-   * Returns ping history as a JSON string.
+   * Returns the ping history as a JSON string.
    * 
    * @return
    */
@@ -72,12 +74,13 @@ public class Settings {
   }
 
   /**
-   * Sets the ping history as a JSON string (so it will survive Geneious sessions).
+   * Sets the ping history as a JSON string (so it will survive Geneious sessions). The ping history is a
+   * per-user-per-database map of ping start times.
    * 
-   * @param timestamp
+   * @param history
    */
-  public void setPingHistory(String timestamp) {
-    cache.put(PING_HISTORY, timestamp);
+  public void setPingHistory(String history) {
+    cache.put(PING_HISTORY, history);
   }
 
   /**
@@ -99,7 +102,7 @@ public class Settings {
   }
 
   /**
-   * Show pretty notes when in DEBUG mode.
+   * Whether or not to show pretty notes when in DEBUG mode.
    * 
    * @return
    */
@@ -126,7 +129,7 @@ public class Settings {
   }
 
   /**
-   * Whether or not to disable the fasta cache.
+   * Whether or not to disable the fasta cache. If disabled, fasta imports will not be done in-memory.
    * 
    * @return
    */

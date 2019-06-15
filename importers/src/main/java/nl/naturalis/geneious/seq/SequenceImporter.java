@@ -22,7 +22,9 @@ import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
- * Does the actual work of importing AB1/fasta files into Geneious.
+ * Manages and coordinates the import of AB1/fasta files into Geneious.
+ * 
+ * @author Ayco Holleman
  */
 class SequenceImporter extends PluginSwingWorker {
 

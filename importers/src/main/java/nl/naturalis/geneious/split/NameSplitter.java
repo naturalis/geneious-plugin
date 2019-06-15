@@ -20,10 +20,9 @@ import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
- * Manages the Split Name operation.
+ * Manages and coordinates the Split Name operation.
  * 
  * @author Ayco Holleman
- *
  */
 class NameSplitter extends PluginSwingWorker {
 

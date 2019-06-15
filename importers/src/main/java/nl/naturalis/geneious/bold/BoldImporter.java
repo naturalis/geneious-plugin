@@ -30,7 +30,9 @@ import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
 /**
- * Does the actual work of importing a BOLD file into Geneious.
+ * Manages and coordinates the import of BOLD files into Geneious.
+ * 
+ * @author Ayco Holleman
  */
 class BoldImporter extends PluginSwingWorker {
 
@@ -76,8 +78,8 @@ class BoldImporter extends PluginSwingWorker {
         String boldMarker = row.get(MARKER);
         String[] mapsTo = markerMap.get(boldMarker);
         /*
-         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected
-         * documents will the row in the BOLD file remain unused.
+         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within
+         * the selected documents will the row in the BOLD file remain unused.
          */
         boolean used = false;
         for (String naturalisMarker : mapsTo) {
@@ -114,7 +116,7 @@ class BoldImporter extends PluginSwingWorker {
         .rowStats(good, bad, unused)
         .documentStats(cfg.getSelectedDocuments().size(), updated.size())
         .write(guiLogger);
-    
+
     guiLogger.info("UNUSED ROW (explanation): The row's registration number and marker");
     guiLogger.info("          did not correspond to any of the selected documents, but");
     guiLogger.info("          they may or may not correspond to other, unselected documents.");

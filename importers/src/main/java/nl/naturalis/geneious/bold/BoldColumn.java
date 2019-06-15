@@ -1,7 +1,7 @@
 package nl.naturalis.geneious.bold;
 
 /**
- * Symbolic constants for the columns in a (normalized) BOLD source file.
+ * Symbolic constants for the columns in a <i>normalized</i> BOLD source file.
  *
  * @author Ayco Holleman
  */

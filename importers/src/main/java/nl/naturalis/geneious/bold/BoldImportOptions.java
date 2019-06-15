@@ -6,8 +6,15 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
+/**
+ * Sets up a Geneious dialog requesting user input for the {@link BoldDocumentOperation BOLD Import}
+ * operation. Once the user click OK, this class produces a {@link BoldImportConfig} object, which is then
+ * passed on to the {@link BoldImporter}.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
-
 
   public BoldImportOptions(List<AnnotatedPluginDocument> documents) {
     super(documents, "bold");
@@ -25,7 +32,7 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
       return msg;
     }
     if (linesToSkip.getValue() == 0) {
-      return "\"Lines to skip\" must not be 0 (zero). Bold files must have at least one header line containing " + 
+      return "\"Lines to skip\" must not be 0 (zero). Bold files must have at least one header line containing " +
           "the column names (usually line 3).";
     }
     return null;

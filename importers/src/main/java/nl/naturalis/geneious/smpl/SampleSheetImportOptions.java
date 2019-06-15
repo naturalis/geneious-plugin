@@ -6,7 +6,15 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
-public class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
+/**
+ * Sets up a Geneious dialog requesting user input for the {@link SampleSheetDocumentOperation Sample Sheet
+ * Import} operation. Once the user click OK, this class produces a {@link SampleSheetImportConfig} object,
+ * which is then passed on to the {@link SampleSheetImporter}.
+ * 
+ * @author Ayco Holleman
+ *
+ */
+class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
 
   private final BooleanOption dummies;
 

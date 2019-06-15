@@ -56,7 +56,8 @@ public enum Setting {
   }
 
   /**
-   * Returns the setting corresponding to the provided name, which is supposed to be the fully-qualified name known to Geneious.
+   * Returns the setting corresponding to the provided name, which is supposed to be the fully-qualified name
+   * known to Geneious.
    * 
    * @param name
    * @return
@@ -72,7 +73,7 @@ public enum Setting {
   }
 
   /**
-   * Returns the fully-qualified name by which Geneious knows this configuration setting.
+   * Returns the fully-qualified name by which Geneious saves and retrieves this configuration setting.
    * 
    * @return
    */

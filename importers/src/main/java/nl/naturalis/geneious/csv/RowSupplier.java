@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
+import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.NaturalisPluginException;
-import nl.naturalis.geneious.WrappedException;
 
 /**
  * A simple reader for all types of delimited formats suported by the plugin: CSV files, TSV files and spreadsheet.

@@ -22,9 +22,8 @@ import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class used to import AB1 and fasta files. Instantiates a {@link SequenceImporter} and lets it do
- * most of the work.
- *
+ * Framework-plumbing class telling Geneious how to display and kick off the AB1/Fasta Import operation.
+ * 
  * @author Ayco Holleman
  */
 public class SequenceImportDocumentOperation extends DocumentOperation {
