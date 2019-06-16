@@ -20,6 +20,14 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
+/**
+ * Abstract base class for configuring a Geneious dialog requesting input for the import of CSV-like files.
+ * 
+ * @author Ayco Holleman
+ *
+ * @param <T> An {@code enum} providing symbolic constants for the columns in a CSV-like file.
+ * @param <U> The type of object that will contain the user-provided values.
+ */
 public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
 
   private static final String FILE = "nl.naturalis.geneious.%s.file";
@@ -55,6 +63,10 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     file.addChangeListener(this::fileChanged);
   }
 
+  /**
+   * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message
+   * indicating what's wrong.
+   */
   @Override
   public String verifyOptionsAreValid() {
     String msg = super.verifyOptionsAreValid();
@@ -84,14 +96,29 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return cfg;
   }
 
+  /**
+   * The text to display before the file selection field in the dialog. Default: "File".
+   * 
+   * @return
+   */
   protected String getDefaultFileSelectionLabel() {
     return "File";
   }
 
+  /**
+   * Returns the default number of lines to skip (displayed when the dialog is opened for the first time).
+   * 
+   * @return
+   */
   protected int getDefaultNumLinesToSkip() {
     return 1;
   }
 
+  /**
+   * Whether or not to support spreadsheets.
+   * 
+   * @return
+   */
   protected boolean supportSpreadsheet() {
     return false;
   }
@@ -137,9 +164,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private void fileChanged() {
     if (StringUtils.isBlank(file.getValue())) {
       /*
-       * When a file has already been selected, and then you select another file, the change listener apparently fires twice.
-       * The first time the file is empty again (useful if you want to do a System.exit in between or so). The second time you
-       * get the new file.
+       * When a file has already been selected, and then you select another file, the change listener apparently
+       * fires twice. The first time the file is empty again (useful if you want to do a System.exit in between or
+       * so). The second time you get the new file.
        */
       return;
     }

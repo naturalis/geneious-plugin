@@ -20,15 +20,18 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Preconditions;
+
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * Normalizes BOLD source files so that they can be processed like any of the other types of source files (sample sheets and CRS files). It
- * takes the rows in a BOLD file as input and produces a new set of rows, each one having just one quartet of marker column. (The original
- * BOLD file only has three marker-related columns, with the name of the marker being implicit in the headers of those columns. In the
- * output produced by the {@code BoldNormalizer} the name of the marker becomes a value in a 4th column.)
+ * Normalizes BOLD source files so that they can be processed like any of the other types of source files
+ * (sample sheets and CRS files). BOLD files contain repeating triplets of marker-related columns, one triplet
+ * per marker. Each triplet gets its own row, with the <i>non-repeating</i> columns now repeating row-wise.
+ * The marker itself does not have its own column in the original file. Instead it must be inferred (excised)
+ * from the column headers. In the normalized version the marker does have its own column.
  *
  * @author Ayco Holleman
  */
@@ -44,6 +47,12 @@ class BoldNormalizer {
     this.cfg = cfg;
   }
 
+  /**
+   * Produces a map that maps each marker in the BOLD file to a list of rows.
+   * 
+   * @return
+   * @throws BoldNormalizationException
+   */
   Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
     if (cfg.getSkipLines() == 0) {
       throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
@@ -83,10 +92,13 @@ class BoldNormalizer {
     return normalized;
   }
 
+  /**
+   * Returns the markers that the {@code BoldNormalizer} extracted from the column headers in the BOLD file.
+   * 
+   * @return
+   */
   List<String> getMarkers() {
-    if (markers == null) {
-      throw new IllegalStateException("Can only provide markers after normalization");
-    }
+    Preconditions.checkState(markers != null, "Can only provide markers after normalization");
     return markers;
   }
 

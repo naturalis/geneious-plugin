@@ -16,22 +16,34 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
- * A simple reader for MS spreadsheets, loading and returning all rows at once.
+ * A simple reader for MS spreadsheets. Loads and returns all rows at once.
+ * 
  * @author Ayco Holleman
  *
  */
-public class SpreadSheetReader {
+class SpreadSheetReader {
 
   private final File file;
 
   private int sheetNumber = 0;
-  private int skipRows = 0;
 
-  public SpreadSheetReader(File file) {
+  /**
+   * Creates a {@code SpreadSheetReader} for the provided file.
+   * 
+   * @param file
+   */
+  SpreadSheetReader(File file) {
     this.file = file;
   }
 
-  public List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
+  /**
+   * Loads and returns all rows of the speadsheet.
+   * 
+   * @return
+   * @throws EncryptedDocumentException
+   * @throws IOException
+   */
+  List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
     Workbook workbook = WorkbookFactory.create(file);
     if (sheetNumber >= workbook.getNumberOfSheets()) {
       String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
@@ -40,11 +52,7 @@ public class SpreadSheetReader {
     Sheet sheet = workbook.getSheetAt(sheetNumber);
     DataFormatter dataFormatter = new DataFormatter();
     List<String[]> rows = new ArrayList<>();
-    int skipped = 0;
     for (Row row : sheet) {
-      if (skipped++ < skipRows) {
-        continue;
-      }
       List<String> values = new ArrayList<>();
       for (Cell cell : row) {
         values.add(dataFormatter.formatCellValue(cell));
@@ -54,20 +62,13 @@ public class SpreadSheetReader {
     return rows;
   }
 
-  public int getSheetNumber() {
-    return sheetNumber;
-  }
-
-  public void setSheetNumber(int sheetNumber) {
+  /**
+   * Sets the number of the sheet to read the rows from.
+   * 
+   * @param sheetNumber
+   */
+  void setSheetNumber(int sheetNumber) {
     this.sheetNumber = sheetNumber;
-  }
-
-  public int getSkipRows() {
-    return skipRows;
-  }
-
-  public void setSkipRows(int skipRows) {
-    this.skipRows = skipRows;
   }
 
 }

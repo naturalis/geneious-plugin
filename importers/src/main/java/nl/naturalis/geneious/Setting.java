@@ -73,7 +73,7 @@ public enum Setting {
   }
 
   /**
-   * Returns the fully-qualified name by which Geneious saves and retrieves this configuration setting.
+   * Returns the name by which Geneious saves and retrieves the value for this configuration setting.
    * 
    * @return
    */

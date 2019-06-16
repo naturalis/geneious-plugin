@@ -3,8 +3,8 @@ package nl.naturalis.geneious.bold;
 import java.util.Objects;
 
 /**
- * The key used to store selected documents into a documents cache: the combination of the document's extract ID and
- * marker.
+ * The key used to store the documents slect by the user into an in-memory cache: the combination of the
+ * document's CRS registration number and marker.
  *
  * @author Ayco Holleman
  */

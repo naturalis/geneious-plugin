@@ -4,7 +4,7 @@ import nl.naturalis.common.collection.EnumToIntMap;
 import nl.naturalis.geneious.csv.Row;
 
 /**
- * Contains the values for a single row in a normalized BOLD file.
+ * Contains the values for a single row in a <i>normalized</i> BOLD file.
  * 
  * @see BoldNormalizer
  *

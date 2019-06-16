@@ -6,32 +6,79 @@ import nl.naturalis.common.base.ThrowingFunction;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
+/**
+ * Abstract base class for {@link NaturalisNote} factories used by importers of CSV-lke files.
+ * 
+ * @author Ayco Holleman
+ *
+ * @param <T>
+ */
 public abstract class NoteFactory<T extends Enum<T>> {
 
   private int rownum;
   private EnumMap<T, String> cells;
 
+  /**
+   * Creates a {@link NoteFactory} for the provided row ({@code cells}) the provided row number is used for
+   * reporting only and must be a user-friendly (i.e. one-based) number.
+   * 
+   * @param rownum
+   * @param cells
+   */
   protected NoteFactory(int rownum, EnumMap<T, String> cells) {
     this.rownum = rownum;
     this.cells = cells;
   }
 
+  /**
+   * Creates a {@link NaturalisNote based on the data of a single row within the CSV-like file.
+   * 
+   * @return
+   * @throws InvalidRowException
+   */
   public final NaturalisNote createNote() throws InvalidRowException {
     NaturalisNote note = new NaturalisNote();
     populate(note);
     return note;
   }
 
+  /**
+   * Left to subclasses to implement: the actual population of the {@code NaturalisNote}. Subclasses are
+   * assisted, though, by utility methods present in this class (e.g.
+   * {@link #setRequiredValue(NaturalisNote, NaturalisField, Enum) setRequiredValue}).
+   * 
+   * @param note
+   * @throws InvalidRowException
+   */
   protected abstract void populate(NaturalisNote note) throws InvalidRowException;
 
+  /**
+   * Returns the user-friendly (one-based) number of the row.
+   * 
+   * @return
+   */
   protected int getRownum() {
     return rownum;
   }
 
+  /**
+   * Returns the value of the provided column.
+   * 
+   * @param column
+   * @return
+   */
   protected String get(T column) {
     return cells.get(column);
   }
 
+  /**
+   * Returns the value of the provided column or throws an {@code InvalidRowException} if the row does not have
+   * a value for that column.
+   * 
+   * @param column
+   * @return
+   * @throws InvalidRowException
+   */
   protected String getRequired(T column) throws InvalidRowException {
     String s = cells.get(column);
     if (s == null) {
@@ -40,6 +87,13 @@ public abstract class NoteFactory<T extends Enum<T>> {
     return s;
   }
 
+  /**
+   * Sets the specified field within the {@code NaturalisNote} to the value of the provided column.
+   * 
+   * @param note
+   * @param field
+   * @param column
+   */
   protected void setValue(NaturalisNote note, NaturalisField field, T column) {
     String val = get(column);
     if (val != null) {
@@ -47,10 +101,30 @@ public abstract class NoteFactory<T extends Enum<T>> {
     }
   }
 
+  /**
+   * Sets the specified field within the {@code NaturalisNote} to the value of the provided column or throws an
+   * {@code InvalidRowException} if the row does not have a value for that column.
+   * 
+   * @param note
+   * @param field
+   * @param column
+   * @throws InvalidRowException
+   */
   protected void setRequiredValue(NaturalisNote note, NaturalisField field, T column) throws InvalidRowException {
     note.parseAndSet(field, getRequired(column));
   }
 
+  /**
+   * First transforms the value of the provided column using the provided {@code transformer} and then sets the
+   * specified field to the transformed value. If the transformed value is null the {@code NaturalisNote} is not
+   * touched (it is forbidden to set any of its fields to null).
+   * 
+   * @param note
+   * @param field
+   * @param column
+   * @param transformer
+   * @throws InvalidRowException
+   */
   protected void setValue(NaturalisNote note, NaturalisField field, T column,
       ThrowingFunction<String, Object, InvalidRowException> transformer) throws InvalidRowException {
     Object val = transformer.apply(get(column));
@@ -59,6 +133,18 @@ public abstract class NoteFactory<T extends Enum<T>> {
     }
   }
 
+  /**
+   * First transforms the value of the provided column using the provided {@code transformer} and then sets the
+   * specified field to the transformed value, <i>or</i> throws an {@code InvalidRowException} if the row does
+   * not have a value for the provided column. Subclasses must not provide transformers that transfor non-null
+   * values into null values. Doing so will cause an {@code IllegalArgumentException} to be thrown.
+   * 
+   * @param note
+   * @param field
+   * @param column
+   * @param transformer
+   * @throws InvalidRowException
+   */
   protected void setRequiredValue(NaturalisNote note, NaturalisField field, T column,
       ThrowingFunction<String, Object, InvalidRowException> transformer) throws InvalidRowException {
     note.castAndSet(field, transformer.apply(getRequired(column)));
