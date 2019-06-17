@@ -34,11 +34,11 @@ public class QueryUtils {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
 
   /**
-   * The {@code DocumentField} to use for queries on the "Extract ID (Seq)" field
+   * The {@code DocumentField} to use for queries on the <i>Extract ID (Seq)</i> field
    */
   public static final DocumentField QF_SEQ_EXTRACT_ID = SEQ_EXTRACT_ID.createQueryField();
   /**
-   * The {@code DocumentField} to use for queries on the "Extract ID (Samples)" field
+   * The {@code DocumentField} to use for queries on the <i>Extract ID (Samples)</i> field
    */
   public static final DocumentField QF_SMPL_EXTRACT_ID = SMPL_EXTRACT_ID.createQueryField();
 
@@ -58,8 +58,8 @@ public class QueryUtils {
   }
 
   /**
-   * Returns name of the database that contains the folder that is currently selected by the user, or "<no database
-   * selected>" if no folder has been selected yet.
+   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database
+   * selected&gt;" if no folder has been selected yet.
    * 
    * @return
    */

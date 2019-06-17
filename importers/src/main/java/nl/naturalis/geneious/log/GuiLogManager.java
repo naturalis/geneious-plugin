@@ -3,7 +3,7 @@ package nl.naturalis.geneious.log;
 import java.util.HashMap;
 
 /**
- * Keeps track of, and manages the loggers created by the classes participating in the various plugin actions.
+ * Keeps track of and manages the loggers created by the classes participating in an operation.
  *
  * @author Ayco Holleman
  */
@@ -22,8 +22,8 @@ public class GuiLogManager {
   }
 
   /**
-   * Creates a new log session. Log sessions should be created using a try-with-resources block. Logger should only log
-   * messages within the try-with-resources block, otherwise the user will not see them.
+   * Creates a new log session. Log sessions must be created using a try-with-resources block. Loggers should only log
+   * messages within the try-with-resources block, otherwise the messages will not become visible.
    * 
    * @param title
    * @return

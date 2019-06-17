@@ -11,7 +11,7 @@ import nl.naturalis.geneious.log.GuiLogger;
 public class Messages {
 
   /**
-   * <i>Scanning selected documents for &#34;&#34;&#34;</i>
+   * <i>Scanning selected documents for &#46;&#46;&#46;</i>
    * 
    * @param logger
    * @param keyName
@@ -29,7 +29,7 @@ public class Messages {
   }
 
   /**
-   * <i>Document &#34;&#34;&#34; not updated (no new values in &#34;&#34;&#34;)</i>
+   * <i>Document &#46;&#46;&#46; not updated (no new values in &#46;&#46;&#46;)</i>
    * 
    * @param logger
    * @param file
@@ -51,7 +51,7 @@ public class Messages {
   }
 
   /**
-   * <i>Found &#34;&#34;&#34; matching document(s). Comparing values &#34;&#34;&#34;</i>
+   * <i>Found &#46;&#46;&#46; matching document(s). Comparing values &#46;&#46;&#46;</i>
    * 
    * @param logger
    * @param file
@@ -77,7 +77,7 @@ public class Messages {
   }
 
   /**
-   * <i>Not found. Row at line &#34;&#34;&#34; remains unused</i>
+   * <i>Not found. Row at line &#46;&#46;&#46; remains unused</i>
    * 
    * @param logger
    * @param line
@@ -93,7 +93,7 @@ public class Messages {
   }
 
   /**
-   * <i>&#34;&#34;&#34; completed successfully</i> 
+   * <i>&#46;&#46;&#46; completed successfully</i> 
    * @param logger
    * @param operation
    */

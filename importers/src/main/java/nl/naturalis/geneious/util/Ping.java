@@ -22,8 +22,8 @@ import nl.naturalis.geneious.note.NaturalisField;
 
 /**
  * Pings the database to ascertain that all documents have been indexed. The mechanism is that, after an operation has
- * finished creating or updating documents, the {@code Ping} object sends one more fasta-like document to the database
- * with a special {@link NaturalisField#SMPL_EXTRACT_ID extract ID} and then waits until that document comes back from a
+ * finished creating or updating documents, the {@code Ping} object saves one more fasta-like document with a special
+ * {@link NaturalisField#SMPL_EXTRACT_ID extract ID} to the database, and waits until the document comes back from a
  * query on that extract ID. That is taken to indicate that all preceding documents have been indexed as well. This
  * class is a work-around for a Geneious bug.
  * 
@@ -51,14 +51,12 @@ public class Ping {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
 
   /**
-   * Sends a ping value to the database and then starts a ping loop that only ends if [1] the ping value came back from
-   * the database; [2] the user cancelled the ping loop; [3] the number of pings exceeds 100 (equivalent to about 5
-   * minutes of pinging). If [1] we assume that all documents have been indexed (because the temporary document containing
-   * the ping value is itself apparently indexed) and the ping value is cleared. If [2] or [3] the ping value will be
-   * stored and subsequent operation are prevented from proceeding until {@link #resume()} returns {@code true}. Must be
-   * called at the very end of a {@code DocumentOperation}.
-   * 
-   * @param createdOrUpdated
+   * Saves a special document to the database and then starts a ping loop that only ends if one of the following happens:
+   * <ol>
+   * <li>The document came back from the database
+   * <li>The user cancelled the ping loop
+   * <li>The number of pings exceeds 100 (equivalent to about 5 minutes of pinging).
+   * </ol>
    * 
    * @return
    * @throws DatabaseServiceException
@@ -68,7 +66,7 @@ public class Ping {
   }
 
   /**
-   * Checks for a lingering ping value and, if present, starts the ping loop all over again. Must be called at the very
+   * Checks that the ping history is clear and, if not, starts the ping loop all over again. Must be called at the very
    * beginning of a {@code DocumentOperation}.
    * 
    * @return

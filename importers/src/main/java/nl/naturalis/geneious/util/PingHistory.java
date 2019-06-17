@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
- * Generates and saves unique ping values that are inserted as extract IDs into special, temporary documents. See the
- * {@link Ping} class. The {@code PingHistory} survives Geneious sessions, so that pinging will resume until and unless
- * one such special document comes back back from a query on its extract ID.
+ * Generates and saves unique ping values that are inserted as extract IDs into special, temporary documents. The
+ * {@code PingHistory} survives Geneious sessions, so that pinging will resume until and unless a document is found with
+ * the extract ID provided by the {@code PingHistory}.
  * 
  * @author Ayco Holleman
  *

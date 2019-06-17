@@ -11,7 +11,7 @@ import static nl.naturalis.geneious.log.LogLevel.INFO;
 import static nl.naturalis.geneious.log.LogLevel.WARN;
 
 /**
- * Provides various ways of logging messages that will appear in the Geneious GUI.
+ * Provides various ways of logging messages.
  * 
  * @author Ayco Holleman
  *
@@ -19,8 +19,8 @@ import static nl.naturalis.geneious.log.LogLevel.WARN;
 public class GuiLogger {
 
   /**
-   * Provides syntactic sugar when using Supplier-based log methods. The first element is assumed to be the
-   * message pattern and the remaining arguments the message arguments passed to String.format.
+   * Provides syntactic sugar when using the {@code Supplier}-based log methods. The first element is presumed to be the
+   * message pattern and the remaining elements are presumed to be message arguments passed to {@code String.format()}.
    * 
    * @param args
    * @return
@@ -55,13 +55,19 @@ public class GuiLogger {
   private final Class<?> clazz;
   private final LogWriter writer;
 
+  /**
+   * Creates a logger for the specified class using the provided writer.
+   * 
+   * @param clazz
+   * @param writer
+   */
   GuiLogger(Class<?> clazz, LogWriter writer) {
     this.clazz = clazz;
     this.writer = writer;
   }
 
   /**
-   * Whether or not DEBUG messages will be logged.
+   * Whether or not DEBUG messages must be logged.
    * 
    * @return
    */
@@ -70,7 +76,7 @@ public class GuiLogger {
   }
 
   /**
-   * Whether or not INFO messages will be logged.
+   * Whether or not INFO messages must be logged.
    * 
    * @return
    */
@@ -79,7 +85,7 @@ public class GuiLogger {
   }
 
   /**
-   * Whether or not WARN messages will be logged.
+   * Whether or not WARN messages must be logged.
    * 
    * @return
    */
@@ -98,6 +104,7 @@ public class GuiLogger {
   }
 
   /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the DEBUG message to be logged.
    * 
    * @param msgSupplier
    */
@@ -106,7 +113,8 @@ public class GuiLogger {
   }
 
   /**
-   * Calls the provided message supplier's {@code get()} method to retrieve the message to be logged.
+   * Calls the provided message supplier's {@code get()} method to retrieve the message elements from which to construct
+   * the DEBUG message. See {@link #format(String, Object...) format}.
    * 
    * @param msgSupplier
    */
@@ -114,42 +122,109 @@ public class GuiLogger {
     recordf(DEBUG, msgSupplier, null);
   }
 
+  /**
+   * Logs an INFO message.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void info(String message, Object... msgArgs) {
     record(INFO, message, null, msgArgs);
   }
 
+  /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the INFO message to be logged.
+   * 
+   * @param msgSupplier
+   */
   public void info(Supplier<String> msgSupplier) {
     record(INFO, msgSupplier, null);
   }
 
+  /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the message elements from which to construct
+   * the INFO message. See {@link #format(String, Object...) format}.
+   * 
+   * @param msgSupplier
+   */
   public void infof(Supplier<Object[]> msgSupplier) {
     recordf(INFO, msgSupplier, null);
   }
 
+  /**
+   * Logs a WARN message.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void warn(String message, Object... msgArgs) {
     record(WARN, message, null, msgArgs);
   }
 
+  /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the WARN message to be logged.
+   * 
+   * @param msgSupplier
+   */
+  public void warn(Supplier<String> msgSupplier) {
+    record(WARN, msgSupplier, null);
+  }
+
+  /**
+   * Calls the provided message supplier's {@code get()} method to retrieve the message elements from which to construct
+   * the INFO message. See {@link #format(String, Object...) format}.
+   * 
+   * @param msgSupplier
+   */
   public void warnf(Supplier<Object[]> msgSupplier) {
     recordf(WARN, msgSupplier, null);
   }
 
+  /**
+   * Logs an ERROR message.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void error(String message, Object... msgArgs) {
     record(ERROR, message, null, msgArgs);
   }
 
+  /**
+   * Logs an ERROR message including the provided exception's stack trace.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void error(String message, Throwable throwable, Object... msgArgs) {
     record(ERROR, message, throwable, msgArgs);
   }
 
+  /**
+   * Logs a FATAL message.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void fatal(String message, Object... msgArgs) {
     record(FATAL, message, null, msgArgs);
   }
 
+  /**
+   * Logs a FATAL message providing just the fatal exception.
+   * 
+   * @param throwable
+   */
   public void fatal(Throwable throwable) {
     record(FATAL, throwable.getMessage(), throwable);
   }
 
+  /**
+   * Logs an FATAL message including the provided exception's stack trace.
+   * 
+   * @param message
+   * @param msgArgs
+   */
   public void fatal(String message, Throwable throwable, Object... msgArgs) {
     record(FATAL, message, throwable, msgArgs);
   }

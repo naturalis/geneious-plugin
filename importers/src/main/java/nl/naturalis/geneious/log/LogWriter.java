@@ -34,6 +34,9 @@ class LogWriter {
     logLevel = settings().isDebug() ? DEBUG : INFO;
   }
 
+  /**
+   * Prepares a new, empty log window.
+   */
   void initialize() {
     logLevel = settings().isDebug() ? DEBUG : INFO;
     area = new JTextArea();
@@ -43,6 +46,11 @@ class LogWriter {
     scrollbar = pane.getVerticalScrollBar();
   }
 
+  /**
+   * Writes the provided {@link LogRecord} to the log window.
+   * 
+   * @param record
+   */
   void write(LogRecord record) {
     if (area == null) {
       // A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while
@@ -55,18 +63,38 @@ class LogWriter {
     }
   }
 
+  /**
+   * Returns the current log level.
+   * 
+   * @return
+   */
   LogLevel getLogLevel() {
     return logLevel;
   }
 
+  /**
+   * Sets the log level.
+   * 
+   * @param level
+   */
   void setLogLevel(LogLevel level) {
     this.logLevel = level;
   }
 
+  /**
+   * Returns the log window.
+   * 
+   * @return
+   */
   JScrollPane getScrollPane() {
     return pane;
   }
 
+  /**
+   * Returns the text area within the log window.
+   * 
+   * @return
+   */
   JTextArea getArea() {
     return area;
   }
