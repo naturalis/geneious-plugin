@@ -7,9 +7,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
- * Sets up a Geneious dialog requesting user input for the {@link BoldDocumentOperation BOLD Import}
- * operation. Once the user click OK, this class produces a {@link BoldImportConfig} object, which is then
- * passed on to the {@link BoldImporter}.
+ * Sets up a Geneious dialog requesting user input for the {@link BoldDocumentOperation BOLD Import} operation. Once the
+ * user click OK, this class produces a {@link BoldImportConfig} object, which is then passed on to the
+ * {@link BoldImporter}.
  * 
  * @author Ayco Holleman
  *
@@ -20,6 +20,9 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
     super(documents, "bold");
   }
 
+  /**
+   * Produces a object containing all the user input for the BOLD Import operation.
+   */
   @Override
   public BoldImportConfig createImportConfig() {
     return initializeStandardOptions(new BoldImportConfig());
@@ -38,11 +41,17 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
     return null;
   }
 
+  /**
+   * Returns the default number of lines to skip within the spreadsheet.
+   */
   @Override
   protected int getDefaultNumLinesToSkip() {
     return 3;
   }
 
+  /**
+   * Returns {@code true}.
+   */
   @Override
   protected boolean supportSpreadsheet() {
     return true;

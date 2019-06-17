@@ -7,9 +7,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
- * Sets up a Geneious dialog requesting user input for the {@link SampleSheetDocumentOperation Sample Sheet
- * Import} operation. Once the user click OK, this class produces a {@link SampleSheetImportConfig} object,
- * which is then passed on to the {@link SampleSheetImporter}.
+ * Configures a Geneious dialog requesting user input for the {@link SampleSheetDocumentOperation Sample Sheet Import}
+ * operation. Once the user click OK, this class produces a {@link SampleSheetImportConfig} object, which is then passed
+ * on to the {@link SampleSheetImporter}.
  * 
  * @author Ayco Holleman
  *
@@ -23,6 +23,24 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     this.dummies = addDummiesOption();
   }
 
+  /**
+   * Produces a object containing all the user input for the Sample Sheet Import operation.
+   */
+  @Override
+  public SampleSheetImportConfig createImportConfig() {
+    SampleSheetImportConfig cfg = initializeStandardOptions(new SampleSheetImportConfig());
+    cfg.setCreateDummies(dummies.getValue());
+    return cfg;
+  }
+
+  /**
+   * Returns the text in front of the file selection field: "Sample sheet".
+   */
+  @Override
+  protected String getDefaultFileSelectionLabel() {
+    return "Sample sheet";
+  }
+
   private BooleanOption addDummiesOption() {
     String name = "nl.naturalis.geneious.smpl.dummies";
     String descr = "Create dummy sequences for rows containing new extract IDs";
@@ -34,18 +52,6 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
         + "to be annotated with sample sheet data. If you do not select this option, you MUST select at least one "
         + "document to be annotated with sample sheet data");
     return opt;
-  }
-
-  @Override
-  protected String getDefaultFileSelectionLabel() {
-    return "Sample sheet";
-  }
-
-  @Override
-  public SampleSheetImportConfig createImportConfig() {
-    SampleSheetImportConfig cfg = initializeStandardOptions(new SampleSheetImportConfig());
-    cfg.setCreateDummies(dummies.getValue());
-    return cfg;
   }
 
 }

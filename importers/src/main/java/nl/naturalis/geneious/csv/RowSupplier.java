@@ -15,7 +15,7 @@ import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
- * A simple reader for all CSV-like formats suported by the plugin: CSV files, TSV files and spreadsheet.
+ * A simple reader for all CSV-like formats suported by the plugin: CSV files, TSV files and spreadsheets.
  *
  * @author Ayco Holleman
  */

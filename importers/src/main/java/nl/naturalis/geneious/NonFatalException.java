@@ -1,9 +1,9 @@
 package nl.naturalis.geneious;
 
 /**
- * Non-fatal exceptions an operation to abort, but they do not warrant presenting the user with a "scary"
- * stack trace. Only the exception message is presented to the user. Therefore this type of exception cannot
- * wrap another exception.
+ * A {@code NonFatalException} is an exception that prevents the plugin from proceeding any further, but it does not
+ * warrant scaring the user with a stack trace dump. Only a regular ERROR message is presented to the user. Therefore
+ * this type of exception cannot wrap another exception.
  * 
  * @author Ayco Holleman
  *

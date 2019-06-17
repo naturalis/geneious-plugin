@@ -1,5 +1,11 @@
 package nl.naturalis.geneious.note;
 
+/**
+ * Symbolic constants for the valid values for the "Pass (Seq)" annotation.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public enum SeqPass {
 
   NOT_DETERMINED("not determined"),

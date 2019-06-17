@@ -18,7 +18,8 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class telling Geneious how to display and kick off the CRS Import operation.
+ * Hooks the CRS Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
+ * the CRS Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -34,6 +35,9 @@ public class CrsDocumentOperation extends DocumentOperation {
     super();
   }
 
+  /**
+   * The method called by Geneious to kick off the CRS Import operation.
+   */
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("CRS Import", "Enriches documents with CRS data", getIconsFromJar(getClass(), "/images/nbc_red.png"))

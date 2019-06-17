@@ -16,8 +16,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * A container for all annotations that can be added using the Naturalis plugin. All setters within this class prevent you from entering
- * null or (in case of string fields) blank values, throwing in {@link IllegalArgumentException} if you try.
+ * A container for all annotations that can be added using the Naturalis plugin. This is a null-hostile class. Trying to
+ * set any of its fields to null results in an {@link IllegalArgumentException}. Consequently, if the value for a field
+ * is null, you know it has never been set before (in other words, the Geneious document did not have a value for it
+ * yet).
  *
  * @author Ayco Holleman
  */
@@ -45,8 +47,9 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Sets the specified field to the specified value, parsing it into an object of the field's datatype. This method will throw an
-   * {@code IllegalArgumentException} if the string cannot be parsed into such an object, or if the string is null or empty.
+   * Sets the specified field to the specified value, parsing it into an object of the field's datatype. This method will
+   * throw an {@code IllegalArgumentException} if the string cannot be parsed into such an object, or if the string is
+   * null or empty.
    * 
    * @param field
    * @param value
@@ -57,9 +60,9 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Sets the specified field to the specified value, casting it to an object of the field's datatype. This method will throw a
-   * {@code ClassCastException} if the value cannot be cast this way, a {@code NullPointerException} if the value is null, and an
-   * {@code IllegalArgumentException} if the value is an empty string.
+   * Sets the specified field to the specified value, casting it to an object of the field's datatype. This method will
+   * throw a {@code ClassCastException} if the value cannot be cast this way, a {@code NullPointerException} if the value
+   * is null, and an {@code IllegalArgumentException} if the value is an empty string.
    * 
    * @param field
    * @param value
@@ -70,8 +73,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Sets the specified field to the specified value. This method will throw a {@code ClassCastException} if the field's datatype in not
-   * {@link String} and an {@code IllegalArgumentException} if the value is an empty string.
+   * Sets the specified field to the specified value. This method will throw a {@code ClassCastException} if the field's
+   * datatype in not {@link String} and an {@code IllegalArgumentException} if the value is an empty string.
    * 
    * @param field
    * @param value
@@ -103,8 +106,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Convenience method for retrieving the ubiquitous document version. N.B. we are dealing with a legacy in which the document version was
-   * stored as a string, and it is not trivial to repair this.
+   * Convenience method for retrieving the ubiquitous document version. N.B. we are dealing with a legacy in which the
+   * document version was stored as a string, and it is not trivial to repair this.
    * 
    * @return
    */
@@ -136,7 +139,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Overwrites the other note with the values in this note. Returns true if the other note's content changed as a result, false otherwise.
+   * Overwrites the other note with the values in this note. Returns true if the other note's content changed as a result,
+   * false otherwise.
    * 
    * @param other
    * @return
@@ -154,8 +158,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Copies all values of this note to the other note without overwriting values in the other note. Returns true if the other note's content
-   * changed as a result, false otherwise.
+   * Copies all values of this note to the other note without overwriting values in the other note. Returns true if the
+   * other note's content changed as a result, false otherwise.
    * 
    * @param other
    * @param overwrite Whether or not to overwrite the values in the other note.
@@ -183,8 +187,8 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} overwriting any previous values, but does not save the notes to
-   * the database.
+   * Inserts the {@code NaturalisNote} into the provided {@link DocumentNotes} overwriting any previous values, but does
+   * not save the notes to the database.
    * 
    * @param document
    */

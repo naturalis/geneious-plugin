@@ -7,7 +7,8 @@ import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Abstract base class for {@link NaturalisNote} factories used by importers of CSV-lke files.
+ * Abstract base class for {@link NaturalisNote} factories used by the importers of CSV-like files (BOLD Import, CRS
+ * Import, Sample Sheet Import).
  * 
  * @author Ayco Holleman
  *
@@ -19,8 +20,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
   private EnumMap<T, String> cells;
 
   /**
-   * Creates a {@link NoteFactory} for the provided row ({@code cells}) the provided row number is used for
-   * reporting only and must be a user-friendly (i.e. one-based) number.
+   * Creates a {@link NoteFactory} for the provided row ({@code cells}). The provided row number is used for reporting
+   * only and must be a user-friendly (i.e. one-based) number.
    * 
    * @param rownum
    * @param cells
@@ -31,7 +32,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Creates a {@link NaturalisNote based on the data of a single row within the CSV-like file.
+   * Creates a {@link NaturalisNote} based on the data of a single row within the CSV-like file.
    * 
    * @return
    * @throws InvalidRowException
@@ -43,8 +44,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Left to subclasses to implement: the actual population of the {@code NaturalisNote}. Subclasses are
-   * assisted, though, by utility methods present in this class (e.g.
+   * Left to subclasses to implement: the actual population of the {@code NaturalisNote}. Subclasses are assisted by (and
+   * can probably completely rely on) utility methods present in this class (e.g.
    * {@link #setRequiredValue(NaturalisNote, NaturalisField, Enum) setRequiredValue}).
    * 
    * @param note
@@ -72,8 +73,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Returns the value of the provided column or throws an {@code InvalidRowException} if the row does not have
-   * a value for that column.
+   * Returns the value of the provided column or throws an {@code InvalidRowException} if the row does not have a value
+   * for that column.
    * 
    * @param column
    * @return
@@ -115,9 +116,9 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * First transforms the value of the provided column using the provided {@code transformer} and then sets the
-   * specified field to the transformed value. If the transformed value is null the {@code NaturalisNote} is not
-   * touched (it is forbidden to set any of its fields to null).
+   * Transforms the value of the provided column using the provided {@code transformer} and then sets the specified field
+   * to the transformed value. If the transformed value is null the {@code NaturalisNote} is left alone (it is forbidden
+   * to set any of its fields to null).
    * 
    * @param note
    * @param field
@@ -134,10 +135,10 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * First transforms the value of the provided column using the provided {@code transformer} and then sets the
-   * specified field to the transformed value, <i>or</i> throws an {@code InvalidRowException} if the row does
-   * not have a value for the provided column. Subclasses must not provide transformers that transfor non-null
-   * values into null values. Doing so will cause an {@code IllegalArgumentException} to be thrown.
+   * Transforms the value of the provided column using the provided {@code transformer} and then sets the specified field
+   * to the transformed value, <i>or</i> throws an {@code InvalidRowException} if the row does not have a value for the
+   * provided column. Subclasses must not provide transformers that transfor non-null values into null values. Doing so
+   * will cause an {@code IllegalArgumentException} to be thrown.
    * 
    * @param note
    * @param field

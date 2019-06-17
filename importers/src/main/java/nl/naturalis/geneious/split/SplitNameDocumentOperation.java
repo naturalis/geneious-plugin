@@ -18,7 +18,8 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class telling Geneious how to display and kick off the Split Name operation.
+ * Hooks the Split Name operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
+ * the Split Name operation.
  * 
  * @author Ayco Holleman
  */
@@ -45,6 +46,9 @@ public class SplitNameDocumentOperation extends DocumentOperation {
     return new NameSplitterOptions(DocumentUtilities.getSelectedDocuments());
   }
 
+  /**
+   * The method called by Geneious to kick off the Split Name operation.
+   */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("Split Name")) {

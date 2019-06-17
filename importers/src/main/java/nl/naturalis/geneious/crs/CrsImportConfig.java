@@ -21,12 +21,15 @@ import static nl.naturalis.geneious.crs.CrsColumn.SEX;
 import static nl.naturalis.geneious.crs.CrsColumn.STATE_OR_PROVINCE;
 
 /**
- * Contains configuration settings for CRS imports.
+ * Contains the user input for CRS imports.
  *
  * @author Ayco Holleman
  */
 class CrsImportConfig extends CsvImportConfig<CrsColumn> {
 
+  /**
+   * Return the column-name-to-column-number mapping.
+   */
   @Override
   public EnumToIntMap<CrsColumn> getColumnNumbers() {
     return new EnumToIntMap<>(CrsColumn.class)

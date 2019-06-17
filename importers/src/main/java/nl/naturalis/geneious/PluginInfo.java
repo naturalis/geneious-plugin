@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Contains and provides version-related information about the current release of the plugin. Used in the
- * Tools -> Preferences dialog.
+ * Contains and provides version-related information about the current release of the plugin. Used in the <i>Tools -&gt;
+ * Preferences</i> panel.
  *
  * @author Ayco Holleman
  */
@@ -14,6 +14,11 @@ public class PluginInfo {
 
   private static PluginInfo instance;
 
+  /**
+   * Returns the one and only instance of this class.
+   * 
+   * @return
+   */
   public static PluginInfo getInstance() {
     if (instance == null) {
       instance = new PluginInfo();

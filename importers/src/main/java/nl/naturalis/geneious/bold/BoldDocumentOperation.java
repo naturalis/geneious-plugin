@@ -18,7 +18,8 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class telling Geneious how to display and kick off the BOLD Import operation.
+ * Hooks the BOLD Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
+ * the BOLD Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -49,6 +50,9 @@ public class BoldDocumentOperation extends DocumentOperation {
     return new BoldImportOptions(DocumentUtilities.getSelectedDocuments());
   }
 
+  /**
+   * The method called by Geneious to kick off the BOLD Import operation.
+   */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("BOLD import")) {

@@ -13,12 +13,12 @@ import java.util.EnumMap;
 import jebl.evolution.io.FastaImporter;
 
 /**
- * Provides access to the settings in the <i>Tools -&gt; Preferences</i> tab. This class mainly exists to work
- * around an awkward Geneious feature (if not bug) that makes directly accessing the options defined in the
- * Preferences tab tricky. Notably tricky are the hidden settings. For these there are setters in this class
- * that do not update the internal settings cache directly, but in stead update the corresponding option in
- * the Preferences panel. That in turn triggers a change listener which updates the settings cache. That
- * sounds like it could be short-circuited. Be careful if you try.
+ * Provides access to the settings in the <i>Tools -&gt; Preferences</i> tab. This class mainly exists to work around an
+ * awkward Geneious feature (if not bug) that makes directly accessing the options defined in the Preferences tab
+ * tricky. Notably tricky are the hidden settings. For these there are setters in this class that do not update the
+ * {@code Settings} object directly, but in stead update the corresponding option in the Preferences panel. That in turn
+ * triggers a change listener in the panel which updates the {@code Settings} object. That sounds like a round-about
+ * that could be short-circuited. Be careful if you try.
  * 
  * @author Ayco Holleman
  */
@@ -42,8 +42,7 @@ public class Settings {
 
   private final EnumMap<Setting, Object> cache = new EnumMap<>(Setting.class);
 
-  private Settings() {
-  }
+  private Settings() {}
 
   /**
    * Callback method for the change listeners in {@link NaturalisOptions}.
@@ -84,7 +83,7 @@ public class Settings {
   }
 
   /**
-   * Returns the BOLD-to-Naturalis marker mapping as a JSON string.
+   * Returns the BOLD-to-Naturalis marker mappings as a JSON string.
    * 
    * @return
    */
@@ -93,7 +92,7 @@ public class Settings {
   }
 
   /**
-   * Sets the BOLD-to-Naturalis marker mapping as a JSON string.
+   * Sets the BOLD-to-Naturalis marker mappings as a JSON string.
    * 
    * @param markerMap
    */
@@ -111,7 +110,7 @@ public class Settings {
   }
 
   /**
-   * Returns comma-separated extensions for AB1 files.
+   * Returns a string of comma-separated extensions for AB1 files.
    * 
    * @return
    */
@@ -120,7 +119,7 @@ public class Settings {
   }
 
   /**
-   * Returns comma-separated extensions for fasta files.
+   * Returns a string of comma-separated extensions for fasta files.
    * 
    * @return
    */

@@ -8,9 +8,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.common.collection.EnumToIntMap;
 
 /**
- * Contains the user input for the import of CSV-like files (Sample Sheet Import, CRS Import, BOLD Import).
- * Subclasses may specify additionally required input for a specific operation (e.g. the sample sheet importer
- * needs to know whether or not to create dummies).
+ * Contains the user input driving the import of CSV-like files (Sample Sheet Import, CRS Import, BOLD Import).
+ * Subclasses may specify additionally required user input (e.g. the sample sheet importer needs to know whether or not
+ * to create dummies), but they all need to know things like the field delimiter.
  *
  * @author Ayco Holleman
  */
@@ -115,8 +115,8 @@ public abstract class CsvImportConfig<T extends Enum<T>> {
   /**
    * Returns a mapping of symbolic column names to actual column numbers. We use symbolic column names (e.g. see
    * {@code BoldColumn}) rather than column numbers to make the code less error prone. All subclasses of
-   * {@code CsvImportConfig} currently return a hard-coded map. However in the future, we might need user input
-   * to properly configure a column mapping or to make it less rigid.
+   * {@code CsvImportConfig} currently return a hard-coded map. However in the future, we might need user input to
+   * properly configure a column mapping or to make it less rigid.
    * 
    * @return
    */

@@ -12,14 +12,19 @@ import java.util.List;
 import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
- * Reads the (user-configurable) marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them
- * to an actual Java {@code HashMap}.
+ * Reads the marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them to a Java {@code HashMap}.
  * 
  * @author Ayco Holleman
  *
  */
 class MarkerMap extends HashMap<String, String[]> {
 
+  /**
+   * Initiates the {@code MarkerMap} from the lines within the marker mappings input field.
+   * 
+   * @param markersInBoldFile
+   * @throws BoldNormalizationException
+   */
   MarkerMap(List<String> markersInBoldFile) throws BoldNormalizationException {
     HashSet<String> copy = new HashSet<>(markersInBoldFile);
     String mappings = settings().getMarkerMap();
@@ -54,7 +59,7 @@ class MarkerMap extends HashMap<String, String[]> {
         copy.remove(bold);
       }
       // Map remaining markers in BOLD file to themselves
-      copy.stream().forEach(s -> put(s, new String[] { s }));
+      copy.stream().forEach(s -> put(s, new String[] {s}));
     } catch (IOException e) {
       throw new NaturalisPluginException(e);
     }

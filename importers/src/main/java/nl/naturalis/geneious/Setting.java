@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * Symbolic constants for configuration settings for the Naturalis plugin.
+ * Symbolic constants for the available configuration settings for the Naturalis plugin.
  *
  * @author Ayco Holleman
  */
@@ -56,8 +56,8 @@ public enum Setting {
   }
 
   /**
-   * Returns the setting corresponding to the provided name, which is supposed to be the fully-qualified name
-   * known to Geneious.
+   * Returns the setting corresponding to the provided name, which is supposed to be the name used by Geneious to save and
+   * retrieve the setting.
    * 
    * @param name
    * @return

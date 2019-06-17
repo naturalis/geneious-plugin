@@ -22,7 +22,8 @@ import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Framework-plumbing class telling Geneious how to display and kick off the AB1/Fasta Import operation.
+ * Hooks the AB1/Fasta Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
+ * the AB1/Fasta Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -47,6 +48,9 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
         .setAvailableToWorkflows(true);
   }
 
+  /**
+   * The method called by Geneious to kick off the AB1/Fasta Import operation.
+   */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     JFileChooser fc = newFileChooser();

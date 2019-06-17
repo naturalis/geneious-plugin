@@ -21,7 +21,8 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 /**
- * Abstract base class for configuring a Geneious dialog requesting input for the import of CSV-like files.
+ * Abstract base class for classes configuring a Geneious dialog that requests user input for the import of CSV-like
+ * files.
  * 
  * @author Ayco Holleman
  *
@@ -64,8 +65,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message
-   * indicating what's wrong.
+   * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message indicating
+   * what's wrong.
    */
   @Override
   public String verifyOptionsAreValid() {
@@ -85,6 +86,12 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   public abstract U createImportConfig();
 
+  /**
+   * Populates the dialog with default values.
+   * 
+   * @param cfg
+   * @return
+   */
   protected final U initializeStandardOptions(U cfg) {
     cfg.setSelectedDocuments(documents);
     cfg.setFile(new File(file.getValue()));
@@ -115,7 +122,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Whether or not to support spreadsheets.
+   * Whether or not to support spreadsheets (default: {@code false}).
    * 
    * @return
    */
@@ -164,9 +171,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private void fileChanged() {
     if (StringUtils.isBlank(file.getValue())) {
       /*
-       * When a file has already been selected, and then you select another file, the change listener apparently
-       * fires twice. The first time the file is empty again (useful if you want to do a System.exit in between or
-       * so). The second time you get the new file.
+       * When a file has already been selected, and then you select another file, the change listener apparently fires twice.
+       * The first time the file is empty again (useful if you want to do a System.exit in between or so). The second time you
+       * get the new file.
        */
       return;
     }

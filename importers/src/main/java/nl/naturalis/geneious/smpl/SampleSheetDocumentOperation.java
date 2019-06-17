@@ -18,7 +18,8 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 
 /**
- * Framework-plumbing class telling Geneious how to display and kick off the Sample Sheet Import operation.
+ * Hooks the Sample Sheet Import operation into the Geneious plugin architecture. Informs Geneious how to display and
+ * kick off the Sample Sheet Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -34,6 +35,9 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
     super();
   }
 
+  /**
+   * The method called by Geneious to kick off the Sample Sheet Import operation.
+   */
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("Samples", "Enriches documents by parsing their name", getIconsFromJar(getClass(), "/images/nbc_blue.png"))

@@ -28,7 +28,8 @@ import static com.biomatters.geneious.publicapi.documents.DocumentNoteField.crea
 import static com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities.createNewNoteType;
 
 /**
- * Symbolic constants for all fields that can be included in a {@link NaturalisNote}.
+ * Symbolic constants for all fields that can be included in a {@link NaturalisNote}. Each field represents a single
+ * annotation in a Geneious document.
  */
 public enum NaturalisField {
 
@@ -153,6 +154,9 @@ public enum NaturalisField {
     return queryField;
   }
 
+  /**
+   * Updates and saves the definition (e&#34;g&#34; its datatype) of this field.
+   */
   public void saveOrUpdateNoteType() {
     DocumentNoteType noteType = DocumentNoteUtilities.getNoteType(noteTypeCode);
     if (noteType != null) {
@@ -211,6 +215,12 @@ public enum NaturalisField {
     return null;
   }
 
+  /**
+   * Reads the value of this field from the provided {@code DocumentNotes}.
+   * 
+   * @param notes
+   * @return
+   */
   @SuppressWarnings("unchecked")
   <T> T readFrom(DocumentNotes notes) {
     DocumentNote note = notes.getNote(getNoteType().getCode());
@@ -228,6 +238,12 @@ public enum NaturalisField {
     return cast(val);
   }
 
+  /**
+   * Writes the provided value to the provided {@code DocumentNotes}, parsing it into the proper datatype.
+   * 
+   * @param notes
+   * @param value
+   */
   void parseAndwrite(DocumentNotes notes, String value) {
     DocumentNote note = notes.getNote(getNoteType().getCode());
     if (note == null) {
@@ -247,6 +263,12 @@ public enum NaturalisField {
     }
   }
 
+  /**
+   * Writes the provided value to the provided {@code DocumentNotes}, casting it to the proper datatype.
+   * 
+   * @param notes
+   * @param value
+   */
   void castAndWrite(DocumentNotes notes, Object value) {
     DocumentNote note = notes.getNote(getNoteType().getCode());
     if (note == null) {

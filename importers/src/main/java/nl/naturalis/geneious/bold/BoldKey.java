@@ -3,8 +3,8 @@ package nl.naturalis.geneious.bold;
 import java.util.Objects;
 
 /**
- * The key used to store the documents slect by the user into an in-memory cache: the combination of the
- * document's CRS registration number and marker.
+ * The key used to store the documents selected by the user into an in-memory cache: the combination of the document's
+ * CRS registration number and marker.
  *
  * @author Ayco Holleman
  */
@@ -14,6 +14,12 @@ final class BoldKey {
   private final String marker;
   private final int hash;
 
+  /**
+   * Creates a new {@code BoldKey} for the provided registration number and marker.
+   * 
+   * @param regno
+   * @param marker
+   */
   BoldKey(String regno, String marker) {
     Objects.requireNonNull(regno, () -> "Registration number must not be null");
     Objects.requireNonNull(marker, () -> "Marker must not be null");
@@ -30,7 +36,7 @@ final class BoldKey {
   @Override
   public boolean equals(Object obj) {
     BoldKey other = (BoldKey) obj;
-    return regno.endsWith(other.regno) && marker.equals(other.marker);
+    return regno.equals(other.regno) && marker.equals(other.marker);
   }
 
   public String toString() {

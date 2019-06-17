@@ -8,7 +8,6 @@ import java.util.List;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.Geneious;
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
-import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.biomatters.geneious.publicapi.plugin.Icons;
 import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 
@@ -19,8 +18,8 @@ import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
 /**
- * The main hook into the Geneious plugin architecture. Tells Geneious which services the plugin provide and
- * which classes implement them.
+ * The main hook into the Geneious plugin architecture. Its main function is to inform Geneious which services the
+ * plugin provides, and which classes implement them.
  * 
  * @author Ayco Holleman
  *
@@ -28,19 +27,25 @@ import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
-   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations()
-   * is called. This method returns our implementation classes these in turn have static initalizers that depend
-   * on the preferences being set and readable. That's the only reason why we have this (unused) class variable
-   * here. (See also NaturalisPreferencesOptions)
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is
+   * called. This method returns our implementation classes these in turn have static initalizers that depend on the
+   * preferences being set and readable. That's the only reason why we have this (unused) class variable here. (See also
+   * NaturalisPreferencesOptions)
    */
   @SuppressWarnings("unused")
   private static final NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();
 
+  /**
+   * Returns the standard red Naturalis icon.
+   */
   @Override
   public Icons getIcons() {
     return getIconsFromJar(getClass(), "/images/nbc_red.png");
   }
 
+  /**
+   * Returns the configuration for the <i>Tools -&gt; Preferences</i> panel.
+   */
   @Override
   @SuppressWarnings("rawtypes")
   public List<PluginPreferences> getPluginPreferences() {
@@ -48,6 +53,9 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
     return Arrays.asList(new NaturalisPluginPreferences());
   }
 
+  /**
+   * Returns the classes implementing the various services provided by the plugin.
+   */
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
@@ -59,42 +67,57 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
     };
   }
 
-  @Override
-  public GeneiousService[] getServices() {
-    return new GeneiousService[0];
-  }
-
+  /**
+   * Returns a string containing the team members of the Geneious Plugin V2 project.
+   */
   @Override
   public String getAuthors() {
     return "Rudy Broekhuizen, Wilfred Gerritsen, Ayco Holleman, Judith Slaa, Chantal SlegtenHorst, Oscar Vorst";
   }
 
+  /**
+   * Provides a minimal description of the plugin
+   */
   @Override
   public String getDescription() {
-    return "Naturalis utilities for Geneious";
+    return "Enriches nucleotide sequences with annotations from various sources";
   }
 
+  /**
+   * Currently just returns the description.
+   */
   @Override
   public String getHelp() {
-    return "Provides operations for enriching sequence documents with information from CRS, BOLD and information extracted "
-        + "from the document names themselves";
+    return getDescription();
   }
 
+  /**
+   * Return the highest version of the Geneious API that the plugin is compatible with.
+   */
   @Override
   public int getMaximumApiVersion() {
     return Geneious.getMajorApiVersion();
   }
 
+  /**
+   * Return the lowest version of the Geneious API that the plugin is compatible with.
+   */
   @Override
   public String getMinimumApiVersion() {
     return Geneious.getApiVersion();
   }
 
+  /**
+   * Returns the display name of the plugin: &#34;Naturalis Geneious Plugin&#34;.
+   */
   @Override
   public String getName() {
     return "Naturalis Geneious Plugin";
   }
 
+  /**
+   * Returns the current version of the plugin.
+   */
   @Override
   public String getVersion() {
     // Geneious does not allow version strings like V2.0.0-ALPHA. Only 2.0.0 is allowed in this particular
