@@ -1,5 +1,5 @@
 /**
- * Implements the AB1/Fasta Import functionality.
+ * Classes and interfaces dedicated to the AB1/Fasta Import operation.
  * 
  * @author Ayco Holleman
  *

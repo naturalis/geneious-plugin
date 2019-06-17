@@ -87,7 +87,9 @@ public class Ping {
   }
 
   /**
-   * Sets the user free when he/she (accidentally) deleted the ping folder or ping document before the ping loop finished.
+   * Sets the user free when he/she (accidentally) deleted the ping folder or if the ping mechanism got corrupted for any
+   * other reason. This would prevent the user from using the plugin until the end of time. Hence it necessary to allow
+   * the user to forcefully clean the ping history.
    */
   public static void clear() {
     WritableDatabaseService svc = getTargetDatabase();
