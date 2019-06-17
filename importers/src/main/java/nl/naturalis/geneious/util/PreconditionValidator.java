@@ -11,8 +11,8 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 import nl.naturalis.geneious.NonFatalException;
 
 /**
- * Checks whether the preconditions for an operation (e.g. a BOLD import) are satisfied. There are a few preconditions
- * that need to be checked no matter the operation. Individual operations can request additional checks.
+ * Checks whether the preconditions for an operation (e&#34;g&#34; a BOLD import) are satisfied. There are a few
+ * preconditions that need to be checked no matter the operation. Individual operations can request additional checks.
  * 
  * @author Ayco Holleman
  *

@@ -11,7 +11,7 @@ import nl.naturalis.geneious.log.GuiLogger;
 public class Messages {
 
   /**
-   * "Scanning selected documents for [...]"
+   * <i>Scanning selected documents for &#34&#34&#34;</i>
    * 
    * @param logger
    * @param keyName
@@ -29,7 +29,7 @@ public class Messages {
   }
 
   /**
-   * "Document [...] not updated (no new values in [...])"
+   * <i>Document &#34&#34&#34; not updated (no new values in &#34&#34&#34;)</i>
    * 
    * @param logger
    * @param file
@@ -51,7 +51,7 @@ public class Messages {
   }
 
   /**
-   * "Found [...] matching document(s). Comparing values [...]"
+   * <i>Found &#34&#34&#34; matching document(s). Comparing values &#34&#34&#34;</i>
    * 
    * @param logger
    * @param file
@@ -76,6 +76,12 @@ public class Messages {
     }
   }
 
+  /**
+   * <i>Not found. Row at line &#34&#34&#34; remains unused</i>
+   * 
+   * @param logger
+   * @param line
+   */
   public static void noDocumentsMatchingKey(GuiLogger logger, int line) {
     if (logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(48)
@@ -86,6 +92,11 @@ public class Messages {
     }
   }
 
+  /**
+   * <i>&#34&#34&#34; completed successfully</i> 
+   * @param logger
+   * @param operation
+   */
   public static void operationCompletedSuccessfully(GuiLogger logger, String operation) {
     logger.info(operation + " completed successfully");
   }

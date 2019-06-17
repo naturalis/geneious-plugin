@@ -23,7 +23,7 @@ import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create "ping documents".
+ * An extension of {@code DefaultNucleotideSequence} solely meant to create "ping documents". See {@link Ping}.
  *
  * @author Ayco Holleman
  */
@@ -34,7 +34,6 @@ public class PingSequence extends DefaultNucleotideSequence {
   private static final String NUCLEOTIDES = "AAAAAAAAAA";
   private static final String DUMMY_MARKER = "Ping";
 
-  
   private static final String userFolderName = System.getProperty("user.name");
   private static final String geneiousFolderPrefix = "Folder: ";
 
