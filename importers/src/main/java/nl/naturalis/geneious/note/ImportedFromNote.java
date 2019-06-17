@@ -9,16 +9,32 @@ import com.biomatters.geneious.publicapi.documents.DocumentNote;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteType;
 import com.biomatters.geneious.publicapi.documents.DocumentNoteUtilities;
 
+/**
+ * Provides access to the Geneious-native "Imported from" annotation.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class ImportedFromNote implements Note {
 
   private static DocumentNoteType NOTE_TYPE = DocumentNoteUtilities.getNoteType("importedFrom");
 
   private final File file;
 
+  /**
+   * Creates a new {@code ImportedFromNote} with the provided file as the "imported from" file.
+   * 
+   * @param importedFrom
+   */
   public ImportedFromNote(File importedFrom) {
     this.file = importedFrom;
   }
 
+  /**
+   * Creates a new {@code ImportedFromNote} and initializes it with the value found in the provided document.
+   * 
+   * @param doc
+   */
   public ImportedFromNote(AnnotatedPluginDocument doc) {
     DocumentNotes notes = doc.getDocumentNotes(false);
     if (notes == null) {
@@ -35,6 +51,9 @@ public class ImportedFromNote implements Note {
     }
   }
 
+  /**
+   * Saves this note to the provided {@code DocumentNotes}.
+   */
   public void copyTo(DocumentNotes notes) {
     DocumentNote note = notes.getNote(NOTE_TYPE.getCode());
     if (note == null) {
@@ -45,6 +64,11 @@ public class ImportedFromNote implements Note {
     notes.setNote(note);
   }
 
+  /**
+   * Returns the "imported from" file.
+   * 
+   * @return
+   */
   public File getFile() {
     return file;
   }
