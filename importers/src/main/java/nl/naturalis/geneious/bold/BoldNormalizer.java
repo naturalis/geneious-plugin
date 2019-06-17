@@ -27,11 +27,11 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * Normalizes BOLD source files so that they can be processed like any of the other types of source files
- * (sample sheets and CRS files). BOLD files contain repeating triplets of marker-related columns, one triplet
- * per marker. Each triplet gets its own row, with the <i>non-repeating</i> columns now repeating row-wise.
- * The marker itself does not have its own column in the original file. Instead it must be inferred (excised)
- * from the column headers. In the normalized version the marker does have its own column.
+ * Normalizes BOLD source files so that they can be processed just like sample sheets and CRS files. BOLD files contain
+ * repeating triplets of marker-related columns. After normalization each triplet is in a separate row, with the
+ * <i>non-repeating</i> columns in the original file now repeating row-wise. In the original file the marker itself does
+ * not have its own column. Instead it must be inferred (excised) from the column headers. In the normalized version the
+ * marker <i>does</i> have its own column.
  *
  * @author Ayco Holleman
  */

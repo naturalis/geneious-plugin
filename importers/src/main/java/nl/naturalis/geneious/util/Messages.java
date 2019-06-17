@@ -10,6 +10,13 @@ import nl.naturalis.geneious.log.GuiLogger;
  */
 public class Messages {
 
+  /**
+   * "Scanning selected documents for [...]"
+   * 
+   * @param logger
+   * @param keyName
+   * @param keyValue
+   */
   public static void scanningSelectedDocuments(GuiLogger logger, String keyName, Object keyValue) {
     if (logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(48)
@@ -21,6 +28,14 @@ public class Messages {
     }
   }
 
+  /**
+   * "Document [...] not updated (no new values in [...])"
+   * 
+   * @param logger
+   * @param file
+   * @param keyName
+   * @param keyValue
+   */
   public static void noNewValues(GuiLogger logger, String file, String keyName, Object keyValue) {
     if (logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(96)
@@ -35,6 +50,13 @@ public class Messages {
     }
   }
 
+  /**
+   * "Found [...] matching document(s). Comparing values [...]"
+   * 
+   * @param logger
+   * @param file
+   * @param matchingDocuments
+   */
   public static void foundDocumensMatchingKey(GuiLogger logger, String file, StoredDocumentList matchingDocuments) {
     if (logger.isDebugEnabled()) {
       String s = matchingDocuments.size() == 1 ? "" : "s";

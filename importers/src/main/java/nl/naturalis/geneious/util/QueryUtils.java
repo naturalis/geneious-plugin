@@ -25,7 +25,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * Methods for accessing the Geneious database.
+ * Methods for querying the Geneious database.
  *
  * @author Ayco Holleman
  */
@@ -45,7 +45,8 @@ public class QueryUtils {
   private QueryUtils() {}
 
   /**
-   * Returns the database containing the user-selected folder.
+   * Returns the database that contains the folder that is currently selected by the user, or null if no folder has been
+   * selected yet.
    * 
    * @return
    */
@@ -57,7 +58,8 @@ public class QueryUtils {
   }
 
   /**
-   * Returns name of the database containing the user-selected folder.
+   * Returns name of the database that contains the folder that is currently selected by the user, or "<no database
+   * selected>" if no folder has been selected yet.
    * 
    * @return
    */
@@ -69,7 +71,7 @@ public class QueryUtils {
   }
 
   /**
-   * Return the documents containing the specified extract IDs.
+   * Return all documents containing the specified extract IDs.
    * 
    * @param extractIds
    * @return
@@ -91,7 +93,8 @@ public class QueryUtils {
   }
 
   /**
-   * Return the documents containing the specified extract ID.
+   * Return all documents containing the specified extract ID. Since this method exists to facility the {@link Ping}
+   * mechanism, it does not log anything.
    * 
    * @param extractId
    * @return

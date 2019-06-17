@@ -5,6 +5,12 @@ import javax.swing.ImageIcon;
 
 import com.biomatters.geneious.publicapi.plugin.Icons;
 
+/**
+ * Provides differently sized and differently colored Naturalis icons.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class NaturalisIcons extends Icons {
 
   private static final String color = "blue";

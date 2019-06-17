@@ -7,7 +7,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 /**
  * A subclass of {@code ArrayList} with {@code AnnotatedPluginDocument} as type argument. Provides no extra
- * functionality, but it makes the code look less bloated.
+ * functionality, just makes code look less bloated.
  *
  * @author Ayco Holleman
  */

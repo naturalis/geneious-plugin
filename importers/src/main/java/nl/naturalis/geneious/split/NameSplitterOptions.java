@@ -6,9 +6,9 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 /**
- * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name}
- * operation. Once the user click OK, this class produces a {@link NameSplitterConfig} object, which is then
- * passed on to the {@link NameSplitter}.
+ * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name} operation. Once
+ * the user click OK, this class produces a {@link NameSplitterConfig} object, which is then passed on to the
+ * {@link NameSplitter}.
  * 
  * @author Ayco Holleman
  *
@@ -23,6 +23,9 @@ class NameSplitterOptions extends Options {
     ignoreWithNaturalisNote = addIgnoreWithNaturalisNoteOption();
   }
 
+  /**
+   * Produces a object containing all the user input for the Split Name operation.
+   */
   NameSplitterConfig createNameSplitterConfig() {
     NameSplitterConfig cfg = new NameSplitterConfig();
     cfg.setSelectedDocuments(documents);

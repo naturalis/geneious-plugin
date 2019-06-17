@@ -3,7 +3,7 @@ package nl.naturalis.geneious.util;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * Utility class aimed at logging statistics for operations that deal with CSV files / spreadsheets.
+ * Utility class aimed at providing statistics for operations that deal with CSV-like files.
  * 
  * @author Ayco Holleman
  *

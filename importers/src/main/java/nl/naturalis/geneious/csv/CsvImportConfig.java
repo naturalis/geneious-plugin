@@ -8,7 +8,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.common.collection.EnumToIntMap;
 
 /**
- * Contains the user input driving the import of CSV-like files (Sample Sheet Import, CRS Import, BOLD Import).
+ * Contains the user input driving the import of CSV-like files (BOLD Import, CRS Import, Sample Sheet Import).
  * Subclasses may specify additionally required user input (e.g. the sample sheet importer needs to know whether or not
  * to create dummies), but they all need to know things like the field delimiter.
  *

@@ -1,5 +1,5 @@
 /**
- * Utility classes and interfaces.
+ * Utility classes.
  * 
  * @author Ayco Holleman
  *

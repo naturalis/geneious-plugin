@@ -8,6 +8,12 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.StoredDocument;
 
+/**
+ * Extension of {@code ArrayList} with {@link StoredDocument} as concrete type argument.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class StoredDocumentList extends ArrayList<StoredDocument> {
 
   public StoredDocumentList() {
@@ -18,6 +24,11 @@ public class StoredDocumentList extends ArrayList<StoredDocument> {
     super(capacity);
   }
 
+  /**
+   * Returns the {@code AnnotatedPluginDocument} instances wrapped into this list's {@code StoredDocument} instances.
+   * 
+   * @return
+   */
   public List<AnnotatedPluginDocument> unwrap() {
     return stream().map(StoredDocument::getGeneiousDocument).collect(Collectors.toList());
   }

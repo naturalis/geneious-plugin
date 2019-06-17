@@ -13,8 +13,8 @@ import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.name.NameUtil.isDummy;
 
 /**
- * Converts the user-selected Geneious documents into a list of {@kink StorableDocument} instances while applying the user-selected filters
- * specified in the {@link NameSplitterConfig} object.
+ * Converts the Geneious documents selected by the user into a list of {@kink StorableDocument} instances while applying
+ * the filters in {@link NameSplitterConfig}.
  */
 class DocumentFilter {
 
@@ -26,6 +26,12 @@ class DocumentFilter {
     this.cfg = config;
   }
 
+  /**
+   * Converts the Geneious documents selected by the user into a list of {@kink StorableDocument} instances while applying
+   * the filters in {@link NameSplitterConfig}.
+   * 
+   * @return
+   */
   List<StorableDocument> filterAndConvert() {
     List<StorableDocument> filtered = new ArrayList<StorableDocument>(cfg.getSelectedDocuments().size());
     for (AnnotatedPluginDocument apd : cfg.getSelectedDocuments()) {

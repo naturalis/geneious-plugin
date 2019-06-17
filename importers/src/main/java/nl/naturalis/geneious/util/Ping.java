@@ -21,11 +21,11 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 
 /**
- * Pings the database to ascertain that all documents have been indexed. The mechanism is that, after an
- * operation is done creating or updating documents, the {@code Ping} object sends one more fasta-like
- * document to the database with a special {@link NaturalisField#SMPL_EXTRACT_ID extract ID} and then waits
- * until it gets that document back by querying on that extract ID. That is taken to indicate that all
- * preceding documents have been indexed as well. This class is a work-around for a Geneious bug.
+ * Pings the database to ascertain that all documents have been indexed. The mechanism is that, after an operation has
+ * finished creating or updating documents, the {@code Ping} object sends one more fasta-like document to the database
+ * with a special {@link NaturalisField#SMPL_EXTRACT_ID extract ID} and then waits until that document comes back from a
+ * query on that extract ID. That is taken to indicate that all preceding documents have been indexed as well. This
+ * class is a work-around for a Geneious bug.
  * 
  * @author Ayco Holleman
  *
@@ -36,10 +36,9 @@ public class Ping {
   private static final double TRY_INTERVAL = 3.0; // seconds
 
   /*
-   * The number and relative weight (expressed as progress bar progress) of the 1st batch of ping attempts.
-   * Since indexing is likely to complete within the 1st batch of pings, we want to make it look as though we're
-   * making a lot of progress here (at the expense of the progress bar seeming to grind to a halt if indexing
-   * takes more time). Tune to taste.
+   * The number and relative weight (expressed as progress bar progress) of the 1st batch of ping attempts. Since indexing
+   * is likely to complete within the 1st batch of pings, we want to make it look as though we're making a lot of progress
+   * here (at the expense of the progress bar seeming to grind to a halt if indexing takes more time). Tune to taste.
    */
   private static final int batch0TryCount = 10;
   private static final int batch0TryWeight = 25;
@@ -52,13 +51,12 @@ public class Ping {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
 
   /**
-   * Sends a ping value to the database and then starts a ping loop that only ends if [1] the ping value came
-   * back from the database; [2] the user cancelled the ping loop; [3] the number of pings exceeds 100
-   * (equivalent to about 5 minutes of pinging). If [1] we assume that all documents have been indexed (because
-   * the temporary document containing the ping value is itself apparently indexed) and the ping value is
-   * cleared. If [2] or [3] the ping value will be stored and subsequent operation are prevented from proceeding
-   * until {@link #resume()} returns {@code true}. Must be called at the very end of a
-   * {@code DocumentOperation}.
+   * Sends a ping value to the database and then starts a ping loop that only ends if [1] the ping value came back from
+   * the database; [2] the user cancelled the ping loop; [3] the number of pings exceeds 100 (equivalent to about 5
+   * minutes of pinging). If [1] we assume that all documents have been indexed (because the temporary document containing
+   * the ping value is itself apparently indexed) and the ping value is cleared. If [2] or [3] the ping value will be
+   * stored and subsequent operation are prevented from proceeding until {@link #resume()} returns {@code true}. Must be
+   * called at the very end of a {@code DocumentOperation}.
    * 
    * @param createdOrUpdated
    * 
@@ -70,8 +68,8 @@ public class Ping {
   }
 
   /**
-   * Checks for a lingering ping value and, if present, starts the ping loop all over again. Must be called at
-   * the very beginning of a {@code DocumentOperation}.
+   * Checks for a lingering ping value and, if present, starts the ping loop all over again. Must be called at the very
+   * beginning of a {@code DocumentOperation}.
    * 
    * @return
    * @throws DatabaseServiceException
@@ -91,8 +89,7 @@ public class Ping {
   }
 
   /**
-   * Sets the user free when he/she (accidentally) deleted the ping folder or ping document before the ping loop
-   * finished.
+   * Sets the user free when he/she (accidentally) deleted the ping folder or ping document before the ping loop finished.
    */
   public static void clear() {
     WritableDatabaseService svc = getTargetDatabase();
