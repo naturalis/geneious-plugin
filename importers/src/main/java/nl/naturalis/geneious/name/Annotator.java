@@ -22,7 +22,9 @@ import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
- * Responsible for creating annotations by parsing document names, and then adding the annotations to Geneious documents.
+ * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real
+ * documents, and for deleting obsolete dummy documents. The generation of document version numbers os left to a
+ * {@link VersionTracker}.
  *
  * @author Ayco Holleman
  */
@@ -44,9 +46,9 @@ public class Annotator {
   }
 
   /**
-   * Creates the annotations and adds them to the Geneious documents. Returns a new list of {@code StorableDocument} instances that were
-   * successfully annotated. The new annotations have not yet been saved yet to the database yet, so you must still call
-   * {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
+   * Creates the annotations and adds them to the Geneious documents. Returns a list of {@code StorableDocument} instances
+   * that were successfully annotated. The new annotations have not yet been saved yet to the database yet, so you must
+   * still call {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
    * 
    * @throws DatabaseServiceException
    */

@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.name;
 
+import static nl.naturalis.geneious.log.GuiLogger.format;
+
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +12,6 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.QueryCache.Key;
 import nl.naturalis.geneious.note.NaturalisNote;
-import static nl.naturalis.geneious.log.GuiLogger.*;
 
 /**
  * Keeps track of, and hands out version numbers for documents based on their {@link DocumentType} and name (not
