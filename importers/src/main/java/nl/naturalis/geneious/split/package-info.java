@@ -1,5 +1,5 @@
 /**
- * Classes and interfaces dedicated to Split Name operation.
+ * Classes and interfaces dedicated to the Split Name operation.
  * 
  * @author Ayco Holleman
  *
