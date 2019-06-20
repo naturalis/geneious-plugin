@@ -26,21 +26,33 @@ final class AB1Info extends SequenceInfo {
     name = getBaseName(getImportedFrom().getName());
   }
 
+  /**
+   * Returns {@link DocumentType.AB1 AB1}.
+   */
   @Override
   public DocumentType getDocumentType() {
     return DocumentType.AB1;
   }
 
+  /**
+   * Returns the base name of the file being imported.
+   */
   @Override
   public String getName() {
     return name;
   }
 
+  /**
+   * Creates and caches a {@link NaturalisNote} from the elements in the name (using a {@link SequenceNameParser}).
+   */
   @Override
   public void createNote() throws NotParsableException {
     note = new SequenceNameParser(name).parseName();
   }
 
+  /**
+   * Returns the {@code NaturalisNote} created with {@link #createNote() createNote}.
+   */
   @Override
   public NaturalisNote getNaturalisNote() {
     Preconditions.checkNotNull(note, "Note not yet created");

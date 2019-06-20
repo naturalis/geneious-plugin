@@ -79,7 +79,7 @@ public class Annotator {
     documents.forEach(versioner::setDocumentVersion);
     guiLogger.info("Attaching annotations");
     documents.forEach(StorableDocument::attachNaturalisNote);
-    if (!obsoleteDummies.isEmpty()) {
+    if(!obsoleteDummies.isEmpty()) {
       guiLogger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
       deleteDocuments(obsoleteDummies);
     }
@@ -94,8 +94,13 @@ public class Annotator {
         doc.getSequenceInfo().createNote();
         annotatables.add(doc);
       } catch (NotParsableException e) {
-        String file = doc.getSequenceInfo().getImportedFrom().getName();
-        guiLogger.error("Error processing %s: %s", file, e.getMessage());
+        String name;
+        if(doc.getSequenceInfo().getImportedFrom() == null) { // A higher-level document, created from other documents
+          name = doc.getSequenceInfo().getName();
+        } else {
+          name = doc.getSequenceInfo().getImportedFrom().getName();
+        }
+        guiLogger.error("Error processing %s: %s", name, e.getMessage());
       }
     }
     return annotatables;

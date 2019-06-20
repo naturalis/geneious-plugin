@@ -23,7 +23,7 @@ import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 import nl.naturalis.geneious.util.Ping;
 
 /**
- * Configures up the <i>Tools -&gt; Preferences</i> panel for the Naturalis plugin.
+ * Configures the <i>Tools -&gt; Preferences</i> panel for the Naturalis plugin.
  * 
  * @author Ayco Holleman
  *

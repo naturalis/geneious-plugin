@@ -1,16 +1,17 @@
 package nl.naturalis.geneious.split;
 
+import static nl.naturalis.geneious.log.GuiLogger.format;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.StorableDocument;
-
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.name.NameUtil.isDummy;
+import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
  * Converts the Geneious documents selected by the user into a list of {@kink StorableDocument} instances while applying
@@ -36,13 +37,16 @@ class DocumentFilter {
     List<StorableDocument> filtered = new ArrayList<StorableDocument>(cfg.getSelectedDocuments().size());
     for (AnnotatedPluginDocument apd : cfg.getSelectedDocuments()) {
       String name = apd.getName();
-      if (isDummy(apd)) {
+      if(DocumentUtils.getDocumentType(apd) == DocumentType.UNKNOWN) {
+        guiLogger.warn("Ignoring document \"%s\". Unexpected document type: %s", name, apd.getDocumentClass());
+      }
+      if(DocumentUtils.getDocumentType(apd) == DocumentType.DUMMY) {
         guiLogger.debugf(() -> format("Ignoring dummy document \"%s\".", name));
         continue;
       }
       StorableDocument sd = new StorableDocument(apd);
-      if (cfg.isIgnoreDocsWithNaturalisNote() && !sd.getSequenceInfo().getNaturalisNote().isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring document \"%s\". Already has Naturalis annotations.", name));
+      if(cfg.isIgnoreDocsWithNaturalisNote() && !sd.getSequenceInfo().getNaturalisNote().isEmpty()) {
+        guiLogger.debugf(() -> format("Ignoring document \"%s\". Already annotated by Naturalis plugin", name));
         continue;
       }
       filtered.add(sd);

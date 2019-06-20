@@ -6,6 +6,7 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.ImportedFromNote;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
+import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
  * A subclass of {link SequenceInfo} exclusively used by the {@link SplitNameDocumentOperation Split Name}
@@ -20,7 +21,7 @@ public class DefaultSequenceInfo extends SequenceInfo {
     public DefaultSequenceInfo(AnnotatedPluginDocument document) {
         super(new ImportedFromNote(document).getFile());
         name = NameUtil.removeKnownSuffixes(document.getName());
-        type = NameUtil.getDocumentType(document);
+        type = DocumentUtils.getDocumentType(document);
         note = new NaturalisNote(document); // Should be empty if the user opted to ignoreDocsWithNaturalisNote
     }
 
