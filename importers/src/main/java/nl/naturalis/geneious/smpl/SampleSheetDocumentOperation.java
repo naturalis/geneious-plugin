@@ -26,7 +26,8 @@ import nl.naturalis.geneious.log.LogSession;
 public class SampleSheetDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
-  private static final double position = .99992;
+  private static final double menuPos = .0000000000002;
+  private static final double toolPos = .9999999999992;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentOperation.class);
@@ -40,11 +41,12 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
    */
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Samples", "Enriches documents by parsing their name", getIconsFromJar(getClass(), "/images/nbc_blue.png"))
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-        .setInMainToolbar(true, position)
-        .setInPopupMenu(true, position)
-        .setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("Samples", "Enrich documents with data from sample sheets",
+        getIconsFromJar(getClass(), "/images/nbc_red.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
+            .setInMainToolbar(true, toolPos)
+            .setInPopupMenu(true, menuPos)
+            .setAvailableToWorkflows(true);
   }
 
   @Override

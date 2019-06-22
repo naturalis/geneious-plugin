@@ -26,7 +26,8 @@ import nl.naturalis.geneious.log.LogSession;
 public class CrsDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
-  private static final double position = .99993;
+  private static final double menuPos = .0000000000003;
+  private static final double toolPos = .9999999999993;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsDocumentOperation.class);
@@ -40,11 +41,12 @@ public class CrsDocumentOperation extends DocumentOperation {
    */
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("CRS Import", "Enriches documents with CRS data", getIconsFromJar(getClass(), "/images/nbc_red.png"))
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-        .setInMainToolbar(true, position)
-        .setInPopupMenu(true, position)
-        .setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("CRS Import", "Enrich documents with CRS data",
+        getIconsFromJar(getClass(), "/images/nbc_blue.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
+            .setInMainToolbar(true, toolPos)
+            .setInPopupMenu(true, menuPos)
+            .setAvailableToWorkflows(true);
   }
 
   @Override

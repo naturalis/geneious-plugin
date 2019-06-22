@@ -22,15 +22,16 @@ import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
- * Hooks the AB1/Fasta Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
- * the AB1/Fasta Import operation.
+ * Hooks the AB1/Fasta Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick
+ * off the AB1/Fasta Import operation.
  * 
  * @author Ayco Holleman
  */
 public class SequenceImportDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
-  private static final double position = .99990;
+  private static final double menuPos = .0000000000001;
+  private static final double toolPos = .9999999999991;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImportDocumentOperation.class);
@@ -41,11 +42,12 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("AB1/Fasta", "Imports one or more AB1/fasta files", getIconsFromJar(getClass(), "/images/nbc_red.png"))
-        .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-        .setInMainToolbar(true, position)
-        .setInPopupMenu(true, position)
-        .setAvailableToWorkflows(true);
+    return new GeneiousActionOptions("AB1/Fasta", "Import AB1/fasta files with extra annotations extracted from their names",
+        getIconsFromJar(getClass(), "/images/nbc_red.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
+            .setInMainToolbar(true, toolPos)
+            .setInPopupMenu(true, menuPos)
+            .setAvailableToWorkflows(true);
   }
 
   /**
@@ -54,7 +56,7 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     JFileChooser fc = newFileChooser();
-    if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+    if(fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
       try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
         SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());

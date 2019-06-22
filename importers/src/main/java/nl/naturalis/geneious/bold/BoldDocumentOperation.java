@@ -26,7 +26,8 @@ import nl.naturalis.geneious.log.LogSession;
 public class BoldDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
-  private static final double position = .99994;
+  private static final double menuPos = .0000000000004;
+  private static final double toolPos = .9999999999994;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldDocumentOperation.class);
@@ -38,10 +39,10 @@ public class BoldDocumentOperation extends DocumentOperation {
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions("BOLD Import", "Enriches documents with BOLD data",
-        getIconsFromJar(getClass(), "/images/nbc_green.png"))
-            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-            .setInMainToolbar(true, position)
-            .setInPopupMenu(true, position)
+        getIconsFromJar(getClass(), "/images/nbc_blue.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
+            .setInMainToolbar(true, toolPos)
+            .setInPopupMenu(true, menuPos)
             .setAvailableToWorkflows(true);
   }
 

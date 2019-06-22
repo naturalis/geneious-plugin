@@ -26,18 +26,19 @@ import nl.naturalis.geneious.log.LogSession;
 public class SplitNameDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
-  private static final double position = .99991;
+  private static final double menuPos = .0000000000005;
+  private static final double toolPos = .9999999999995;
 
   @SuppressWarnings("unused")
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameDocumentOperation.class);
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name", "Enriches documents by parsing their name",
-        getIconsFromJar(getClass(), "/images/nbc_green.png"))
-            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, position)
-            .setInMainToolbar(true, position)
-            .setInPopupMenu(true, position)
+    return new GeneiousActionOptions("Split Name", "Enrich documents with annotations extracted from their names",
+        getIconsFromJar(getClass(), "/images/nbc_black.png"))
+            .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
+            .setInMainToolbar(true, toolPos)
+            .setInPopupMenu(true, menuPos)
             .setAvailableToWorkflows(true);
   }
 
