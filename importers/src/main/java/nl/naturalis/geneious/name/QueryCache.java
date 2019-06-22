@@ -22,15 +22,16 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a database query.
+ * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
+ * database query.
  */
 class QueryCache {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryCache.class);
 
   /**
-   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document type (dummy/fasta/ab1)
-   * plus an arbitrary other property of the document.
+   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document
+   * type (dummy/fasta/ab1) plus an arbitrary other property of the document.
    *
    * @author Ayco Holleman
    */
@@ -64,7 +65,8 @@ class QueryCache {
     }
 
     /**
-     * Creates a cache key using the provided document's type and the provided value (presumably retrieved from the same document).
+     * Creates a cache key using the provided document's type and the provided value (presumably retrieved from the same
+     * document).
      * 
      * @param doc
      * @param val
@@ -94,7 +96,8 @@ class QueryCache {
   private final HashMap<Key, List<StoredDocument>> cache;
 
   /**
-   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the cache key.
+   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the
+   * cache key.
    * 
    * @param documents
    */
@@ -104,7 +107,7 @@ class QueryCache {
       StoredDocument sd = new StoredDocument(doc);
       Key key = new Key(sd);
       List<StoredDocument> sds = cache.get(key);
-      if (sds == null) {
+      if(sds == null) {
         sds = new ArrayList<StoredDocument>(8);
         cache.put(key, sds);
       }
@@ -113,16 +116,18 @@ class QueryCache {
   }
 
   /**
-   * Return an {@code Optional} containing a dummy document with the specified extract ID or an empty {@code Optional} if there is no such
-   * dummy document.
+   * Return an {@code Optional} containing a dummy document with the specified extract ID or an empty {@code Optional} if
+   * there is no such dummy document.
    * 
    * @param extractID
    * @return
    */
   Optional<StoredDocument> findDummy(String extractId) {
     List<StoredDocument> value = cache.get(new Key(DUMMY, extractId));
-    // For dummy documents the list size will always be one, because per extract ID there can only be one dummy document (that's how sample
-    // sheet rows are matched and merged with existing dummy documents).
+    /*
+     * For dummy documents the list size will always be one, because per extract ID there can only be one dummy document
+     * (that's how sample sheet rows are matched and merged with existing dummy documents).
+     */
     return value == null ? Optional.empty() : Optional.of(value.get(0));
   }
 
@@ -136,20 +141,28 @@ class QueryCache {
     for (Key key : cache.keySet()) {
       List<StoredDocument> sds = cache.get(key);
       for (StoredDocument sd : sds) {
-        if (sd.isDummy()) {
+        if(sd.isDummy()) {
           continue;
         }
         String name = removeKnownSuffixes(sd.getGeneiousDocument().getName());
         String version = sd.getNaturalisNote().getDocumentVersion();
+        if(version == null) {
+          /*
+           * If the document has any Naturalis annotation (and we know it has one b/c we queried on extract ID), then it must also
+           * have the document version annotation.
+           */
+          guiLogger.warn("Corrupt %s document: %s. Missing document version", key.docType, name);
+          continue;
+        }
         Key newKey = new Key(sd.getType(), name);
         MutableInt mi1 = new MutableInt(version);
         MutableInt mi2 = versions.get(newKey);
-        if (mi2 == null) {
+        if(mi2 == null) {
           versions.put(newKey, mi1);
-        } else if (mi1.intValue() > mi2.intValue()) {
+        } else if(mi1.intValue() > mi2.intValue()) {
           mi2.setValue(mi1.intValue());
-        } else if (mi1.intValue() == mi2.intValue()) {
-          String fmt = "Corrupt %s documents: two documents with the same name (%s) and the same document version (%s)";
+        } else if(mi1.intValue() == mi2.intValue()) {
+          String fmt = "Corrupt %s documents: same name (%s) and same document version (%s)";
           guiLogger.warn(fmt, key.docType, name, version);
         }
       }
