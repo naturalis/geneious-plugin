@@ -94,7 +94,7 @@ public class NaturalisOptions extends Options {
     settings().update(DELETE_TMP_FASTAS, deleteTmpFastas.getValue());
     deleteTmpFastas.addChangeListener(() -> settings().update(DELETE_TMP_FASTAS, deleteTmpFastas.getValue()));
 
-    StringOption fastaExts = addStringOption(FASTA_EXTS.getName(), "Fasta file extensions", "fas,fasta");
+    StringOption fastaExts = addStringOption(FASTA_EXTS.getName(), "Fasta file extensions", "fas,fasta,txt");
     fastaExts.setHelp("A comma-separated list of valid file extensions for Fasta files. You can leave this field empty or "
         + "enter '*'. In any case only files whose first character is '>' will be considered for import");
     settings().update(FASTA_EXTS, fastaExts.getValue());
