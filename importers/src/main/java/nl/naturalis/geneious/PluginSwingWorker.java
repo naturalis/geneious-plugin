@@ -9,6 +9,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.Ping;
 
 /**
@@ -21,6 +22,7 @@ import nl.naturalis.geneious.util.Ping;
  * itself only establishes a global control flow for all operations (the actual number crunching is left to the
  * subclasses):
  * <ol>
+ * <li>Start a log session.
  * <li>Check that, in the operation preceding the one currently executing, the user waited for all documents to be
  * indexed. If not, the {@link Ping ping mechanism} is resumed and the currently executing operation will not proceed
  * until all documents are indexed after all.
@@ -46,7 +48,7 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
    */
   @Override
   protected Void doInBackground() {
-    try {
+    try (LogSession session = GuiLogManager.startSession(getLogTitle())){
       if (Ping.resume()) {
         List<AnnotatedPluginDocument> createdOrUpdated = performOperation();
         if (!createdOrUpdated.isEmpty()) {
@@ -72,5 +74,7 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
    * 
    */
   protected abstract List<AnnotatedPluginDocument> performOperation() throws Exception;
+  
+  protected abstract String getLogTitle();
 
 }

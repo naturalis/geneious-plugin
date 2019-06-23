@@ -100,4 +100,9 @@ class Ab1FastaSwingWorker extends PluginSwingWorker {
     }
   }
 
+  @Override
+  protected String getLogTitle() {
+    return "AB1/Fasta Import";
+  }
+
 }

@@ -13,9 +13,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.log.LogSession;
 
 /**
  * Hooks the BOLD Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
@@ -28,9 +25,6 @@ public class BoldDocumentOperation extends DocumentOperation {
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000004;
   private static final double toolPos = .9999999999994;
-
-  @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldDocumentOperation.class);
 
   public BoldDocumentOperation() {
     super();
@@ -56,11 +50,9 @@ public class BoldDocumentOperation extends DocumentOperation {
    */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (LogSession session = GuiLogManager.startSession("BOLD import")) {
-      BoldImportOptions opts = (BoldImportOptions) options;
-      BoldSwingWorker importer = new BoldSwingWorker(opts.createImportConfig());
-      importer.execute();
-    }
+    BoldImportOptions opts = (BoldImportOptions) options;
+    BoldSwingWorker importer = new BoldSwingWorker(opts.createImportConfig());
+    importer.execute();
     return null;
   }
 

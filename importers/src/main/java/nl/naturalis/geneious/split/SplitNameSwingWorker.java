@@ -62,4 +62,9 @@ class SplitNameSwingWorker extends PluginSwingWorker {
     return all;
   }
 
+  @Override
+  protected String getLogTitle() {
+    return "Split Name";
+  }
+
 }

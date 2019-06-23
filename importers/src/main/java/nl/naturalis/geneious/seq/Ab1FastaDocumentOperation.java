@@ -16,9 +16,6 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import jebl.util.ProgressListener;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
@@ -32,9 +29,6 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000001;
   private static final double toolPos = .9999999999991;
-
-  @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaDocumentOperation.class);
 
   public Ab1FastaDocumentOperation() {
     super();
@@ -58,10 +52,8 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
     JFileChooser fc = newFileChooser();
     if(fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
-      try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-        Ab1FastaSwingWorker importer = new Ab1FastaSwingWorker(fc.getSelectedFiles());
-        importer.execute();
-      }
+      Ab1FastaSwingWorker importer = new Ab1FastaSwingWorker(fc.getSelectedFiles());
+      importer.execute();
     }
     return null;
   }

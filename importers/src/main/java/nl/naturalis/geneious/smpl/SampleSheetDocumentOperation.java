@@ -13,9 +13,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.log.LogSession;
 
 /**
  * Hooks the Sample Sheet Import operation into the Geneious plugin architecture. Informs Geneious how to display and
@@ -28,9 +25,6 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000002;
   private static final double toolPos = .9999999999992;
-
-  @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetDocumentOperation.class);
 
   public SampleSheetDocumentOperation() {
     super();
@@ -66,11 +60,9 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
-      SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
-      SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.createImportConfig());
-      importer.execute();
-    }
+    SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
+    SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.createImportConfig());
+    importer.execute();
     return null;
   }
 

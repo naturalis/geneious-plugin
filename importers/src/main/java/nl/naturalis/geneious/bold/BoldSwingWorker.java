@@ -152,4 +152,9 @@ class BoldSwingWorker extends PluginSwingWorker {
     return null; // ignore document; do not add to lookup table
   }
 
+  @Override
+  protected String getLogTitle() {
+    return "BOLD Import";
+  }
+
 }

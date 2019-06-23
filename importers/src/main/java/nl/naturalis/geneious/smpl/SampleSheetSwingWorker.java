@@ -256,4 +256,9 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     }
   }
 
+  @Override
+  protected String getLogTitle() {
+    return "Sample Sheet Import";
+  }
+
 }

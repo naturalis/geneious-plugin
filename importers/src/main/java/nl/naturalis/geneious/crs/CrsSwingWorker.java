@@ -116,4 +116,9 @@ class CrsSwingWorker extends PluginSwingWorker {
   private String getRegno(StoredDocument sd) {
     return sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
   }
+
+  @Override
+  protected String getLogTitle() {
+    return "CRS Import";
+  }
 }

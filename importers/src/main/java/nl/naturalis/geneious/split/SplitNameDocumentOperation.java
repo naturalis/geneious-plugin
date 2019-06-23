@@ -13,9 +13,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.log.LogSession;
 
 /**
  * Hooks the Split Name operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
@@ -28,9 +25,6 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000005;
   private static final double toolPos = .9999999999995;
-
-  @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameDocumentOperation.class);
 
   @Override
   public GeneiousActionOptions getActionOptions() {
@@ -52,11 +46,9 @@ public class SplitNameDocumentOperation extends DocumentOperation {
    */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (LogSession session = GuiLogManager.startSession("Split Name")) {
-      NameSplitterOptions opts = (NameSplitterOptions) options;
-      SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.createNameSplitterConfig());
-      nameSplitter.execute();
-    }
+    NameSplitterOptions opts = (NameSplitterOptions) options;
+    SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.createNameSplitterConfig());
+    nameSplitter.execute();
     return null;
   }
 

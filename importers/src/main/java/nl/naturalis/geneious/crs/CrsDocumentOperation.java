@@ -13,9 +13,6 @@ import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
 
 import jebl.util.ProgressListener;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.log.LogSession;
 
 /**
  * Hooks the CRS Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off
@@ -28,9 +25,6 @@ public class CrsDocumentOperation extends DocumentOperation {
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000003;
   private static final double toolPos = .9999999999993;
-
-  @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsDocumentOperation.class);
 
   public CrsDocumentOperation() {
     super();
@@ -71,11 +65,9 @@ public class CrsDocumentOperation extends DocumentOperation {
 
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    try (LogSession session = GuiLogManager.startSession("CRS import")) {
-      CrsImportOptions opts = (CrsImportOptions) options;
-      CrsSwingWorker importer = new CrsSwingWorker(opts.createImportConfig());
-      importer.execute();
-    }
+    CrsImportOptions opts = (CrsImportOptions) options;
+    CrsSwingWorker importer = new CrsSwingWorker(opts.createImportConfig());
+    importer.execute();
     return null;
   }
 
