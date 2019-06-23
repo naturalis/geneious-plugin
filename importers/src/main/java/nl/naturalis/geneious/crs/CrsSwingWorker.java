@@ -32,13 +32,13 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  * 
  * @author Ayco Holleman
  */
-class CrsImporter extends PluginSwingWorker {
+class CrsSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(CrsSwingWorker.class);
 
   private final CrsImportConfig cfg;
 
-  CrsImporter(CrsImportConfig cfg) {
+  CrsSwingWorker(CrsImportConfig cfg) {
     this.cfg = cfg;
   }
 

@@ -15,13 +15,13 @@ import static org.apache.commons.io.FilenameUtils.getBaseName;
 /**
  * Provides information about an AB1-encoded sequence.
  */
-final class AB1Info extends SequenceInfo {
+final class Ab1Info extends SequenceInfo {
 
   private final String name;
 
   private NaturalisNote note;
 
-  AB1Info(File sourceFile) {
+  Ab1Info(File sourceFile) {
     super(sourceFile);
     name = getBaseName(getImportedFrom().getName());
   }

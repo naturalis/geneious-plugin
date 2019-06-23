@@ -24,13 +24,13 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  * 
  * @author Ayco Holleman
  */
-class NameSplitter extends PluginSwingWorker {
+class SplitNameSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameSplitter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameSwingWorker.class);
 
   private final NameSplitterConfig cfg;
 
-  public NameSplitter(NameSplitterConfig cfg) {
+  public SplitNameSwingWorker(NameSplitterConfig cfg) {
     this.cfg = cfg;
   }
 

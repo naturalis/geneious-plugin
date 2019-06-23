@@ -13,7 +13,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
 
 import nl.naturalis.geneious.bold.BoldDocumentOperation;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
-import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
+import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
@@ -59,7 +59,7 @@ public class NaturalisGeneiousPlugin extends GeneiousPlugin {
   @Override
   public DocumentOperation[] getDocumentOperations() {
     return new DocumentOperation[] {
-        new SequenceImportDocumentOperation(),
+        new Ab1FastaDocumentOperation(),
         new SampleSheetDocumentOperation(),
         new CrsDocumentOperation(),
         new BoldDocumentOperation(),

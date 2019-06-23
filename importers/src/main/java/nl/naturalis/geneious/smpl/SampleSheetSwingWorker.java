@@ -39,13 +39,13 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  * 
  * @author Ayco Holleman
  */
-class SampleSheetImporter extends PluginSwingWorker {
+class SampleSheetSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SampleSheetSwingWorker.class);
 
   private final SampleSheetImportConfig cfg;
 
-  SampleSheetImporter(SampleSheetImportConfig cfg) {
+  SampleSheetSwingWorker(SampleSheetImportConfig cfg) {
     this.cfg = cfg;
   }
 

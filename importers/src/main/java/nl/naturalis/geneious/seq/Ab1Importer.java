@@ -18,17 +18,17 @@ import nl.naturalis.geneious.name.StorableDocument;
 /**
  * Imports the AB1 files selected by the user into Geneious.
  */
-class AB1Importer {
+class Ab1Importer {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(AB1Importer.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1Importer.class);
 
-  private final List<AB1Info> sequences;
+  private final List<Ab1Info> sequences;
 
   private int processed;
   private int imported;
   private int rejected;
 
-  AB1Importer(List<AB1Info> sequences) {
+  Ab1Importer(List<Ab1Info> sequences) {
     guiLogger.info("Starting AB1 file importer");
     this.sequences = sequences;
   }
@@ -42,7 +42,7 @@ class AB1Importer {
   List<StorableDocument> importFiles() throws IOException {
     processed = imported = rejected = 0;
     List<StorableDocument> importables = new ArrayList<>(sequences.size());
-    for (AB1Info info : sequences) {
+    for (Ab1Info info : sequences) {
       ++processed;
       File f = info.getImportedFrom();
       guiLogger.debugf(() -> format("Importing file %s", f.getName()));

@@ -58,7 +58,7 @@ public class BoldDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("BOLD import")) {
       BoldImportOptions opts = (BoldImportOptions) options;
-      BoldImporter importer = new BoldImporter(opts.createImportConfig());
+      BoldSwingWorker importer = new BoldSwingWorker(opts.createImportConfig());
       importer.execute();
     }
     return null;

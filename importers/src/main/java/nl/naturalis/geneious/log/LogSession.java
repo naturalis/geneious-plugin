@@ -7,7 +7,7 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import nl.naturalis.geneious.bold.BoldDocumentOperation;
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.gui.GeneiousGUI;
-import nl.naturalis.geneious.seq.SequenceImportDocumentOperation;
+import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
 import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
@@ -18,7 +18,7 @@ import nl.naturalis.geneious.split.SplitNameDocumentOperation;
  * the Geneious GUI. All log messages generated outside the try-with-resources block go nowhere (actually they
  * are printed to standard out, but the user will not be aware of this). Therefore it's best to set up a log
  * session in a top-level class, which in our case means: {@link BoldDocumentOperation},
- * {@link CrsDocumentOperation}, {@link SampleSheetDocumentOperation}, {@link SequenceImportDocumentOperation}
+ * {@link CrsDocumentOperation}, {@link SampleSheetDocumentOperation}, {@link Ab1FastaDocumentOperation}
  * or {@link SplitNameDocumentOperation}. Note that the {@link #close()} method currently does nothing, so
  * in theory you could call {@code GuiLogManager.startSession} without using a try-with-resources block, but
  * using this construct nonetheless provides better visual feedback about when logging is legal.

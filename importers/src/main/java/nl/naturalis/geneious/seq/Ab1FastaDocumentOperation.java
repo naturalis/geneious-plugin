@@ -27,16 +27,16 @@ import nl.naturalis.geneious.util.RuntimeSettings;
  * 
  * @author Ayco Holleman
  */
-public class SequenceImportDocumentOperation extends DocumentOperation {
+public class Ab1FastaDocumentOperation extends DocumentOperation {
 
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000001;
   private static final double toolPos = .9999999999991;
 
   @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImportDocumentOperation.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaDocumentOperation.class);
 
-  public SequenceImportDocumentOperation() {
+  public Ab1FastaDocumentOperation() {
     super();
   }
 
@@ -59,7 +59,7 @@ public class SequenceImportDocumentOperation extends DocumentOperation {
     if(fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
       RuntimeSettings.INSTANCE.setAb1FastaFolder(fc.getCurrentDirectory());
       try (LogSession session = GuiLogManager.startSession("AB1/Fasta import")) {
-        SequenceImporter importer = new SequenceImporter(fc.getSelectedFiles());
+        Ab1FastaSwingWorker importer = new Ab1FastaSwingWorker(fc.getSelectedFiles());
         importer.execute();
       }
     }

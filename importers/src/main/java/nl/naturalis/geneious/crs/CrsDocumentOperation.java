@@ -73,7 +73,7 @@ public class CrsDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("CRS import")) {
       CrsImportOptions opts = (CrsImportOptions) options;
-      CrsImporter importer = new CrsImporter(opts.createImportConfig());
+      CrsSwingWorker importer = new CrsSwingWorker(opts.createImportConfig());
       importer.execute();
     }
     return null;

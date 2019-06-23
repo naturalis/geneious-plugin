@@ -26,13 +26,13 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  * 
  * @author Ayco Holleman
  */
-class SequenceImporter extends PluginSwingWorker {
+class Ab1FastaSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaSwingWorker.class);
 
   private final File[] files;
 
-  SequenceImporter(File[] files) {
+  Ab1FastaSwingWorker(File[] files) {
     this.files = files;
   }
 
@@ -44,11 +44,11 @@ class SequenceImporter extends PluginSwingWorker {
     try (SequenceInfoProvider provider = new SequenceInfoProvider(files)) {
       List<StorableDocument> docs = new ArrayList<>();
       List<StorableDocument> annotated = null;
-      AB1Importer ab1Importer = null;
+      Ab1Importer ab1Importer = null;
       FastaImporter fastaImporter = null;
-      List<AB1Info> ab1s = provider.getAb1Sequences();
+      List<Ab1Info> ab1s = provider.getAb1Sequences();
       if (ab1s.size() != 0) {
-        ab1Importer = new AB1Importer(ab1s);
+        ab1Importer = new Ab1Importer(ab1s);
         docs.addAll(ab1Importer.importFiles());
       }
       List<FastaInfo> fastas = provider.getFastaSequences();

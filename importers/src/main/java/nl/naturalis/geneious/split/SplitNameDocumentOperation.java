@@ -54,7 +54,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("Split Name")) {
       NameSplitterOptions opts = (NameSplitterOptions) options;
-      NameSplitter nameSplitter = new NameSplitter(opts.createNameSplitterConfig());
+      SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.createNameSplitterConfig());
       nameSplitter.execute();
     }
     return null;

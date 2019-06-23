@@ -8,7 +8,7 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 /**
  * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name} operation. Once
  * the user click OK, this class produces a {@link NameSplitterConfig} object, which is then passed on to the
- * {@link NameSplitter}.
+ * {@link SplitNameSwingWorker}.
  * 
  * @author Ayco Holleman
  *

@@ -9,7 +9,7 @@ import nl.naturalis.geneious.csv.CsvImportOptions;
 /**
  * Configures a Geneious dialog requesting user input for the {@link CrsDocumentOperation CRS Import} operation. Once
  * the user click OK, this class produces a {@link CrsImportConfig} object, which is then passed on to the
- * {@link CrsImporter}.
+ * {@link CrsSwingWorker}.
  * 
  * @author Ayco Holleman
  *

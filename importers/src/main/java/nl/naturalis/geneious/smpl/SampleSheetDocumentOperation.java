@@ -68,7 +68,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     try (LogSession session = GuiLogManager.startSession("Sample sheet import")) {
       SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
-      SampleSheetImporter importer = new SampleSheetImporter(opts.createImportConfig());
+      SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.createImportConfig());
       importer.execute();
     }
     return null;

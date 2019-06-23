@@ -34,13 +34,13 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  * 
  * @author Ayco Holleman
  */
-class BoldImporter extends PluginSwingWorker {
+class BoldSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
+  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldSwingWorker.class);
 
   private final BoldImportConfig cfg;
 
-  BoldImporter(BoldImportConfig cfg) {
+  BoldSwingWorker(BoldImportConfig cfg) {
     this.cfg = cfg;
   }
 

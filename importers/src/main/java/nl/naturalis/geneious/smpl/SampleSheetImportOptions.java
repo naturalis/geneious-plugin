@@ -9,7 +9,7 @@ import nl.naturalis.geneious.csv.CsvImportOptions;
 /**
  * Configures a Geneious dialog requesting user input for the {@link SampleSheetDocumentOperation Sample Sheet Import}
  * operation. Once the user click OK, this class produces a {@link SampleSheetImportConfig} object, which is then passed
- * on to the {@link SampleSheetImporter}.
+ * on to the {@link SampleSheetSwingWorker}.
  * 
  * @author Ayco Holleman
  *

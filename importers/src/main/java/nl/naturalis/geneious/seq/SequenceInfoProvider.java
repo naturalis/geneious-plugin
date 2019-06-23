@@ -38,7 +38,7 @@ class SequenceInfoProvider implements AutoCloseable {
 
   private final boolean inMemory;
   private final FastaFileSplitter splitter;
-  private final List<AB1Info> ab1Sequences;
+  private final List<Ab1Info> ab1Sequences;
   private final List<FastaInfo> fastaSequences;
 
   /**
@@ -57,7 +57,7 @@ class SequenceInfoProvider implements AutoCloseable {
     for (File f : files) {
       try {
         if (isAb1File(f)) {
-          ab1Sequences.add(new AB1Info(f));
+          ab1Sequences.add(new Ab1Info(f));
         } else if (isFastaFile(f)) {
           fastaSequences.addAll(splitter.split(f));
         } else {
@@ -74,7 +74,7 @@ class SequenceInfoProvider implements AutoCloseable {
    * 
    * @return
    */
-  List<AB1Info> getAb1Sequences() {
+  List<Ab1Info> getAb1Sequences() {
     return ab1Sequences;
   }
 
