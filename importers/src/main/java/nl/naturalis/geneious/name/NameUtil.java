@@ -8,7 +8,7 @@ import java.util.EnumMap;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.common.base.NArrays;
+import nl.naturalis.common.base.ArrayTools;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -28,7 +28,7 @@ public class NameUtil {
   public static final String[] fastaSuffixes = {".fas", ".fasta", ".txt"};
   public static final String[] dummySuffixes = {".dum"};
 
-  private static final String[] all = NArrays.concat(ab1Suffixes, fastaSuffixes, dummySuffixes);
+  private static final String[] all = ArrayTools.concat(ab1Suffixes, fastaSuffixes, dummySuffixes);
 
   private static EnumMap<DocumentType, String[]> suffixes = new EnumMap<>(DocumentType.class);
 

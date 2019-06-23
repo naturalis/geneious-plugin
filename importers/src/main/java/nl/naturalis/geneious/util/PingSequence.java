@@ -29,7 +29,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public class PingSequence extends DefaultNucleotideSequence {
 
-  static final String PING_FOLER = "@ping";
+  static final String PING_FOLER = "等待 (ping documents)";
 
   private static final String NUCLEOTIDES = "AAAAAAAAAA";
   private static final String DUMMY_MARKER = "Ping";
@@ -37,16 +37,38 @@ public class PingSequence extends DefaultNucleotideSequence {
   private static final String userFolderName = System.getProperty("user.name");
   private static final String geneiousFolderPrefix = "Folder: ";
 
+  /**
+   * Deletes the provided ping document, presumably because it has been successfully pinged (i&#46;i&#46; retrieved
+   * through a query on its extract ID).
+   * 
+   * @param pingDocument
+   * @throws DatabaseServiceException
+   */
   static void delete(AnnotatedPluginDocument pingDocument) throws DatabaseServiceException {
     DatabaseService userFolder = pingDocument.getDatabase();
-    if (userFolder.getName().equals(geneiousFolderPrefix + userFolderName)) {
+    if(userFolder.getName().equals(geneiousFolderPrefix + userFolderName)) {
       WritableDatabaseService pingFolder = (WritableDatabaseService) userFolder.getParentService();
-      if (pingFolder.getName().equals(geneiousFolderPrefix + PING_FOLER)) {
+      if(pingFolder.getName().equals(geneiousFolderPrefix + PING_FOLER)) {
         pingFolder.removeChildFolder(userFolderName);
         return;
       }
     }
     throw new NaturalisPluginException("Unexpected location for ping document: " + pingDocument.getDatabase().getFullPath());
+  }
+
+  /**
+   * Deletes the folder underneath the ping folder into which the current user's ping documents are stored. Called when
+   * clearing the ping history. This is not really necessary because the folder will anyhow be deleted when the next ping
+   * phase comes along, but let's do it anyhow.
+   * 
+   * @throws DatabaseServiceException
+   */
+  static void deleteUserFolder() {
+    try {
+      getTargetDatabase().createChildFolder(PING_FOLER).removeChildFolder(userFolderName);
+    } catch (DatabaseServiceException e) {
+      // User folder not there
+    }
   }
 
   private final String pingValue;
@@ -87,7 +109,7 @@ public class PingSequence extends DefaultNucleotideSequence {
         false,
         Collections.emptyList(),
         userFolder);
-    if (apds.size() != 1) {
+    if(apds.size() != 1) {
       throw new NaturalisPluginException("Error saving ping document");
     }
   }

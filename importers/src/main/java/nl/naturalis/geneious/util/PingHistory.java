@@ -63,6 +63,7 @@ public class PingHistory {
     } catch (JsonProcessingException e) {
       throw new NaturalisPluginException(e);
     }
+    PingSequence.deleteUserFolder();
   }
 
   /**
@@ -87,13 +88,15 @@ public class PingHistory {
   }
 
   /**
-   * Generates a new ping value.
+   * Generates and returns a new ping value. The new ping value is stored in the ping history before being returned. The
+   * value has the following format: &lt;user&gt;//&lt;timestamp&gt; and is stored in the ping history under key
+   * &lt;user&gt;@&lt;database&gt;.
    * 
    * @return
    */
   public String generateNewPingValue() {
-    if (isClear()) {
-      String value = "ping:" + key + "//" + System.currentTimeMillis();
+    if(isClear()) {
+      String value = user + "//" + System.currentTimeMillis();
       cache.put(key, value);
       try {
         String json = writer.writeValueAsString(cache);
@@ -108,7 +111,7 @@ public class PingHistory {
 
   private static Map<String, String> loadHistory() {
     String s = settings().getPingHistory();
-    if (StringUtils.isEmpty(s)) {
+    if(StringUtils.isEmpty(s)) {
       return new HashMap<>();
     }
     try {
