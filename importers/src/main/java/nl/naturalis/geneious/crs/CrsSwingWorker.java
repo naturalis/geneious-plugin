@@ -50,13 +50,13 @@ class CrsSwingWorker extends PluginSwingWorker {
     guiLogger.info("Loading CRS file " + cfg.getFile().getPath());
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     int numRows = rows.size() - cfg.getSkipLines();
-    guiLogger.info("CRS file contains %s row%s", numRows, plural(numRows));
+    guiLogger.info("CRS file contains %s row%s (excluding header rows)", numRows, plural(numRows));
     StoredDocumentTable<String> selectedDocuments = new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getRegno);
     StoredDocumentList updated = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
     for (int i = cfg.getSkipLines(); i < rows.size(); ++i) {
-      if ((note = createNote(rows, i)) == null) {
+      if((note = createNote(rows, i)) == null) {
         ++bad;
         continue;
       }
@@ -64,13 +64,13 @@ class CrsSwingWorker extends PluginSwingWorker {
       String regno = note.get(SMPL_REGISTRATION_NUMBER);
       Messages.scanningSelectedDocuments(guiLogger, "reg.no", regno);
       StoredDocumentList docs = selectedDocuments.get(regno);
-      if (docs == null) {
+      if(docs == null) {
         Messages.noDocumentsMatchingKey(guiLogger, i + 1);
         ++unused;
       } else {
         Messages.foundDocumensMatchingKey(guiLogger, "CRS file", docs);
         for (StoredDocument doc : docs) {
-          if (doc.attach(note)) {
+          if(doc.attach(note)) {
             updated.add(doc);
           } else {
             Messages.noNewValues(guiLogger, "CRS file", "reg.no", regno);
@@ -82,14 +82,14 @@ class CrsSwingWorker extends PluginSwingWorker {
     updated.forEach(StoredDocument::saveAnnotations);
     List<AnnotatedPluginDocument> all = updated.unwrap();
     all.addAll(updated.unwrap());
-    if (!all.isEmpty()) {
+    if(!all.isEmpty()) {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
     new CommonStatistics()
         .rowStats(good, bad, unused)
-        .documentStats(cfg.getSelectedDocuments().size(), updated.size())
-        .write(guiLogger);
+        .docStats(cfg.getSelectedDocuments().size(), updated.size())
+        .print(guiLogger);
 
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
@@ -101,6 +101,7 @@ class CrsSwingWorker extends PluginSwingWorker {
   private NaturalisNote createNote(List<String[]> rows, int rownum) {
     String[] values = rows.get(rownum);
     CrsRow row = new CrsRow(cfg.getColumnNumbers(), values);
+    // Convert rownum to user-friendly (one-based) line number
     guiLogger.debugf(() -> format("Line %s: %s", rownum + 1, toJson(values)));
     CrsNoteFactory factory = new CrsNoteFactory(rownum + 1, row);
     try {

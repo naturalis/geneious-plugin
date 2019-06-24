@@ -42,7 +42,7 @@ public class CommonStatistics {
    * @param unchanged
    * @return
    */
-  public CommonStatistics documentStats(int selected, int updated) {
+  public CommonStatistics docStats(int selected, int updated) {
     this.selected = selected;
     this.updated = updated;
     this.unchanged = selected - updated;
@@ -54,7 +54,7 @@ public class CommonStatistics {
    * 
    * @param logger
    */
-  public void write(GuiLogger logger) {
+  public void print(GuiLogger logger) {
     logger.info("Number of valid rows ............: %3d", good);
     logger.info("Number of empty/bad rows ........: %3d", bad);
     logger.info("Number of unused rows ...........: %3d", unused);

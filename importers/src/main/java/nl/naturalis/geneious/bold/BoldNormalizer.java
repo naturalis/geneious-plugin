@@ -39,7 +39,7 @@ class BoldNormalizer {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
-  private BoldImportConfig cfg;
+  private final BoldImportConfig cfg;
 
   private ArrayList<String> markers;
 
@@ -54,12 +54,12 @@ class BoldNormalizer {
    * @throws BoldNormalizationException
    */
   Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
-    if (cfg.getSkipLines() == 0) {
+    if(cfg.getSkipLines() == 0) {
       throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
     }
     List<String[]> rows = new RowSupplier(cfg).getAllRows();
     int numRows = rows.size() - cfg.getSkipLines();
-    guiLogger.info("BOLD file contains %s row%s", numRows, plural(numRows));
+    guiLogger.info("BOLD file contains %s row%s (excluding header rows)", numRows, plural(numRows));
     String[] header = rows.get(cfg.getSkipLines() - 1);
     guiLogger.info("Analyzing header");
     checkHeader(header);
@@ -111,13 +111,13 @@ class BoldNormalizer {
   }
 
   private static void checkHeader(String[] header) throws BoldNormalizationException {
-    if (header.length < 10) {
+    if(header.length < 10) {
       throw new BoldNormalizationException("Not enough columns in header: " + header.length);
     }
-    if (!header[0].equals("Project Code")) {
+    if(!header[0].equals("Project Code")) {
       throw new BoldNormalizationException("Unexpected name for 1st column: " + header[0]);
     }
-    if (!header[6].endsWith("Seq. Length")) {
+    if(!header[6].endsWith("Seq. Length")) {
       throw new BoldNormalizationException("At least one marker required. Instead found: " + header[6]);
     }
   }

@@ -62,15 +62,13 @@ class BoldSwingWorker extends PluginSwingWorker {
       guiLogger.info("Processing marker \"%s\"", marker);
       List<String[]> rows = allRows.get(marker);
       for (int i = 0; i < rows.size(); ++i) {
-        // Convert i to user-friendly (one-based) line number
-        int line = cfg.getSkipLines() + i + 1;
+        /*
+         * During normalization header lines were stripped off, so we need to add them again to make the user understand what
+         * line we are talking about.
+         */
+        guiLogger.debug("Line %s: %s", i + cfg.getSkipLines() + 1, toJson(rows.get(i)));
         BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
-        if (!row.hasValueFor(SAMPLE_ID, MARKER)) {
-          guiLogger.debugf(() -> format("Missing registration number and/or marker in line %s", line));
-          ++bad;
-          continue;
-        }
-        if ((note = createNote(line, row)) == null) {
+        if((note = createNote(row, i)) == null) {
           ++bad;
           continue;
         }
@@ -78,19 +76,19 @@ class BoldSwingWorker extends PluginSwingWorker {
         String boldMarker = row.get(MARKER);
         String[] mapsTo = markerMap.get(boldMarker);
         /*
-         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within
-         * the selected documents will the row in the BOLD file remain unused.
+         * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected
+         * documents will the row in the BOLD file remain unused.
          */
         boolean used = false;
         for (String naturalisMarker : mapsTo) {
           BoldKey key = new BoldKey(row.get(SAMPLE_ID), naturalisMarker);
           Messages.scanningSelectedDocuments(guiLogger, "key", key);
           StoredDocumentList docs = selectedDocuments.get(key);
-          if (docs != null) {
+          if(docs != null) {
             Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
             used = true;
             for (StoredDocument doc : docs) {
-              if (doc.attach(note)) {
+              if(doc.attach(note)) {
                 updated.add(doc);
               } else {
                 Messages.noNewValues(guiLogger, "BOLD file", "key", key);
@@ -98,8 +96,8 @@ class BoldSwingWorker extends PluginSwingWorker {
             }
           }
         }
-        if (!used) {
-          Messages.noDocumentsMatchingKey(guiLogger, line);
+        if(!used) {
+          Messages.noDocumentsMatchingKey(guiLogger, i + cfg.getSkipLines() + 1);
           ++unused;
         }
       }
@@ -108,14 +106,14 @@ class BoldSwingWorker extends PluginSwingWorker {
     updated.forEach(StoredDocument::saveAnnotations);
     List<AnnotatedPluginDocument> all = updated.unwrap();
     all.addAll(updated.unwrap());
-    if (!all.isEmpty()) {
+    if(!all.isEmpty()) {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
     new CommonStatistics()
         .rowStats(good, bad, unused)
-        .documentStats(cfg.getSelectedDocuments().size(), updated.size())
-        .write(guiLogger);
+        .docStats(cfg.getSelectedDocuments().size(), updated.size())
+        .print(guiLogger);
 
     guiLogger.info("UNUSED ROW (explanation): The row's registration number and marker");
     guiLogger.info("          did not correspond to any of the selected documents, but");
@@ -124,9 +122,13 @@ class BoldSwingWorker extends PluginSwingWorker {
     return all;
   }
 
-  private static NaturalisNote createNote(int line, BoldRow row) {
-    guiLogger.debugf(() -> format("Line %s: %s", line, toJson(row)));
-    BoldNoteFactory factory = new BoldNoteFactory(line, row);
+  @Override
+  protected String getLogTitle() {
+    return "BOLD Import";
+  }
+
+  private NaturalisNote createNote(BoldRow row, int rownum) {
+    BoldNoteFactory factory = new BoldNoteFactory(rownum + cfg.getSkipLines() + 1, row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
@@ -143,18 +145,13 @@ class BoldSwingWorker extends PluginSwingWorker {
 
   private BoldKey getBoldKey(StoredDocument sd) {
     String marker = sd.getNaturalisNote().get(SEQ_MARKER);
-    if (marker != null) {
+    if(marker != null) {
       String regno = sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
-      if (regno != null) {
+      if(regno != null) {
         return new BoldKey(regno, marker);
       }
     }
     return null; // ignore document; do not add to lookup table
-  }
-
-  @Override
-  protected String getLogTitle() {
-    return "BOLD Import";
   }
 
 }
