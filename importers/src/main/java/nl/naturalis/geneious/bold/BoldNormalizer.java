@@ -26,6 +26,8 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
+import static org.apache.commons.lang3.StringUtils.*;
+
 /**
  * Normalizes BOLD source files so that they can be processed just like sample sheets and CRS files. BOLD files contain
  * repeating triplets of marker-related columns. After normalization each triplet is in a separate row, with the
@@ -67,11 +69,11 @@ class BoldNormalizer {
     guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
     Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
     guiLogger.info("Normalizing BOLD file");
-    for (int i = 0; i < markers.size(); ++i) {
+    for(int i = 0; i < markers.size(); ++i) {
       guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
       List<String[]> markerRows = new ArrayList<>(rows.size() - cfg.getSkipLines());
       normalized.put(markers.get(i), markerRows);
-      for (int j = cfg.getSkipLines(); j < rows.size(); ++j) {
+      for(int j = cfg.getSkipLines(); j < rows.size(); ++j) {
         String[] line = rows.get(j);
         String[] compact = new String[BoldColumn.values().length];
         compact[PROJECT_CODE.ordinal()] = line[0];
@@ -79,11 +81,13 @@ class BoldNormalizer {
         compact[SAMPLE_ID.ordinal()] = line[2];
         compact[FIELD_ID.ordinal()] = line[3];
         compact[BIN.ordinal()] = line[4];
-        compact[MARKER.ordinal()] = markers.get(i);
         compact[SEQ_LENGTH.ordinal()] = line[6 + (i * 3)];
         compact[TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
         compact[ACCESSION.ordinal()] = line[8 + (i * 3)];
         compact[IMAGE_COUNT.ordinal()] = line[9];
+        if(isNotBlank(compact[SEQ_LENGTH.ordinal()])) {
+          compact[MARKER.ordinal()] = markers.get(i);
+        }
         markerRows.add(compact);
       }
     }
@@ -104,7 +108,7 @@ class BoldNormalizer {
 
   private static ArrayList<String> getMarkers(String[] header) {
     ArrayList<String> markers = new ArrayList<>(5);
-    for (int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
+    for(int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
       markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim());
     }
     return markers;

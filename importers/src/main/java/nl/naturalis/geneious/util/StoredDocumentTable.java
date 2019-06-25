@@ -18,11 +18,19 @@ import nl.naturalis.geneious.StoredDocument;
  */
 public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
 
+  /**
+   * Creates a {@code StoredDocumentTable} using the provided {@code keyExtractor} function to extract the key under which
+   * to store an {@code AnnotatedPluginDocument}. If the {@code keyExtractor} function returns null, the document from
+   * which it was extracted will be ignored (i.e. not added to the map).
+   * 
+   * @param docs
+   * @param keyExtractor
+   */
   public StoredDocumentTable(Collection<AnnotatedPluginDocument> docs, Function<StoredDocument, K> keyExtractor) {
     super(docs.size(), 1F);
     docs.stream().map(StoredDocument::new).forEach(sd -> {
       K key = keyExtractor.apply(sd);
-      if (key != null) {
+      if(key != null) {
         computeIfAbsent(key, (k) -> new StoredDocumentList()).add(sd);
       }
     });
@@ -36,6 +44,5 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
   public int documentCount() {
     return values().stream().mapToInt(StoredDocumentList::size).sum();
   }
-
 
 }

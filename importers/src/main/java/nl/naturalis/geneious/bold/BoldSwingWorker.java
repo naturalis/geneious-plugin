@@ -10,6 +10,7 @@ import static nl.naturalis.geneious.util.JsonUtil.toJson;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
+import static java.util.stream.Collectors.*;
+import static nl.naturalis.geneious.note.NaturalisField.*;
 
 /**
  * Manages and coordinates the import of BOLD files into Geneious.
@@ -54,14 +57,14 @@ class BoldSwingWorker extends PluginSwingWorker {
     Map<String, List<String[]>> allRows = normalizer.normalizeRows();
     MarkerMap markerMap = new MarkerMap(normalizer.getMarkers());
     guiLogger.debugf(() -> format("Will use these BOLD-to-Naturalis marker mappings: %s", toJson(markerMap)));
-    StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments();
+    StoredDocumentTable<BoldKey> selectedDocuments = createLookupTableForSelectedDocuments1();
     StoredDocumentList updated = new StoredDocumentList(selectedDocuments.size());
     int good = 0, bad = 0, unused = 0;
     NaturalisNote note;
-    for (String marker : allRows.keySet()) {
+    for(String marker : allRows.keySet()) {
       guiLogger.info("Processing marker \"%s\"", marker);
       List<String[]> rows = allRows.get(marker);
-      for (int i = 0; i < rows.size(); ++i) {
+      for(int i = 0; i < rows.size(); ++i) {
         /*
          * During normalization header lines were stripped off, so we need to add them again to make the user understand what
          * line we are talking about.
@@ -73,22 +76,34 @@ class BoldSwingWorker extends PluginSwingWorker {
           continue;
         }
         ++good;
+        String regno = row.get(SAMPLE_ID);
         String boldMarker = row.get(MARKER);
-        String[] mapsTo = markerMap.get(boldMarker);
+        List<BoldKey> keys;
+        if(boldMarker == null) {
+          keys = Arrays.asList(new BoldKey(regno, BoldKey.NO_MARKER));
+        } else {
+          keys = Arrays.stream(markerMap.get(boldMarker)).map(m -> new BoldKey(regno, m)).collect(toList());
+        }
         /*
          * BOLD marker may map to multiple Naturalis markers. Only if none of the Naturalis markers is found within the selected
          * documents will the row in the BOLD file remain unused.
          */
         boolean used = false;
-        for (String naturalisMarker : mapsTo) {
-          BoldKey key = new BoldKey(row.get(SAMPLE_ID), naturalisMarker);
+        for(BoldKey key : keys) {
           Messages.scanningSelectedDocuments(guiLogger, "key", key);
           StoredDocumentList docs = selectedDocuments.get(key);
           if(docs != null) {
             Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
             used = true;
-            for (StoredDocument doc : docs) {
-              if(doc.attach(note)) {
+            for(StoredDocument doc : docs) {
+              NaturalisNote finalNote;
+              if(doc.isDummy() && key.getMarker() != BoldKey.NO_MARKER) {
+                finalNote = new NaturalisNote(note);
+                finalNote.remove(BOLD_NUCLEOTIDE_LENGTH, BOLD_NUM_TRACES, BOLD_GEN_BANK_ID, BOLD_GEN_BANK_URI);
+              } else {
+                finalNote = note;
+              }
+              if(doc.attach(finalNote)) {
                 updated.add(doc);
               } else {
                 Messages.noNewValues(guiLogger, "BOLD file", "key", key);
@@ -128,30 +143,40 @@ class BoldSwingWorker extends PluginSwingWorker {
   }
 
   private NaturalisNote createNote(BoldRow row, int rownum) {
+    int line = rownum + cfg.getSkipLines() + 1;
+    if(row.get(SAMPLE_ID) == null) {
+      guiLogger.error(InvalidRowException.MSG_MISSING_VALUE, line, SAMPLE_ID);
+      return null;
+    }
     BoldNoteFactory factory = new BoldNoteFactory(rownum + cfg.getSkipLines() + 1, row);
     try {
       NaturalisNote note = factory.createNote();
       guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
       return note;
-    } catch (InvalidRowException e) {
+    } catch(InvalidRowException e) {
       guiLogger.error(e.getMessage());
       return null;
     }
   }
 
-  private StoredDocumentTable<BoldKey> createLookupTableForSelectedDocuments() {
-    return new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getBoldKey);
+  private StoredDocumentTable<BoldKey> createLookupTableForSelectedDocuments1() {
+    return new StoredDocumentTable<>(cfg.getSelectedDocuments(), this::getCompoundKey);
   }
 
-  private BoldKey getBoldKey(StoredDocument sd) {
-    String marker = sd.getNaturalisNote().get(SEQ_MARKER);
-    if(marker != null) {
-      String regno = sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
-      if(regno != null) {
-        return new BoldKey(regno, marker);
-      }
+  private BoldKey getCompoundKey(StoredDocument sd) {
+    String regno = sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
+    if(regno == null) {
+      guiLogger.info("Ignoring selected document %s: missing registration number");
+      return null; // i.e. do not add to lookup table
     }
-    return null; // ignore document; do not add to lookup table
+    String marker = sd.getNaturalisNote().get(SEQ_MARKER);
+    if(marker == null) {
+      guiLogger.error("Corrupt %s document: %s. Document has registration number but no marker",
+          sd.getType(),
+          sd.getGeneiousDocument().getName());
+      return null;
+    }
+    return new BoldKey(regno, marker);
   }
 
 }

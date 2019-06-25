@@ -16,10 +16,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * A container for all annotations that can be added using the Naturalis plugin. This is a null-hostile class. Trying to
- * set any of its fields to null results in an {@link IllegalArgumentException}. Consequently, if the value for a field
- * is null, you know it has never been set before (in other words, the Geneious document did not have a value for it
- * yet).
+ * A container for all annotations that can be added using the Naturalis plugin. A {@code NaturalisNote} will
+ * <i>never</i> contain null or whitespace-only values. The latter applies even for non-string values: calling
+ * {@code toString()} on them must never return a whitespace-only string. Trying to set any of its fields to null or a
+ * whitespace-only string results in an {@link IllegalArgumentException}. Consequently, if the
+ * {@link #get(NaturalisField) get} method of {@code NaturalisNote} returns null for a particular field, the field
+ * really wasn't there (it was not present in the Geneious document).
  *
  * @author Ayco Holleman
  */
@@ -34,6 +36,13 @@ public final class NaturalisNote implements Note {
    */
   public NaturalisNote() {
     data = new EnumMap<>(NaturalisField.class);
+  }
+
+  /**
+   * Copy constructor
+   */
+  public NaturalisNote(NaturalisNote other) {
+    data = new EnumMap<>(other.data);
   }
 
   /**
@@ -69,6 +78,7 @@ public final class NaturalisNote implements Note {
    */
   public void castAndSet(NaturalisField field, Object value) {
     Preconditions.checkNotNull(value, ERR_EMPTY, field);
+    Preconditions.checkArgument(StringUtils.isNotBlank(value.toString()), ERR_EMPTY, field);
     data.put(field, field.cast(value)); // Force ClassCastException as soon as possible
   }
 
@@ -126,15 +136,17 @@ public final class NaturalisNote implements Note {
   }
 
   /**
-   * Initializes this note with values from the specified document.
+   * Initializes this note with values from the provided document.
    */
   public void readFrom(AnnotatedPluginDocument document) {
     DocumentNotes notes = document.getDocumentNotes(false);
-    for (NaturalisField field : NaturalisField.values()) {
+    for(NaturalisField field : NaturalisField.values()) {
       Object val = field.readFrom(notes);
-      if (val != null) {
-        data.put(field, val);
+      if(val == null || StringUtils.isBlank(val.toString())) {
+        // Deal with potential legacy where empty values slipped through.
+        continue;
       }
+      data.put(field, val);
     }
   }
 
@@ -147,9 +159,9 @@ public final class NaturalisNote implements Note {
    */
   public boolean copyTo(NaturalisNote other) {
     boolean changed = false;
-    for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+    for(Map.Entry<NaturalisField, Object> e : data.entrySet()) {
       Object val = other.data.get(e.getKey());
-      if (val == null || !val.equals(e.getValue())) {
+      if(val == null || !val.equals(e.getValue())) {
         other.data.put(e.getKey(), e.getValue());
         changed = true;
       }
@@ -167,14 +179,26 @@ public final class NaturalisNote implements Note {
    */
   public boolean mergeInto(NaturalisNote other) {
     boolean changed = false;
-    for (Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+    for(Map.Entry<NaturalisField, Object> e : data.entrySet()) {
       Object val = other.data.get(e.getKey());
-      if (val == null) {
+      if(val == null) {
         other.data.put(e.getKey(), e.getValue());
         changed = true;
       }
     }
     return changed;
+  }
+
+  /**
+   * Removes the provided fields from this {@code NaturalisNote}.
+   * 
+   * @param field
+   * @return
+   */
+  public void remove(NaturalisField... fields) {
+    for(NaturalisField field : fields) {
+      data.remove(field);
+    }
   }
 
   /**
@@ -193,8 +217,8 @@ public final class NaturalisNote implements Note {
    * @param document
    */
   public void copyTo(DocumentNotes notes) {
-    for (NaturalisField field : data.keySet()) {
-      field.castAndWrite(notes, data.get(field));
+    for(Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+      e.getKey().castAndWrite(notes, e.getValue());
     }
   }
 
@@ -210,10 +234,10 @@ public final class NaturalisNote implements Note {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if(this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if(obj == null || getClass() != obj.getClass()) {
       return false;
     }
     return data.equals(((NaturalisNote) obj).data);
