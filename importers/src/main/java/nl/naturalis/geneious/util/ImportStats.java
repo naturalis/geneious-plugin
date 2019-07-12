@@ -8,7 +8,7 @@ import nl.naturalis.geneious.log.GuiLogger;
  * @author Ayco Holleman
  *
  */
-public class CommonStatistics {
+public class ImportStats {
 
   private int good;
   private int bad;
@@ -17,7 +17,7 @@ public class CommonStatistics {
   private int updated;
   private int unchanged;
 
-  public CommonStatistics() {}
+  public ImportStats() {}
 
   /**
    * Statistics about the rows in the source file.
@@ -27,7 +27,7 @@ public class CommonStatistics {
    * @param unused
    * @return
    */
-  public CommonStatistics rowStats(int good, int bad, int unused) {
+  public ImportStats rowStats(int good, int bad, int unused) {
     this.good = good;
     this.bad = bad;
     this.unused = unused;
@@ -42,7 +42,7 @@ public class CommonStatistics {
    * @param unchanged
    * @return
    */
-  public CommonStatistics docStats(int selected, int updated) {
+  public ImportStats docStats(int selected, int updated) {
     this.selected = selected;
     this.updated = updated;
     this.unchanged = selected - updated;

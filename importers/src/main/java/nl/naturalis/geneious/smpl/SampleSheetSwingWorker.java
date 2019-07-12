@@ -27,7 +27,7 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.CommonStatistics;
+import nl.naturalis.geneious.util.ImportStats;
 import nl.naturalis.geneious.util.Messages;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
@@ -181,7 +181,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
 
-    new CommonStatistics()
+    new ImportStats()
         .rowStats(good, bad, unused)
         .docStats(cfg.getSelectedDocuments().size(), updated.size())
         .print(guiLogger);

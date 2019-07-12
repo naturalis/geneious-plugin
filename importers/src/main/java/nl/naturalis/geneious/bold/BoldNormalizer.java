@@ -1,32 +1,28 @@
 package nl.naturalis.geneious.bold;
 
+import static java.util.stream.Collectors.joining;
 import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
 import static nl.naturalis.geneious.bold.BoldColumn.BIN;
 import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.IMAGE_COUNT;
-import static nl.naturalis.geneious.bold.BoldColumn.MARKER;
 import static nl.naturalis.geneious.bold.BoldColumn.PROCCES_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
 import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
 import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.base.Preconditions;
 
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-
-import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Normalizes BOLD source files so that they can be processed just like sample sheets and CRS files. BOLD files contain
@@ -42,71 +38,124 @@ class BoldNormalizer {
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldNormalizer.class);
 
   private final BoldImportConfig cfg;
+  private final List<String[]> originalRows;
+  private final ArrayList<String> markers;
+  private final Map<String, List<String[]>> rowsPerMarker;
 
-  private ArrayList<String> markers;
-
-  BoldNormalizer(BoldImportConfig cfg) {
+  BoldNormalizer(BoldImportConfig cfg) throws BoldNormalizationException {
     this.cfg = cfg;
+    this.originalRows = new RowSupplier(cfg).getAllRows();
+    int x = originalRows.size() - cfg.getSkipLines();
+    guiLogger.info("BOLD file contains %s row%s (excluding header rows)", x, plural(x));
+    checkHeader();
+    this.rowsPerMarker = normalize();
+    this.markers = new ArrayList<>(rowsPerMarker.keySet());
   }
 
   /**
-   * Produces a map that maps each marker in the BOLD file to a list of rows.
+   * Returns the number of rows in the spreadsheet before normalization and excluding header rows;
    * 
    * @return
-   * @throws BoldNormalizationException
    */
-  Map<String, List<String[]>> normalizeRows() throws BoldNormalizationException {
-    if(cfg.getSkipLines() == 0) {
-      throw new BoldNormalizationException("BOLD files must have a header (\"Lines to skip\" must not be zero)");
-    }
-    List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    int numRows = rows.size() - cfg.getSkipLines();
-    guiLogger.info("BOLD file contains %s row%s (excluding header rows)", numRows, plural(numRows));
-    String[] header = rows.get(cfg.getSkipLines() - 1);
-    guiLogger.info("Analyzing header");
-    checkHeader(header);
-    markers = getMarkers(header);
-    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(Collectors.joining(", ")));
-    Map<String, List<String[]>> normalized = new LinkedHashMap<>(markers.size(), 1F);
-    guiLogger.info("Normalizing BOLD file");
-    for(int i = 0; i < markers.size(); ++i) {
-      guiLogger.info("Extracting rows for marker \"%s\"", markers.get(i));
-      List<String[]> markerRows = new ArrayList<>(rows.size() - cfg.getSkipLines());
-      normalized.put(markers.get(i), markerRows);
-      for(int j = cfg.getSkipLines(); j < rows.size(); ++j) {
-        String[] line = rows.get(j);
-        String[] compact = new String[BoldColumn.values().length];
-        compact[PROJECT_CODE.ordinal()] = line[0];
-        compact[PROCCES_ID.ordinal()] = line[1];
-        compact[SAMPLE_ID.ordinal()] = line[2];
-        compact[FIELD_ID.ordinal()] = line[3];
-        compact[BIN.ordinal()] = line[4];
-        compact[SEQ_LENGTH.ordinal()] = line[6 + (i * 3)];
-        compact[TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
-        compact[ACCESSION.ordinal()] = line[8 + (i * 3)];
-        compact[IMAGE_COUNT.ordinal()] = line[9];
-        if(isNotBlank(compact[SEQ_LENGTH.ordinal()])) {
-          compact[MARKER.ordinal()] = markers.get(i);
-        }
-        markerRows.add(compact);
-      }
-    }
-    numRows *= markers.size();
-    guiLogger.info("BOLD file contains %s normalized row%s", numRows, plural(numRows));
-    return normalized;
+  int countRows() {
+    return originalRows.size() - cfg.getSkipLines();
   }
 
   /**
-   * Returns the markers that the {@code BoldNormalizer} extracted from the column headers in the BOLD file.
+   * Returns the markers found in the header of the spreadsheet. Note however that if the "Seq. Length" column of a
+   * triplet of marker columns is completely empty (i.e. none of the rows have a value in the "Seq. Length" column), that
+   * marker is considered absent and will <i>not</i> be included in the returned list.
    * 
    * @return
    */
   List<String> getMarkers() {
-    Preconditions.checkState(markers != null, "Can only provide markers after normalization");
     return markers;
   }
 
-  private static ArrayList<String> getMarkers(String[] header) {
+  /**
+   * Returns a per-marker list of rows. The map might be empty if the BOLD spreadsheet did not contain any marker-related
+   * columns or (more hypothetically) it did, but the "Seq. Length" column was blank for all rows. The keys in the
+   * returned map are the markers, in the same order as they were found in the spreadsheet.
+   * 
+   * @return
+   */
+  Map<String, List<String[]>> getRowsPerMarker() {
+    return rowsPerMarker;
+  }
+
+  /**
+   * Returns the rows for an arbitrary marker or, if the spreadsheet did not contain any markers, a new list of rows with
+   * only specimen information.
+   * 
+   * @return
+   */
+  List<String[]> getRows() {
+    if(rowsPerMarker.isEmpty()) {
+      guiLogger.info("Extracting rows with specimen info only");
+      ArrayList<String[]> rows = new ArrayList<>(countRows());
+      for(int j = cfg.getSkipLines(); j < originalRows.size(); ++j) {
+        String[] line = originalRows.get(j);
+        String[] row = new String[BoldColumn.values().length];
+        row[PROJECT_CODE.ordinal()] = line[0];
+        row[PROCCES_ID.ordinal()] = line[1];
+        row[SAMPLE_ID.ordinal()] = line[2];
+        row[FIELD_ID.ordinal()] = line[3];
+        row[BIN.ordinal()] = line[4];
+        row[IMAGE_COUNT.ordinal()] = line[6];
+        rows.add(row);
+      }
+      return rows;
+    }
+    return rowsPerMarker.entrySet().iterator().next().getValue();
+  }
+
+  private Map<String, List<String[]>> normalize() {
+    String[] header = originalRows.get(cfg.getSkipLines() - 1);
+    ArrayList<String> markers = getMarkersInHeader(header);
+    Map<String, List<String[]>> rowsPerMarker = new LinkedHashMap<>(markers.size(), 1F);
+    if(markers.isEmpty()) {
+      guiLogger.info("Found 0 markers");
+      return rowsPerMarker;
+    }
+    guiLogger.info("Found %s marker%s: %s", markers.size(), plural(markers), markers.stream().collect(joining(", ")));
+    guiLogger.info("Normalizing BOLD file");
+    for(int i = 0; i < markers.size(); ++i) {
+      String marker = markers.get(i);
+      guiLogger.info("Extracting rows for marker %s", marker);
+      List<String[]> rows = new ArrayList<>(countRows());
+      boolean allBlank = true;
+      for(int j = cfg.getSkipLines(); j < originalRows.size(); ++j) {
+        String[] line = originalRows.get(j);
+        String[] row = new String[BoldColumn.values().length];
+        row[PROJECT_CODE.ordinal()] = line[0];
+        row[PROCCES_ID.ordinal()] = line[1];
+        row[SAMPLE_ID.ordinal()] = line[2];
+        row[FIELD_ID.ordinal()] = line[3];
+        row[BIN.ordinal()] = line[4];
+        row[SEQ_LENGTH.ordinal()] = line[6 + (i * 3)];
+        if(isNotBlank(row[SEQ_LENGTH.ordinal()])) {
+          allBlank = false;
+          row[TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
+          row[ACCESSION.ordinal()] = line[8 + (i * 3)];
+        } else if(isNotBlank(line[7 + (i * 3)]) || isNotBlank(line[8 + (i * 3)])) {
+          guiLogger.warn("Line %d: ignoring marker info (missing value for \"%s Seq. Length\")", j + 1, marker);
+        }
+        row[IMAGE_COUNT.ordinal()] = line[6 + (markers.size() * 3)];
+        rows.add(row);
+      }
+      if(allBlank) {
+        guiLogger.warn("Will not process marker %$1s. Column \"%$1s Seq. Length\" is empty.", marker);
+      } else {
+        rowsPerMarker.put(marker, rows);
+      }
+    }
+    return rowsPerMarker;
+  }
+
+  /*
+   * Returns the markers found in the header of the spreadsheet.
+   */
+  private static ArrayList<String> getMarkersInHeader(String[] header) {
     ArrayList<String> markers = new ArrayList<>(5);
     for(int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
       markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim());
@@ -114,15 +163,19 @@ class BoldNormalizer {
     return markers;
   }
 
-  private static void checkHeader(String[] header) throws BoldNormalizationException {
+  private void checkHeader() throws BoldNormalizationException {
+    guiLogger.info("Analyzing header");
+    String[] header = originalRows.get(cfg.getSkipLines() - 1);
     if(header.length < 10) {
       throw new BoldNormalizationException("Not enough columns in header: " + header.length);
     }
     if(!header[0].equals("Project Code")) {
-      throw new BoldNormalizationException("Unexpected name for 1st column: " + header[0]);
+      throw new BoldNormalizationException("Unexpected header for 1st column: " + header[0]);
     }
-    if(!header[6].endsWith("Seq. Length")) {
-      throw new BoldNormalizationException("At least one marker required. Instead found: " + header[6]);
+    if(!header[6].endsWith("Seq. Length") && !header[6].equals("Image Count")) {
+      String fmt = "Header for column 7 must be either \"<marker> Seq. Length\" or \"Image Count\". Found: \"%s\"";
+      String msg = String.format(fmt, header[6]);
+      throw new BoldNormalizationException(msg);
     }
   }
 

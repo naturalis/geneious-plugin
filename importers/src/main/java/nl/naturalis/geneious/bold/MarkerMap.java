@@ -13,61 +13,67 @@ import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
  * Reads the marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them to a Java {@code HashMap}.
+ * Note that the marker mappings in the <i>Tools -&gt; Preferences</i> panel map BOLD markers to (one or more) Naturalis
+ * markers, but this class represents a reverse map, mapping one Naturalis marker to (exactly) one BOLD marker.
  * 
  * @author Ayco Holleman
  *
  */
-class MarkerMap extends HashMap<String, String[]> {
+class MarkerMap extends HashMap<String, String> {
 
   /**
-   * Initiates the {@code MarkerMap} from the lines within the marker mappings input field.
+   * Creates a new {@code MarkerMap} from the lines within the marker mappings input field.
    * 
-   * @param markersInBoldFile
+   * @param markersUsedInSpreadsheet
    * @throws BoldNormalizationException
    */
-  MarkerMap(List<String> markersInBoldFile) throws BoldNormalizationException {
-    HashSet<String> copy = new HashSet<>(markersInBoldFile);
+  MarkerMap(List<String> markersUsedInSpreadsheet) throws BoldNormalizationException {
+    // Markers in the spreadsheet for which no explicit mapping was found in Tools -> Preferences. Will be mapped to
+    // themselves.
+    HashSet<String> unmapped = new HashSet<>(markersUsedInSpreadsheet);
     String mappings = settings().getMarkerMap();
-    try (LineNumberReader lnr = new LineNumberReader(new StringReader(mappings))) {
-      for (String s = lnr.readLine(); s != null; s = lnr.readLine()) {
-        if ((s = s.strip()).isEmpty() || s.charAt(0) == '#') {
+    try(LineNumberReader lnr = new LineNumberReader(new StringReader(mappings))) {
+      for(String s = lnr.readLine(); s != null; s = lnr.readLine()) {
+        if((s = s.strip()).isEmpty() || s.charAt(0) == '#') {
           continue;
         }
         int x = s.indexOf("->");
-        if (x == -1) {
-          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1);
+        if(x == -1) {
+          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Missing mapping separator \"->\". ");
         }
-        if (x == s.length() - 2) {
-          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1);
+        if(x == s.length() - 2) {
+          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
         }
         String bold = s.substring(0, x).strip();
-        if (bold.isEmpty()) {
-          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1);
+        if(bold.isEmpty()) {
+          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
         }
-        if (!copy.contains(bold)) {
-          continue;
+        if(containsValue(bold)) {
+          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate BOLD marker: " + bold + ". ");
         }
-        String[] naturalis = s.substring(x + 2).strip().split(",");
-        for (int i = 0; i < naturalis.length; ++i) {
-          String n = naturalis[i].strip();
-          if (n.isEmpty()) {
-            throw invalidMarkerMapping(s, lnr.getLineNumber() + 1);
+        String[] naturalisMarkers = s.substring(x + 2).strip().split(",");
+        for(int i = 0; i < naturalisMarkers.length; ++i) {
+          String naturalis = naturalisMarkers[i].strip();
+          if(naturalis.isEmpty()) {
+            throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
           }
-          naturalis[i] = n;
+          if(containsKey(naturalis)) {
+            throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate Naturalis marker: " + naturalis + ". ");
+          }
+          put(naturalis, bold);
         }
-        put(bold, naturalis);
-        copy.remove(bold);
+        unmapped.remove(bold);
       }
       // Map remaining markers in BOLD file to themselves
-      copy.stream().forEach(s -> put(s, new String[] {s}));
-    } catch (IOException e) {
+      unmapped.stream().forEach(s -> put(s, s));
+    } catch(IOException e) {
       throw new NaturalisPluginException(e);
     }
   }
 
-  private static BoldNormalizationException invalidMarkerMapping(String line, int lineNo) {
-    String msg = String.format("Invalid marker mapping at line %d: %s. Go to Tools -> Preferences (Marker mappings) to fix this problem",
-        lineNo, line);
+  private static BoldNormalizationException invalidMarkerMapping(String line, int lineNo, String err) {
+    String fmt = "Invalid marker mapping at line %d: %s. %sGo to Tools -> Preferences (Marker mappings) to fix this problem";
+    String msg = String.format(fmt, lineNo, line, err);
     return new BoldNormalizationException(msg);
   }
 

@@ -1,5 +1,8 @@
 package nl.naturalis.geneious.util;
 
+import java.util.Collection;
+
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
@@ -18,7 +21,7 @@ public class Messages {
    * @param keyValue
    */
   public static void scanningSelectedDocuments(GuiLogger logger, String keyName, Object keyValue) {
-    if (logger.isDebugEnabled()) {
+    if(logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(48)
           .append("Scanning selected documents for ")
           .append(keyName)
@@ -37,7 +40,7 @@ public class Messages {
    * @param keyValue
    */
   public static void noNewValues(GuiLogger logger, String file, String keyName, Object keyValue) {
-    if (logger.isDebugEnabled()) {
+    if(logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(96)
           .append("Document with ")
           .append(keyName)
@@ -57,8 +60,8 @@ public class Messages {
    * @param file
    * @param matchingDocuments
    */
-  public static void foundDocumensMatchingKey(GuiLogger logger, String file, StoredDocumentList matchingDocuments) {
-    if (logger.isDebugEnabled()) {
+  public static void foundDocumensMatchingKey(GuiLogger logger, String file, Collection<StoredDocument> matchingDocuments) {
+    if(logger.isDebugEnabled()) {
       String s = matchingDocuments.size() == 1 ? "" : "s";
       StringBuilder sb = new StringBuilder(96)
           .append("Found ")
@@ -83,9 +86,9 @@ public class Messages {
    * @param line
    */
   public static void noDocumentsMatchingKey(GuiLogger logger, int line) {
-    if (logger.isDebugEnabled()) {
+    if(logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder(48)
-          .append("Not found. Row at line ")
+          .append("None found. Row at line ")
           .append(line)
           .append(" remains unused");
       logger.debug(sb.toString());
@@ -93,7 +96,8 @@ public class Messages {
   }
 
   /**
-   * <i>&#46;&#46;&#46; completed successfully</i> 
+   * <i>&#46;&#46;&#46; completed successfully</i>
+   * 
    * @param logger
    * @param operation
    */

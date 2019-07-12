@@ -36,13 +36,5 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
     });
   }
 
-  /**
-   * Returns the total number of documents in this table.
-   * 
-   * @return
-   */
-  public int documentCount() {
-    return values().stream().mapToInt(StoredDocumentList::size).sum();
-  }
 
 }

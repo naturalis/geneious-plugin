@@ -39,12 +39,25 @@ public class DocumentUtils {
   private DocumentUtils() {}
 
   /**
-   * Returns the {@link DocumentType document type} of the provided document.
+   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the
+   * annotations on the document.
    * 
    * @param name
    * @return
    */
   public static DocumentType getDocumentType(AnnotatedPluginDocument apd) {
+    return getDocumentType(apd, new NaturalisNote(apd));
+  }
+
+  /**
+   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the
+   * provided annotations (presumedly read from the document).
+   * 
+   * @param apd
+   * @param note
+   * @return
+   */
+  public static DocumentType getDocumentType(AnnotatedPluginDocument apd, NaturalisNote note) {
     if(apd.getDocumentClass() == DUMMY.getGeneiousType()) {
       // That's 100% certainty, but this class was only introduced in version 2 of the plugin.
       return DUMMY;
@@ -56,7 +69,6 @@ public class DocumentUtils {
       return CONTIG;
     }
     if(apd.getDocumentClass() == FASTA.getGeneiousType()) {
-      NaturalisNote note = new NaturalisNote(apd);
       if(note.isEmpty() || !note.get(NaturalisField.SEQ_MARKER).equals("Dum")) {
         return FASTA;
       }
@@ -80,8 +92,8 @@ public class DocumentUtils {
   }
 
   /**
-   * Whether or not the provided file is an AB1 file (judged solely by the the file name extension, so not water-tight).
-   * panel.
+   * Whether or not the provided file is an AB1 file, judged by the file name extension and <i>negatively</i> judged by
+   * the contents not looking like a fasta file.
    * 
    * @param f
    * @return
@@ -92,7 +104,7 @@ public class DocumentUtils {
     if(exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) != '>';
     }
-    for (String ext : exts) {
+    for(String ext : exts) {
       if(f.getName().endsWith(ext)) {
         return true;
       }
@@ -101,7 +113,7 @@ public class DocumentUtils {
   }
 
   /**
-   * Whether or not the specified file is a fasta file (judged solely by the the file name extension, so not water-tight).
+   * Whether or not the specified file is a fasta file, judged by the file name extension and contents of the file.
    * 
    * @param f
    * @return
@@ -112,7 +124,7 @@ public class DocumentUtils {
     if(exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) == '>';
     }
-    for (String ext : exts) {
+    for(String ext : exts) {
       if(f.getName().endsWith(ext)) {
         if(firstChar(f) == '>') {
           return true;
@@ -169,7 +181,7 @@ public class DocumentUtils {
   }
 
   private static char firstChar(File f) throws IOException {
-    try (InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
+    try(InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
       return (char) isr.read();
     }
   }

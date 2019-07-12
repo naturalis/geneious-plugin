@@ -2,19 +2,16 @@ package nl.naturalis.geneious;
 
 import static nl.naturalis.geneious.DocumentType.AB1;
 import static nl.naturalis.geneious.DocumentType.DUMMY;
-import static nl.naturalis.geneious.DocumentType.*;
-import static nl.naturalis.geneious.DocumentType.UNKNOWN;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.DocumentType.FASTA;
 
 import java.util.Comparator;
-import java.util.Objects;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
-import nl.naturalis.geneious.smpl.DummySequence;
+import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
  * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its Naturalis-specific
@@ -29,6 +26,10 @@ public class StoredDocument {
    */
   public static Comparator<StoredDocument> URN_COMPARATOR = (o1, o2) -> {
     return o1.doc.getURN().toString().compareTo(o2.doc.getURN().toString());
+  };
+
+  public static Comparator<StoredDocument> IDENTITY_COMPARATOR = (o1, o2) -> {
+    return System.identityHashCode(o1) - System.identityHashCode(o2);
   };
 
   private final AnnotatedPluginDocument doc;
@@ -56,7 +57,7 @@ public class StoredDocument {
   public StoredDocument(AnnotatedPluginDocument doc, NaturalisNote note) {
     this.doc = doc;
     this.note = note;
-    this.type = type();
+    this.type = DocumentUtils.getDocumentType(doc, note);
   }
 
   /**
@@ -66,6 +67,15 @@ public class StoredDocument {
    */
   public AnnotatedPluginDocument getGeneiousDocument() {
     return doc;
+  }
+
+  /**
+   * Returns the name of the document (as displayed in the left-most column in the Geneious GUI).
+   * 
+   * @return
+   */
+  public String getName() {
+    return doc.getName();
   }
 
   /**
@@ -145,24 +155,6 @@ public class StoredDocument {
    */
   public boolean isDummy() {
     return type == DUMMY;
-  }
-
-  private DocumentType type() {
-    DocumentType t;
-    if(doc.getDocumentClass() == DUMMY.getGeneiousType()) {
-      return DUMMY;
-    } else if(Objects.equals(note.get(SEQ_MARKER), DummySequence.DUMMY_MARKER)) {
-      t = DUMMY;
-    } else if(doc.getDocumentClass() == AB1.getGeneiousType()) {
-      t = AB1;
-    } else if(doc.getDocumentClass() == FASTA.getGeneiousType()) {
-      t = FASTA;
-    } else if(doc.getDocumentClass() == CONTIG.getGeneiousType()) {
-      t = CONTIG;
-    } else {
-      t = UNKNOWN;
-    }
-    return t;
   }
 
   private DocumentNotes getDocumentNotes() {
