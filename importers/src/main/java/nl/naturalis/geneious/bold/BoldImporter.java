@@ -6,7 +6,6 @@ import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ class BoldImporter {
         continue;
       }
       BoldKey key = new BoldKey(regno, marker);
-      Messages.scanningSelectedDocuments(guiLogger, "key", key);
+      Messages.scanningSelectedDocuments(guiLogger, "key", toJson(key));
       Set<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
         continue;
@@ -99,21 +98,15 @@ class BoldImporter {
         continue;
       }
       runtime.markUsed(i);
-      Iterator<StoredDocument> iterator = docs.iterator();
-      while(iterator.hasNext()) {
-        StoredDocument doc = iterator.next();
+      for(StoredDocument doc : docs) {
         if(doc.attach(note)) {
           runtime.updated(doc);
           ++updated;
-          /*
-           * We're done with this document. It should not be updated again when using a key consisting of the registration only.
-           * It wouldn't corrupt things, it would result in a confusing "no new values" message.
-           */
-          iterator.remove();
         } else {
-          Messages.noNewValues(guiLogger, "BOLD file", "key", key);
+          Messages.noNewValues(guiLogger, "BOLD file", "key", toJson(key));
         }
       }
+      lookups.remove(key);
     }
     if(marker == null) {
       guiLogger.info("%d document%s updated using only specimen-related columns in BOLD file", updated, plural(updated));

@@ -3,11 +3,11 @@ package nl.naturalis.geneious.bold;
 import java.util.Objects;
 
 /**
- * The key used to store the documents selected by the user into an in-memory cache
+ * The key used to store and find the selected documents in an in-memory lookup table
  * 
  * @author Ayco Holleman
  */
-final class BoldKey {
+class BoldKey {
 
   private final String regno;
   private final String marker;
@@ -41,7 +41,7 @@ final class BoldKey {
    * 
    * @return
    */
-  String getRegno() {
+  public String getRegno() {
     return regno;
   }
 
@@ -50,7 +50,7 @@ final class BoldKey {
    * 
    * @return
    */
-  String getMarker() {
+  public String getMarker() {
     return marker;
   }
 

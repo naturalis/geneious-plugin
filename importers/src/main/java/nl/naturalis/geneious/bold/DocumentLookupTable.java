@@ -15,8 +15,10 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
 /**
- * A cache of selected documents enabling fast lookups. This is not a static cache. As soon as a document gets annotated
- * using a row in the BOLD spreadsheet it is removed from the cache.
+ * A cache of selected documents enabling fast lookups. As soon as a document gets annotated using a row in the BOLD
+ * spreadsheet it is removed from the lookup table. This ensure that documents don't get updated more than once. There
+ * is no danger of data corruption if that were to happen, because the document would alsways get updated with the same
+ * data, but it is wasteful and makes for confusing log messages.
  * 
  * @author Ayco Holleman
  *
@@ -63,6 +65,9 @@ class DocumentLookupTable extends HashMap<BoldKey, HashSet<StoredDocument>> {
     if(regno == null) {
       guiLogger.info("Ignoring %s: missing CRS registration number", sd.getName());
       return null; // means: do not add to lookup table
+    }
+    if(sd.isDummy()) {
+      return new BoldKey(regno);
     }
     String naturalisMarker = sd.getNaturalisNote().get(SEQ_MARKER);
     if(naturalisMarker == null) {
