@@ -3,8 +3,10 @@ package nl.naturalis.geneious.bold;
 import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
 import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -61,13 +63,17 @@ class BoldImporter {
    * @param lookups
    */
   void importRows(List<String[]> rows, String marker, DocumentLookupTable lookups) {
-    guiLogger.info("Processing marker \"%s\"", marker);
+    if(marker == null) {
+      guiLogger.info(">>>> Processing specimen-related columns only (matching on registration number)");
+    } else {
+      guiLogger.info(">>>> Processing marker \"%s\"", marker);
+    }
+    int updated = 0; // The number of updates for this particular marker
     for(int i = 0; i < rows.size(); ++i) {
       if(runtime.isBadRow(i)) {
         continue;
       }
       int line = i + cfg.getSkipLines() + 1;
-      guiLogger.debug("Line %d: %s", line, toJson(rows.get(i)));
       BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
       String regno = row.get(SAMPLE_ID);
       if(regno == null) {
@@ -79,27 +85,40 @@ class BoldImporter {
         guiLogger.info("Ignoring row at line %d: no value for marker %s", line, marker);
         continue;
       }
+      BoldKey key = new BoldKey(regno, marker);
+      Messages.scanningSelectedDocuments(guiLogger, "key", key);
+      Set<StoredDocument> docs = lookups.get(key);
+      if(docs == null) {
+        continue;
+      }
+      Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
+      guiLogger.debug("Line %d: %s", line, toJson(rows.get(i)));
       NaturalisNote note = createNote(row, line, marker == null);
       if(note == null) {
         runtime.markBad(i);
         continue;
       }
-      BoldKey key = new BoldKey(regno, marker);
-      Messages.scanningSelectedDocuments(guiLogger, "key", key);
-      Set<StoredDocument> docs = lookups.get(key);
-      if(docs == null) {
-        guiLogger.debug("None found");
-        continue;
-      }
-      Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
       runtime.markUsed(i);
-      docs.forEach(doc -> {
+      Iterator<StoredDocument> iterator = docs.iterator();
+      while(iterator.hasNext()) {
+        StoredDocument doc = iterator.next();
         if(doc.attach(note)) {
           runtime.updated(doc);
+          ++updated;
+          /*
+           * We're done with this document. It should not be updated again when using a key consisting of the registration only.
+           * It wouldn't corrupt things, it would result in a confusing "no new values" message.
+           */
+          iterator.remove();
         } else {
           Messages.noNewValues(guiLogger, "BOLD file", "key", key);
         }
-      });
+      }
+    }
+    if(marker == null) {
+      guiLogger.info("%d document%s updated using only specimen-related columns in BOLD file", updated, plural(updated));
+    } else {
+      guiLogger.info("%d document%s updated for marker %s", updated, plural(updated), marker);
     }
   }
 

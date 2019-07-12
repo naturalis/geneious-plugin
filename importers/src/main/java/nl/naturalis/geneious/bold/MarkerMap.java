@@ -51,18 +51,20 @@ class MarkerMap extends HashMap<String, String> {
         if(containsValue(bold)) {
           throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate BOLD marker: " + bold + ". ");
         }
-        String[] naturalisMarkers = s.substring(x + 2).strip().split(",");
-        for(int i = 0; i < naturalisMarkers.length; ++i) {
-          String naturalis = naturalisMarkers[i].strip();
-          if(naturalis.isEmpty()) {
-            throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
+        if(unmapped.contains(bold)) {
+          String[] naturalisMarkers = s.substring(x + 2).strip().split(",");
+          for(int i = 0; i < naturalisMarkers.length; ++i) {
+            String naturalis = naturalisMarkers[i].strip();
+            if(naturalis.isEmpty()) {
+              throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
+            }
+            if(containsKey(naturalis)) {
+              throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate Naturalis marker: " + naturalis + ". ");
+            }
+            put(naturalis, bold);
           }
-          if(containsKey(naturalis)) {
-            throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate Naturalis marker: " + naturalis + ". ");
-          }
-          put(naturalis, bold);
+          unmapped.remove(bold);
         }
-        unmapped.remove(bold);
       }
       // Map remaining markers in BOLD file to themselves
       unmapped.stream().forEach(s -> put(s, s));
