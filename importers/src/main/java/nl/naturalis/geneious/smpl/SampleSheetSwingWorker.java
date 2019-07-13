@@ -28,7 +28,8 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.ImportStats;
-import nl.naturalis.geneious.util.Messages;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
@@ -102,7 +103,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
       }
       ++good;
       String id = note.getExtractId();
-      Messages.scanningSelectedDocuments(guiLogger, "extract ID", id);
+      Debug.scanningSelectedDocuments(guiLogger, "extract ID", id);
       StoredDocumentList docs0 = selectedDocuments.get(id);
       if(docs0 == null) {
         guiLogger.debugf(() -> format("Not found. Scanning query cache for unselected documents with extract ID %s", id));
@@ -144,7 +145,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     guiLogger.info("          existing document, but the  document was not selected");
     guiLogger.info("          and therefore not updated.");
     guiLogger.info("Import type: update existing documents or create dummies");
-    Messages.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
+    Info.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
     return all;
   }
 
@@ -164,10 +165,10 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
       }
       ++good;
       String id = note.getExtractId();
-      Messages.scanningSelectedDocuments(guiLogger, "extract ID", id);
+      Debug.scanningSelectedDocuments(guiLogger, "extract ID", id);
       StoredDocumentList docs = selectedDocuments.get(id);
       if(docs == null) {
-        Messages.noDocumentsMatchingKey(guiLogger, i + 1);
+        Debug.noDocumentsMatchingKey(guiLogger, i + 1);
         ++unused;
       } else {
         annotateMatchingDocuments(docs, note, updated, id);
@@ -190,7 +191,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     guiLogger.info("          to any of the selected documents, but may or may not");
     guiLogger.info("          correspond to other, unselected documents.");
     guiLogger.info("Import type: update existing documents; do not create dummies");
-    Messages.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
+    Info.operationCompletedSuccessfully(guiLogger, "Sample Sheet Import");
     return all;
   }
 
@@ -229,7 +230,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
   }
 
   private static int annotateMatchingDocuments(StoredDocumentList docs, NaturalisNote note, StoredDocumentList updated, String extractId) {
-    Messages.foundDocumensMatchingKey(guiLogger, "sample sheet", docs);
+    Debug.foundDocumensMatchingKey(guiLogger, "sample sheet", docs);
     int updatedDummies = 0;
     for (StoredDocument doc : docs) {
       if(doc.attach(note)) {
@@ -238,7 +239,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
           ++updatedDummies;
         }
       } else {
-        Messages.noNewValues(guiLogger, "sample sheet", "extract ID", extractId);
+        Debug.noNewValues(guiLogger, "sample sheet", "extract ID", extractId);
       }
     }
     return updatedDummies;

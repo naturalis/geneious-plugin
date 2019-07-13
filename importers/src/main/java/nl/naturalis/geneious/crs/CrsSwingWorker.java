@@ -22,7 +22,8 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.ImportStats;
-import nl.naturalis.geneious.util.Messages;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
@@ -62,18 +63,18 @@ class CrsSwingWorker extends PluginSwingWorker {
       }
       ++good;
       String regno = note.get(SMPL_REGISTRATION_NUMBER);
-      Messages.scanningSelectedDocuments(guiLogger, "reg.no", regno);
+      Debug.scanningSelectedDocuments(guiLogger, "reg.no", regno);
       StoredDocumentList docs = selectedDocuments.get(regno);
       if(docs == null) {
-        Messages.noDocumentsMatchingKey(guiLogger, i + 1);
+        Debug.noDocumentsMatchingKey(guiLogger, i + 1);
         ++unused;
       } else {
-        Messages.foundDocumensMatchingKey(guiLogger, "CRS file", docs);
+        Debug.foundDocumensMatchingKey(guiLogger, "CRS file", docs);
         for (StoredDocument doc : docs) {
           if(doc.attach(note)) {
             updated.add(doc);
           } else {
-            Messages.noNewValues(guiLogger, "CRS file", "reg.no", regno);
+            Debug.noNewValues(guiLogger, "CRS file", "reg.no", regno);
           }
         }
       }
@@ -93,7 +94,7 @@ class CrsSwingWorker extends PluginSwingWorker {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    Messages.operationCompletedSuccessfully(guiLogger, "CRS Import");
+    Info.operationCompletedSuccessfully(guiLogger, "CRS Import");
     return all;
   }
 

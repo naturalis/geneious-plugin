@@ -19,7 +19,7 @@ import nl.naturalis.geneious.csv.CsvImportStats;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Messages;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -51,11 +51,11 @@ class BoldSwingWorker extends PluginSwingWorker {
     MarkerMap markerMap = new MarkerMap(markers);
     DocumentLookupTable lookups = DocumentLookupTable.newInstance(selectedDocuments, markerMap);
     if(markers.isEmpty()) {
-      guiLogger.debug("No marker-related data in BOLD file. Will only create specimen-related annotations");
+      guiLogger.debug("No marker columns BOLD file");
       lookups = lookups.rebuildWithPartialKey();
       importer.importRows(normalizer.getRows(), lookups);
     } else {
-      guiLogger.debugf(() -> format("Will use these BOLD-to-Naturalis marker mappings: %s", toJson(markerMap)));
+      guiLogger.debugf(() -> format("Will use these Naturalis-to-Bold marker mappings: %s", toJson(markerMap)));
       for(String marker : normalizer.getRowsPerMarker().keySet()) {
         List<String[]> rows = normalizer.getRowsPerMarker().get(marker);
         importer.importRows(rows, marker, lookups);
@@ -76,7 +76,7 @@ class BoldSwingWorker extends PluginSwingWorker {
     guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
     guiLogger.info("          correspond to any of the selected documents, but may or");
     guiLogger.info("          may not correspond to other, unselected documents.");
-    Messages.operationCompletedSuccessfully(guiLogger, "BOLD Import");
+    Info.operationCompletedSuccessfully(guiLogger, "BOLD Import");
     return updated == null ? Collections.emptyList() : updated;
   }
 

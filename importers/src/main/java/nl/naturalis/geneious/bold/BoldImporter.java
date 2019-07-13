@@ -15,7 +15,7 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Messages;
+import nl.naturalis.geneious.util.Messages.*;
 
 /**
  * Imports rows for one specific marker. This class can also be used to extract only specimen-related information from
@@ -25,14 +25,14 @@ import nl.naturalis.geneious.util.Messages;
  */
 class BoldImporter {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldImporter.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(BoldImporter.class);
 
   private final BoldImportConfig cfg;
   private final RuntimeInfo runtime;
 
   /**
    * Creates a new {@code BoldImporter} instance configured using the provided configuration object and updating the
-   * provided {@code RuntimeInfo} object as it proceeds.
+   * provided runtime object as it proceeds.
    * 
    * @param cfg
    * @param runtime
@@ -63,9 +63,9 @@ class BoldImporter {
    */
   void importRows(List<String[]> rows, String marker, DocumentLookupTable lookups) {
     if(marker == null) {
-      guiLogger.info(">>>> Processing specimen-related columns only (matching on registration number)");
+      logger.info(">>> Processing remainder (matching on registration number only)");
     } else {
-      guiLogger.info(">>>> Processing marker \"%s\"", marker);
+      logger.info(">>> Processing marker %s", marker);
     }
     int updated = 0; // The number of updates for this particular marker
     for(int i = 0; i < rows.size(); ++i) {
@@ -76,22 +76,27 @@ class BoldImporter {
       BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
       String regno = row.get(SAMPLE_ID);
       if(regno == null) {
-        guiLogger.error("Invalid row at line %d: missing CRS registration number", line);
+        Warn.missingKey(logger, "CRS registration number", line);
         runtime.markBad(i);
         continue;
       }
       if(marker != null & row.get(SEQ_LENGTH) == null) {
-        guiLogger.info("Ignoring row at line %d: no value for marker %s", line, marker);
+        logger.info("Ignoring row at line %d: no value for marker %s", line, marker);
         continue;
       }
       BoldKey key = new BoldKey(regno, marker);
-      Messages.scanningSelectedDocuments(guiLogger, "key", toJson(key));
+      Integer prevLine = runtime.checkKey(key, line);
+      if(prevLine != null) {
+        Warn.duplicateKey(logger, key, line, prevLine);
+        continue;
+      }
+      Debug.scanningSelectedDocuments(logger, "key", toJson(key));
       Set<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
         continue;
       }
-      Messages.foundDocumensMatchingKey(guiLogger, "BOLD file", docs);
-      guiLogger.debug("Line %d: %s", line, toJson(rows.get(i)));
+      Debug.foundDocumensMatchingKey(logger, "BOLD file", docs);
+      logger.debug("Line %d: %s", line, toJson(rows.get(i)));
       NaturalisNote note = createNote(row, line, marker == null);
       if(note == null) {
         runtime.markBad(i);
@@ -103,15 +108,15 @@ class BoldImporter {
           runtime.updated(doc);
           ++updated;
         } else {
-          Messages.noNewValues(guiLogger, "BOLD file", "key", toJson(key));
+          Debug.noNewValues(logger, "BOLD file", "key", toJson(key));
         }
       }
       lookups.remove(key);
     }
     if(marker == null) {
-      guiLogger.info("%d document%s updated using only specimen-related columns in BOLD file", updated, plural(updated));
+      logger.info("%d document%s updated while matching on registration number only", updated, plural(updated));
     } else {
-      guiLogger.info("%d document%s updated for marker %s", updated, plural(updated), marker);
+      logger.info("%d document%s updated for marker %s", updated, plural(updated), marker);
     }
   }
 
@@ -119,10 +124,10 @@ class BoldImporter {
     BoldNoteFactory factory = new BoldNoteFactory(line, row, ignoreMarkerColumns);
     try {
       NaturalisNote note = factory.createNote();
-      guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
+      logger.debugf(() -> format("Note created: %s", toJson(note)));
       return note;
     } catch(InvalidRowException e) {
-      guiLogger.error(e.getMessage());
+      logger.error(e.getMessage());
       return null;
     }
   }

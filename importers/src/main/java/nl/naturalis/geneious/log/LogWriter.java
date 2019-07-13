@@ -104,7 +104,7 @@ class LogWriter {
     StringBuilder sb = new StringBuilder(160);
     sb.append(rpad(dtf.format(record.timestamp), 23, terminator));
     if (logLevel == DEBUG) {
-      sb.append(rpad(record.clazz.getSimpleName(), 25, terminator));
+      sb.append(rpad(record.clazz.getSimpleName(), 22, terminator));
     }
     sb.append(rpad(record.level, 6, terminator));
     if (!StringUtils.isEmpty(record.message)) {

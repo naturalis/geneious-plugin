@@ -1,9 +1,11 @@
 package nl.naturalis.geneious.csv;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import nl.naturalis.geneious.StoredDocument;
+import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
  * Maintains tallies and other types of objects accumulating or evolving as a CSV import operation proceeds.
@@ -15,58 +17,67 @@ public class RuntimeInfo {
 
   private final boolean[] badRows;
   private final boolean[] usedRows;
-  private final Set<StoredDocument> updated;
+  private final HashSet<StoredDocument> updated;
+  // Maps document table lookup keys to row numbers
+  private final HashMap<Object, Integer> duplicates;
 
   public RuntimeInfo(int numRows) {
     this.badRows = new boolean[numRows];
     this.usedRows = new boolean[numRows];
     this.updated = new HashSet<>();
+    this.duplicates = new HashMap<>();
   }
 
+  /**
+   * Returns the number of rows that were successfully concerted to a {@link NaturalisNote}.
+   * 
+   * @return
+   */
   public int countGoodRows() {
-    int x = 0;
-    for(boolean bad : badRows) {
-      if(!bad) {
-        ++x;
-      }
-    }
-    return x;
+    return count(badRows, false);
   }
 
+  /**
+   * Returns the number of invalid or empty rows.
+   * 
+   * @return
+   */
   public int countBadRows() {
-    int x = 0;
-    for(boolean bad : badRows) {
-      if(bad) {
-        ++x;
-      }
-    }
-    return x;
+    return count(badRows, true);
   }
 
+  /**
+   * Returns the number of rows that matched one or more selected selected documents.
+   * 
+   * @return
+   */
   public int countUsedRows() {
-    int x = 0;
-    for(boolean used : usedRows) {
-      if(used) {
-        ++x;
-      }
-    }
-    return x;
+    return count(usedRows, true);
   }
 
+  /**
+   * Returns the number of rows matching none of the selected documents.
+   * 
+   * @return
+   */
   public int countUnusedRows() {
-    int x = 0;
-    for(boolean used : usedRows) {
-      if(!used) {
-        ++x;
-      }
-    }
-    return x;
+    return count(usedRows, false);
   }
 
+  /**
+   * Returns the documents that were updated (at least one annotation added or changed).
+   * 
+   * @return
+   */
   public Set<StoredDocument> getUpdatedDocuments() {
     return updated;
   }
 
+  /**
+   * Returns the number of updated documents.
+   * 
+   * @return
+   */
   public int countUpdatedDocuments() {
     return updated.size();
   }
@@ -118,6 +129,37 @@ public class RuntimeInfo {
    */
   public void updated(StoredDocument doc) {
     updated.add(doc);
+  }
+
+  /**
+   * Checks if the provided key is a duplicate and, if so, returns the line number of the row containing that key. If the
+   * provided key is not a duplicate, null is returned and the key is cached and associated with the provided line number.
+   * 
+   * @param key
+   * @return
+   */
+  public Integer checkKey(Object key, int line) {
+    return duplicates.putIfAbsent(key, line);
+  }
+
+  /**
+   * Add the provided key found in the row at the specified line.
+   * 
+   * @param key
+   * @param lineNumber
+   */
+  public void addKey(Object key, int lineNumber) {
+    duplicates.put(key, lineNumber);
+  }
+
+  private static int count(boolean[] array, boolean value) {
+    int x = 0;
+    for(boolean b : array) {
+      if(b == value) {
+        ++x;
+      }
+    }
+    return x;
   }
 
 }

@@ -18,7 +18,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.StorableDocument;
-import nl.naturalis.geneious.util.Messages;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -95,7 +95,7 @@ class Ab1FastaSwingWorker extends PluginSwingWorker {
         guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
         guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
-      Messages.operationCompletedSuccessfully(guiLogger, "AB1/Fasta Import");
+      Info.operationCompletedSuccessfully(guiLogger, "AB1/Fasta Import");
       return created;
     }
   }
