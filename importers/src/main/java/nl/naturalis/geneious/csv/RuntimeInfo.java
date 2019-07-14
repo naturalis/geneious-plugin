@@ -18,7 +18,7 @@ public class RuntimeInfo {
   private final boolean[] badRows;
   private final boolean[] usedRows;
   private final HashSet<StoredDocument> updated;
-  // Maps document table lookup keys to row numbers
+  // Maps the key of a row the one-based line number of the row
   private final HashMap<Object, Integer> duplicates;
 
   public RuntimeInfo(int numRows) {
@@ -83,42 +83,42 @@ public class RuntimeInfo {
   }
 
   /**
-   * Where or not the provided array index corresponds to a row in a BOLD spreadsheet that has already been marked as a
-   * bad (unprocessable) row.
+   * Where or not the provided (absolute and zero-based) row number corresponds to a row in a BOLD spreadsheet that has
+   * already been marked as a bad (unprocessable) row.
    * 
-   * @param arrayIndex
+   * @param rownum
    * @return
    */
-  public boolean isBadRow(int arrayIndex) {
-    return badRows[arrayIndex];
+  public boolean isBadRow(int rownum) {
+    return badRows[rownum];
   }
 
   /**
-   * Mark the row corresponding to the provided array index as a bad (unprocessable) row.
+   * Mark the row corresponding to the provided row number as a bad (unprocessable) row.
    * 
-   * @param arrayIndex
+   * @param rownum
    */
-  public void markBad(int arrayIndex) {
-    badRows[arrayIndex] = true;
+  public void markBad(int rownum) {
+    badRows[rownum] = true;
   }
 
   /**
-   * Where or not the provided array index corresponds to a row matching one or more selected documents.
+   * Where or not the provided (absolute and zero-based) c corresponds to a row matching one or more selected documents.
    * 
-   * @param arrayIndex
+   * @param rownum
    * @return
    */
-  public boolean isUsedRow(int arrayIndex) {
-    return usedRows[arrayIndex];
+  public boolean isUsedRow(int rownum) {
+    return usedRows[rownum];
   }
 
   /**
-   * Mark the row corresponding to the provided array index as matching one or more selected documents.
+   * Mark the row corresponding to the provided array row number as matching one or more selected documents.
    * 
-   * @param arrayIndex
+   * @param rownum
    */
-  public void markUsed(int arrayIndex) {
-    usedRows[arrayIndex] = true;
+  public void markUsed(int rownum) {
+    usedRows[rownum] = true;
   }
 
   /**
@@ -132,8 +132,9 @@ public class RuntimeInfo {
   }
 
   /**
-   * Checks if the provided key is a duplicate and, if so, returns the line number of the row containing that key. If the
-   * provided key is not a duplicate, null is returned and the key is cached and associated with the provided line number.
+   * Checks if the provided key is a duplicate and, if so, returns the line number of the first row containing that same
+   * key. If the provided key is not a duplicate, null is returned and the key is cached and associated with the provided
+   * line number.
    * 
    * @param key
    * @return

@@ -7,7 +7,6 @@ import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 import java.util.List;
-import java.util.Set;
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
@@ -15,7 +14,8 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Messages.*;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Warn;
 
 /**
  * Imports rows for one specific marker. This class can also be used to extract only specimen-related information from
@@ -63,7 +63,7 @@ class BoldImporter {
    */
   void importRows(List<String[]> rows, String marker, DocumentLookupTable lookups) {
     if(marker == null) {
-      logger.info(">>> Processing remainder (matching on registration number only)");
+      logger.info(">>> Processing remaining documents (matching on registration number only)");
     } else {
       logger.info(">>> Processing marker %s", marker);
     }
@@ -73,6 +73,7 @@ class BoldImporter {
         continue;
       }
       int line = i + cfg.getSkipLines() + 1;
+      logger.debug("Line %d: %s", line, toJson(rows.get(i)));
       BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
       String regno = row.get(SAMPLE_ID);
       if(regno == null) {
@@ -91,12 +92,12 @@ class BoldImporter {
         continue;
       }
       Debug.scanningSelectedDocuments(logger, "key", toJson(key));
-      Set<StoredDocument> docs = lookups.get(key);
+      List<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
+        Debug.noDocumentsMatchingKey(logger);
         continue;
       }
       Debug.foundDocumensMatchingKey(logger, "BOLD file", docs);
-      logger.debug("Line %d: %s", line, toJson(rows.get(i)));
       NaturalisNote note = createNote(row, line, marker == null);
       if(note == null) {
         runtime.markBad(i);

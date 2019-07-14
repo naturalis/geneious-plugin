@@ -61,19 +61,13 @@ public class Messages {
     }
 
     /**
-     * <i>Not found. Row at line &#46;&#46;&#46; remains unused</i>
+     * <i>None found. Row at line &#46;&#46;&#46; with key &#46;&#46;&#46; remains unused</i>
      * 
      * @param logger
      * @param line
      */
-    public static void noDocumentsMatchingKey(GuiLogger logger, int line) {
-      if(logger.isDebugEnabled()) {
-        StringBuilder sb = new StringBuilder(48)
-            .append("None found. Row at line ")
-            .append(line)
-            .append(" remains unused");
-        logger.debug(sb.toString());
-      }
+    public static void noDocumentsMatchingKey(GuiLogger logger) {
+      logger.debug(() -> "None found");
     }
 
     /**
