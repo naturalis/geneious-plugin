@@ -1,8 +1,8 @@
 package nl.naturalis.geneious.csv;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
@@ -17,14 +17,13 @@ public class RuntimeInfo {
 
   private final boolean[] badRows;
   private final boolean[] usedRows;
-  private final HashSet<StoredDocument> updated;
-  // Maps the key of a row the one-based line number of the row
-  private final HashMap<Object, Integer> duplicates;
+  private final ArrayList<StoredDocument> updated;
+  private final HashMap<Object, Integer> duplicates; // Maps keys to line numbers
 
   public RuntimeInfo(int numRows) {
     this.badRows = new boolean[numRows];
     this.usedRows = new boolean[numRows];
-    this.updated = new HashSet<>();
+    this.updated = new ArrayList<>();
     this.duplicates = new HashMap<>();
   }
 
@@ -69,7 +68,7 @@ public class RuntimeInfo {
    * 
    * @return
    */
-  public Set<StoredDocument> getUpdatedDocuments() {
+  public List<StoredDocument> getUpdatedDocuments() {
     return updated;
   }
 
@@ -122,8 +121,8 @@ public class RuntimeInfo {
   }
 
   /**
-   * Add the provided document to the set of documents that were updated during the operation (at least one annotation was
-   * added/changed/removed).
+   * Adds the provided document to the set of documents that were updated during the operation (i&#46;e&#46; at least one
+   * annotation was added/changed/removed).
    * 
    * @param doc
    */
@@ -132,25 +131,15 @@ public class RuntimeInfo {
   }
 
   /**
-   * Checks if the provided key is a duplicate and, if so, returns the line number of the first row containing that same
+   * Checks if the provided key is a duplicate and, if so, returns the line number of the first row containing the same
    * key. If the provided key is not a duplicate, null is returned and the key is cached and associated with the provided
    * line number.
    * 
    * @param key
    * @return
    */
-  public Integer checkKey(Object key, int line) {
+  public Integer checkAndAddKey(Object key, int line) {
     return duplicates.putIfAbsent(key, line);
-  }
-
-  /**
-   * Add the provided key found in the row at the specified line.
-   * 
-   * @param key
-   * @param lineNumber
-   */
-  public void addKey(Object key, int lineNumber) {
-    duplicates.put(key, lineNumber);
   }
 
   private static int count(boolean[] array, boolean value) {

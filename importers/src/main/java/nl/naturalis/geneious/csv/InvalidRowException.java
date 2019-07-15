@@ -22,10 +22,10 @@ public class InvalidRowException extends Exception {
   public static <T extends Enum<T>> InvalidRowException custom(NoteFactory<T> factory, String msg, Object... msgArgs) {
     if (msgArgs.length == 0) {
       String fmt = MSG_BASE + msg;
-      return new InvalidRowException(String.format(fmt, factory.getRownum()));
+      return new InvalidRowException(String.format(fmt, factory.getLineNumber()));
     }
     Object[] args = new Object[msgArgs.length + 1];
-    args[0] = Integer.valueOf(factory.getRownum());
+    args[0] = Integer.valueOf(factory.getLineNumber());
     System.arraycopy(msgArgs, 0, args, 1, msgArgs.length);
     return new InvalidRowException(String.format(MSG_BASE + msg, args));
   }
@@ -38,7 +38,7 @@ public class InvalidRowException extends Exception {
    * @return
    */
   public static <T extends Enum<T>> InvalidRowException missingValue(NoteFactory<T> factory, T column) {
-    String msg = String.format(MSG_MISSING_VALUE, factory.getRownum(), column.toString());
+    String msg = String.format(MSG_MISSING_VALUE, factory.getLineNumber(), column.toString());
     return new InvalidRowException(msg);
   }
 

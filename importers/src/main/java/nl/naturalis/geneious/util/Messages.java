@@ -1,9 +1,15 @@
 package nl.naturalis.geneious.util;
 
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
+
 import java.util.Collection;
 
 import nl.naturalis.geneious.StoredDocument;
+import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
  * Common messages emitted by all operations.
@@ -17,6 +23,27 @@ public class Messages {
     private Debug() {}
 
     /**
+     * Displays the row currently being processed.
+     * 
+     * @param logger
+     * @param line
+     * @param row
+     */
+    public static void showRow(GuiLogger logger, int line, String[] row) {
+      logger.debugf(() -> format("Line %d: %s", line, toJson(row)));
+    }
+
+    /**
+     * Displayes the annotations (in the form of a {@code NaturalisNote}) created from a row.
+     * 
+     * @param logger
+     * @param note
+     */
+    public static void showNote(GuiLogger logger, NaturalisNote note) {
+      logger.debugf(() -> format("Note created: %s", toJson(note)));
+    }
+
+    /**
      * <i>Scanning selected documents for &#46;&#46;&#46;</i>
      * 
      * @param logger
@@ -24,44 +51,24 @@ public class Messages {
      * @param keyValue
      */
     public static void scanningSelectedDocuments(GuiLogger logger, String keyName, Object keyValue) {
-      if(logger.isDebugEnabled()) {
-        StringBuilder sb = new StringBuilder(48)
-            .append("Scanning selected documents for ")
-            .append(keyName)
-            .append(' ')
-            .append(keyValue);
-        logger.debug(sb.toString());
-      }
+      logger.debugf(() -> format("Scanning selected documents for %s %s", keyName, keyValue));
     }
 
     /**
-     * <i>Found &#46;&#46;&#46; matching document(s). Comparing values &#46;&#46;&#46;</i>
+     * <i>Found X matching document(s). Comparing values &#46;&#46;&#46;</i>
      * 
      * @param logger
      * @param file
      * @param matchingDocuments
      */
-    public static void foundDocumensMatchingKey(GuiLogger logger, String file, Collection<StoredDocument> matchingDocuments) {
-      if(logger.isDebugEnabled()) {
-        String s = matchingDocuments.size() == 1 ? "" : "s";
-        StringBuilder sb = new StringBuilder(96)
-            .append("Found ")
-            .append(matchingDocuments.size())
-            .append(" matching document")
-            .append(s)
-            .append(". Comparing values in ")
-            .append(file)
-            .append(" with values in document")
-            .append(s)
-            .append(" (updating document")
-            .append(s)
-            .append(" if necessary)");
-        logger.debug(sb.toString());
-      }
+    public static void foundDocumensMatchingKey(GuiLogger logger, String file, Collection<StoredDocument> documents) {
+      int x = documents.size();
+      logger.debugf(() -> format("Found %1$d matching document%2$s. Comparing values in document%2$s with values in %3$s",
+          x, plural(x), file));
     }
 
     /**
-     * <i>None found. Row at line &#46;&#46;&#46; with key &#46;&#46;&#46; remains unused</i>
+     * <i>None found</i>
      * 
      * @param logger
      * @param line
@@ -71,7 +78,7 @@ public class Messages {
     }
 
     /**
-     * <i>Document &#46;&#46;&#46; not updated (no new values in &#46;&#46;&#46;)</i>
+     * <i>Document X not updated (no new values in Y)</i>
      * 
      * @param logger
      * @param file
@@ -79,17 +86,7 @@ public class Messages {
      * @param keyValue
      */
     public static void noNewValues(GuiLogger logger, String file, String keyName, Object keyValue) {
-      if(logger.isDebugEnabled()) {
-        StringBuilder sb = new StringBuilder(96)
-            .append("Document with ")
-            .append(keyName)
-            .append(' ')
-            .append(keyValue)
-            .append(" not updated (no new values in ")
-            .append(file)
-            .append(')');
-        logger.debug(sb.toString());
-      }
+      logger.debugf(() -> format("Document with %s %s not updated. No new values in %s", keyName, keyValue, file));
     }
   }
 
@@ -97,7 +94,29 @@ public class Messages {
     private Info() {}
 
     /**
-     * <i>&#46;&#46;&#46; completed successfully</i>
+     * Informational message indicating that the source file (a CSV-like file in this case) is being loaded into memory.
+     * 
+     * @param logger
+     * @param file
+     * @param config
+     */
+    public static void loadingFile(GuiLogger logger, String file, CsvImportConfig<?> config) {
+      logger.info("Loading " + config.getFile().getPath());
+    }
+
+    /**
+     * Displays the number of rows in the source file.
+     * 
+     * @param logger
+     * @param file
+     * @param rowCount
+     */
+    public static void displayRowCount(GuiLogger logger, String file, int rowCount) {
+      logger.info("%s contains %s row%s (excluding header rows)", file, rowCount, plural(rowCount));
+    }
+
+    /**
+     * <i>X completed successfully</i>
      * 
      * @param logger
      * @param operation

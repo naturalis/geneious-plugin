@@ -86,7 +86,7 @@ class BoldImporter {
         continue;
       }
       BoldKey key = new BoldKey(regno, marker);
-      Integer prevLine = runtime.checkKey(key, line);
+      Integer prevLine = runtime.checkAndAddKey(key, line);
       if(prevLine != null) {
         Warn.duplicateKey(logger, key, line, prevLine);
         continue;

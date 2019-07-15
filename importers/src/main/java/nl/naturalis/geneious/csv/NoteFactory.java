@@ -16,18 +16,18 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public abstract class NoteFactory<T extends Enum<T>> {
 
-  private int rownum;
+  private int line;
   private EnumMap<T, String> cells;
 
   /**
    * Creates a {@link NoteFactory} for the provided row ({@code cells}). The provided row number is used for reporting
-   * only and must be a user-friendly (i.e. one-based) number.
+   * only and must be the absolute (including header rows) and user-friendly (one-based) line number of the row.
    * 
-   * @param rownum
+   * @param lineNumber
    * @param cells
    */
-  protected NoteFactory(int rownum, EnumMap<T, String> cells) {
-    this.rownum = rownum;
+  protected NoteFactory(int lineNumber, EnumMap<T, String> cells) {
+    this.line = lineNumber;
     this.cells = cells;
   }
 
@@ -58,8 +58,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
    * 
    * @return
    */
-  protected int getRownum() {
-    return rownum;
+  protected int getLineNumber() {
+    return line;
   }
 
   /**
@@ -82,7 +82,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
    */
   protected String getRequired(T column) throws InvalidRowException {
     String s = cells.get(column);
-    if (s == null) {
+    if(s == null) {
       throw InvalidRowException.missingValue(this, column);
     }
     return s;
@@ -97,7 +97,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
    */
   protected void setValue(NaturalisNote note, NaturalisField field, T column) {
     String val = get(column);
-    if (val != null) {
+    if(val != null) {
       note.parseAndSet(field, val);
     }
   }
@@ -129,7 +129,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
   protected void setValue(NaturalisNote note, NaturalisField field, T column,
       ThrowingFunction<String, Object, InvalidRowException> transformer) throws InvalidRowException {
     Object val = transformer.apply(get(column));
-    if (val != null) {
+    if(val != null) {
       note.castAndSet(field, val);
     }
   }

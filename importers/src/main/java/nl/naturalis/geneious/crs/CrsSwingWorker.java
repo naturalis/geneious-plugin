@@ -2,7 +2,6 @@ package nl.naturalis.geneious.crs;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static java.util.stream.Collectors.toList;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
@@ -32,29 +31,30 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 class CrsSwingWorker extends PluginSwingWorker {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(CrsSwingWorker.class);
+  private static final String FILE_DESCRIPTION = "CRS file";
 
-  private final CrsImportConfig cfg;
+  private final CrsImportConfig config;
 
-  CrsSwingWorker(CrsImportConfig cfg) {
-    this.cfg = cfg;
+  CrsSwingWorker(CrsImportConfig config) {
+    this.config = config;
   }
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
-    List<AnnotatedPluginDocument> selectedDocuments = cfg.getSelectedDocuments();
+    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
     PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
     validator.validate();
-    logger.info("Loading CRS file " + cfg.getFile().getPath());
-    List<String[]> rows = new RowSupplier(cfg).getAllRows();
-    int numRows = rows.size() - cfg.getSkipLines();
-    logger.info("CRS file contains %s row%s (excluding header rows)", numRows, plural(numRows));
+    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    List<String[]> rows = new RowSupplier(config).getAllRows();
+    int numRows = rows.size() - config.getSkipLines();
+    Info.displayRowCount(logger, FILE_DESCRIPTION, numRows);
     RuntimeInfo runtime = new RuntimeInfo(numRows);
-    CrsImporter importer = new CrsImporter(cfg, runtime);
-    StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getRegno);
+    CrsImporter importer = new CrsImporter(config, runtime);
+    StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> updated = null;
-    if(runtime.countUpdatedDocuments() != 0) {
+    if(runtime.countUpdatedDocuments() > 0) {
       runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
       updated = runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).collect(toList());
       updated = addAndReturnGeneratedDocuments(updated, true, Collections.emptyList());
@@ -64,11 +64,11 @@ class CrsSwingWorker extends PluginSwingWorker {
     logger.info("UNUSED ROW (explanation): The row's registration number did not");
     logger.info("          correspond to any of the selected documents, but may or");
     logger.info("          may not correspond to other, unselected documents.");
-    Info.operationCompletedSuccessfully(logger, "CRS Import");
+    Info.operationCompletedSuccessfully(logger, getLogTitle());
     return updated == null ? Collections.emptyList() : updated;
   }
 
-  private String getRegno(StoredDocument sd) {
+  private String getKey(StoredDocument sd) {
     return sd.getNaturalisNote().get(SMPL_REGISTRATION_NUMBER);
   }
 

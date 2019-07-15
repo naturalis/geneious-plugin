@@ -17,7 +17,7 @@ import nl.naturalis.geneious.StoredDocument;
 public class StoredDocumentList extends ArrayList<StoredDocument> {
 
   public StoredDocumentList() {
-    super(4);
+    super(8);
   }
 
   public StoredDocumentList(int capacity) {
