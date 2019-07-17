@@ -29,33 +29,36 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  */
 class BoldSwingWorker extends PluginSwingWorker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(BoldSwingWorker.class);
+  static final String FILE_DESCRIPTION = "BOLD file";
+  static final String KEY_NAME = "registration number";
 
-  private final BoldImportConfig cfg;
+  private static final GuiLogger logger = GuiLogManager.getLogger(BoldSwingWorker.class);
 
-  BoldSwingWorker(BoldImportConfig cfg) {
-    this.cfg = cfg;
+  private final BoldImportConfig config;
+
+  BoldSwingWorker(BoldImportConfig config) {
+    this.config = config;
   }
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
-    List<AnnotatedPluginDocument> selectedDocuments = cfg.getSelectedDocuments();
+    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
     PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
     validator.validate();
-    guiLogger.info("Loading BOLD file " + cfg.getFile().getPath());
-    BoldNormalizer normalizer = new BoldNormalizer(cfg);
+    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    BoldNormalizer normalizer = new BoldNormalizer(config);
     RuntimeInfo runtime = new RuntimeInfo(normalizer.countRows());
-    BoldImporter importer = new BoldImporter(cfg, runtime);
+    BoldImporter importer = new BoldImporter(config, runtime);
     List<String> markers = normalizer.getMarkers();
     MarkerMap markerMap = new MarkerMap(markers);
     DocumentLookupTable lookups = DocumentLookupTable.newInstance(selectedDocuments, markerMap);
     if(markers.isEmpty()) {
-      guiLogger.debug("No marker columns BOLD file");
+      logger.debug("No marker columns BOLD file");
       lookups = lookups.rebuildWithPartialKey();
       importer.importRows(normalizer.getRows(), lookups);
     } else {
-      guiLogger.debugf(() -> format("Will use these Naturalis-to-Bold marker mappings: %s", toJson(markerMap)));
+      logger.debugf(() -> format("Will use these Naturalis-to-Bold marker mappings: %s", toJson(markerMap)));
       for(String marker : normalizer.getRowsPerMarker().keySet()) {
         List<String[]> rows = normalizer.getRowsPerMarker().get(marker);
         importer.importRows(rows, marker, lookups);
@@ -72,11 +75,11 @@ class BoldSwingWorker extends PluginSwingWorker {
       updated = addAndReturnGeneratedDocuments(updated, true, Collections.emptyList());
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
-    stats.print(guiLogger);
-    guiLogger.info("UNUSED ROW (explanation): The row's registration number did not");
-    guiLogger.info("          correspond to any of the selected documents, but may or");
-    guiLogger.info("          may not correspond to other, unselected documents.");
-    Info.operationCompletedSuccessfully(guiLogger, "BOLD Import");
+    stats.print(logger);
+    logger.info("UNUSED ROW (explanation): The row's registration number was not");
+    logger.info("           found in any of the selected documents, but may still");
+    logger.info("           be present in other, unselected documents");
+    Info.operationCompletedSuccessfully(logger, FILE_DESCRIPTION);
     return updated == null ? Collections.emptyList() : updated;
   }
 

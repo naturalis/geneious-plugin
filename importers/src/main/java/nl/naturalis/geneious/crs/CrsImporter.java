@@ -1,6 +1,7 @@
 package nl.naturalis.geneious.crs;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.crs.CrsSwingWorker.FILE_DESCRIPTION;
+import static nl.naturalis.geneious.crs.CrsSwingWorker.KEY_NAME;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 import java.util.List;
@@ -24,8 +25,6 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
 class CrsImporter {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(CrsImporter.class);
-  private static final String KEY_NAME = "registration number";
-
   private final CrsImportConfig config;
   private final RuntimeInfo runtime;
 
@@ -48,9 +47,9 @@ class CrsImporter {
    * @param lookups
    */
   void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) {
-    for(int i = config.getSkipLines(); i < rows.size(); ++i) {
-      int line = i + 1;
-      logger.debug("Line %d: %s", line, toJson(rows.get(i)));
+    for(int i = 0; i < rows.size(); ++i) {
+      int line = i + +config.getSkipLines() + 1;
+      Debug.showRow(logger, line, rows.get(i));
       CrsRow row = new CrsRow(config.getColumnNumbers(), rows.get(i));
       String key = row.get(CrsColumn.REGISTRATION_NUMBER);
       if(key == null) {
@@ -79,7 +78,7 @@ class CrsImporter {
         if(doc.attach(note)) {
           runtime.updated(doc);
         } else {
-          Debug.noNewValues(logger, "CRS file", KEY_NAME, toJson(key));
+          Debug.noNewValues(logger, FILE_DESCRIPTION, KEY_NAME, toJson(key));
         }
       }
       lookups.remove(key);
@@ -90,7 +89,7 @@ class CrsImporter {
     CrsNoteFactory factory = new CrsNoteFactory(line, row);
     try {
       NaturalisNote note = factory.createNote();
-      logger.debugf(() -> format("Note created: %s", toJson(note)));
+      Debug.showNote(logger, note);
       return note;
     } catch(InvalidRowException e) {
       logger.error(e.getMessage());

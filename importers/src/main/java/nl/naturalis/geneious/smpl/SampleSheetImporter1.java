@@ -1,5 +1,8 @@
 package nl.naturalis.geneious.smpl;
 
+import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.FILE_DESCRIPTION;
+import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.KEY_NAME;
+
 import java.util.List;
 
 import nl.naturalis.geneious.StoredDocument;
@@ -12,10 +15,16 @@ import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
+/**
+ * The sample sheet importer that runs when the user has opted <i>not</i> to create place-holder documents
+ * (a#&46;k&#46;a#&46; dummies) for rows whose extract ID does not correspond to any document, selected or not.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 public class SampleSheetImporter1 {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetImporter1.class);
-  private static final String KEY_NAME = "extract ID";
 
   private final SampleSheetImportConfig config;
   private final RuntimeInfo runtime;
@@ -41,8 +50,8 @@ public class SampleSheetImporter1 {
    * @param lookups
    */
   void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) {
-    for(int i = config.getSkipLines(); i < rows.size(); ++i) {
-      int line = i + 1;
+    for(int i = 0; i < rows.size(); ++i) {
+      int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       SampleSheetRow row = new SampleSheetRow(config.getColumnNumbers(), rows.get(i));
       String key = row.get(SampleSheetColumn.EXTRACT_ID);
@@ -68,12 +77,11 @@ public class SampleSheetImporter1 {
         continue;
       }
       runtime.markUsed(i);
-      Debug.showNote(logger, note);
       for(StoredDocument doc : docs) {
         if(doc.attach(note)) {
           runtime.updated(doc);
         } else {
-          Debug.noNewValues(logger, "sample sheet", KEY_NAME, key);
+          Debug.noNewValues(logger, FILE_DESCRIPTION, KEY_NAME, key);
         }
       }
       lookups.remove(key);
@@ -83,7 +91,9 @@ public class SampleSheetImporter1 {
   private static NaturalisNote createNote(SampleSheetRow row, int line) {
     SmplNoteFactory factory = new SmplNoteFactory(line, row);
     try {
-      return factory.createNote();
+      NaturalisNote note = factory.createNote();
+      Debug.showNote(logger, note);
+      return note;
     } catch(InvalidRowException e) {
       logger.error(e.getMessage());
       return null;

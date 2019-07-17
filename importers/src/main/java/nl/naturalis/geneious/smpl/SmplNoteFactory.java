@@ -35,10 +35,11 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 
   private static final Pattern PTTRN_EXTRACT_ID = Pattern.compile("^\\d{4,16}$");
   private static final String CONSTANT_VALUE_AMPL_STAFF = "Naturalis Biodiversity Center Laboratories";
-  private static final String ERR_MSSING_HYPHEN = "missing hyphen ('-') in value for %s: %s";
+  private static final String ERR_MSSING_HYPHEN = "missing hyphen ('-') in value for %s: %s";  
+  
 
-  SmplNoteFactory(int rownum, SampleSheetRow row) {
-    super(rownum, row);
+  SmplNoteFactory(int line, SampleSheetRow row) {
+    super(line, row);
   }
 
   @Override

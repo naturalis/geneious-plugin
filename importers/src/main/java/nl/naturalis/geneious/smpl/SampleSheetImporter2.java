@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toSet;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.FILE_DESCRIPTION;
+import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.KEY_NAME;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +29,16 @@ import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.StoredDocumentList;
 import nl.naturalis.geneious.util.StoredDocumentTable;
 
+/**
+ * The sample sheet importer that runs when the user has opted to create place-holder documents (a#&46;k&#46;a#&46;
+ * dummies) for rows whose extract ID does not correspond to any document, selected or not.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 class SampleSheetImporter2 {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetImporter1.class);
-  private static final String KEY_NAME = "extract ID";
 
   private final SampleSheetImportConfig config;
   private final RuntimeInfo runtime;
@@ -51,9 +59,8 @@ class SampleSheetImporter2 {
   }
 
   /**
-   * Processes the provided rows, using them to enrich the provided documents. The documents come in the form of a fast
-   * lookup table so they can be quickly scanned for each and every row. The lookup table is keyed on the document's
-   * extract ID.
+   * Processes the provided rows, using them to enrich the provided documents. The documents are cached into a lookup
+   * table so they can be quickly scanned for each and every row. The lookup table is keyed on the document's extract ID.
    * 
    * @param rows
    * @param lookups
@@ -61,13 +68,14 @@ class SampleSheetImporter2 {
    */
   void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) throws DatabaseServiceException {
     /*
-     * First, get all extract IDs in the sample sheet that do not correspond to any of the selected documents. Only for
-     * those IDs do we need to check whether or not they exist at all in the Geneious database.
+     * Collect all extract IDs in the sample sheet that do not correspond to any of the selected documents. For those IDs we
+     * need to check whether or not they exist at all in the Geneious database.
      */
-    logger.info("Collecting extract IDs");
+    logger.info("Collecting extract IDs in sample sheet");
     Set<String> idsInSampleSheet = collectIdsInSampleSheet(rows);
     Set<String> extraIds = idsInSampleSheet.stream().filter(not(lookups::containsKey)).collect(toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIds);
+    // All documents that correspond to a sample sheet row, but that were not selected by the user
     StoredDocumentTable<String> unselected = new StoredDocumentTable<>(searchResult, this::getKey);
     // The extract IDs that are both in the sample sheet and in the selected documents:
     int overlap = (int) idsInSampleSheet.stream().filter(lookups::containsKey).count();
@@ -82,8 +90,8 @@ class SampleSheetImporter2 {
     logger.info("Sample sheet contains %s new extract ID%s", newIds, plural(newIds));
     newDummies = new ArrayList<>(newIds);
     updatedDummies = new ArrayList<>();
-    for(int i = config.getSkipLines(); i < rows.size(); ++i) {
-      int line = i + 1;
+    for(int i = 0; i < rows.size(); ++i) {
+      int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       SampleSheetRow row = new SampleSheetRow(config.getColumnNumbers(), rows.get(i));
       String key = row.get(SampleSheetColumn.EXTRACT_ID);
@@ -102,7 +110,6 @@ class SampleSheetImporter2 {
         runtime.markBad(i);
         continue;
       }
-      Debug.showNote(logger, note);
       Debug.scanningSelectedDocuments(logger, KEY_NAME, key);
       List<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
@@ -123,10 +130,20 @@ class SampleSheetImporter2 {
     }
   }
 
+  /**
+   * Returns the dummy documents created by the importer.
+   * 
+   * @return
+   */
   List<StoredDocument> getNewDummies() {
     return newDummies;
   }
 
+  /**
+   * Returns the dummy documents that were updated by the importer.
+   * 
+   * @return
+   */
   List<StoredDocument> getUpdatedDummies() {
     return updatedDummies;
   }
@@ -141,18 +158,8 @@ class SampleSheetImporter2 {
         .collect(toSet());
   }
 
-  private static NaturalisNote createNote(SampleSheetRow row, int line) {
-    SmplNoteFactory factory = new SmplNoteFactory(line, row);
-    try {
-      return factory.createNote();
-    } catch(InvalidRowException e) {
-      logger.error(e.getMessage());
-      return null;
-    }
-  }
-
   private void annotateDocuments(List<StoredDocument> docs, NaturalisNote note) {
-    Debug.foundDocumensMatchingKey(logger, "sample sheet", docs);
+    Debug.foundDocumensMatchingKey(logger, FILE_DESCRIPTION, docs);
     for(StoredDocument doc : docs) {
       if(doc.attach(note)) {
         runtime.updated(doc);
@@ -160,7 +167,7 @@ class SampleSheetImporter2 {
           updatedDummies.add(doc);
         }
       } else {
-        Debug.noNewValues(logger, "sample sheet", KEY_NAME, getKey(doc));
+        Debug.noNewValues(logger, FILE_DESCRIPTION, KEY_NAME, getKey(doc));
       }
     }
   }
@@ -180,6 +187,18 @@ class SampleSheetImporter2 {
 
   private String getKey(StoredDocument sd) {
     return sd.getNaturalisNote().get(SMPL_EXTRACT_ID);
+  }
+
+  private static NaturalisNote createNote(SampleSheetRow row, int line) {
+    SmplNoteFactory factory = new SmplNoteFactory(line, row);
+    try {
+      NaturalisNote note = factory.createNote();
+      Debug.showNote(logger, note);
+      return note;
+    } catch(InvalidRowException e) {
+      logger.error(e.getMessage());
+      return null;
+    }
   }
 
 }

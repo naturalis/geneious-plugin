@@ -30,8 +30,10 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  */
 class CrsSwingWorker extends PluginSwingWorker {
 
+  static final String FILE_DESCRIPTION = "CRS file";
+  static final String KEY_NAME = "registration number";
+
   private static final GuiLogger logger = GuiLogManager.getLogger(CrsSwingWorker.class);
-  private static final String FILE_DESCRIPTION = "CRS file";
 
   private final CrsImportConfig config;
 
@@ -46,10 +48,9 @@ class CrsSwingWorker extends PluginSwingWorker {
     PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
     validator.validate();
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
-    List<String[]> rows = new RowSupplier(config).getAllRows();
-    int numRows = rows.size() - config.getSkipLines();
-    Info.displayRowCount(logger, FILE_DESCRIPTION, numRows);
-    RuntimeInfo runtime = new RuntimeInfo(numRows);
+    List<String[]> rows = new RowSupplier(config).getDataRows();
+    Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
+    RuntimeInfo runtime = new RuntimeInfo(rows.size());
     CrsImporter importer = new CrsImporter(config, runtime);
     StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
@@ -61,9 +62,9 @@ class CrsSwingWorker extends PluginSwingWorker {
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
     stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's registration number did not");
-    logger.info("          correspond to any of the selected documents, but may or");
-    logger.info("          may not correspond to other, unselected documents.");
+    logger.info("UNUSED ROW (explanation): The row's registration number was not");
+    logger.info("           found in any of the selected documents, but may still");
+    logger.info("           be present in other, unselected documents");
     Info.operationCompletedSuccessfully(logger, getLogTitle());
     return updated == null ? Collections.emptyList() : updated;
   }

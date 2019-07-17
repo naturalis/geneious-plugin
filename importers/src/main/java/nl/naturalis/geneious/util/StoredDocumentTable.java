@@ -36,5 +36,4 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
     });
   }
 
-
 }

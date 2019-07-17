@@ -124,6 +124,7 @@ public class Messages {
     public static void operationCompletedSuccessfully(GuiLogger logger, String operation) {
       logger.info(operation + " completed successfully");
     }
+
   }
 
   public static class Warn {

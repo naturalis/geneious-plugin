@@ -4,6 +4,7 @@ import static nl.naturalis.geneious.log.GuiLogger.plural;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,10 @@ import nl.naturalis.geneious.NaturalisPluginException;
  */
 public class RowSupplier {
 
-  private final CsvImportConfig<?> cfg;
+  private final CsvImportConfig<?> config;
 
   public RowSupplier(CsvImportConfig<?> config) {
-    this.cfg = config;
+    this.config = config;
   }
 
   /**
@@ -33,43 +34,56 @@ public class RowSupplier {
    * @return
    */
   public List<String[]> getAllRows() {
-    File file = cfg.getFile();
+    File file = config.getFile();
     List<String[]> rows;
     try {
-      if (CsvImportUtil.isSpreadsheet(file.getName())) {
+      if(CsvImportUtil.isSpreadsheet(file.getName())) {
         SpreadSheetReader ssr = new SpreadSheetReader(file);
-        ssr.setSheetNumber(cfg.getSheetNumber());
+        ssr.setSheetNumber(config.getSheetNumber());
         rows = ssr.readAllRows();
-      } else if (CsvImportUtil.isCsvFile(file.getName())) {
+      } else if(CsvImportUtil.isCsvFile(file.getName())) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
-        settings.getFormat().setDelimiter(cfg.getDelimiter().charAt(0));
+        settings.getFormat().setDelimiter(config.getDelimiter().charAt(0));
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
       } else { // Shouldn't happen (already checked)
         throw new NaturalisPluginException("Unknown file type");
       }
       return trim(rows);
-    } catch (Throwable t) {
+    } catch(Throwable t) {
       throw new WrappedException(t);
     }
   }
 
+  /**
+   * Returns all rows minus the header rows;
+   * 
+   * @return
+   */
+  public List<String[]> getDataRows() {
+    List<String[]> all = getAllRows();
+    if(all.size() == config.getSkipLines()) {
+      return Collections.emptyList();
+    }
+    return all.subList(config.getSkipLines(), all.size());
+  }
+
   // Removes any trailing whitespace-only rows.
   private List<String[]> trim(List<String[]> rows) {
-    int skip = cfg.getSkipLines();
-    if (rows.size() != 0) {
+    int skip = config.getSkipLines();
+    if(rows.size() != 0) {
       int i;
-      for (i = rows.size() - 1; i != 0; --i) {
-        if (containsData(rows.get(i))) {
+      for(i = rows.size() - 1; i != 0; --i) {
+        if(containsData(rows.get(i))) {
           break;
         }
       }
-      if (i <= skip) {
+      if(i <= skip) {
         String msg = String.format("No rows remaining after skipping %d line%s", skip, plural(skip));
         throw new NaturalisPluginException(msg);
       }
-      if (i != rows.size() - 1) {
+      if(i != rows.size() - 1) {
         return rows.subList(skip, i + 1);
       }
     }

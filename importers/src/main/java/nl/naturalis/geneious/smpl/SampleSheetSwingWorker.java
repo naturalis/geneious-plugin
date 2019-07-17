@@ -2,7 +2,6 @@ package nl.naturalis.geneious.smpl;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static java.util.stream.Collectors.toList;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
@@ -32,8 +31,10 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  */
 class SampleSheetSwingWorker extends PluginSwingWorker {
 
+  static final String FILE_DESCRIPTION = "sample sheet";
+  static final String KEY_NAME = "extract ID";
+
   private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetSwingWorker.class);
-  private static final String FILE_DESCRIPTION = "sample sheet";
 
   private final SampleSheetImportConfig config;
 
@@ -55,20 +56,20 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
     validator.validate();
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
-    List<String[]> rows = new RowSupplier(config).getAllRows();
-    int numRows = rows.size() - config.getSkipLines();
-    Info.displayRowCount(logger, FILE_DESCRIPTION, numRows);
-    RuntimeInfo runtime = new RuntimeInfo(numRows);
+    List<String[]> rows = new RowSupplier(config).getDataRows();
+    Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
+    RuntimeInfo runtime = new RuntimeInfo(rows.size());
     SampleSheetImporter2 importer = new SampleSheetImporter2(config, runtime);
     StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
-    List<AnnotatedPluginDocument> updated = null;
+    List<AnnotatedPluginDocument> all = null;
     if(runtime.countUpdatedDocuments() > 0 || importer.getNewDummies().size() > 0) {
       runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
       importer.getNewDummies().forEach(StoredDocument::saveAnnotations);
-      List<AnnotatedPluginDocument> all = new ArrayList<>(runtime.countUpdatedDocuments() + importer.getNewDummies().size());
+      all = new ArrayList<>(runtime.countUpdatedDocuments() + importer.getNewDummies().size());
       runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).forEach(all::add);
       importer.getNewDummies().stream().map(StoredDocument::getGeneiousDocument).forEach(all::add);
+      all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
     int unchanged = selectedDocuments.size() - runtime.countUpdatedDocuments() - importer.getUpdatedDummies().size();
     logger.info("Number of valid rows ................: %3d", runtime.countGoodRows());
@@ -79,12 +80,11 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     logger.info("Number of updated dummies ...........: %3d", importer.getUpdatedDummies().size());
     logger.info("Number of unchanged documents .......: %3d", unchanged);
     logger.info("Number of dummy documents created ...: %3d", importer.getNewDummies().size());
-    logger.info("UNUSED ROW (explanation): The row's extract ID was found in an");
-    logger.info("          existing document, but the  document was not selected");
-    logger.info("          and therefore not updated.");
-    logger.info("Import type: update existing documents or create dummies");
+    logger.info("UNUSED ROW (explanation): The row's extract ID was found in an existing");
+    logger.info("           document, but the document was not selected and therefore not");
+    logger.info("           updated.");
     Info.operationCompletedSuccessfully(logger, getLogTitle());
-    return updated == null ? Collections.emptyList() : updated;
+    return all == null ? Collections.emptyList() : all;
   }
 
   private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
@@ -93,10 +93,9 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
     validator.validate();
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
-    List<String[]> rows = new RowSupplier(config).getAllRows();
-    int numRows = rows.size() - config.getSkipLines();
-    Info.displayRowCount(logger, FILE_DESCRIPTION, numRows);
-    RuntimeInfo runtime = new RuntimeInfo(numRows);
+    List<String[]> rows = new RowSupplier(config).getDataRows();
+    Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
+    RuntimeInfo runtime = new RuntimeInfo(rows.size());
     SampleSheetImporter1 importer = new SampleSheetImporter1(config, runtime);
     StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
@@ -108,16 +107,17 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
     stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's extract ID did not correspond");
-    logger.info("          to any of the selected documents, but may or may not");
-    logger.info("          correspond to other, unselected documents.");
-    logger.info("Import type: update existing documents; do not create dummies");
+    logger.info("UNUSED ROW (explanation): The row's extract ID was not found in");
+    logger.info("           any of the selected documents, but may still be present");
+    logger.info("           in other, unselected documents");
     Info.operationCompletedSuccessfully(logger, getLogTitle());
     return updated == null ? Collections.emptyList() : updated;
   }
 
   private String getKey(StoredDocument sd) {
-    return sd.getNaturalisNote().get(SMPL_EXTRACT_ID);
+    String s = sd.getNaturalisNote().getExtractId();
+    // Chop off the 'e' at the beginning of the extract ID 
+    return s == null ? null : s.substring(1);
   }
 
   @Override

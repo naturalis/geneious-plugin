@@ -2,7 +2,8 @@ package nl.naturalis.geneious.bold;
 
 import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
 import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
-import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.bold.BoldSwingWorker.FILE_DESCRIPTION;
+import static nl.naturalis.geneious.bold.BoldSwingWorker.KEY_NAME;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
@@ -27,18 +28,18 @@ class BoldImporter {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(BoldImporter.class);
 
-  private final BoldImportConfig cfg;
+  private final BoldImportConfig config;
   private final RuntimeInfo runtime;
 
   /**
    * Creates a new {@code BoldImporter} instance configured using the provided configuration object and updating the
    * provided runtime object as it proceeds.
    * 
-   * @param cfg
+   * @param config
    * @param runtime
    */
-  BoldImporter(BoldImportConfig cfg, RuntimeInfo runtime) {
-    this.cfg = cfg;
+  BoldImporter(BoldImportConfig config, RuntimeInfo runtime) {
+    this.config = config;
     this.runtime = runtime;
   }
 
@@ -63,21 +64,21 @@ class BoldImporter {
    */
   void importRows(List<String[]> rows, String marker, DocumentLookupTable lookups) {
     if(marker == null) {
-      logger.info(">>> Processing remaining documents (matching on registration number only)");
+      logger.info("Processing remaining documents (matching on registration number only)");
     } else {
-      logger.info(">>> Processing marker %s", marker);
+      logger.info("Processing marker %s", marker);
     }
     int updated = 0; // The number of updates for this particular marker
     for(int i = 0; i < rows.size(); ++i) {
       if(runtime.isBadRow(i)) {
         continue;
       }
-      int line = i + cfg.getSkipLines() + 1;
-      logger.debug("Line %d: %s", line, toJson(rows.get(i)));
-      BoldRow row = new BoldRow(cfg.getColumnNumbers(), rows.get(i));
+      int line = i + config.getSkipLines() + 1;
+      Debug.showRow(logger, line, rows.get(i));
+      BoldRow row = new BoldRow(config.getColumnNumbers(), rows.get(i));
       String regno = row.get(SAMPLE_ID);
       if(regno == null) {
-        Warn.missingKey(logger, "CRS registration number", line);
+        Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);
         continue;
       }
@@ -97,7 +98,7 @@ class BoldImporter {
         Debug.noDocumentsMatchingKey(logger);
         continue;
       }
-      Debug.foundDocumensMatchingKey(logger, "BOLD file", docs);
+      Debug.foundDocumensMatchingKey(logger, FILE_DESCRIPTION, docs);
       NaturalisNote note = createNote(row, line, marker == null);
       if(note == null) {
         runtime.markBad(i);
@@ -109,7 +110,7 @@ class BoldImporter {
           runtime.updated(doc);
           ++updated;
         } else {
-          Debug.noNewValues(logger, "BOLD file", "key", toJson(key));
+          Debug.noNewValues(logger, FILE_DESCRIPTION, "key", toJson(key));
         }
       }
       lookups.remove(key);
@@ -117,7 +118,7 @@ class BoldImporter {
     if(marker == null) {
       logger.info("%d document%s updated while matching on registration number only", updated, plural(updated));
     } else {
-      logger.info("%d document%s updated for marker %s", updated, plural(updated), marker);
+      logger.info("%d document%s updated while matching on marker %s", updated, plural(updated), marker);
     }
   }
 
@@ -125,7 +126,7 @@ class BoldImporter {
     BoldNoteFactory factory = new BoldNoteFactory(line, row, ignoreMarkerColumns);
     try {
       NaturalisNote note = factory.createNote();
-      logger.debugf(() -> format("Note created: %s", toJson(note)));
+      Debug.showNote(logger, note);
       return note;
     } catch(InvalidRowException e) {
       logger.error(e.getMessage());
