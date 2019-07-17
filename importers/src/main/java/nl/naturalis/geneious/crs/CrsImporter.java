@@ -86,7 +86,7 @@ class CrsImporter {
   }
 
   private static NaturalisNote createNote(CrsRow row, int line) {
-    CrsNoteFactory factory = new CrsNoteFactory(line, row);
+    CrsNoteFactory factory = new CrsNoteFactory(row, line);
     try {
       NaturalisNote note = factory.createNote();
       Debug.showNote(logger, note);

@@ -190,7 +190,7 @@ class SampleSheetImporter2 {
   }
 
   private static NaturalisNote createNote(SampleSheetRow row, int line) {
-    SmplNoteFactory factory = new SmplNoteFactory(line, row);
+    SmplNoteFactory factory = new SmplNoteFactory(row, line);
     try {
       NaturalisNote note = factory.createNote();
       Debug.showNote(logger, note);

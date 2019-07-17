@@ -29,17 +29,17 @@ import nl.naturalis.geneious.csv.NoteFactory;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Produces a {@link NaturalisNote} from the data in a {@link SampleSheetRow}.
+ * A factory of {@code NaturalisNote} instances specialized in populating the sample sheet-related fields of a
+ * {@code NaturalisNote}.
  */
 class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 
   private static final Pattern PTTRN_EXTRACT_ID = Pattern.compile("^\\d{4,16}$");
   private static final String CONSTANT_VALUE_AMPL_STAFF = "Naturalis Biodiversity Center Laboratories";
-  private static final String ERR_MSSING_HYPHEN = "missing hyphen ('-') in value for %s: %s";  
-  
+  private static final String ERR_MSSING_HYPHEN = "missing hyphen ('-') in value for %s: %s";
 
-  SmplNoteFactory(int line, SampleSheetRow row) {
-    super(line, row);
+  SmplNoteFactory(SampleSheetRow row, int line) {
+    super(row, line);
   }
 
   @Override
@@ -57,21 +57,21 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
         .filter(Objects::nonNull)
         .map(x -> x.replaceAll("\\s", "_"))
         .collect(Collectors.joining("_"));
-    if (StringUtils.isNotBlank(s)) {
+    if(StringUtils.isNotBlank(s)) {
       note.castAndSet(SMPL_REGNO_PLUS_SCI_NAME, s);
     }
   }
 
   private String getExtractPlateId(String val) throws InvalidRowException {
     int i = val.indexOf('-');
-    if (i == -1) {
+    if(i == -1) {
       throw InvalidRowException.custom(this, ERR_MSSING_HYPHEN, SMPL_SAMPLE_PLATE_ID, val);
     }
     return val.substring(0, i);
   }
 
   private String getExtractId(String val) throws InvalidRowException {
-    if (PTTRN_EXTRACT_ID.matcher(val).matches()) {
+    if(PTTRN_EXTRACT_ID.matcher(val).matches()) {
       return "e" + val;
     }
     throw InvalidRowException.custom(this, "Invalid extract ID: \"%s\"", val);

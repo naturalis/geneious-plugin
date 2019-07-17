@@ -24,7 +24,7 @@ import static nl.naturalis.geneious.note.NaturalisField.BOLD_PROJECT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_URI;
 
 /**
- * A factory of {@code NaturalisNote} instances specialized in populating the BOLD-related fields.
+ * A factory of {@code NaturalisNote} instances specialized in populating the BOLD-related fields of a {@code NaturalisNote}.
  */
 class BoldNoteFactory extends NoteFactory<BoldColumn> {
 
@@ -35,13 +35,12 @@ class BoldNoteFactory extends NoteFactory<BoldColumn> {
 
   /**
    * Creates a factory of {@code NaturalisNote} instances specialized in populating the BOLD-related fields.
-   * 
-   * @param rownum
    * @param row
+   * @param line
    * @param ignoreMarkerColumns
    */
-  BoldNoteFactory(int rownum, BoldRow row, boolean ignoreMarkerColumns) {
-    super(rownum, row);
+  BoldNoteFactory(BoldRow row, int line, boolean ignoreMarkerColumns) {
+    super(row, line);
     this.ignoreMarkerColumns = ignoreMarkerColumns;
   }
 

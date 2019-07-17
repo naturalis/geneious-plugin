@@ -45,12 +45,12 @@ import static nl.naturalis.geneious.note.NaturalisField.CRS_SUBFAMILY;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
 
 /**
- * Produces a {@link NaturalisNote} from the data in a {@link CrsRow}.
+ * A factory of {@code NaturalisNote} instances specialized in populating the CRS-related fields of a {@code NaturalisNote}.
  */
 class CrsNoteFactory extends NoteFactory<CrsColumn> {
 
-  CrsNoteFactory(int rownum, CrsRow row) {
-    super(rownum, row);
+  CrsNoteFactory(CrsRow row, int line) {
+    super(row, line);
   }
 
   @Override

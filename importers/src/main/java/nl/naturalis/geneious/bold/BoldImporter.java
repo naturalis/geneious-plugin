@@ -123,7 +123,7 @@ class BoldImporter {
   }
 
   private static NaturalisNote createNote(BoldRow row, int line, boolean ignoreMarkerColumns) {
-    BoldNoteFactory factory = new BoldNoteFactory(line, row, ignoreMarkerColumns);
+    BoldNoteFactory factory = new BoldNoteFactory(row, line, ignoreMarkerColumns);
     try {
       NaturalisNote note = factory.createNote();
       Debug.showNote(logger, note);

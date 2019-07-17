@@ -35,7 +35,7 @@ public class Row<T extends Enum<T>> extends EnumMap<T, String> {
   }
 
   /**
-   * Whether or not the row has values for <i>all of</i> the provided columns.
+   * Whether or not the row has values for all of the provided columns.
    * 
    * @param columns
    * @return

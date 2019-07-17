@@ -1,14 +1,14 @@
 package nl.naturalis.geneious.csv;
 
-import java.util.EnumMap;
-
 import nl.naturalis.common.base.ThrowingFunction;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Abstract base class for {@link NaturalisNote} factories used by the importers of CSV-like files (BOLD Import, CRS
- * Import, Sample Sheet Import).
+ * A note factory is used to convert a row in a CSV-like file into a set of annotations held together in a
+ * {@link NaturalisNote}. Each of the subclasses of {@code NoteFactory} (e.g. {@code SmplNoteFactory}) produces a
+ * {@code NaturalisNote} that is only partially populated (namely with the fields that can be set from the applicable
+ * source file (e.g. a sample sheet).
  * 
  * @author Ayco Holleman
  *
@@ -16,19 +16,19 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public abstract class NoteFactory<T extends Enum<T>> {
 
-  private int line;
-  private EnumMap<T, String> cells;
+  private final Row<T> row;
+  private final int line;
 
   /**
    * Creates a {@link NoteFactory} for the provided row ({@code cells}). The provided row number is used for reporting
-   * only and must be the absolute (including header rows) and user-friendly (one-based) line number of the row.
+   * only and should be the absolute (including header rows) and user-friendly (one-based) line number of the row.
    * 
+   * @param row
    * @param lineNumber
-   * @param cells
    */
-  protected NoteFactory(int lineNumber, EnumMap<T, String> cells) {
+  protected NoteFactory(Row<T> row, int lineNumber) {
+    this.row = row;
     this.line = lineNumber;
-    this.cells = cells;
   }
 
   /**
@@ -69,7 +69,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
    * @return
    */
   protected String get(T column) {
-    return cells.get(column);
+    return row.get(column);
   }
 
   /**
@@ -81,7 +81,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
    * @throws InvalidRowException
    */
   protected String getRequired(T column) throws InvalidRowException {
-    String s = cells.get(column);
+    String s = row.get(column);
     if(s == null) {
       throw InvalidRowException.missingValue(this, column);
     }
