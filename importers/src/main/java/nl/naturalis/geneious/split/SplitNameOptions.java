@@ -22,7 +22,7 @@ class SplitNameOptions extends Options {
   /**
    * Produces an object containing all the user input for the Split Name operation.
    */
-  SplitNameConfig createNameSplitterConfig() {
+  SplitNameConfig configureOperation() {
     SplitNameConfig config = new SplitNameConfig();
     config.setIgnoreDocsWithNaturalisNote(ignoreWithNaturalisNote.getValue());
     return config;

@@ -49,7 +49,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     SplitNameOptions opts = (SplitNameOptions) options;
-    SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.createNameSplitterConfig());
+    SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.configureOperation());
     nameSplitter.execute();
     return null;
   }

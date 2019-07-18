@@ -82,7 +82,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return null; // Signals to Geneious it can continue
   }
 
-  public abstract CsvImportConfig<T> createImportConfig();
+  public abstract CsvImportConfig<T> configureOperation();
 
   /**
    * Returns a configuration object with all settings set to the default value.

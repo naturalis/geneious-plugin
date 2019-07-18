@@ -53,7 +53,7 @@ public class BoldDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     BoldImportOptions opts = (BoldImportOptions) options;
-    BoldSwingWorker importer = new BoldSwingWorker(opts.createImportConfig());
+    BoldSwingWorker importer = new BoldSwingWorker(opts.configureOperation());
     importer.execute();
     return null;
   }

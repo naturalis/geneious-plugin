@@ -23,7 +23,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
    * Produces a object containing all the user input for the Sample Sheet Import operation.
    */
   @Override
-  public SampleSheetImportConfig createImportConfig() {
+  public SampleSheetImportConfig configureOperation() {
     SampleSheetImportConfig cfg = initializeStandardOptions(new SampleSheetImportConfig());
     cfg.setCreateDummies(dummies.getValue());
     return cfg;

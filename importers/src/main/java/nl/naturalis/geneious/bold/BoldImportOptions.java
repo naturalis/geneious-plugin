@@ -20,7 +20,7 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
    * Produces a object containing all the user input for the BOLD Import operation.
    */
   @Override
-  public BoldImportConfig createImportConfig() {
+  public BoldImportConfig configureOperation() {
     return initializeStandardOptions(new BoldImportConfig());
   }
 

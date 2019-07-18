@@ -63,7 +63,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     SampleSheetImportOptions opts = (SampleSheetImportOptions) options;
-    SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.createImportConfig());
+    SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.configureOperation());
     importer.execute();
     return null;
   }

@@ -20,7 +20,7 @@ class CrsImportOptions extends CsvImportOptions<CrsColumn, CrsImportConfig> {
    * Produces a object containing all the user input for the Sample Sheet Import operation.
    */
   @Override
-  public CrsImportConfig createImportConfig() {
+  public CrsImportConfig configureOperation() {
     return initializeStandardOptions(new CrsImportConfig());
   }
 

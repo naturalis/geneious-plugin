@@ -68,7 +68,7 @@ public class CrsDocumentOperation extends DocumentOperation {
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
     CrsImportOptions opts = (CrsImportOptions) options;
-    CrsSwingWorker importer = new CrsSwingWorker(opts.createImportConfig());
+    CrsSwingWorker importer = new CrsSwingWorker(opts.configureOperation());
     importer.execute();
     return null;
   }
