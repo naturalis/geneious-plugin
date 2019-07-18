@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.smpl;
 
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
@@ -11,6 +13,8 @@ import nl.naturalis.geneious.csv.CsvImportOptions;
  *
  */
 class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
+
+  private static final String CREATE_DUMMIES_LABEL = "Create dummy sequences for rows containing new extract IDs";
 
   private final BooleanOption dummies;
 
@@ -29,6 +33,14 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     return cfg;
   }
 
+  @Override
+  public String verifyOptionsAreValid() {
+    if(DocumentUtilities.getSelectedDocuments().isEmpty() && !dummies.getValue().booleanValue()) {
+      return String.format("Please select at least one document or check \"%s\"", CREATE_DUMMIES_LABEL);
+    }
+    return null;
+  }
+
   /**
    * Returns the text in front of the file selection field: "Sample sheet".
    */
@@ -39,8 +51,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
 
   private BooleanOption addDummiesOption() {
     String name = "nl.naturalis.geneious.smpl.dummies";
-    String descr = "Create dummy sequences for rows containing new extract IDs";
-    BooleanOption opt = addBooleanOption(name, descr, Boolean.TRUE);
+    BooleanOption opt = addBooleanOption(name, CREATE_DUMMIES_LABEL, Boolean.TRUE);
     opt.setHelp("You can choose to create dummy sequences for sample sheet rows that refer to yet-to-be imported "
         + "AB1 or fasta sequences. The dummy sequence acquires the annotations present in the sample sheet. Once you "
         + "import the real sequence, the annotations will be copied from the dummy sequence to the real sequence, "
