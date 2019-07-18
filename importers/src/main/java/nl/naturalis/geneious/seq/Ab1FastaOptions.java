@@ -52,7 +52,7 @@ class Ab1FastaOptions extends Options {
 
   private ButtonOption createButtonOption() {
     String name = "nl.naturalis.geneious.seq.button";
-    ButtonOption button = addButtonOption(name, "", "Browse");
+    ButtonOption button = addButtonOption(name, "", "Select");
     button.addActionListener(e -> {
       JFileChooser fc = newFileChooser();
       if(fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {

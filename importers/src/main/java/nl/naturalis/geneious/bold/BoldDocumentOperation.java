@@ -21,7 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class BoldDocumentOperation extends DocumentOperation {
 
-  private static final String DESCRIPTION = "Enriches documents with BOLD data";
+  static final String NAME = "BOLD Import";
+  static final String DESCRIPTION = "Enriches documents with BOLD data";
 
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000004;
@@ -33,7 +34,7 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("BOLD Import", DESCRIPTION,
+    return new GeneiousActionOptions(NAME, DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_blue.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)

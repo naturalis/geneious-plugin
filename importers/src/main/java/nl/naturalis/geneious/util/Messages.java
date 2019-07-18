@@ -40,7 +40,7 @@ public class Messages {
      * @param note
      */
     public static void showNote(GuiLogger logger, NaturalisNote note) {
-      logger.debugf(() -> format("Note created: %s", toJson(note)));
+      logger.debugf(() -> format("Generated annotations: %s", toJson(note)));
     }
 
     /**
@@ -61,20 +61,9 @@ public class Messages {
      * @param file
      * @param matchingDocuments
      */
-    public static void foundDocumensMatchingKey(GuiLogger logger, String file, Collection<StoredDocument> documents) {
+    public static void foundDocumensMatchingKey(GuiLogger logger, Collection<StoredDocument> documents, String keyName, Object keyValue) {
       int x = documents.size();
-      logger.debugf(() -> format("Found %1$d matching document%2$s. Comparing values in document%2$s with values in %3$s",
-          x, plural(x), file));
-    }
-
-    /**
-     * <i>None found</i>
-     * 
-     * @param logger
-     * @param line
-     */
-    public static void noDocumentsMatchingKey(GuiLogger logger) {
-      logger.debug(() -> "None found");
+      logger.debugf(() -> format("Found %d document%s with %s %s", x, plural(x), keyName, keyValue));
     }
 
     /**
@@ -85,8 +74,20 @@ public class Messages {
      * @param keyName
      * @param keyValue
      */
-    public static void noNewValues(GuiLogger logger, String file, String keyName, Object keyValue) {
-      logger.debugf(() -> format("Document with %s %s not updated. No new values in %s", keyName, keyValue, file));
+    public static void noNewValues(GuiLogger logger, String name, String file) {
+      logger.debugf(() -> format("Document %s not updated. No new values in %s", name, file));
+    }
+
+    /**
+     * <i>Updated X documents &#46;&#46;&#46;</i>
+     * 
+     * @param logger
+     * @param updated
+     * @param keyName
+     * @param keyValue
+     */
+    public static void updatedDocuments(GuiLogger logger, Collection<StoredDocument> docs, int updated, String keyName, Object keyValue) {
+      logger.debugf(() -> format("%d out of %d documents with %s %s were updated", updated, docs.size(), keyName, keyValue));
     }
   }
 

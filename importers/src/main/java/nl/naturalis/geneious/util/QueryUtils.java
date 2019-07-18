@@ -51,7 +51,7 @@ public class QueryUtils {
    * @return
    */
   public static WritableDatabaseService getTargetDatabase() {
-    if (ServiceUtilities.getResultsDestination() == null) {
+    if(ServiceUtilities.getResultsDestination() == null) {
       return null;
     }
     return ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
@@ -64,7 +64,7 @@ public class QueryUtils {
    * @return
    */
   public static String getTargetDatabaseName() {
-    if (getTargetDatabase() == null) {
+    if(getTargetDatabase() == null) {
       return "<no database selected>";
     }
     return getTargetDatabase().getFolderName();
@@ -73,23 +73,25 @@ public class QueryUtils {
   /**
    * Return all documents containing the specified extract IDs.
    * 
+   * @param database
    * @param extractIds
    * @return
    * @throws DatabaseServiceException
    */
-  public static List<AnnotatedPluginDocument> findByExtractID(Collection<String> extractIds) throws DatabaseServiceException {
-    if (extractIds.size() == 0) {
+  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, Collection<String> extractIds)
+      throws DatabaseServiceException {
+    if(extractIds.size() == 0) {
       return APDList.emptyList();
     }
     Query[] constraints = new Query[extractIds.size() * 2];
     int i = 0;
-    for (String id : extractIds) {
+    for(String id : extractIds) {
       constraints[i++] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id);
       constraints[i++] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id);
     }
     Query query = createOrQuery(constraints, Collections.emptyMap());
     guiLogger.debugf(() -> format("Executing query: %s", query));
-    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
+    return database.retrieve(query, ProgressListener.EMPTY);
   }
 
   /**
@@ -100,12 +102,12 @@ public class QueryUtils {
    * @return
    * @throws DatabaseServiceException
    */
-  public static List<AnnotatedPluginDocument> findByExtractID(String extractId) throws DatabaseServiceException {
+  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, String extractId) throws DatabaseServiceException {
     Query[] constraints = new Query[2];
     constraints[0] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, extractId);
     constraints[1] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, extractId);
     Query query = createOrQuery(constraints, Collections.emptyMap());
-    return getTargetDatabase().retrieve(query, ProgressListener.EMPTY);
+    return database.retrieve(query, ProgressListener.EMPTY);
   }
 
   /**
@@ -115,7 +117,7 @@ public class QueryUtils {
    * @throws DatabaseServiceException
    */
   public static void deleteDocuments(Set<StoredDocument> documents) throws DatabaseServiceException {
-    for (StoredDocument d : documents) {
+    for(StoredDocument d : documents) {
       getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
   }

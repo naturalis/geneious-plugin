@@ -25,14 +25,12 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  * 
  * @author Ayco Holleman
  */
-class Ab1FastaSwingWorker extends PluginSwingWorker {
+class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ab1FastaSwingWorker.class);
-
-  private final Ab1FastaImportConfig config;
+  private static final GuiLogger logger = GuiLogManager.getLogger(Ab1FastaSwingWorker.class);
 
   Ab1FastaSwingWorker(Ab1FastaImportConfig config) {
-    this.config = config;
+    super(config);
   }
 
   @Override
@@ -56,7 +54,7 @@ class Ab1FastaSwingWorker extends PluginSwingWorker {
         docs.addAll(fastaImporter.importFiles());
       }
       if(docs.size() != 0) {
-        Annotator annotator = new Annotator(docs);
+        Annotator annotator = new Annotator(config, docs);
         annotated = annotator.annotateDocuments();
         created = new ArrayList<>(docs.size());
         for(StorableDocument doc : docs) {
@@ -70,38 +68,38 @@ class Ab1FastaSwingWorker extends PluginSwingWorker {
         processed = ab1Importer.getNumProcessed();
         rejected = ab1Importer.getNumRejected();
         imported = ab1Importer.getNumImported();
-        guiLogger.info("Number of AB1 files selected ..........: %3d", ab1s.size());
-        guiLogger.info("Number of AB1 documents created .......: %3d", processed);
-        guiLogger.info("Number of AB1 documents rejected ......: %3d", rejected);
-        guiLogger.info("Number of AB1 documents imported ......: %3d", imported);
+        logger.info("Number of AB1 files selected ..........: %3d", ab1s.size());
+        logger.info("Number of AB1 documents created .......: %3d", processed);
+        logger.info("Number of AB1 documents rejected ......: %3d", rejected);
+        logger.info("Number of AB1 documents imported ......: %3d", imported);
       }
       if(fastaImporter != null) {
         processed += fastaImporter.getNumProcessed();
         rejected += fastaImporter.getNumRejected();
         imported += fastaImporter.getNumImported();
-        guiLogger.info("Number of FASTA files selected ........: %3d", fastas.size());
-        guiLogger.info("Number of FASTA documents created .....: %3d", fastaImporter.getNumProcessed());
-        guiLogger.info("Number of FASTA documents rejected ....: %3d", fastaImporter.getNumRejected());
-        guiLogger.info("Number of FASTA documents imported ....: %3d", fastaImporter.getNumImported());
+        logger.info("Number of FASTA files selected ........: %3d", fastas.size());
+        logger.info("Number of FASTA documents created .....: %3d", fastaImporter.getNumProcessed());
+        logger.info("Number of FASTA documents rejected ....: %3d", fastaImporter.getNumRejected());
+        logger.info("Number of FASTA documents imported ....: %3d", fastaImporter.getNumImported());
       }
       if(ab1Importer != null && fastaImporter != null) {
-        guiLogger.info("Total number of files selected ........: %3d", config.getFiles().length);
-        guiLogger.info("Total number of documents created .....: %3d", processed);
-        guiLogger.info("Total number of documents rejected ....: %3d", rejected);
-        guiLogger.info("Total number of documents imported ....: %3d", imported);
+        logger.info("Total number of files selected ........: %3d", config.getFiles().length);
+        logger.info("Total number of documents created .....: %3d", processed);
+        logger.info("Total number of documents rejected ....: %3d", rejected);
+        logger.info("Total number of documents imported ....: %3d", imported);
       }
       if(annotated != null) {
-        guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
-        guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
+        logger.info("Total number of documents annotated ...: %3d", annotated.size());
+        logger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
-      Info.operationCompletedSuccessfully(guiLogger, "AB1/Fasta Import");
+      Info.operationCompletedSuccessfully(logger, Ab1FastaDocumentOperation.NAME);
       return created;
     }
   }
 
   @Override
   protected String getLogTitle() {
-    return "AB1/Fasta Import";
+    return Ab1FastaDocumentOperation.NAME;
   }
 
 }

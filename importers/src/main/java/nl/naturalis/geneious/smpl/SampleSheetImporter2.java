@@ -74,7 +74,7 @@ class SampleSheetImporter2 {
     logger.info("Collecting extract IDs in sample sheet");
     Set<String> idsInSampleSheet = collectIdsInSampleSheet(rows);
     Set<String> extraIds = idsInSampleSheet.stream().filter(not(lookups::containsKey)).collect(toSet());
-    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(extraIds);
+    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(config.getTargetDatabase(), extraIds);
     // All documents that correspond to a sample sheet row, but that were not selected by the user
     StoredDocumentTable<String> unselected = new StoredDocumentTable<>(searchResult, this::getKey);
     // The extract IDs that are both in the sample sheet and in the selected documents:
@@ -150,8 +150,7 @@ class SampleSheetImporter2 {
 
   private Set<String> collectIdsInSampleSheet(List<String[]> rows) {
     int colno = config.getColumnNumbers().get(SampleSheetColumn.EXTRACT_ID);
-    return rows.subList(config.getSkipLines(), rows.size())
-        .stream()
+    return rows.stream()
         .filter(row -> colno < row.length)
         .filter(row -> StringUtils.isNotBlank(row[colno]))
         .map(row -> "e" + row[colno])
@@ -159,17 +158,20 @@ class SampleSheetImporter2 {
   }
 
   private void annotateDocuments(List<StoredDocument> docs, NaturalisNote note) {
-    Debug.foundDocumensMatchingKey(logger, FILE_DESCRIPTION, docs);
+    Debug.foundDocumensMatchingKey(logger, docs, KEY_NAME, note.getExtractId());
+    int updated = 0;
     for(StoredDocument doc : docs) {
       if(doc.attach(note)) {
         runtime.updated(doc);
         if(doc.isDummy()) {
           updatedDummies.add(doc);
         }
+        ++updated;
       } else {
-        Debug.noNewValues(logger, FILE_DESCRIPTION, KEY_NAME, getKey(doc));
+        Debug.noNewValues(logger, doc.getName(), FILE_DESCRIPTION);
       }
     }
+    Debug.updatedDocuments(logger, docs, updated, KEY_NAME, note.getExtractId());
   }
 
   private void logUnusedRow(StoredDocumentList docs) {

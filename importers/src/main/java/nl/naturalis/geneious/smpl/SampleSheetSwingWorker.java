@@ -29,17 +29,15 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  * 
  * @author Ayco Holleman
  */
-class SampleSheetSwingWorker extends PluginSwingWorker {
+class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> {
 
   static final String FILE_DESCRIPTION = "sample sheet";
   static final String KEY_NAME = "extract ID";
 
   private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetSwingWorker.class);
 
-  private final SampleSheetImportConfig config;
-
   SampleSheetSwingWorker(SampleSheetImportConfig config) {
-    this.config = config;
+    super(config);
   }
 
   @Override
@@ -83,7 +81,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
     logger.info("UNUSED ROW (explanation): The row's extract ID was found in an existing");
     logger.info("           document, but the document was not selected and therefore not");
     logger.info("           updated.");
-    Info.operationCompletedSuccessfully(logger, getLogTitle());
+    Info.operationCompletedSuccessfully(logger, SampleSheetDocumentOperation.NAME);
     return all == null ? Collections.emptyList() : all;
   }
 
@@ -116,13 +114,12 @@ class SampleSheetSwingWorker extends PluginSwingWorker {
 
   private String getKey(StoredDocument sd) {
     String s = sd.getNaturalisNote().getExtractId();
-    // Chop off the 'e' at the beginning of the extract ID 
-    return s == null ? null : s.substring(1);
+    return s == null ? null : s.substring(1); // Remove the 'e' at the beginning of the extract ID
   }
 
   @Override
   protected String getLogTitle() {
-    return "Sample Sheet Import";
+    return SampleSheetDocumentOperation.NAME;
   }
 
 }

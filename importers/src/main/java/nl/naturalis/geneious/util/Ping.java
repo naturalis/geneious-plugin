@@ -58,22 +58,24 @@ public class Ping {
    * <li>The number of pings exceeds 100 (equivalent to about 5 minutes of pinging).
    * </ol>
    * 
+   * @param pingTarget
    * @return
    * @throws DatabaseServiceException
    */
-  public static boolean start() throws DatabaseServiceException {
-    return new Ping().doStart();
+  public static boolean start(WritableDatabaseService pingTarget) throws DatabaseServiceException {
+    return new Ping(pingTarget).doStart();
   }
 
   /**
    * Checks that the ping history is clear and, if not, starts the ping loop all over again. Must be called at the very
    * beginning of a {@code DocumentOperation}.
    * 
+   * @param pingTarget
    * @return
    * @throws DatabaseServiceException
    */
-  public static boolean resume() throws DatabaseServiceException {
-    return new Ping().doResume();
+  public static boolean resume(WritableDatabaseService pingTarget) throws DatabaseServiceException {
+    return new Ping(pingTarget).doResume();
   }
 
   /**
@@ -93,7 +95,7 @@ public class Ping {
    */
   public static void clear() {
     WritableDatabaseService svc = getTargetDatabase();
-    if (svc == null) {
+    if(svc == null) {
       ShowDialog.pleaseSelectDatabase();
     } else {
       new PingHistory().clear();
@@ -101,9 +103,11 @@ public class Ping {
     }
   }
 
+  private final WritableDatabaseService target;
   private final PingHistory history;
 
-  private Ping() {
+  private Ping(WritableDatabaseService target) {
+    this.target = target;
     history = new PingHistory();
   }
 
@@ -115,10 +119,10 @@ public class Ping {
   }
 
   private boolean doResume() throws DatabaseServiceException {
-    if (history.isClear()) {
+    if(history.isClear()) {
       return true;
     }
-    if (history.isOlderThan(30)) {
+    if(history.isOlderThan(30)) {
       guiLogger.warn("Indexing seems not to have completed within 30 minutes. If you are sure all");
       guiLogger.warn("documents have been indexed properly, cancel the progress bar and go to");
       guiLogger.warn("Tools -> Preferences (Naturalis tab) to clear the ping history");
@@ -131,16 +135,16 @@ public class Ping {
     ProgressMonitor pm = new ProgressMonitor(getMainFrame(), MSG_WAITING, "", 0, getProgressMax());
     pm.setMillisToDecideToPopup(0);
     pm.setMillisToPopup(0);
-    for (int i = 1; i <= TRY_COUNT; ++i) {
+    for(int i = 1; i <= TRY_COUNT; ++i) {
       pm.setProgress(getProgress(i));
       sleep();
-      if (pm.isCanceled()) {
+      if(pm.isCanceled()) {
         pm.close();
         guiLogger.warn(MSG_ABORTED, i);
         return false;
       }
       AnnotatedPluginDocument document = ping();
-      if (document != null) {
+      if(document != null) {
         pm.close();
         PingSequence.delete(document);
         history.clear();
@@ -155,11 +159,11 @@ public class Ping {
 
   private AnnotatedPluginDocument ping() throws DatabaseServiceException {
     String pingValue = history.getPingValue();
-    if (StringUtils.isEmpty(pingValue)) {
+    if(StringUtils.isEmpty(pingValue)) {
       // Seems like you can make this happen with a rather contrived sequence of actions in the GUI
       throw pingCorrupted();
     }
-    List<AnnotatedPluginDocument> response = findByExtractID(pingValue);
+    List<AnnotatedPluginDocument> response = findByExtractID(target, pingValue);
     return response.isEmpty() ? null : response.get(0);
   }
 
@@ -180,7 +184,7 @@ public class Ping {
   private static void sleep() {
     try {
       Thread.sleep((long) TRY_INTERVAL * 1000);
-    } catch (InterruptedException e) {
+    } catch(InterruptedException e) {
     }
   }
 

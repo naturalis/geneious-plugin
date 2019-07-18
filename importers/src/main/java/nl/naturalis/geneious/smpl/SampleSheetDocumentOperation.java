@@ -21,7 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class SampleSheetDocumentOperation extends DocumentOperation {
 
-  private static final String DESCRIPTION = "Enriches documents with sample sheet data";
+  static final String NAME = "Sample Sheet Import";
+  static final String DESCRIPTION = "Enriches documents with sample sheet data";
 
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000002;
@@ -36,7 +37,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
    */
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Sample Sheet Import", DESCRIPTION,
+    return new GeneiousActionOptions(NAME, DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_red.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)

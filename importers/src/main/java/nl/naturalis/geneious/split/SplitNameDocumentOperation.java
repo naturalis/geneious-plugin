@@ -21,7 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class SplitNameDocumentOperation extends DocumentOperation {
 
-  private static final String DESCRIPTION = "Enriches documents with annotations extracted from their names";
+  static final String NAME = "Split Name";
+  static final String DESCRIPTION = "Enriches documents with annotations extracted from their names";
 
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000005;
@@ -29,7 +30,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name", DESCRIPTION,
+    return new GeneiousActionOptions(NAME, DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_black.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)

@@ -24,47 +24,45 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  * 
  * @author Ayco Holleman
  */
-class SplitNameSwingWorker extends PluginSwingWorker {
+class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameSwingWorker.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(SplitNameSwingWorker.class);
 
-  private final SplitNameConfig cfg;
-
-  public SplitNameSwingWorker(SplitNameConfig cfg) {
-    this.cfg = cfg;
+  public SplitNameSwingWorker(SplitNameConfig config) {
+    super(config);
   }
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
-    PreconditionValidator validator = new PreconditionValidator(cfg.getSelectedDocuments(), required);
+    PreconditionValidator validator = new PreconditionValidator(config.getSelectedDocuments(), required);
     validator.validate();
-    DocumentFilter filter = new DocumentFilter(cfg);
+    DocumentFilter filter = new DocumentFilter(config);
     List<StorableDocument> docs = filter.filterAndConvert();
-    Annotator annotator = new Annotator(docs);
+    Annotator annotator = new Annotator(config, docs);
     List<StorableDocument> annotated = annotator.annotateDocuments();
     List<AnnotatedPluginDocument> all = new ArrayList<>(annotated.size());
-    for (StorableDocument doc : annotated) {
+    for(StorableDocument doc : annotated) {
       String name = doc.getSequenceInfo().getName();
       doc.getGeneiousDocument().setName(name);
       doc.saveAnnotations();
       all.add(doc.getGeneiousDocument());
     }
-    if (!all.isEmpty()) {
+    if(!all.isEmpty()) {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
-    int selected = cfg.getSelectedDocuments().size();
-    guiLogger.info("Number of selected documents ..........: %3d", selected);
-    guiLogger.info("Number of documents passing filters ...: %3d", docs.size());
-    guiLogger.info("Total number of documents annotated ...: %3d", annotated.size());
-    guiLogger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
-    Info.operationCompletedSuccessfully(guiLogger, "Split Name");
+    int selected = config.getSelectedDocuments().size();
+    logger.info("Number of selected documents ..........: %3d", selected);
+    logger.info("Number of documents passing filters ...: %3d", docs.size());
+    logger.info("Total number of documents annotated ...: %3d", annotated.size());
+    logger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
+    Info.operationCompletedSuccessfully(logger, SplitNameDocumentOperation.NAME);
     return all;
   }
 
   @Override
   protected String getLogTitle() {
-    return "Split Name";
+    return SplitNameDocumentOperation.NAME;
   }
 
 }

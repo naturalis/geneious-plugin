@@ -39,29 +39,35 @@ import nl.naturalis.geneious.util.Ping;
  * @author Ayco Holleman
  *
  */
-public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
+public abstract class PluginSwingWorker<T extends OperationConfig> extends SwingWorker<Void, Void> {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(PluginSwingWorker.class);
+
+  protected final T config;
+
+  public PluginSwingWorker(T config) {
+    this.config = config;
+  }
 
   /**
    * Implements the mechanism described above.
    */
   @Override
   protected Void doInBackground() {
-    try (LogSession session = GuiLogManager.startSession(getLogTitle())){
-      if (Ping.resume()) {
+    try(LogSession session = GuiLogManager.startSession(getLogTitle())) {
+      if(Ping.resume(config.getTargetDatabase())) {
         List<AnnotatedPluginDocument> createdOrUpdated = performOperation();
-        if (!createdOrUpdated.isEmpty()) {
+        if(!createdOrUpdated.isEmpty()) {
           try {
-            Ping.start();
+            Ping.start(config.getTargetDatabase());
           } finally {
             createdOrUpdated.forEach(doc -> doc.setUnread(true));
           }
         }
       }
-    } catch (NonFatalException e) {
+    } catch(NonFatalException e) {
       guiLogger.error(e.getMessage());
-    } catch (Throwable t) {
+    } catch(Throwable t) {
       guiLogger.fatal(t);
     }
     return null;
@@ -74,7 +80,7 @@ public abstract class PluginSwingWorker extends SwingWorker<Void, Void> {
    * 
    */
   protected abstract List<AnnotatedPluginDocument> performOperation() throws Exception;
-  
+
   protected abstract String getLogTitle();
 
 }

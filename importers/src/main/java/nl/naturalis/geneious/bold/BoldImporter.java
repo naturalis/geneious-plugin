@@ -95,24 +95,16 @@ class BoldImporter {
       Debug.scanningSelectedDocuments(logger, "key", toJson(key));
       List<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
-        Debug.noDocumentsMatchingKey(logger);
         continue;
       }
-      Debug.foundDocumensMatchingKey(logger, FILE_DESCRIPTION, docs);
+      Debug.foundDocumensMatchingKey(logger, docs, "key", key);
       NaturalisNote note = createNote(row, line, marker == null);
       if(note == null) {
         runtime.markBad(i);
         continue;
       }
       runtime.markUsed(i);
-      for(StoredDocument doc : docs) {
-        if(doc.attach(note)) {
-          runtime.updated(doc);
-          ++updated;
-        } else {
-          Debug.noNewValues(logger, FILE_DESCRIPTION, "key", toJson(key));
-        }
-      }
+      updated += annotatedDocuments(docs, note, key);
       lookups.remove(key);
     }
     if(marker == null) {
@@ -120,6 +112,20 @@ class BoldImporter {
     } else {
       logger.info("%d document%s updated while matching on marker %s", updated, plural(updated), marker);
     }
+  }
+
+  private int annotatedDocuments(List<StoredDocument> docs, NaturalisNote note, BoldKey key) {
+    int updated = 0; // The number of updates for this particular key
+    for(StoredDocument doc : docs) {
+      if(doc.attach(note)) {
+        runtime.updated(doc);
+        ++updated;
+      } else {
+        Debug.noNewValues(logger, doc.getName(), FILE_DESCRIPTION);
+      }
+    }
+    Debug.updatedDocuments(logger, docs, updated, "key", key);
+    return updated;
   }
 
   private static NaturalisNote createNote(BoldRow row, int line, boolean ignoreMarkerColumns) {

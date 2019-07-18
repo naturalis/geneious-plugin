@@ -27,17 +27,15 @@ import nl.naturalis.geneious.util.PreconditionValidator;
  * 
  * @author Ayco Holleman
  */
-class BoldSwingWorker extends PluginSwingWorker {
+class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
 
   static final String FILE_DESCRIPTION = "BOLD file";
   static final String KEY_NAME = "registration number";
 
   private static final GuiLogger logger = GuiLogManager.getLogger(BoldSwingWorker.class);
 
-  private final BoldImportConfig config;
-
   BoldSwingWorker(BoldImportConfig config) {
-    this.config = config;
+    super(config);
   }
 
   @Override
@@ -79,13 +77,13 @@ class BoldSwingWorker extends PluginSwingWorker {
     logger.info("UNUSED ROW (explanation): The row's registration number was not");
     logger.info("           found in any of the selected documents, but may still");
     logger.info("           be present in other, unselected documents");
-    Info.operationCompletedSuccessfully(logger, FILE_DESCRIPTION);
+    Info.operationCompletedSuccessfully(logger, BoldDocumentOperation.NAME);
     return updated == null ? Collections.emptyList() : updated;
   }
 
   @Override
   protected String getLogTitle() {
-    return "BOLD Import";
+    return BoldDocumentOperation.NAME;
   }
 
 }

@@ -21,7 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class Ab1FastaDocumentOperation extends DocumentOperation {
 
-  private static final String DESCRIPTION = "Imports AB1/fasta files and adds extra annotations extracted from their names";
+  static final String NAME = "AB1/Fasta Import";
+  static final String DESCRIPTION = "Imports AB1/fasta files and adds extra annotations extracted from their names";
 
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000001;
@@ -33,7 +34,7 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("AB1/Fasta Import", DESCRIPTION,
+    return new GeneiousActionOptions(NAME, DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_red.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
@@ -66,6 +67,5 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
   public DocumentSelectionSignature[] getSelectionSignatures() {
     return new DocumentSelectionSignature[0];
   }
-
 
 }

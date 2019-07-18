@@ -1,12 +1,10 @@
 package nl.naturalis.geneious.name;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PASS;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_PCR_PLATE_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_SEQUENCING_STAFF;
-import static nl.naturalis.geneious.util.JsonUtil.toJson;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 
 import java.util.regex.Pattern;
@@ -16,6 +14,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.SeqPass;
+import nl.naturalis.geneious.util.Messages.Debug;
 
 /**
  * Parses an AB1 file name or fasta sequence header and creates a {@link NaturalisNote} from the extracted information.
@@ -26,7 +25,7 @@ import nl.naturalis.geneious.note.SeqPass;
  */
 public class SequenceNameParser {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceNameParser.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(SequenceNameParser.class);
 
   private static final Pattern PT_EXTRACT_ID = Pattern.compile("^e\\d{4,16}$");
   private static final Pattern PT_PCR_PLATE_ID = Pattern.compile("^[A-Z]{1,4}\\d{1,5}$");
@@ -64,7 +63,7 @@ public class SequenceNameParser {
     note.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     note.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
     note.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
-    guiLogger.debugf(() -> format("Note created: %s", toJson(note)));
+    Debug.showNote(logger, note);
     return note;
   }
 

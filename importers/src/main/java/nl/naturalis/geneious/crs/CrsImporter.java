@@ -11,6 +11,7 @@ import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
@@ -65,24 +66,31 @@ class CrsImporter {
       Debug.scanningSelectedDocuments(logger, KEY_NAME, toJson(key));
       List<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
-        Debug.noDocumentsMatchingKey(logger);
         continue;
       }
+      Debug.foundDocumensMatchingKey(logger, docs, KEY_NAME, key);
       NaturalisNote note = createNote(row, line);
       if(note == null) {
         runtime.markBad(i);
         continue;
       }
       runtime.markUsed(i);
-      for(StoredDocument doc : docs) {
-        if(doc.attach(note)) {
-          runtime.updated(doc);
-        } else {
-          Debug.noNewValues(logger, FILE_DESCRIPTION, KEY_NAME, toJson(key));
-        }
-      }
+      annotateDocuments(docs, note);
       lookups.remove(key);
     }
+  }
+
+  private void annotateDocuments(List<StoredDocument> docs, NaturalisNote note) {
+    int updated = 0;
+    for(StoredDocument doc : docs) {
+      if(doc.attach(note)) {
+        runtime.updated(doc);
+        ++updated;
+      } else {
+        Debug.noNewValues(logger, doc.getName(), FILE_DESCRIPTION);
+      }
+    }
+    Debug.updatedDocuments(logger, docs, updated, KEY_NAME, note.get(NaturalisField.SMPL_REGISTRATION_NUMBER));
   }
 
   private static NaturalisNote createNote(CrsRow row, int line) {

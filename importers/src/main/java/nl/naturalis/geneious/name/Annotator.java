@@ -10,6 +10,7 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -30,8 +31,9 @@ import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
  */
 public class Annotator {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Annotator.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(Annotator.class);
 
+  private final OperationConfig config;
   private final List<StorableDocument> docs;
 
   private Set<StoredDocument> obsoleteDummies;
@@ -41,7 +43,8 @@ public class Annotator {
    * 
    * @param docs
    */
-  public Annotator(List<StorableDocument> docs) {
+  public Annotator(OperationConfig config, List<StorableDocument> docs) {
+    this.config = config;
     this.docs = docs;
   }
 
@@ -53,34 +56,33 @@ public class Annotator {
    * @throws DatabaseServiceException
    */
   public List<StorableDocument> annotateDocuments() throws DatabaseServiceException {
-    guiLogger.info("Creating annotations");
+    logger.info("Annotating documents");
     List<StorableDocument> documents = getAnnotatableDocuments();
-    guiLogger.debug(() -> "Collecting extract IDs");
+    logger.debug(() -> "Collecting extract IDs");
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
-    guiLogger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
-    guiLogger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> queryResult = findByExtractID(ids);
-    guiLogger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
+    logger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
+    logger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
+    List<AnnotatedPluginDocument> queryResult = findByExtractID(config.getTargetDatabase(), ids);
+    logger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
     QueryCache queryCache = new QueryCache(queryResult);
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
-    for (StorableDocument doc : documents) {
+    for(StorableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
       String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
       queryCache.findDummy(extractId).ifPresent(dummy -> {
-        guiLogger.debugf(
-            () -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
+        logger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
         dummy.getNaturalisNote().mergeInto(note);
         obsoleteDummies.add(dummy);
-        guiLogger.debug(() -> "Dummy document queued for deletion");
+        logger.debug(() -> "Dummy document queued for deletion");
       });
     }
-    guiLogger.info("Setting document versions");
+    logger.info("Setting document versions");
     VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
     documents.forEach(versioner::setDocumentVersion);
-    guiLogger.info("Attaching annotations");
+    logger.info("Attaching annotations");
     documents.forEach(StorableDocument::attachNaturalisNote);
     if(!obsoleteDummies.isEmpty()) {
-      guiLogger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
+      logger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
       deleteDocuments(obsoleteDummies);
     }
     return documents;
@@ -88,19 +90,19 @@ public class Annotator {
 
   private List<StorableDocument> getAnnotatableDocuments() {
     List<StorableDocument> annotatables = new ArrayList<>(docs.size());
-    for (StorableDocument doc : docs) {
+    for(StorableDocument doc : docs) {
       try {
-        guiLogger.debugf(() -> format("Extracting annotations from name \"%s\"", doc.getSequenceInfo().getName()));
+        logger.debugf(() -> format("Parsing \"%s\"", doc.getSequenceInfo().getName()));
         doc.getSequenceInfo().createNote();
         annotatables.add(doc);
-      } catch (NotParsableException e) {
+      } catch(NotParsableException e) {
         String name;
         if(doc.getSequenceInfo().getImportedFrom() == null) { // A higher-level document, created from other documents
           name = doc.getSequenceInfo().getName();
         } else {
           name = doc.getSequenceInfo().getImportedFrom().getName();
         }
-        guiLogger.error("Error processing %s: %s", name, e.getMessage());
+        logger.error("Error processing %s: %s", name, e.getMessage());
       }
     }
     return annotatables;

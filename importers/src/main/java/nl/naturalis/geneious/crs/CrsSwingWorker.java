@@ -28,17 +28,15 @@ import nl.naturalis.geneious.util.StoredDocumentTable;
  * 
  * @author Ayco Holleman
  */
-class CrsSwingWorker extends PluginSwingWorker {
+class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
 
   static final String FILE_DESCRIPTION = "CRS file";
   static final String KEY_NAME = "registration number";
 
   private static final GuiLogger logger = GuiLogManager.getLogger(CrsSwingWorker.class);
 
-  private final CrsImportConfig config;
-
   CrsSwingWorker(CrsImportConfig config) {
-    this.config = config;
+    super(config);
   }
 
   @Override
@@ -65,7 +63,7 @@ class CrsSwingWorker extends PluginSwingWorker {
     logger.info("UNUSED ROW (explanation): The row's registration number was not");
     logger.info("           found in any of the selected documents, but may still");
     logger.info("           be present in other, unselected documents");
-    Info.operationCompletedSuccessfully(logger, getLogTitle());
+    Info.operationCompletedSuccessfully(logger, CrsDocumentOperation.NAME);
     return updated == null ? Collections.emptyList() : updated;
   }
 
@@ -75,6 +73,6 @@ class CrsSwingWorker extends PluginSwingWorker {
 
   @Override
   protected String getLogTitle() {
-    return "CRS Import";
+    return CrsDocumentOperation.NAME;
   }
 }
