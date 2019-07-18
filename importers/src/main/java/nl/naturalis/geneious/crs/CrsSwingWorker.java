@@ -43,7 +43,7 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
     List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    PreconditionValidator validator = new PreconditionValidator(selectedDocuments, required);
+    PreconditionValidator validator = new PreconditionValidator(config, required);
     validator.validate();
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();

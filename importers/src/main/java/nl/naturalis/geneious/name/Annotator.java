@@ -1,5 +1,10 @@
 package nl.naturalis.geneious.name;
 
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,12 +20,6 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
-import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 /**
  * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real
@@ -61,7 +60,7 @@ public class Annotator {
     logger.debug(() -> "Collecting extract IDs");
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
     logger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
-    logger.debugf(() -> format("Searching database %s for matching documents", getTargetDatabaseName()));
+    logger.debugf(() -> format("Searching database %s for matching documents", config.getTargetDatabaseName()));
     List<AnnotatedPluginDocument> queryResult = findByExtractID(config.getTargetDatabase(), ids);
     logger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
     QueryCache queryCache = new QueryCache(queryResult);
@@ -83,7 +82,7 @@ public class Annotator {
     documents.forEach(StorableDocument::attachNaturalisNote);
     if(!obsoleteDummies.isEmpty()) {
       logger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
-      deleteDocuments(obsoleteDummies);
+      deleteDocuments(config.getTargetDatabase(), obsoleteDummies);
     }
     return documents;
   }

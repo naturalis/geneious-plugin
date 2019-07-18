@@ -44,6 +44,19 @@ public abstract class OperationConfig {
   }
 
   /**
+   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database
+   * selected&gt;" if no folder has been selected yet.
+   * 
+   * @return
+   */
+  public String getTargetDatabaseName() {
+    if(getTargetDatabase() == null) {
+      return "<no database selected>";
+    }
+    return getTargetDatabase().getFolderName();
+  }
+
+  /**
    * Returns the documents selected by the user.
    * 
    * @return

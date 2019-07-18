@@ -91,8 +91,8 @@ public class PingSequence extends DefaultNucleotideSequence {
    * @return
    * @throws DatabaseServiceException
    */
-  void save() throws DatabaseServiceException {
-    WritableDatabaseService pingFolder = getTargetDatabase().createChildFolder(PING_FOLER);
+  void save(WritableDatabaseService database) throws DatabaseServiceException {
+    WritableDatabaseService pingFolder = database.createChildFolder(PING_FOLER);
     WritableDatabaseService userFolder = pingFolder.createChildFolder(userFolderName);
     pingFolder.setColor(Color.lightGray);
     userFolder.setColor(Color.lightGray);

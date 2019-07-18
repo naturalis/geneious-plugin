@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,11 +35,16 @@ public class PingHistory {
   private static final String user = System.getProperty("user.name");
 
   final Map<String, String> cache;
-  private final String key;
 
+  private final String key;
+  
   public PingHistory() {
+    this(QueryUtils.getTargetDatabase());
+  }
+
+  public PingHistory(WritableDatabaseService database) {
     cache = loadHistory();
-    key = user + '@' + getTargetDatabaseName();
+    key = user + '@' + database.getFolderName();
   }
 
   /**
@@ -60,7 +66,7 @@ public class PingHistory {
     try {
       String json = writer.writeValueAsString(cache);
       settings().setPingHistory(json);
-    } catch (JsonProcessingException e) {
+    } catch(JsonProcessingException e) {
       throw new NaturalisPluginException(e);
     }
     PingSequence.deleteUserFolder();
@@ -101,7 +107,7 @@ public class PingHistory {
       try {
         String json = writer.writeValueAsString(cache);
         settings().setPingHistory(json);
-      } catch (JsonProcessingException e) {
+      } catch(JsonProcessingException e) {
         throw new NaturalisPluginException(e);
       }
       return value;
@@ -116,7 +122,7 @@ public class PingHistory {
     }
     try {
       return reader.readValue(s);
-    } catch (IOException e) {
+    } catch(IOException e) {
       throw new NaturalisPluginException(e);
     }
   }

@@ -35,7 +35,7 @@ class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws IOException, DatabaseServiceException, NonFatalException {
-    PreconditionValidator validator = new PreconditionValidator(VALID_TARGET_FOLDER);
+    PreconditionValidator validator = new PreconditionValidator(config, VALID_TARGET_FOLDER);
     validator.validate();
     List<AnnotatedPluginDocument> created = null;
     try(SequenceInfoProvider provider = new SequenceInfoProvider(config.getFiles())) {

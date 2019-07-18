@@ -2,7 +2,6 @@ package nl.naturalis.geneious.util;
 
 import static com.biomatters.geneious.publicapi.utilities.GuiUtilities.getMainFrame;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
 
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class Ping {
   private static final String MSG_WAITING = "Waiting for indexing to complete ...";
   private static final String MSG_ABORTED = "Wait aborted after %d attempts";
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(Ping.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(Ping.class);
 
   /**
    * Saves a special document to the database and then starts a ping loop that only ends if one of the following happens:
@@ -58,24 +57,24 @@ public class Ping {
    * <li>The number of pings exceeds 100 (equivalent to about 5 minutes of pinging).
    * </ol>
    * 
-   * @param pingTarget
+   * @param targetDatabase
    * @return
    * @throws DatabaseServiceException
    */
-  public static boolean start(WritableDatabaseService pingTarget) throws DatabaseServiceException {
-    return new Ping(pingTarget).doStart();
+  public static boolean start(WritableDatabaseService targetDatabase) throws DatabaseServiceException {
+    return new Ping(targetDatabase).doStart();
   }
 
   /**
    * Checks that the ping history is clear and, if not, starts the ping loop all over again. Must be called at the very
    * beginning of a {@code DocumentOperation}.
    * 
-   * @param pingTarget
+   * @param targetDatabase
    * @return
    * @throws DatabaseServiceException
    */
-  public static boolean resume(WritableDatabaseService pingTarget) throws DatabaseServiceException {
-    return new Ping(pingTarget).doResume();
+  public static boolean resume(WritableDatabaseService targetDatabase) throws DatabaseServiceException {
+    return new Ping(targetDatabase).doResume();
   }
 
   /**
@@ -90,31 +89,31 @@ public class Ping {
 
   /**
    * Sets the user free when he/she (accidentally) deleted the ping folder or if the ping mechanism got corrupted for any
-   * other reason. This would prevent the user from using the plugin until the end of time. Hence it necessary to allow
+   * other reason. This would prevent the user from using the plugin until the end of time. Hence it is necessary to allow
    * the user to forcefully clean the ping history.
    */
   public static void clear() {
-    WritableDatabaseService svc = getTargetDatabase();
+    WritableDatabaseService svc = QueryUtils.getTargetDatabase();
     if(svc == null) {
       ShowDialog.pleaseSelectDatabase();
     } else {
-      new PingHistory().clear();
+      new PingHistory(svc).clear();
       ShowDialog.pingHistoryCleared();
     }
   }
 
-  private final WritableDatabaseService target;
+  private final WritableDatabaseService database;
   private final PingHistory history;
 
-  private Ping(WritableDatabaseService target) {
-    this.target = target;
-    history = new PingHistory();
+  private Ping(WritableDatabaseService targetDatabase) {
+    this.database = targetDatabase;
+    history = new PingHistory(targetDatabase);
   }
 
   private boolean doStart() throws DatabaseServiceException {
-    guiLogger.info(MSG_WAITING);
+    logger.info(MSG_WAITING);
     PingSequence sequence = new PingSequence(history.generateNewPingValue());
-    sequence.save();
+    sequence.save(database);
     return startPingLoop();
   }
 
@@ -123,11 +122,11 @@ public class Ping {
       return true;
     }
     if(history.isOlderThan(30)) {
-      guiLogger.warn("Indexing seems not to have completed within 30 minutes. If you are sure all");
-      guiLogger.warn("documents have been indexed properly, cancel the progress bar and go to");
-      guiLogger.warn("Tools -> Preferences (Naturalis tab) to clear the ping history");
+      logger.warn("Indexing seems not to have completed within 30 minutes. If you are sure all");
+      logger.warn("documents have been indexed properly, cancel the progress bar and go to");
+      logger.warn("Tools -> Preferences (Naturalis tab) to clear the ping history");
     }
-    guiLogger.info(MSG_WAITING);
+    logger.info(MSG_WAITING);
     return startPingLoop();
   }
 
@@ -140,7 +139,7 @@ public class Ping {
       sleep();
       if(pm.isCanceled()) {
         pm.close();
-        guiLogger.warn(MSG_ABORTED, i);
+        logger.warn(MSG_ABORTED, i);
         return false;
       }
       AnnotatedPluginDocument document = ping();
@@ -148,12 +147,12 @@ public class Ping {
         pm.close();
         PingSequence.delete(document);
         history.clear();
-        guiLogger.info("Indexing complete");
+        logger.info("Indexing complete");
         return true;
       }
     }
     pm.close();
-    guiLogger.warn(MSG_ABORTED, TRY_COUNT);
+    logger.warn(MSG_ABORTED, TRY_COUNT);
     return false;
   }
 
@@ -163,7 +162,7 @@ public class Ping {
       // Seems like you can make this happen with a rather contrived sequence of actions in the GUI
       throw pingCorrupted();
     }
-    List<AnnotatedPluginDocument> response = findByExtractID(target, pingValue);
+    List<AnnotatedPluginDocument> response = findByExtractID(database, pingValue);
     return response.isEmpty() ? null : response.get(0);
   }
 

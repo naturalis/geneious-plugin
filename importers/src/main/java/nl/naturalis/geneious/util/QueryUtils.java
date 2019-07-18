@@ -20,6 +20,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -45,8 +46,11 @@ public class QueryUtils {
   private QueryUtils() {}
 
   /**
-   * Returns the database that contains the folder that is currently selected by the user, or null if no folder has been
-   * selected yet.
+   * Returns the currently selected database (i&#46;e&#46; the root folder of the currently selected folder). May return
+   * null. <i><b>Do not call this method when inside a {@code DocumentOperation}!</b></i> Since the operation runs on a
+   * separate thread, the user may select another folder while the operation is running. Use
+   * {@link OperationConfig#getTargetDatabase()} when inside a {@code DocumentOperation}. That method will always return
+   * the database that was selected at the time the operation began.
    * 
    * @return
    */
@@ -58,8 +62,8 @@ public class QueryUtils {
   }
 
   /**
-   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database
-   * selected&gt;" if no folder has been selected yet.
+   * Returns the name of the currently selected database or "&lt;no database selected&gt;" if no database has been
+   * selected yet. <i><b>Do not call this method when inside a {@code DocumentOperation}!</b></i>
    * 
    * @return
    */
@@ -102,7 +106,8 @@ public class QueryUtils {
    * @return
    * @throws DatabaseServiceException
    */
-  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, String extractId) throws DatabaseServiceException {
+  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, String extractId)
+      throws DatabaseServiceException {
     Query[] constraints = new Query[2];
     constraints[0] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, extractId);
     constraints[1] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, extractId);
@@ -113,12 +118,13 @@ public class QueryUtils {
   /**
    * Deletes the specified documents. The documents may reside in multiple databases.
    * 
+   * @param database
    * @param documents
    * @throws DatabaseServiceException
    */
-  public static void deleteDocuments(Set<StoredDocument> documents) throws DatabaseServiceException {
+  public static void deleteDocuments(WritableDatabaseService database, Set<StoredDocument> documents) throws DatabaseServiceException {
     for(StoredDocument d : documents) {
-      getTargetDatabase().removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
+      database.removeDocument(d.getGeneiousDocument(), ProgressListener.EMPTY);
     }
   }
 

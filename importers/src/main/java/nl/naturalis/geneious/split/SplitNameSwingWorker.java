@@ -35,7 +35,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
-    PreconditionValidator validator = new PreconditionValidator(config.getSelectedDocuments(), required);
+    PreconditionValidator validator = new PreconditionValidator(config, required);
     validator.validate();
     DocumentFilter filter = new DocumentFilter(config);
     List<StorableDocument> docs = filter.filterAndConvert();

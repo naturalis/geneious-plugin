@@ -68,7 +68,6 @@ public class ShowDialog {
 
   public static void pingHistoryCleared() {
     showMessageDialog(frame(), "Ping history cleared");
-
   }
 
 }

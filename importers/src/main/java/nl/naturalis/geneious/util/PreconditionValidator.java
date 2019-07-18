@@ -1,14 +1,11 @@
 package nl.naturalis.geneious.util;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.OperationConfig;
 
 /**
  * Checks whether the preconditions for an operation (e&#34;g&#34; a BOLD import) are satisfied. There are a few
@@ -38,7 +35,7 @@ public class PreconditionValidator {
 
   private static final String encoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
 
-  private final List<AnnotatedPluginDocument> selected;
+  private final OperationConfig config;
   private final int preconditions;
 
   /**
@@ -48,18 +45,8 @@ public class PreconditionValidator {
    * 
    * @param preconditions
    */
-  public PreconditionValidator(int preconditions) {
-    this(null, preconditions);
-  }
-
-  /**
-   * Create a {@code PreconditionValidator} for the provided document selection and preconditions.
-   * 
-   * @param selected
-   * @param preconditions
-   */
-  public PreconditionValidator(List<AnnotatedPluginDocument> selected, int preconditions) {
-    this.selected = selected;
+  public PreconditionValidator(OperationConfig config, int preconditions) {
+    this.config = config;
     this.preconditions = preconditions;
   }
 
@@ -72,54 +59,54 @@ public class PreconditionValidator {
     // Basic precondition checks:
     checkEncoding();
     checkTargetDatabase();
-    if (requires(AT_LEAST_ONE_DOCUMENT_SELECTED) && selectedNotNull() && selected.isEmpty()) {
+    if(requires(AT_LEAST_ONE_DOCUMENT_SELECTED) && config.getSelectedDocuments().isEmpty()) {
       smash("No documents selected");
     }
-    if (requires(ALL_DOCUMENTS_IN_SAME_DATABASE)) {
+    if(requires(ALL_DOCUMENTS_IN_SAME_DATABASE)) {
       checkAllDocsInSameDatabase();
     }
-    if (requires(VALID_TARGET_FOLDER)) {
+    if(requires(VALID_TARGET_FOLDER)) {
       checkValidTargetFolder();
     }
   }
 
   private static void checkEncoding() throws NonFatalException {
-    if (!encoding.equals("UTF8")) {
+    if(!encoding.equals("UTF8")) {
       smash("Unsupported character encoding: " + encoding);
     }
   }
 
-  private static void checkTargetDatabase() throws NonFatalException {
-    if (QueryUtils.getTargetDatabase() == null) {
+  private void checkTargetDatabase() throws NonFatalException {
+    if(config.getTargetDatabase() == null) {
       smash("No database (folder) selected");
     }
   }
 
-  private static void checkValidTargetFolder() throws NonFatalException {
-    WritableDatabaseService svc = ServiceUtilities.getResultsDestination();
-    if (svc == null) { // Geneious will prevent this, but let's handle it anyhow.
+  private void checkValidTargetFolder() throws NonFatalException {
+    WritableDatabaseService svc = config.getTargetFolder();
+    if(svc == null) { // Geneious will prevent this, but let's handle it anyhow.
       smash("Please select a target folder");
     }
     do {
-      if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
+      if(svc.getFolderName().equals(PingSequence.PING_FOLER)) {
         smash("Illegal target folder: " + svc.getName());
       }
-      if (svc.getParentService() instanceof WritableDatabaseService) {
+      if(svc.getParentService() instanceof WritableDatabaseService) {
         svc = (WritableDatabaseService) svc.getParentService();
       } else {
         break;
       }
-    } while (svc != null);
+    } while(svc != null);
   }
 
   private void checkAllDocsInSameDatabase() throws NonFatalException {
-    for (AnnotatedPluginDocument doc : selected) {
+    for(AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
       DatabaseService db = doc.getDatabase();
-      if (db == null /* huh? */ || !(db instanceof WritableDatabaseService)) {
+      if(db == null /* huh? */ || !(db instanceof WritableDatabaseService)) {
         smash(String.format("Document %s: database unknown or read-only"));
       }
       WritableDatabaseService wdb = ((WritableDatabaseService) db).getPrimaryDatabaseRoot();
-      if (!wdb.equals(QueryUtils.getTargetDatabase())) {
+      if(!wdb.equals(config.getTargetDatabase())) {
         smash("All selected documents must be in the selected database");
       }
     }
@@ -127,11 +114,6 @@ public class PreconditionValidator {
 
   private boolean requires(int precondition) {
     return (preconditions & precondition) == precondition;
-  }
-
-  private boolean selectedNotNull() { // Prevents programming errors rather than anything else
-    Objects.requireNonNull(selected, "Can't check documents if you don't provide them");
-    return true;
   }
 
   private static void smash(String message) throws NonFatalException {
