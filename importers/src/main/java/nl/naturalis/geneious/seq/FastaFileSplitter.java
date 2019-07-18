@@ -1,5 +1,10 @@
 package nl.naturalis.geneious.seq;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static nl.naturalis.common.io.FileUtil.newFile;
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static org.apache.commons.lang3.StringUtils.substring;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,16 +18,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.common.io.FileUtil;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.RuntimeSettings;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import static org.apache.commons.lang3.StringUtils.substring;
-
-import static nl.naturalis.common.io.NFiles.newFile;
-import static nl.naturalis.geneious.log.GuiLogger.format;
 
 /**
  * Splits a fasta file into separate sequences. Depending on how the plugin is configured it may save the sequences to
@@ -45,10 +43,11 @@ class FastaFileSplitter {
    *        set. Otherwise it will save the sequence to temporaray, single-sequence fasta files.
    */
   FastaFileSplitter(boolean inMemory) {
-    if (this.inMemory = inMemory) {
+    if(this.inMemory = inMemory) {
       this.tmpDir = null;
     } else {
-      this.tmpDir = inMemory ? null : newFile(RuntimeSettings.WORK_DIR, "tmp", "fasta", System.currentTimeMillis());
+      File home = new File(System.getProperty("user.home"));
+      this.tmpDir = FileUtil.newFile(home, ".nbc-geneious-plugin", "fasta", System.currentTimeMillis());
     }
   }
 
@@ -63,38 +62,38 @@ class FastaFileSplitter {
   List<FastaInfo> split(File motherFile) throws IOException {
     List<FastaInfo> files = new ArrayList<>();
     StringBuilder buf = new StringBuilder(672); // fasta sequences actually contain 659 chars
-    try (BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
+    try(BufferedReader br = new BufferedReader(new FileReader(motherFile))) {
       String header = br.readLine();
       String line;
       OUTER_LOOP: do {
         line = br.readLine();
-        if (!isStartOfSequence(line)) {
+        if(!isStartOfSequence(line)) {
           guiLogger.error("Corrupt file: \"%s\". Expected start of nucleotide sequence below \"%s\"", motherFile, header);
           break OUTER_LOOP;
         }
-        INNER_LOOP: while (true) {
+        INNER_LOOP: while(true) {
           buf.append(line);
           line = br.readLine();
-          if (line == null) { // end of file
+          if(line == null) { // end of file
             files.add(newSequenceInfo(motherFile, header, buf.toString()));
             break OUTER_LOOP;
-          } else if (line.startsWith(">")) { // start of new sequence
+          } else if(line.startsWith(">")) { // start of new sequence
             files.add(newSequenceInfo(motherFile, header, buf.toString()));
             header = line;
             buf.setLength(0);
             break INNER_LOOP;
           }
         }
-      } while (true);
+      } while(true);
     }
-    if (files.size() > 1) {
+    if(files.size() > 1) {
       guiLogger.debugf(() -> format("File %s was split into %s nucleotide sequences", motherFile.getName(), files.size()));
     }
     return files;
   }
 
   private FastaInfo newSequenceInfo(File mother, String header, String sequence) throws IOException {
-    if (inMemory) {
+    if(inMemory) {
       return new FastaInfo(mother, substring(header, 1), sequence);
     }
     String base = FilenameUtils.getBaseName(mother.getName());
@@ -107,7 +106,7 @@ class FastaFileSplitter {
         .append(ext)
         .toString();
     File child = newFile(tmpDir, childName);
-    try (BufferedOutputStream bos = open(child)) {
+    try(BufferedOutputStream bos = open(child)) {
       bos.write(header.getBytes(UTF_8));
       bos.write(NEWLINE);
       bos.write(sequence.getBytes(UTF_8));
