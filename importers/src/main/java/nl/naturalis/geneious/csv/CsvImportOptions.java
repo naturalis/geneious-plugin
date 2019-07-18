@@ -16,7 +16,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
@@ -47,15 +46,14 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       new OptionValue(";", "  semi-colon  "),
       new OptionValue("|", "  pipe  "));
 
+  // An identifier provided by the subclasses to differentiate the option names.
   protected final String identifier;
-  protected final List<AnnotatedPluginDocument> documents;
   protected final FileSelectionOption file;
   protected final IntegerOption linesToSkip;
   protected final ComboBoxOption<OptionValue> delimiter;
   protected final ComboBoxOption<OptionValue> sheet; // Name of sheet (tab) within the spreadsheet
 
-  public CsvImportOptions(List<AnnotatedPluginDocument> documents, String identifier) {
-    this.documents = documents;
+  public CsvImportOptions(String identifier) {
     this.identifier = identifier;
     this.file = addFileSelectionOption();
     this.linesToSkip = addLinesToSkipOption();
@@ -71,36 +69,35 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   @Override
   public String verifyOptionsAreValid() {
     String msg = super.verifyOptionsAreValid();
-    if (msg != null) {
+    if(msg != null) {
       return msg;
     }
-    if (StringUtils.isBlank(file.getValue())) {
+    if(StringUtils.isBlank(file.getValue())) {
       return "Please select a CSV file or spreadsheet to import";
     }
     String ext = getExtension(file.getValue());
-    if (!supportedFileTypes().contains(ext.toLowerCase())) {
+    if(!supportedFileTypes().contains(ext.toLowerCase())) {
       return "Unsupported file type. Supported file types: " + supportedFileTypesAsString();
     }
     return null; // Signals to Geneious it can continue
   }
 
-  public abstract U createImportConfig();
+  public abstract CsvImportConfig<T> createImportConfig();
 
   /**
-   * Populates the dialog with default values.
+   * Returns a configuration object with all settings set to the default value.
    * 
-   * @param cfg
+   * @param config
    * @return
    */
-  protected final U initializeStandardOptions(U cfg) {
-    cfg.setSelectedDocuments(documents);
-    cfg.setFile(new File(file.getValue()));
-    cfg.setSkipLines(linesToSkip.getValue());
-    cfg.setDelimiter(delimiter.getValue().getName());
-    if (supportSpreadsheet()) {
-      cfg.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
+  protected final U initializeStandardOptions(U config) {
+    config.setFile(new File(file.getValue()));
+    config.setSkipLines(linesToSkip.getValue());
+    config.setDelimiter(delimiter.getValue().getName());
+    if(supportSpreadsheet()) {
+      config.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
     }
-    return cfg;
+    return config;
   }
 
   /**
@@ -169,7 +166,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void fileChanged() {
-    if (StringUtils.isBlank(file.getValue())) {
+    if(StringUtils.isBlank(file.getValue())) {
       /*
        * When a file has already been selected, and then you select another file, the change listener apparently fires twice.
        * The first time the file is empty again (useful if you want to do a System.exit in between or so). The second time you
@@ -177,25 +174,25 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
        */
       return;
     }
-    if (supportSpreadsheet()) {
+    if(supportSpreadsheet()) {
       sheet.setEnabled(false);
     }
     delimiter.setEnabled(false);
-    if (supportSpreadsheet() && CsvImportUtil.isSpreadsheet(file.getValue())) {
+    if(supportSpreadsheet() && CsvImportUtil.isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
       delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
       delimiter.setDefaultValue(OPT_NOT_APPLICABLE);
-    } else if (CsvImportUtil.isCsvFile(file.getValue())) {
+    } else if(CsvImportUtil.isCsvFile(file.getValue())) {
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
-      if (supportSpreadsheet()) {
+      if(supportSpreadsheet()) {
         sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
         sheet.setDefaultValue(OPT_NOT_APPLICABLE);
       }
     } else {
-      if (supportSpreadsheet()) {
+      if(supportSpreadsheet()) {
         sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
         sheet.setDefaultValue(SHEET_INIT);
       }
@@ -205,7 +202,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       StringBuilder sb = new StringBuilder(32);
       sb.append(title);
       String ext = getExtension(file.getValue());
-      if (StringUtils.isNotBlank(ext)) {
+      if(StringUtils.isNotBlank(ext)) {
         sb.append(": *.").append(ext);
       }
       showMessageDialog(sb.toString(), title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
@@ -216,12 +213,12 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     try {
       Workbook workbook = WorkbookFactory.create(new File(file.getValue()));
       List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
-      for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
+      for(int i = 0; i < workbook.getNumberOfSheets(); ++i) {
         names.add(new OptionValue(String.valueOf(i), "  " + workbook.getSheetAt(i).getSheetName() + "  "));
       }
       sheet.setPossibleValues(names);
       sheet.setDefaultValue(names.get(0));
-    } catch (Exception e) {
+    } catch(Exception e) {
       String title = "Error reading spreadsheet";
       String msg = title + ": " + e;
       showMessageDialog(msg, title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
@@ -237,7 +234,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     types.add("csv");
     types.add("tsv");
     types.add("txt");
-    if (supportSpreadsheet()) {
+    if(supportSpreadsheet()) {
       types.add("xls");
     }
     return types;

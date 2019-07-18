@@ -28,9 +28,9 @@ class SplitNameSwingWorker extends PluginSwingWorker {
 
   private static final GuiLogger guiLogger = GuiLogManager.getLogger(SplitNameSwingWorker.class);
 
-  private final NameSplitterConfig cfg;
+  private final SplitNameConfig cfg;
 
-  public SplitNameSwingWorker(NameSplitterConfig cfg) {
+  public SplitNameSwingWorker(SplitNameConfig cfg) {
     this.cfg = cfg;
   }
 

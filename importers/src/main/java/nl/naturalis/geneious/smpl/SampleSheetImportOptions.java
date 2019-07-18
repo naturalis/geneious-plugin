@@ -1,9 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import java.util.List;
-
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
@@ -18,8 +14,8 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
 
   private final BooleanOption dummies;
 
-  public SampleSheetImportOptions(List<AnnotatedPluginDocument> documents) {
-    super(documents, "smpl");
+  public SampleSheetImportOptions() {
+    super("smpl");
     this.dummies = addDummiesOption();
   }
 

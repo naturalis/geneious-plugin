@@ -34,7 +34,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public class DocumentUtils {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentUtils.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(DocumentUtils.class);
 
   private DocumentUtils() {}
 
@@ -129,7 +129,7 @@ public class DocumentUtils {
         if(firstChar(f) == '>') {
           return true;
         }
-        guiLogger.warn("Invalid fasta file: %s. First character in file must be '>'", f.getName());
+        logger.warn("Invalid fasta file: %s. First character in file must be '>'", f.getName());
         return false;
       }
     }

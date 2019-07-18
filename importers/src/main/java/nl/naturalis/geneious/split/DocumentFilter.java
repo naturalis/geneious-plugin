@@ -15,38 +15,38 @@ import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
  * Converts the Geneious documents selected by the user into a list of {@kink StorableDocument} instances while applying
- * the filters in {@link NameSplitterConfig}.
+ * the filters in {@link SplitNameConfig}.
  */
 class DocumentFilter {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(DocumentFilter.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(DocumentFilter.class);
 
-  private final NameSplitterConfig cfg;
+  private final SplitNameConfig config;
 
-  DocumentFilter(NameSplitterConfig config) {
-    this.cfg = config;
+  DocumentFilter(SplitNameConfig config) {
+    this.config = config;
   }
 
   /**
    * Converts the Geneious documents selected by the user into a list of {@kink StorableDocument} instances while applying
-   * the filters in {@link NameSplitterConfig}.
+   * the filters in {@link SplitNameConfig}.
    * 
    * @return
    */
   List<StorableDocument> filterAndConvert() {
-    List<StorableDocument> filtered = new ArrayList<StorableDocument>(cfg.getSelectedDocuments().size());
-    for (AnnotatedPluginDocument apd : cfg.getSelectedDocuments()) {
-      String name = apd.getName();
-      if(DocumentUtils.getDocumentType(apd) == DocumentType.UNKNOWN) {
-        guiLogger.warn("Ignoring document \"%s\". Unexpected document type: %s", name, apd.getDocumentClass());
+    List<StorableDocument> filtered = new ArrayList<StorableDocument>(config.getSelectedDocuments().size());
+    for(AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
+      String name = doc.getName();
+      if(DocumentUtils.getDocumentType(doc) == DocumentType.UNKNOWN) {
+        logger.warn("Ignoring document \"%s\". Unexpected document type: %s", name, doc.getDocumentClass());
       }
-      if(DocumentUtils.getDocumentType(apd) == DocumentType.DUMMY) {
-        guiLogger.debugf(() -> format("Ignoring dummy document \"%s\".", name));
+      if(DocumentUtils.getDocumentType(doc) == DocumentType.DUMMY) {
+        logger.debugf(() -> format("Ignoring dummy document \"%s\".", name));
         continue;
       }
-      StorableDocument sd = new StorableDocument(apd);
-      if(cfg.isIgnoreDocsWithNaturalisNote() && !sd.getSequenceInfo().getNaturalisNote().isEmpty()) {
-        guiLogger.debugf(() -> format("Ignoring document \"%s\". Already annotated by Naturalis plugin", name));
+      StorableDocument sd = new StorableDocument(doc);
+      if(config.isIgnoreDocsWithNaturalisNote() && !sd.getSequenceInfo().getNaturalisNote().isEmpty()) {
+        logger.debugf(() -> format("Ignoring document \"%s\". Already annotated by Naturalis plugin", name));
         continue;
       }
       filtered.add(sd);

@@ -1,43 +1,25 @@
 package nl.naturalis.geneious.csv;
 
 import java.io.File;
-import java.util.List;
-
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.common.collection.EnumToIntMap;
+import nl.naturalis.geneious.OperationConfig;
 
 /**
- * Contains the user input driving the import of CSV-like files (BOLD Import, CRS Import, Sample Sheet Import).
- * Subclasses may specify additionally required user input (e.g. the sample sheet importer needs to know whether or not
- * to create dummies), but they all need to know things like the field delimiter.
+ * Abstract base class for all objects that capture the user input and other configuration data for the import of
+ * CSV-like files.
  *
  * @author Ayco Holleman
  */
-public abstract class CsvImportConfig<T extends Enum<T>> {
+public abstract class CsvImportConfig<T extends Enum<T>> extends OperationConfig {
 
-  private List<AnnotatedPluginDocument> selectedDocuments;
   private File file;
   private String delimiter;
   private int skipLines;
   private int sheetNumber;
 
-  /**
-   * Returns the documents selected by the user in the GUI.
-   * 
-   * @return
-   */
-  public List<AnnotatedPluginDocument> getSelectedDocuments() {
-    return selectedDocuments;
-  }
-
-  /**
-   * Sets the documents selected by the user in the GUI.
-   * 
-   * @param selectedDocuments
-   */
-  public void setSelectedDocuments(List<AnnotatedPluginDocument> selectedDocuments) {
-    this.selectedDocuments = selectedDocuments;
+  public CsvImportConfig() {
+    super();
   }
 
   /**

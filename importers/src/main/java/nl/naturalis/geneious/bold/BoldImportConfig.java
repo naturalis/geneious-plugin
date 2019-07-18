@@ -10,8 +10,12 @@ import nl.naturalis.geneious.csv.CsvImportConfig;
  */
 class BoldImportConfig extends CsvImportConfig<BoldColumn> {
 
+  BoldImportConfig() {
+    super(); // initializes target folder & selected documents
+  }
+
   /**
-   * Return the column-name-to-column-number mapping.
+   * Returns the column-name-to-column-number mapping.
    */
   @Override
   public EnumToIntMap<BoldColumn> getColumnNumbers() {

@@ -5,7 +5,6 @@ import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIcons
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -22,6 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class SampleSheetDocumentOperation extends DocumentOperation {
 
+  private static final String DESCRIPTION = "Enriches documents with sample sheet data";
+
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000002;
   private static final double toolPos = .9999999999992;
@@ -35,7 +36,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
    */
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Samples", "Enrich documents with data from sample sheets",
+    return new GeneiousActionOptions("Sample Sheet Import", DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_red.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
@@ -45,7 +46,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Enrich documents with data sample sheet data";
+    return DESCRIPTION;
   }
 
   @Override
@@ -55,7 +56,7 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
 
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    return new SampleSheetImportOptions(DocumentUtilities.getSelectedDocuments());
+    return new SampleSheetImportOptions();
   }
 
   @Override

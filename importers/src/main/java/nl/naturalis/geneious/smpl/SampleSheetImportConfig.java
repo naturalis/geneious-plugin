@@ -12,6 +12,10 @@ public class SampleSheetImportConfig extends CsvImportConfig<SampleSheetColumn> 
 
   private boolean createDummies;
 
+  SampleSheetImportConfig() {
+    super(); // initializes target folder & selected documents
+  }
+
   /**
    * Return the column-name-to-column-number mapping.
    */

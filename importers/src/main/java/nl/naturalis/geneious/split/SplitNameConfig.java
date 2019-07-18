@@ -1,25 +1,18 @@
 package nl.naturalis.geneious.split;
 
-import java.util.List;
-
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import nl.naturalis.geneious.OperationConfig;
 
 /**
  * Contains the user input for the Split Name operation.
  *
  * @author Ayco Holleman
  */
-class NameSplitterConfig {
+class SplitNameConfig extends OperationConfig {
 
-  private List<AnnotatedPluginDocument> selectedDocuments;
   private boolean ignoreDocsWithNaturalisNote;
-
-  List<AnnotatedPluginDocument> getSelectedDocuments() {
-    return selectedDocuments;
-  }
-
-  void setSelectedDocuments(List<AnnotatedPluginDocument> selectedDocuments) {
-    this.selectedDocuments = selectedDocuments;
+  
+  SplitNameConfig() {
+    super(); // initializes target folder & selected documents
   }
 
   /**

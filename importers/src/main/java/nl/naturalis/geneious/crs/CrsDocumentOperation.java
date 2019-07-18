@@ -5,7 +5,6 @@ import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIcons
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -22,6 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class CrsDocumentOperation extends DocumentOperation {
 
+  private static final String DESCRIPTION = "Enriches documents with CRS data";
+
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000003;
   private static final double toolPos = .9999999999993;
@@ -35,7 +36,7 @@ public class CrsDocumentOperation extends DocumentOperation {
    */
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("CRS Import", "Enrich documents with CRS data",
+    return new GeneiousActionOptions("CRS Import", DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_blue.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
@@ -45,12 +46,12 @@ public class CrsDocumentOperation extends DocumentOperation {
 
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    return new CrsImportOptions(DocumentUtilities.getSelectedDocuments());
+    return new CrsImportOptions();
   }
 
   @Override
   public String getHelp() {
-    return "Enriches documents with CRS data";
+    return DESCRIPTION;
   }
 
   @Override

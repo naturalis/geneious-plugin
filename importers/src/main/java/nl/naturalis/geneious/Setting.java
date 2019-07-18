@@ -38,6 +38,11 @@ public enum Setting {
    * Fasta file extensions.
    */
   FASTA_EXTS("nl.naturalis.geneious.seq.ext.fasta"),
+  
+  /**
+   * The directory most recently selected by the user for the AB1/Fasta import operation.
+   */
+  AB1_FASTA_DIR("nl.naturalis.geneious.seq.dir"),
 
   /**
    * Always write fasta sequences to temporary files.

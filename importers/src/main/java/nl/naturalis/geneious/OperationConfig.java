@@ -1,0 +1,55 @@
+package nl.naturalis.geneious;
+
+import java.util.List;
+
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
+
+/**
+ * Abstract base class for all objects that capture the user input and other configuration data for any of the plugin's
+ * operations.
+ * 
+ * @author Ayco Holleman
+ *
+ */
+public abstract class OperationConfig {
+
+  private final List<AnnotatedPluginDocument> selectedDocuments;
+  private final WritableDatabaseService targetFolder;
+
+  public OperationConfig() {
+    this.selectedDocuments = DocumentUtilities.getSelectedDocuments();
+    this.targetFolder = ServiceUtilities.getResultsDestination();
+  }
+
+  /**
+   * Returns the folder selected by the user just before the start of the operation. We must freeze this value immediately
+   * because the operation runs in a separate thread, so the user can click around while the operation is in progress.
+   * 
+   * @return
+   */
+  public WritableDatabaseService getTargetFolder() {
+    return targetFolder;
+  }
+
+  /**
+   * Returns the database containing the target folder.
+   * 
+   * @return
+   */
+  public WritableDatabaseService getTargetDatabase() {
+    return getTargetFolder().getPrimaryDatabaseRoot();
+  }
+
+  /**
+   * Returns the documents selected by the user.
+   * 
+   * @return
+   */
+  public List<AnnotatedPluginDocument> getSelectedDocuments() {
+    return selectedDocuments;
+  }
+
+}

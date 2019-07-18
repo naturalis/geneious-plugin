@@ -5,7 +5,6 @@ import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIcons
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -22,6 +21,8 @@ import jebl.util.ProgressListener;
  */
 public class BoldDocumentOperation extends DocumentOperation {
 
+  private static final String DESCRIPTION = "Enriches documents with BOLD data";
+
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000004;
   private static final double toolPos = .9999999999994;
@@ -32,7 +33,7 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("BOLD Import", "Enriches documents with BOLD data",
+    return new GeneiousActionOptions("BOLD Import", DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_blue.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
@@ -42,7 +43,7 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    return new BoldImportOptions(DocumentUtilities.getSelectedDocuments());
+    return new BoldImportOptions();
   }
 
   /**
@@ -58,7 +59,7 @@ public class BoldDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Enriches documents with BOLD data";
+    return DESCRIPTION;
   }
 
   @Override

@@ -5,7 +5,6 @@ import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIcons
 import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
@@ -22,13 +21,15 @@ import jebl.util.ProgressListener;
  */
 public class SplitNameDocumentOperation extends DocumentOperation {
 
+  private static final String DESCRIPTION = "Enriches documents with annotations extracted from their names";
+
   // Releative position with menu and toolbar
   private static final double menuPos = .0000000000005;
   private static final double toolPos = .9999999999995;
 
   @Override
   public GeneiousActionOptions getActionOptions() {
-    return new GeneiousActionOptions("Split Name", "Enrich documents with annotations extracted from their names",
+    return new GeneiousActionOptions("Split Name", DESCRIPTION,
         getIconsFromJar(getClass(), "/images/nbc_black.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
@@ -38,7 +39,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public Options getOptions(AnnotatedPluginDocument... docs) throws DocumentOperationException {
-    return new NameSplitterOptions(DocumentUtilities.getSelectedDocuments());
+    return new SplitNameOptions();
   }
 
   /**
@@ -46,7 +47,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
    */
   @Override
   public List<AnnotatedPluginDocument> performOperation(AnnotatedPluginDocument[] docs, ProgressListener progress, Options options) {
-    NameSplitterOptions opts = (NameSplitterOptions) options;
+    SplitNameOptions opts = (SplitNameOptions) options;
     SplitNameSwingWorker nameSplitter = new SplitNameSwingWorker(opts.createNameSplitterConfig());
     nameSplitter.execute();
     return null;
@@ -54,7 +55,7 @@ public class SplitNameDocumentOperation extends DocumentOperation {
 
   @Override
   public String getHelp() {
-    return "Enriches documents by parsing their name";
+    return DESCRIPTION;
   }
 
   @Override

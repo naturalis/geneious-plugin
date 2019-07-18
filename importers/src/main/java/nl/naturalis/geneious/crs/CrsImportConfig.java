@@ -26,9 +26,13 @@ import static nl.naturalis.geneious.crs.CrsColumn.STATE_OR_PROVINCE;
  * @author Ayco Holleman
  */
 class CrsImportConfig extends CsvImportConfig<CrsColumn> {
+  
+  CrsImportConfig() {
+    super(); // initializes target folder & selected documents
+  }
 
   /**
-   * Return the column-name-to-column-number mapping.
+   * Returns the column-name-to-column-number mapping.
    */
   @Override
   public EnumToIntMap<CrsColumn> getColumnNumbers() {
