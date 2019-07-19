@@ -26,8 +26,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
 import nl.naturalis.geneious.util.QueryUtils;
-import nl.naturalis.geneious.util.StoredDocumentList;
-import nl.naturalis.geneious.util.StoredDocumentTable;
+import nl.naturalis.geneious.util.DocumentLookupTable;
 
 /**
  * The sample sheet importer that runs when the user has opted to create place-holder documents (a#&46;k&#46;a#&46;
@@ -66,7 +65,7 @@ class SampleSheetImporter2 {
    * @param lookups
    * @throws DatabaseServiceException
    */
-  void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) throws DatabaseServiceException {
+  void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) throws DatabaseServiceException {
     /*
      * Collect all extract IDs in the sample sheet that do not correspond to any of the selected documents. For those IDs we
      * need to check whether or not they exist at all in the Geneious database.
@@ -76,7 +75,7 @@ class SampleSheetImporter2 {
     Set<String> extraIds = idsInSampleSheet.stream().filter(not(lookups::containsKey)).collect(toSet());
     List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(config.getTargetDatabase(), extraIds);
     // All documents that correspond to a sample sheet row, but that were not selected by the user
-    StoredDocumentTable<String> unselected = new StoredDocumentTable<>(searchResult, this::getKey);
+    DocumentLookupTable<String> unselected = new DocumentLookupTable<>(searchResult, this::getKey);
     // The extract IDs that are both in the sample sheet and in the selected documents:
     int overlap = (int) idsInSampleSheet.stream().filter(lookups::containsKey).count();
     logger.info("Sample sheet contains %s extract ID%s matching selected documents", overlap, plural(overlap));
@@ -114,7 +113,7 @@ class SampleSheetImporter2 {
       List<StoredDocument> docs = lookups.get(key);
       if(docs == null) {
         logger.debugf(() -> format("None found. Scanning query cache for unselected documents with extract ID %s", key));
-        StoredDocumentList docs1 = unselected.get(key);
+        List<StoredDocument> docs1 = unselected.get(key);
         if(docs1 == null) {
           logger.debugf(() -> format("None found. Creating dummy document for extract ID %s", key));
           newDummies.add(new DummySequence(note).wrap());
@@ -174,7 +173,7 @@ class SampleSheetImporter2 {
     Debug.updatedDocuments(logger, docs, updated, KEY_NAME, note.getExtractId());
   }
 
-  private void logUnusedRow(StoredDocumentList docs) {
+  private void logUnusedRow(List<StoredDocument> docs) {
     // All documents will have the same extract ID b/c that's what they were keyed on. Pick any.
     String extractId = getKey(docs.get(0));
     String fmt;

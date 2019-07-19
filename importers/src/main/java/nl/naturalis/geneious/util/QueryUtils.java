@@ -21,6 +21,7 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.geneious.OperationConfig;
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -47,10 +48,11 @@ public class QueryUtils {
 
   /**
    * Returns the currently selected database (i&#46;e&#46; the root folder of the currently selected folder). May return
-   * null. <i><b>Do not call this method when inside a {@code DocumentOperation}!</b></i> Since the operation runs on a
-   * separate thread, the user may select another folder while the operation is running. Use
-   * {@link OperationConfig#getTargetDatabase()} when inside a {@code DocumentOperation}. That method will always return
-   * the database that was selected at the time the operation began.
+   * null. <i><b>Do not call this method when inside a {@link PluginSwingWorker}!</b></i> Since code inside a
+   * {@code PluginSwingWorker} runs in another thread than the GUI's event-dispatch thread, the user may click on another
+   * folder while the operation is running. Use {@link OperationConfig#getTargetDatabase()} when inside a
+   * {@code PluginSwingWorker}. That method will always return the database that was selected at the time the operation
+   * began.
    * 
    * @return
    */

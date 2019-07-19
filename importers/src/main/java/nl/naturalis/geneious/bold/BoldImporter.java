@@ -49,7 +49,7 @@ class BoldImporter {
    * @param rows
    * @param lookups
    */
-  void importRows(List<String[]> rows, DocumentLookupTable lookups) {
+  void importRows(List<String[]> rows, BoldLookupTable lookups) {
     importRows(rows, null, lookups);
   }
 
@@ -62,7 +62,7 @@ class BoldImporter {
    * @param marker
    * @param lookups
    */
-  void importRows(List<String[]> rows, String marker, DocumentLookupTable lookups) {
+  void importRows(List<String[]> rows, String marker, BoldLookupTable lookups) {
     if(marker == null) {
       logger.info("Processing remaining documents (matching on registration number only)");
     } else {

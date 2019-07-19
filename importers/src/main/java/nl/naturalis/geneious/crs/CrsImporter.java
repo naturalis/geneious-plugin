@@ -15,7 +15,7 @@ import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
-import nl.naturalis.geneious.util.StoredDocumentTable;
+import nl.naturalis.geneious.util.DocumentLookupTable;
 
 /**
  * Responsible for the actual processing of the row in a CRS file.
@@ -47,7 +47,7 @@ class CrsImporter {
    * @param rows
    * @param lookups
    */
-  void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) {
+  void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) {
     for(int i = 0; i < rows.size(); ++i) {
       int line = i + +config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));

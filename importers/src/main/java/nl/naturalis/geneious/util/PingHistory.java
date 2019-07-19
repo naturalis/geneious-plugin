@@ -1,7 +1,6 @@
 package nl.naturalis.geneious.util;
 
 import static nl.naturalis.geneious.Settings.settings;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabaseName;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,17 +33,24 @@ public class PingHistory {
 
   private static final String user = System.getProperty("user.name");
 
-  final Map<String, String> cache;
-
+  private final Map<String, String> cache;
   private final String key;
-  
+
+  /**
+   * Loads the ping history for the currently selected database.
+   */
   public PingHistory() {
     this(QueryUtils.getTargetDatabase());
   }
 
+  /**
+   * Loads the ping history for the provided database.
+   * 
+   * @param database
+   */
   public PingHistory(WritableDatabaseService database) {
     cache = loadHistory();
-    key = user + '@' + database.getFolderName();
+    key = user + '@' + database.getUniqueID();
   }
 
   /**

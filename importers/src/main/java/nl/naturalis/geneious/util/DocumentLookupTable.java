@@ -1,5 +1,6 @@
 package nl.naturalis.geneious.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Function;
@@ -9,14 +10,14 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.StoredDocument;
 
 /**
- * An extension of {@code HashMap} that maps some property of a {@code StoredDocument} to a list of
+ * An extension of {@code HashMap} that maps some property of a {@link StoredDocument} to a list of
  * {@code StoredDocument} instances sharing the same value for that property. For sample sheet imports the property will
- * typically be the extract ID, for CRS import the CRS registration number, and for BOLD imports the combination of
- * extract ID and marker.
+ * the extract ID, for CRS import the CRS registration number, and for BOLD imports the combination of extract ID and
+ * marker.
  *
  * @author Ayco Holleman
  */
-public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
+public class DocumentLookupTable<K> extends HashMap<K, ArrayList<StoredDocument>> {
 
   /**
    * Creates a {@code StoredDocumentTable} using the provided {@code keyExtractor} function to extract the key under which
@@ -26,12 +27,12 @@ public class StoredDocumentTable<K> extends HashMap<K, StoredDocumentList> {
    * @param docs
    * @param keyExtractor
    */
-  public StoredDocumentTable(Collection<AnnotatedPluginDocument> docs, Function<StoredDocument, K> keyExtractor) {
+  public DocumentLookupTable(Collection<AnnotatedPluginDocument> docs, Function<StoredDocument, K> keyExtractor) {
     super(docs.size(), 1F);
     docs.stream().map(StoredDocument::new).forEach(sd -> {
       K key = keyExtractor.apply(sd);
       if(key != null) {
-        computeIfAbsent(key, (k) -> new StoredDocumentList()).add(sd);
+        computeIfAbsent(key, (k) -> new ArrayList<>()).add(sd);
       }
     });
   }

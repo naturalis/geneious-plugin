@@ -21,7 +21,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
-import nl.naturalis.geneious.util.StoredDocumentTable;
+import nl.naturalis.geneious.util.DocumentLookupTable;
 
 /**
  * Manages and coordinates the import of CRS files into Geneious.
@@ -50,7 +50,7 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
     CrsImporter importer = new CrsImporter(config, runtime);
-    StoredDocumentTable<String> lookups = new StoredDocumentTable<>(selectedDocuments, this::getKey);
+    DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> updated = null;
     if(runtime.countUpdatedDocuments() > 0) {

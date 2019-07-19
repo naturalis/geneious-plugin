@@ -50,7 +50,7 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
     BoldImporter importer = new BoldImporter(config, runtime);
     List<String> markers = normalizer.getMarkers();
     MarkerMap markerMap = new MarkerMap(markers);
-    DocumentLookupTable lookups = DocumentLookupTable.newInstance(selectedDocuments, markerMap);
+    BoldLookupTable lookups = BoldLookupTable.newInstance(selectedDocuments, markerMap);
     if(markers.isEmpty()) {
       logger.debug("No marker columns BOLD file");
       lookups = lookups.rebuildWithPartialKey();

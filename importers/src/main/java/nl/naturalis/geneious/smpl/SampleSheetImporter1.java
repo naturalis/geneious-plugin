@@ -13,7 +13,7 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
-import nl.naturalis.geneious.util.StoredDocumentTable;
+import nl.naturalis.geneious.util.DocumentLookupTable;
 
 /**
  * The sample sheet importer that runs when the user has opted <i>not</i> to create place-holder documents
@@ -49,7 +49,7 @@ public class SampleSheetImporter1 {
    * @param rows
    * @param lookups
    */
-  void importRows(List<String[]> rows, StoredDocumentTable<String> lookups) {
+  void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) {
     for(int i = 0; i < rows.size(); ++i) {
       int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));

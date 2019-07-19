@@ -23,9 +23,9 @@ import nl.naturalis.geneious.log.GuiLogger;
  * @author Ayco Holleman
  *
  */
-class DocumentLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
+class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
 
-  private static final GuiLogger logger = GuiLogManager.getLogger(DocumentLookupTable.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(BoldLookupTable.class);
 
   /**
    * Returns a document lookup table keyed on the combination of the CRS registration number and marker. In other words
@@ -36,8 +36,8 @@ class DocumentLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
    * @param markerMap
    * @return
    */
-  static DocumentLookupTable newInstance(List<AnnotatedPluginDocument> selectedDocuments, MarkerMap markerMap) {
-    DocumentLookupTable tbl = new DocumentLookupTable();
+  static BoldLookupTable newInstance(List<AnnotatedPluginDocument> selectedDocuments, MarkerMap markerMap) {
+    BoldLookupTable tbl = new BoldLookupTable();
     selectedDocuments.stream().map(StoredDocument::new).forEach(sd -> {
       BoldKey key = getCompoundKey(sd, markerMap);
       if(key != null) {
@@ -47,15 +47,15 @@ class DocumentLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
     return tbl;
   }
 
-  private DocumentLookupTable() {}
+  private BoldLookupTable() {}
 
   /**
    * Returns a new document lookup table keyed on just the CRS registration number.
    * 
    * @return
    */
-  DocumentLookupTable rebuildWithPartialKey() {
-    DocumentLookupTable tbl = new DocumentLookupTable();
+  BoldLookupTable rebuildWithPartialKey() {
+    BoldLookupTable tbl = new BoldLookupTable();
     entrySet().forEach(e -> tbl.merge(new BoldKey(e.getKey().getRegno()), e.getValue(), BiFunctions::append));
     return tbl;
   }
