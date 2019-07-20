@@ -14,7 +14,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.SeqPass;
-import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Log.Debug;
 
 /**
  * Parses an AB1 file name or fasta sequence header and creates a {@link NaturalisNote} from the extracted information.

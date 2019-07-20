@@ -22,7 +22,7 @@ import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
  */
 public class StoredDocumentComparator implements Comparator<StoredDocument> {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(StoredDocumentComparator.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(StoredDocumentComparator.class);
 
   public static final StoredDocumentComparator INSTANCE = new StoredDocumentComparator();
 
@@ -45,7 +45,7 @@ public class StoredDocumentComparator implements Comparator<StoredDocument> {
     if (i == 0) {
       if (v1 != Integer.MIN_VALUE) {
         String fmt = "Encountered two %s documents with same extract ID (%s) and same document version (%s)";
-        guiLogger.warn(fmt, doc1.getType(), doc1.getNaturalisNote().getExtractId(), v1);
+        logger.warn(fmt, doc1.getType(), doc1.getNaturalisNote().getExtractId(), v1);
       }
       i = getDateModifield(apd2).compareTo(getDateModifield(apd1));
       if (i == 0) {

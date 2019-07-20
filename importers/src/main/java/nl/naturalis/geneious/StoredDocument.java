@@ -1,6 +1,7 @@
 package nl.naturalis.geneious;
 
 import static nl.naturalis.geneious.DocumentType.AB1;
+import static nl.naturalis.geneious.DocumentType.CONTIG;
 import static nl.naturalis.geneious.DocumentType.DUMMY;
 import static nl.naturalis.geneious.DocumentType.FASTA;
 
@@ -8,6 +9,7 @@ import java.util.Comparator;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
@@ -65,6 +67,7 @@ public class StoredDocument {
    * 
    * @return
    */
+  @JsonIgnore
   public AnnotatedPluginDocument getGeneiousDocument() {
     return doc;
   }
@@ -76,6 +79,21 @@ public class StoredDocument {
    */
   public String getName() {
     return doc.getName();
+  }
+
+  /**
+   * Returns the full path for the document.
+   * 
+   * @return
+   */
+  public String getLocation() {
+    String folder;
+    if(doc.getDatabase() == null) {
+      folder = "<folder unknown>";
+    } else {
+      folder = doc.getDatabase().getFullPath();
+    }
+    return folder + System.getProperty("file.separator") + doc.getName();
   }
 
   /**
@@ -135,6 +153,7 @@ public class StoredDocument {
    * 
    * @return
    */
+  @JsonIgnore
   public boolean isAB1() {
     return type == AB1;
   }
@@ -144,8 +163,19 @@ public class StoredDocument {
    * 
    * @return
    */
+  @JsonIgnore
   public boolean isFasta() {
     return type == FASTA;
+  }
+
+  /**
+   * Whether or not this instance wraps a CONTIG document.
+   * 
+   * @return
+   */
+  @JsonIgnore
+  public boolean isContig() {
+    return type == CONTIG;
   }
 
   /**
@@ -153,6 +183,7 @@ public class StoredDocument {
    * 
    * @return
    */
+  @JsonIgnore
   public boolean isDummy() {
     return type == DUMMY;
   }

@@ -20,7 +20,7 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Messages.LogError;
+import nl.naturalis.geneious.util.Log.Error;
 
 /**
  * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real
@@ -72,7 +72,7 @@ public class Annotator {
       List<StoredDocument> dummies = queryCache.findDummy(extractId);
       if(dummies != null) {
         if(dummies.size() > 1) {
-          LogError.duplicateDummies(logger, doc, dummies);
+          Error.duplicateDummies(logger, doc, dummies);
         } else {
           logger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
           dummies.get(0).getNaturalisNote().mergeInto(note);

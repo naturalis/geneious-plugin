@@ -1,16 +1,11 @@
 package nl.naturalis.geneious.util;
 
-import static java.util.stream.Collectors.joining;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
@@ -18,13 +13,17 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 
+import static java.util.stream.Collectors.*;
+
 /**
  * Common messages emitted by all operations.
  * 
  * @author Ayco Holleman
  *
  */
-public class Messages {
+public class Log {
+
+  public static final String LIST_ITEM = "\n**** ";
 
   public static class Debug {
     private Debug() {}
@@ -123,6 +122,35 @@ public class Messages {
       logger.info("%s contains %s row%s (excluding header rows)", file, rowCount, plural(rowCount));
     }
 
+    public static void foundUnselectedDocumentsForExtractId(GuiLogger logger, List<StoredDocument> docs) {
+      String msg;
+      if(docs.size() == 1) {
+        msg = new StringBuilder(255)
+            .append("Found 1 ")
+            .append(docs.get(0).getType())
+            .append(" document matching extract ID ")
+            .append(docs.get(0).getNaturalisNote().getExtractId())
+            .append(", but the document was not selected and therefore not updated:")
+            .append(LIST_ITEM)
+            .append(docs.get(0).getLocation())
+            .toString();
+
+      } else {
+        msg = new StringBuilder(255)
+            .append("Found ")
+            .append(docs.size())
+            .append(" documents matching extract ID ")
+            .append(docs.get(0).getNaturalisNote().getExtractId())
+            .append(", but the documents were not selected and therefore not updated:")
+            .append(LIST_ITEM)
+            .append(docs.stream()
+                .map(StoredDocument::getLocation)
+                .collect(joining(LIST_ITEM)))
+            .toString();
+      }
+      logger.info(msg);
+    }
+
     /**
      * <i>X completed successfully</i>
      * 
@@ -147,27 +175,31 @@ public class Messages {
     }
   }
 
-  public static class LogError {
-    private LogError() {}
+  public static class Error {
+    private Error() {}
 
+    /**
+     * <i>Found multiple dummy documents with extract ID X</i>
+     * 
+     * @param logger
+     * @param doc
+     * @param dummies
+     */
     public static void duplicateDummies(GuiLogger logger, StorableDocument doc, List<StoredDocument> dummies) {
       String msg = new StringBuilder(255)
           .append("Error while annotating document ")
           .append(doc.getSequenceInfo().getName())
-          .append(". Found multiple documents with extract ID ")
+          .append(". Found multiple dummy documents with extract ID ")
           .append(doc.getSequenceInfo().getNaturalisNote().getExtractId())
-          .append(": ")
+          .append(LIST_ITEM)
           .append(dummies.stream()
-              .map(StoredDocument::getGeneiousDocument)
-              .map(AnnotatedPluginDocument::getDatabase)
-              .filter(Objects::nonNull)
-              .map(DatabaseService::getFullPath)
-              .collect(joining(", ")))
+              .map(StoredDocument::getLocation)
+              .collect(joining(LIST_ITEM)))
           .toString();
       logger.error(msg);
     }
   }
 
-  private Messages() {}
+  private Log() {}
 
 }

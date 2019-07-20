@@ -16,7 +16,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.StorableDocument;
-import nl.naturalis.geneious.util.Messages.Info;
+import nl.naturalis.geneious.util.Log.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**

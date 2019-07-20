@@ -4,7 +4,6 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
-import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.FILE_DESCRIPTION;
 import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.KEY_NAME;
 
@@ -23,10 +22,11 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Messages.Debug;
-import nl.naturalis.geneious.util.Messages.Warn;
-import nl.naturalis.geneious.util.QueryUtils;
 import nl.naturalis.geneious.util.DocumentLookupTable;
+import nl.naturalis.geneious.util.Log.Debug;
+import nl.naturalis.geneious.util.Log.Info;
+import nl.naturalis.geneious.util.Log.Warn;
+import nl.naturalis.geneious.util.QueryUtils;
 
 /**
  * The sample sheet importer that runs when the user has opted to create place-holder documents (a#&46;k&#46;a#&46;
@@ -118,8 +118,8 @@ class SampleSheetImporter2 {
           logger.debugf(() -> format("None found. Creating dummy document for extract ID %s", key));
           newDummies.add(new DummySequence(note).wrap());
           runtime.markUsed(i);
-        } else if(logger.isDebugEnabled()) {
-          logUnusedRow(docs1);
+        } else {
+          Info.foundUnselectedDocumentsForExtractId(logger, docs1);
         }
       } else {
         annotateDocuments(docs, note);
@@ -173,21 +173,10 @@ class SampleSheetImporter2 {
     Debug.updatedDocuments(logger, docs, updated, KEY_NAME, note.getExtractId());
   }
 
-  private void logUnusedRow(List<StoredDocument> docs) {
-    // All documents will have the same extract ID b/c that's what they were keyed on. Pick any.
-    String extractId = getKey(docs.get(0));
-    String fmt;
-    if(docs.size() == 1) {
-      fmt = "Found 1 %s document with extract ID %s, but the document was not selected and therefore not updated";
-      logger.debug(fmt, docs.get(0).getType(), extractId);
-    } else {
-      fmt = "Found %s documents with extract ID %s, but the documents were not selected and therefore not updated";
-      logger.debug(fmt, docs.size(), extractId);
-    }
-  }
-
   private String getKey(StoredDocument sd) {
-    return sd.getNaturalisNote().get(SMPL_EXTRACT_ID);
+    String id = sd.getNaturalisNote().getExtractId();
+    // Chop off the 'e' at the beginning because it's not in the sample sheet, but prefixed by the plugin
+    return id == null ? null : id.substring(1);
   }
 
   private static NaturalisNote createNote(SampleSheetRow row, int line) {

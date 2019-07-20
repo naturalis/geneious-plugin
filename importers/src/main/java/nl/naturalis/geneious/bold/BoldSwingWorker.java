@@ -19,7 +19,7 @@ import nl.naturalis.geneious.csv.CsvImportStats;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Messages.Info;
+import nl.naturalis.geneious.util.Log.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
