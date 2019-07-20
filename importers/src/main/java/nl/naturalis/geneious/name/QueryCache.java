@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -27,7 +26,7 @@ import nl.naturalis.geneious.log.GuiLogger;
  */
 class QueryCache {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryCache.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(QueryCache.class);
 
   /**
    * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document
@@ -93,7 +92,7 @@ class QueryCache {
     }
   }
 
-  private final HashMap<Key, List<StoredDocument>> cache;
+  private final HashMap<Key, ArrayList<StoredDocument>> cache;
 
   /**
    * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the
@@ -103,10 +102,10 @@ class QueryCache {
    */
   QueryCache(Collection<AnnotatedPluginDocument> documents) {
     cache = new HashMap<>(documents.size(), 1F);
-    for (AnnotatedPluginDocument doc : documents) {
+    for(AnnotatedPluginDocument doc : documents) {
       StoredDocument sd = new StoredDocument(doc);
       Key key = new Key(sd);
-      List<StoredDocument> sds = cache.get(key);
+      ArrayList<StoredDocument> sds = cache.get(key);
       if(sds == null) {
         sds = new ArrayList<StoredDocument>(8);
         cache.put(key, sds);
@@ -116,19 +115,16 @@ class QueryCache {
   }
 
   /**
-   * Return an {@code Optional} containing a dummy document with the specified extract ID or an empty {@code Optional} if
-   * there is no such dummy document.
+   * Returns a list of dummy documents with the provided extract ID. Note that there SHOULD never be more than one dummy
+   * document for any given extract ID. However, to make the application more robust in the face of data corruption, we
+   * allow for that to be not the case. By returning a list of dummy documents rather than a single one, we allow the
+   * application to recover from data corruption (e.g. by deleting all but one of them).
    * 
    * @param extractID
    * @return
    */
-  Optional<StoredDocument> findDummy(String extractId) {
-    List<StoredDocument> value = cache.get(new Key(DUMMY, extractId));
-    /*
-     * For dummy documents the list size will always be one, because per extract ID there can only be one dummy document
-     * (that's how sample sheet rows are matched and merged with existing dummy documents).
-     */
-    return value == null ? Optional.empty() : Optional.of(value.get(0));
+  List<StoredDocument> findDummy(String extractId) {
+    return cache.get(new Key(DUMMY, extractId));
   }
 
   /**
@@ -138,9 +134,9 @@ class QueryCache {
    */
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
-    for (Key key : cache.keySet()) {
+    for(Key key : cache.keySet()) {
       List<StoredDocument> sds = cache.get(key);
-      for (StoredDocument sd : sds) {
+      for(StoredDocument sd : sds) {
         if(sd.isDummy()) {
           continue;
         }
@@ -151,7 +147,7 @@ class QueryCache {
            * If the document has any Naturalis annotation (and we know it has one b/c we queried on extract ID), then it must also
            * have the document version annotation.
            */
-          guiLogger.warn("Corrupt %s document: %s. Missing document version", key.docType, name);
+          logger.warn("Corrupt %s document: %s. Missing document version", key.docType, name);
           continue;
         }
         Key newKey = new Key(sd.getType(), name);
@@ -163,7 +159,7 @@ class QueryCache {
           mi2.setValue(mi1.intValue());
         } else if(mi1.intValue() == mi2.intValue()) {
           String fmt = "Corrupt %s documents: same name (%s) and same document version (%s)";
-          guiLogger.warn(fmt, key.docType, name, version);
+          logger.warn(fmt, key.docType, name, version);
         }
       }
     }

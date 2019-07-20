@@ -1,14 +1,21 @@
 package nl.naturalis.geneious.util;
 
+import static java.util.stream.Collectors.joining;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
@@ -137,6 +144,27 @@ public class Messages {
 
     public static void duplicateKey(GuiLogger logger, Object key, int line, int prevLine) {
       logger.warn("Ignoring row at line %d. Duplicate key: %s. Duplicate of row at line %d", line, key, prevLine);
+    }
+  }
+
+  public static class LogError {
+    private LogError() {}
+
+    public static void duplicateDummies(GuiLogger logger, StorableDocument doc, List<StoredDocument> dummies) {
+      String msg = new StringBuilder(255)
+          .append("Error while annotating document ")
+          .append(doc.getSequenceInfo().getName())
+          .append(". Found multiple documents with extract ID ")
+          .append(doc.getSequenceInfo().getNaturalisNote().getExtractId())
+          .append(": ")
+          .append(dummies.stream()
+              .map(StoredDocument::getGeneiousDocument)
+              .map(AnnotatedPluginDocument::getDatabase)
+              .filter(Objects::nonNull)
+              .map(DatabaseService::getFullPath)
+              .collect(joining(", ")))
+          .toString();
+      logger.error(msg);
     }
   }
 

@@ -10,10 +10,8 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import nl.naturalis.geneious.StoredDocument;
 
 /**
- * An extension of {@code HashMap} that maps some property of a {@link StoredDocument} to a list of
- * {@code StoredDocument} instances sharing the same value for that property. For sample sheet imports the property will
- * the extract ID, for CRS import the CRS registration number, and for BOLD imports the combination of extract ID and
- * marker.
+ * Caches documents, either selected by the user or retrieved through a database query, in a {@code HashMap} for fast
+ * lookups as an importer iterates over the rows in a CSV or file or spreadsheet.
  *
  * @author Ayco Holleman
  */
