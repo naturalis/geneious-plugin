@@ -14,6 +14,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.NaturalisPluginException;
+import static nl.naturalis.geneious.csv.CsvImportUtil.*;
 
 /**
  * A simple reader for all CSV-like formats suported by the plugin: CSV files, TSV files and spreadsheets.
@@ -37,18 +38,18 @@ public class RowSupplier {
     File file = config.getFile();
     List<String[]> rows;
     try {
-      if(CsvImportUtil.isSpreadsheet(file.getName())) {
+      if(isSpreadsheet(file.getName())) {
         SpreadSheetReader ssr = new SpreadSheetReader(file);
         ssr.setSheetNumber(config.getSheetNumber());
         rows = ssr.readAllRows();
-      } else if(CsvImportUtil.isCsvFile(file.getName())) {
+      } else if(isCsvFile(file.getName())) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
         settings.getFormat().setDelimiter(config.getDelimiter().charAt(0));
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
       } else { // Shouldn't happen (already checked)
-        throw new NaturalisPluginException("Unknown file type");
+        throw new IllegalStateException("File type check failure");
       }
       return trim(rows);
     } catch(Throwable t) {

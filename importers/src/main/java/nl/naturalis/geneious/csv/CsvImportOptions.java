@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
+import static nl.naturalis.geneious.csv.CsvImportUtil.*;
 
 /**
  * Abstract base class for classes configuring a Geneious dialog that requests user input for the import of CSV-like
@@ -77,7 +78,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     }
     String ext = getExtension(file.getValue());
     if(!supportedFileTypes().contains(ext.toLowerCase())) {
-      return "Unsupported file type. Supported file types: " + supportedFileTypesAsString();
+      String fmt = "Unsupported file type: %s. Supported file types: %s";
+      return String.format(fmt, ext, supportedFileTypesAsString());
     }
     return null; // Signals to Geneious it can continue
   }
@@ -110,7 +112,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Returns the default number of lines to skip (displayed when the dialog is opened for the first time).
+   * Returns the default number of lines to skip (displayed when the dialog is opened for the very first time).
    * 
    * @return
    */
@@ -168,17 +170,16 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private void fileChanged() {
     if(StringUtils.isBlank(file.getValue())) {
       /*
-       * When a file has already been selected, and then you select another file, the change listener apparently fires twice.
-       * The first time the file is empty again (useful if you want to do a System.exit in between or so). The second time you
-       * get the new file.
+       * When a file has been selected, and then you select another file, the change listener apparently fires twice. The
+       * first time the file is empty again. The second time you get the new file.
        */
       return;
     }
-    if(supportSpreadsheet()) {
+    if(supportSpreadsheet()) { // must check that, otherwise the sheet isn't even there.
       sheet.setEnabled(false);
     }
     delimiter.setEnabled(false);
-    if(supportSpreadsheet() && CsvImportUtil.isSpreadsheet(file.getValue())) {
+    if(supportSpreadsheet() && isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
       delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
@@ -236,6 +237,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     types.add("txt");
     if(supportSpreadsheet()) {
       types.add("xls");
+      types.add("xlsx");
     }
     return types;
   }

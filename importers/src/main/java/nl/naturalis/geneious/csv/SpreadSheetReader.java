@@ -44,22 +44,23 @@ class SpreadSheetReader {
    * @throws IOException
    */
   List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
-    Workbook workbook = WorkbookFactory.create(file);
-    if (sheetNumber >= workbook.getNumberOfSheets()) {
-      String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
-      throw new NaturalisPluginException(String.format(fmt, workbook.getNumberOfSheets()));
-    }
-    Sheet sheet = workbook.getSheetAt(sheetNumber);
-    DataFormatter dataFormatter = new DataFormatter();
-    List<String[]> rows = new ArrayList<>();
-    for (Row row : sheet) {
-      List<String> values = new ArrayList<>();
-      for (Cell cell : row) {
-        values.add(dataFormatter.formatCellValue(cell));
+    try(Workbook workbook = WorkbookFactory.create(file)) {
+      if(sheetNumber >= workbook.getNumberOfSheets()) {
+        String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
+        throw new NaturalisPluginException(String.format(fmt, workbook.getNumberOfSheets()));
       }
-      rows.add(values.toArray(new String[values.size()]));
+      Sheet sheet = workbook.getSheetAt(sheetNumber);
+      DataFormatter dataFormatter = new DataFormatter();
+      List<String[]> rows = new ArrayList<>();
+      for(Row row : sheet) {
+        List<String> values = new ArrayList<>();
+        for(Cell cell : row) {
+          values.add(dataFormatter.formatCellValue(cell));
+        }
+        rows.add(values.toArray(new String[values.size()]));
+      }
+      return rows;
     }
-    return rows;
   }
 
   /**
