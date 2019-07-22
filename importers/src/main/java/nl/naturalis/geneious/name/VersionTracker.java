@@ -22,7 +22,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 class VersionTracker {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(VersionTracker.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(VersionTracker.class);
 
   private final Map<Key, MutableInt> cache;
 
@@ -37,23 +37,17 @@ class VersionTracker {
    * @param doc
    */
   void setDocumentVersion(StorableDocument doc) {
+    String documentName = doc.getSequenceInfo().getName();
+    DocumentType documentType = doc.getSequenceInfo().getDocumentType();
     NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
-    if (StringUtils.isNotBlank(note.getDocumentVersion())) {
-      // Document versions are never overwritten
+    if(StringUtils.isNotBlank(note.getDocumentVersion())) {
+      logger.error("Document version already set for document %s. Overwriting forbidden", documentName);
       return;
     }
-    Key key = new Key(doc, doc.getSequenceInfo().getName());
-    MutableInt version = cache.get(key);
-    if (version == null) {
-      version = new MutableInt(1);
-      cache.put(key, version);
-      guiLogger.debugf(() -> format("No other %s document with name \"%s\" exists. Document version set to 1", key.docType, key.value));
-    } else {
-      version.increment();
-      if (guiLogger.isDebugEnabled()) {
-        guiLogger.debug("Another %s document with name \"%s\" already exists. Document version set to %s", key.docType, key.value, version);
-      }
-    }
+    Key key = new Key(documentType, documentName);
+    MutableInt version = cache.computeIfAbsent(key, k -> new MutableInt());
+    version.increment();
+    logger.debugf(() -> format("Document %s (%s): document version set to %s", documentName, documentType, version));
     note.setDocumentVersion(version.intValue());
   }
 

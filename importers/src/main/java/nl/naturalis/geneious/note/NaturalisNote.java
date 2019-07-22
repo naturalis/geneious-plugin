@@ -4,7 +4,9 @@ import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -171,15 +173,20 @@ public final class NaturalisNote implements Note {
 
   /**
    * Copies all values of this note to the other note without overwriting values in the other note. Returns true if the
-   * other note's content changed as a result, false otherwise.
+   * other note's content changed as a result, false otherwise. You can provide an array of fields that you explicitly do
+   * not want to get copied over to the other note.
    * 
    * @param other
-   * @param overwrite Whether or not to overwrite the values in the other note.
+   * @param dontCopy
    * @return
    */
-  public boolean mergeInto(NaturalisNote other) {
+  public boolean mergeInto(NaturalisNote other, NaturalisField... dontCopy) {
     boolean changed = false;
+    EnumSet<NaturalisField> s = EnumSet.copyOf(Arrays.asList(dontCopy));
     for(Map.Entry<NaturalisField, Object> e : data.entrySet()) {
+      if(s.contains(e.getKey())) {
+        continue;
+      }
       Object val = other.data.get(e.getKey());
       if(val == null) {
         other.data.put(e.getKey(), e.getValue());

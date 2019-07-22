@@ -22,6 +22,8 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Error;
 
+import static nl.naturalis.geneious.note.NaturalisField.*;
+
 /**
  * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real
  * documents, and for deleting obsolete dummy documents. The generation of document version numbers os left to a
@@ -75,7 +77,7 @@ public class Annotator {
           Error.duplicateDummies(logger, doc, dummies);
         } else {
           logger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
-          dummies.get(0).getNaturalisNote().mergeInto(note);
+          dummies.get(0).getNaturalisNote().mergeInto(note, DOCUMENT_VERSION);
           obsoleteDummies.add(dummies.get(0));
           logger.debug(() -> "Dummy document queued for deletion");
         }

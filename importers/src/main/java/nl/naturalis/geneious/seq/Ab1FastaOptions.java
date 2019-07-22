@@ -16,10 +16,11 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
 
 class Ab1FastaOptions extends Options {
 
-  private static final String MESSAGE = "Choose AB1/fasta files to import";
+  private static final String MSG_CHOOSE_FILES = "Choose AB1/fasta files to import";
 
   private final JTextField filesDisplay;
-  private final JLabel messageLabel = new JLabel(MESSAGE);
+  private final JLabel filesLabel = new JLabel(MSG_CHOOSE_FILES);
+  private final JLabel fileCountLabel = new JLabel(" ");
   private final StringOption ab1FastaDir;
 
   private File[] selectedFiles;
@@ -27,13 +28,14 @@ class Ab1FastaOptions extends Options {
   Ab1FastaOptions() {
     ab1FastaDir = addStringOption("nl.naturalis.geneious.seq.dir", "", "");
     ab1FastaDir.setHidden();
-    addCustomComponent(messageLabel);
+    addCustomComponent(filesLabel);
     beginAlignHorizontally(null, false);
     filesDisplay = new JTextField(40);
     filesDisplay.setEditable(false);
     addCustomComponent(filesDisplay);
     createButtonOption();
     endAlignHorizontally();
+    addCustomComponent(fileCountLabel);
   }
 
   @Override
@@ -66,14 +68,15 @@ class Ab1FastaOptions extends Options {
           sb.append(selectedFiles[i].getName());
         }
         if(selectedFiles.length > 10) {
-          sb.append(" ... (").append(selectedFiles.length).append(" files selected)");
+          sb.append(" ... ").append(selectedFiles.length - 10).append(" more file(s)");
         }
         filesDisplay.setText(sb.toString());
         if(selectedFiles.length == 1) {
-          filesDisplay.setToolTipText("1 file selected");
+          fileCountLabel.setText("1 file selected");
         } else {
-          filesDisplay.setToolTipText(String.format("%d files selected", selectedFiles.length));
+          fileCountLabel.setText(String.format("%d files selected", selectedFiles.length));
         }
+        filesDisplay.setToolTipText(fileCountLabel.getText());
         filesDisplay.setCaretPosition(0);
       }
     });
@@ -82,7 +85,7 @@ class Ab1FastaOptions extends Options {
 
   private JFileChooser newFileChooser() {
     JFileChooser fc = new JFileChooser(ab1FastaDir.getValue());
-    fc.setDialogTitle(MESSAGE);
+    fc.setDialogTitle(MSG_CHOOSE_FILES);
     fc.setMultiSelectionEnabled(true);
     fc.addChoosableFileFilter(new Ab1FastaFileFilter(true, true));
     fc.addChoosableFileFilter(new Ab1FastaFileFilter(true, false));

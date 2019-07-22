@@ -19,6 +19,7 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.util.JsonUtil;
 
 /**
  * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
@@ -147,7 +148,7 @@ class QueryCache {
            * If the document has any Naturalis annotation (and we know it has one b/c we queried on extract ID), then it must also
            * have the document version annotation.
            */
-          logger.warn("Corrupt %s document: %s. Missing document version", key.docType, name);
+          logger.error("Corrupt %s document: %s. Missing document version", key.docType, name);
           continue;
         }
         Key newKey = new Key(sd.getType(), name);
@@ -159,11 +160,16 @@ class QueryCache {
           mi2.setValue(mi1.intValue());
         } else if(mi1.intValue() == mi2.intValue()) {
           String fmt = "Corrupt %s documents: same name (%s) and same document version (%s)";
-          logger.warn(fmt, key.docType, name, version);
+          logger.error(fmt, key.docType, name, version);
         }
       }
     }
     return versions;
+  }
+
+  @Override
+  public String toString() {
+    return JsonUtil.toPrettyJson(cache);
   }
 
 }

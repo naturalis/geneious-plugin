@@ -63,7 +63,6 @@ public class SequenceNameParser {
     note.castAndSet(SEQ_MARKER, processMarker(segments[4]));
     note.castAndSet(SEQ_SEQUENCING_STAFF, CONSTANT_VALUE_SEQ_STAFF);
     note.castAndSet(SEQ_PASS, SeqPass.NOT_DETERMINED);
-    note.setDocumentVersion(1);
     Debug.showNote(logger, note);
     return note;
   }
