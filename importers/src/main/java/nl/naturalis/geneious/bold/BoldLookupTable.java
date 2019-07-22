@@ -50,7 +50,12 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
   private BoldLookupTable() {}
 
   /**
-   * Returns a new document lookup table keyed on just the CRS registration number.
+   * Returns a new document lookup table keyed on just the CRS registration number. The importer will first attempt to
+   * match rows to documents using a compound key consisting of registration number and marker. Matching documents will be
+   * exhaustively updated from the row and then removed from the lookup table. If, after all markers have been processed,
+   * there are still documents in the lookup table, the importer will attempt to match on registration number only.
+   * Matching documents will only acquire the specimen-related annotations extracted from the row. Marker-related
+   * annotations will be ignored.
    * 
    * @return
    */

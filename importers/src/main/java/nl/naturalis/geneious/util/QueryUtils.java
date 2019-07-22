@@ -87,7 +87,7 @@ public class QueryUtils {
   public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, Collection<String> extractIds)
       throws DatabaseServiceException {
     if(extractIds.size() == 0) {
-      return APDList.emptyList();
+      return Collections.emptyList();
     }
     Query[] constraints = new Query[extractIds.size() * 2];
     int i = 0;

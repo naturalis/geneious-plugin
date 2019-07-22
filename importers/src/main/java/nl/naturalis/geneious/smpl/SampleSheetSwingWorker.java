@@ -20,7 +20,7 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Log.Info;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.DocumentLookupTable;
 
@@ -47,6 +47,34 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     }
     return updateOnly();
   }
+  
+
+  private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
+    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
+    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
+    PreconditionValidator validator = new PreconditionValidator(config, required);
+    validator.validate();
+    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    List<String[]> rows = new RowSupplier(config).getDataRows();
+    Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
+    RuntimeInfo runtime = new RuntimeInfo(rows.size());
+    SampleSheetImporter1 importer = new SampleSheetImporter1(config, runtime);
+    DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
+    importer.importRows(rows, lookups);
+    List<AnnotatedPluginDocument> updated = null;
+    if(runtime.countUpdatedDocuments() != 0) {
+      runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
+      updated = runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).collect(toList());
+      updated = addAndReturnGeneratedDocuments(updated, true, Collections.emptyList());
+    }
+    CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
+    stats.print(logger);
+    Info.explainUnusedRowForSampleSheets1(logger);
+    Info.operationCompletedSuccessfully(logger, getLogTitle());
+    return updated == null ? Collections.emptyList() : updated;
+  }
+
+
 
   private List<AnnotatedPluginDocument> updateOrCreateDummies() throws DatabaseServiceException, NonFatalException {
     int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
@@ -78,40 +106,10 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     logger.info("Number of updated dummies ...........: %3d", importer.getUpdatedDummies().size());
     logger.info("Number of unchanged documents .......: %3d", unchanged);
     logger.info("Number of dummy documents created ...: %3d", importer.getNewDummies().size());
-    logger.info("UNUSED ROW (explanation): The row's extract ID was found in an existing");
-    logger.info("           document, but the document was not selected and therefore not");
-    logger.info("           updated.");
+    Info.explainUnusedRowForSampleSheets2(logger);
     Info.operationCompletedSuccessfully(logger, SampleSheetDocumentOperation.NAME);
     return all == null ? Collections.emptyList() : all;
   }
-
-  private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
-    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
-    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    PreconditionValidator validator = new PreconditionValidator(config, required);
-    validator.validate();
-    Info.loadingFile(logger, FILE_DESCRIPTION, config);
-    List<String[]> rows = new RowSupplier(config).getDataRows();
-    Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
-    RuntimeInfo runtime = new RuntimeInfo(rows.size());
-    SampleSheetImporter1 importer = new SampleSheetImporter1(config, runtime);
-    DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
-    importer.importRows(rows, lookups);
-    List<AnnotatedPluginDocument> updated = null;
-    if(runtime.countUpdatedDocuments() != 0) {
-      runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
-      updated = runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).collect(toList());
-      updated = addAndReturnGeneratedDocuments(updated, true, Collections.emptyList());
-    }
-    CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
-    stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's extract ID was not found in");
-    logger.info("           any of the selected documents, but may still be present");
-    logger.info("           in other, unselected documents");
-    Info.operationCompletedSuccessfully(logger, getLogTitle());
-    return updated == null ? Collections.emptyList() : updated;
-  }
-
   private String getKey(StoredDocument sd) {
     String s = sd.getNaturalisNote().getExtractId();
     return s == null ? null : s.substring(1); // Remove the 'e' at the beginning of the extract ID

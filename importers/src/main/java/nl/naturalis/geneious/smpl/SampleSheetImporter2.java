@@ -23,9 +23,9 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.DocumentLookupTable;
-import nl.naturalis.geneious.util.Log.Debug;
-import nl.naturalis.geneious.util.Log.Info;
-import nl.naturalis.geneious.util.Log.Warn;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Info;
+import nl.naturalis.geneious.util.Messages.Warn;
 import nl.naturalis.geneious.util.QueryUtils;
 
 /**
@@ -119,7 +119,7 @@ class SampleSheetImporter2 {
           newDummies.add(new DummySequence(note).wrap());
           runtime.markUsed(i);
         } else {
-          Info.foundUnselectedDocumentsForExtractId(logger, docs1);
+          Info.foundUnselectedDocuments(logger, docs1);
         }
       } else {
         annotateDocuments(docs, note);

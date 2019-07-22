@@ -19,7 +19,7 @@ import nl.naturalis.geneious.csv.CsvImportStats;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Log.Info;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -74,9 +74,7 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
     stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's registration number was not");
-    logger.info("           found in any of the selected documents, but may still");
-    logger.info("           be present in other, unselected documents");
+    Info.explainUnusedRowForCrsAndBold(logger);
     Info.operationCompletedSuccessfully(logger, BoldDocumentOperation.NAME);
     return updated == null ? Collections.emptyList() : updated;
   }

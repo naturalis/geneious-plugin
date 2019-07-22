@@ -20,7 +20,7 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Log.Error;
+import nl.naturalis.geneious.util.Messages.Error;
 
 /**
  * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real

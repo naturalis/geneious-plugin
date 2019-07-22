@@ -15,8 +15,8 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Log.Debug;
-import nl.naturalis.geneious.util.Log.Warn;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Warn;
 
 /**
  * Imports rows for one specific marker. This class can also be used to extract only specimen-related information from

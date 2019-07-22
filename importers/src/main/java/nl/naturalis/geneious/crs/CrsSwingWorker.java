@@ -19,7 +19,7 @@ import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Log.Info;
+import nl.naturalis.geneious.util.Messages.Info;
 import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.DocumentLookupTable;
 
@@ -60,9 +60,9 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
     stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's registration number was not");
-    logger.info("           found in any of the selected documents, but may still");
-    logger.info("           be present in other, unselected documents");
+    logger.info("UNUSED ROW (explanation): The row's registration number was not found in any");
+    logger.info("           of the selected documents, but may or may not be found in other,");
+    logger.info("           unselected documents elsewhere in the database");
     Info.operationCompletedSuccessfully(logger, CrsDocumentOperation.NAME);
     return updated == null ? Collections.emptyList() : updated;
   }

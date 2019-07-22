@@ -11,8 +11,8 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.Log.Debug;
-import nl.naturalis.geneious.util.Log.Warn;
+import nl.naturalis.geneious.util.Messages.Debug;
+import nl.naturalis.geneious.util.Messages.Warn;
 import nl.naturalis.geneious.util.DocumentLookupTable;
 
 /**

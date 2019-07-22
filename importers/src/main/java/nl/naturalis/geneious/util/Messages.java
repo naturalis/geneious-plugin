@@ -12,19 +12,26 @@ import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.smpl.SampleSheetImporter1;
 
 import static java.util.stream.Collectors.*;
 
 /**
- * Common messages emitted by all operations.
+ * Common messages or messages so verbose that they would clutter the code that emits them too much.
  * 
  * @author Ayco Holleman
  *
  */
-public class Log {
+public class Messages {
 
   public static final String LIST_ITEM = "\n**** ";
 
+  /**
+   * Common DEBUG messages.
+   * 
+   * @author Ayco Holleman
+   *
+   */
   public static class Debug {
     private Debug() {}
 
@@ -40,7 +47,7 @@ public class Log {
     }
 
     /**
-     * Displayes the annotations (in the form of a {@code NaturalisNote}) created from a row.
+     * Displays the annotations created from a row.
      * 
      * @param logger
      * @param note
@@ -50,7 +57,7 @@ public class Log {
     }
 
     /**
-     * <i>Scanning selected documents for &#46;&#46;&#46;</i>
+     * <i>Scanning selected documents for [&#46;&#46;&#46;]</i>
      * 
      * @param logger
      * @param keyName
@@ -61,7 +68,7 @@ public class Log {
     }
 
     /**
-     * <i>Found X matching document(s). Comparing values &#46;&#46;&#46;</i>
+     * Message informing the user how many documents matched the key of the currently processed row.
      * 
      * @param logger
      * @param file
@@ -73,7 +80,8 @@ public class Log {
     }
 
     /**
-     * <i>Document X not updated (no new values in Y)</i>
+     * Message informing the user that, although a row could be matched against several documents, the documents were not
+     * updated because the row contained no new values.
      * 
      * @param logger
      * @param file
@@ -85,7 +93,7 @@ public class Log {
     }
 
     /**
-     * <i>Updated X documents &#46;&#46;&#46;</i>
+     * <i>Updated [&#46;&#46;&#46;] documents [&#46;&#46;&#46;]</i>
      * 
      * @param logger
      * @param updated
@@ -97,11 +105,17 @@ public class Log {
     }
   }
 
+  /**
+   * Common INFO messages.
+   * 
+   * @author Ayco Holleman
+   *
+   */
   public static class Info {
     private Info() {}
 
     /**
-     * Informational message indicating that the source file (a CSV-like file in this case) is being loaded into memory.
+     * Informational message indicating that a source file is being loaded into memory.
      * 
      * @param logger
      * @param file
@@ -122,7 +136,14 @@ public class Log {
       logger.info("%s contains %s row%s (excluding header rows)", file, rowCount, plural(rowCount));
     }
 
-    public static void foundUnselectedDocumentsForExtractId(GuiLogger logger, List<StoredDocument> docs) {
+    /**
+     * Message informing the user that there were multiple documents matching an extract ID, but that they were not selected
+     * and therefore not updated.
+     * 
+     * @param logger
+     * @param docs
+     */
+    public static void foundUnselectedDocuments(GuiLogger logger, List<StoredDocument> docs) {
       String msg;
       if(docs.size() == 1) {
         msg = new StringBuilder(255)
@@ -152,7 +173,40 @@ public class Log {
     }
 
     /**
-     * <i>X completed successfully</i>
+     * Explains the concept of an unused row for sample sheet imports using {@link SampleSheetImporter1}.
+     * 
+     * @param logger
+     */
+    public static void explainUnusedRowForSampleSheets1(GuiLogger logger) {
+      logger.info("UNUSED ROW (explanation): The row's extract ID was not found in any of");
+      logger.info("           the selected documents, but may or may not be found in other,");
+      logger.info("           unselected documents elsewhere in the database");
+    }
+
+    /**
+     * Explains the concept of an unused row for sample sheet imports using {@link SampleSheetImporter2}.
+     * 
+     * @param logger
+     */
+    public static void explainUnusedRowForSampleSheets2(GuiLogger logger) {
+      logger.info("UNUSED ROW (explanation): The row's extract ID was found in an existing");
+      logger.info("           document, but the document was not selected and therefore not");
+      logger.info("           updated.");
+    }
+
+    /**
+     * Explains the concept of an unused row for CRS and BOLD.
+     * 
+     * @param logger
+     */
+    public static void explainUnusedRowForCrsAndBold(GuiLogger logger) {
+      logger.info("UNUSED ROW (explanation): The row's registration number was not found in any");
+      logger.info("           of the selected documents, but may or may not be found in other,");
+      logger.info("           unselected documents elsewhere in the database");
+    }
+
+    /**
+     * <i>Operation completed successfully</i>
      * 
      * @param logger
      * @param operation
@@ -163,23 +217,50 @@ public class Log {
 
   }
 
+  /**
+   * Common WARN messages.
+   * 
+   * @author Ayco Holleman
+   *
+   */
   public static class Warn {
     private Warn() {}
 
+    /**
+     * Message indicating that a row could not be processed because it didn't have value(s) for its key column(s).
+     * 
+     * @param logger
+     * @param keyName
+     * @param line
+     */
     public static void missingKey(GuiLogger logger, String keyName, int line) {
       logger.warn("Ignoring row at line %d. Missing %s", line, keyName);
     }
 
+    /**
+     * Message indicating that a row will not be processed because its key was the same as a previous row's key.
+     * 
+     * @param logger
+     * @param key
+     * @param line
+     * @param prevLine
+     */
     public static void duplicateKey(GuiLogger logger, Object key, int line, int prevLine) {
       logger.warn("Ignoring row at line %d. Duplicate key: %s. Duplicate of row at line %d", line, key, prevLine);
     }
   }
 
+  /**
+   * Common ERROR messages.
+   * 
+   * @author Ayco Holleman
+   *
+   */
   public static class Error {
     private Error() {}
 
     /**
-     * <i>Found multiple dummy documents with extract ID X</i>
+     * <i>Found multiple dummy documents with extract ID [&#46;&#46;&#46;]</i>
      * 
      * @param logger
      * @param doc
@@ -200,6 +281,6 @@ public class Log {
     }
   }
 
-  private Log() {}
+  private Messages() {}
 
 }
