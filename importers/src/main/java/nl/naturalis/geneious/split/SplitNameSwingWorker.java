@@ -1,23 +1,25 @@
 package nl.naturalis.geneious.split;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
+import nl.naturalis.geneious.Precondition;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.util.Messages.Info;
-import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
  * Manages and coordinates the Split Name operation.
@@ -34,9 +36,6 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
-    int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
-    PreconditionValidator validator = new PreconditionValidator(config, required);
-    validator.validate();
     DocumentFilter filter = new DocumentFilter(config);
     List<StorableDocument> docs = filter.filterAndConvert();
     Annotator annotator = new Annotator(config, docs);
@@ -63,6 +62,11 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
   @Override
   protected String getLogTitle() {
     return SplitNameDocumentOperation.NAME;
+  }
+
+  @Override
+  protected Set<Precondition> getPreconditions() {
+    return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
   }
 
 }

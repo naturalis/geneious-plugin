@@ -2,27 +2,29 @@ package nl.naturalis.geneious.smpl;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static java.util.stream.Collectors.toList;
-import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
+import nl.naturalis.geneious.Precondition;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportStats;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Messages.Info;
-import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.DocumentLookupTable;
+import nl.naturalis.geneious.util.Messages.Info;
 
 /**
  * Manages and coordinates the import of sample sheets into Geneious.
@@ -47,18 +49,14 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     }
     return updateOnly();
   }
-  
 
-  private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
-    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
-    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    PreconditionValidator validator = new PreconditionValidator(config, required);
-    validator.validate();
+  private List<AnnotatedPluginDocument> updateOnly() {
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
     SampleSheetImporter1 importer = new SampleSheetImporter1(config, runtime);
+    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
     DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> updated = null;
@@ -74,18 +72,13 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     return updated == null ? Collections.emptyList() : updated;
   }
 
-
-
-  private List<AnnotatedPluginDocument> updateOrCreateDummies() throws DatabaseServiceException, NonFatalException {
-    int required = ALL_DOCUMENTS_IN_SAME_DATABASE;
-    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    PreconditionValidator validator = new PreconditionValidator(config, required);
-    validator.validate();
+  private List<AnnotatedPluginDocument> updateOrCreateDummies() throws DatabaseServiceException {
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
     SampleSheetImporter2 importer = new SampleSheetImporter2(config, runtime);
+    List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
     DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> all = null;
@@ -110,6 +103,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     Info.operationCompletedSuccessfully(logger, SampleSheetDocumentOperation.NAME);
     return all == null ? Collections.emptyList() : all;
   }
+
   private String getKey(StoredDocument sd) {
     String s = sd.getNaturalisNote().getExtractId();
     return s == null ? null : s.substring(1); // Remove the 'e' at the beginning of the extract ID
@@ -118,6 +112,14 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
   @Override
   protected String getLogTitle() {
     return SampleSheetDocumentOperation.NAME;
+  }
+
+  @Override
+  protected Set<Precondition> getPreconditions() {
+    if(config.isCreateDummies()) {
+      return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
+    }
+    return EnumSet.of(AT_LEAST_ONE_DOCUMENT_SELECTED, ALL_DOCUMENTS_IN_SAME_DATABASE);
   }
 
 }

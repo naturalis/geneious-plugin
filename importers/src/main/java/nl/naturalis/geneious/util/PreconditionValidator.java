@@ -1,51 +1,39 @@
 package nl.naturalis.geneious.util;
 
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.OperationConfig;
+import nl.naturalis.geneious.Precondition;
 
 /**
- * Checks whether the preconditions for an operation (e&#34;g&#34; a BOLD import) are satisfied. There are a few
- * preconditions that need to be checked no matter the operation. Individual operations can request additional checks.
+ * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link NonFatalException}.
+ * Note that the precondition checked here partly overlap with the validations done in the input dialog for an
+ * operation. For example, see {@code SampleSheetImportOptions.verifyOptionsAreValid()}. This is to make the code less
+ * dependent on what happens in the GUI.
  * 
  * @author Ayco Holleman
  *
  */
 public class PreconditionValidator {
 
-  /**
-   * Only do basic checks.
-   */
-  public static final int BASIC = 0;
-  /**
-   * Make sure all selected documents are in the same database.
-   */
-  public static final int ALL_DOCUMENTS_IN_SAME_DATABASE = 1;
-  /**
-   * Make sure the user has selected at least one document.
-   */
-  public static final int AT_LEAST_ONE_DOCUMENT_SELECTED = 2;
-  /**
-   * Make sure the user is allowed to use the selected folder as a destination.
-   */
-  public static final int VALID_TARGET_FOLDER = 4;
-
   private static final String encoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
 
   private final OperationConfig config;
-  private final int preconditions;
+  private final Set<Precondition> preconditions;
 
   /**
-   * Create a {@code PreconditionValidator} that checks the provided preconditions. The preconditions are specified using
-   * a bitwise OR. E.g. {@link #ALL_DOCUMENTS_IN_SAME_DATABASE} | {@link PreconditionValidator#VALID_TARGET_FOLDER}. If
-   * you only want to check operation-independent preconditions, specify {@link #BASIC}.
+   * Creates a {@code PreconditionValidator} that checks the provided preconditions.
    * 
    * @param preconditions
    */
-  public PreconditionValidator(OperationConfig config, int preconditions) {
+  public PreconditionValidator(OperationConfig config, Set<Precondition> preconditions) {
     this.config = config;
     this.preconditions = preconditions;
   }
@@ -59,14 +47,20 @@ public class PreconditionValidator {
     // Basic precondition checks:
     checkEncoding();
     checkTargetDatabase();
-    if(requires(AT_LEAST_ONE_DOCUMENT_SELECTED) && config.getSelectedDocuments().isEmpty()) {
-      smash("No documents selected");
-    }
-    if(requires(ALL_DOCUMENTS_IN_SAME_DATABASE)) {
-      checkAllDocsInSameDatabase();
-    }
-    if(requires(VALID_TARGET_FOLDER)) {
-      checkValidTargetFolder();
+    for(Precondition p : preconditions) {
+      switch (p) {
+        case VALID_TARGET_FOLDER:
+          checkValidTargetFolder();
+          break;
+        case AT_LEAST_ONE_DOCUMENT_SELECTED:
+          if(CollectionUtils.isEmpty(config.getSelectedDocuments())) {
+            smash("No documents selected");
+          }
+          break;
+        case ALL_DOCUMENTS_IN_SAME_DATABASE:
+          checkAllDocsInSameDatabase();
+          break;
+      }
     }
   }
 
@@ -110,10 +104,6 @@ public class PreconditionValidator {
         smash("All selected documents must be in the selected database");
       }
     }
-  }
-
-  private boolean requires(int precondition) {
-    return (preconditions & precondition) == precondition;
   }
 
   private static void smash(String message) throws NonFatalException {

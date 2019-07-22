@@ -2,26 +2,28 @@ package nl.naturalis.geneious.crs;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static java.util.stream.Collectors.toList;
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.util.PreconditionValidator.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.util.PreconditionValidator.AT_LEAST_ONE_DOCUMENT_SELECTED;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
+import nl.naturalis.geneious.Precondition;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportStats;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Messages.Info;
-import nl.naturalis.geneious.util.PreconditionValidator;
 import nl.naturalis.geneious.util.DocumentLookupTable;
+import nl.naturalis.geneious.util.Messages.Info;
 
 /**
  * Manages and coordinates the import of CRS files into Geneious.
@@ -41,10 +43,7 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
-    int required = AT_LEAST_ONE_DOCUMENT_SELECTED | ALL_DOCUMENTS_IN_SAME_DATABASE;
     List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    PreconditionValidator validator = new PreconditionValidator(config, required);
-    validator.validate();
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
@@ -60,9 +59,7 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
     }
     CsvImportStats stats = new CsvImportStats(selectedDocuments, runtime);
     stats.print(logger);
-    logger.info("UNUSED ROW (explanation): The row's registration number was not found in any");
-    logger.info("           of the selected documents, but may or may not be found in other,");
-    logger.info("           unselected documents elsewhere in the database");
+    Info.explainUnusedRowForCrsAndBold(logger);
     Info.operationCompletedSuccessfully(logger, CrsDocumentOperation.NAME);
     return updated == null ? Collections.emptyList() : updated;
   }
@@ -74,5 +71,10 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
   @Override
   protected String getLogTitle() {
     return CrsDocumentOperation.NAME;
+  }
+
+  @Override
+  protected Set<Precondition> getPreconditions() {
+    return EnumSet.of(AT_LEAST_ONE_DOCUMENT_SELECTED, ALL_DOCUMENTS_IN_SAME_DATABASE);
   }
 }
