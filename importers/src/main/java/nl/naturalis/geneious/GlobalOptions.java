@@ -23,17 +23,17 @@ import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
 import nl.naturalis.geneious.util.Ping;
 
 /**
- * Configures the <i>Tools -&gt; Preferences</i> panel for the Naturalis plugin.
+ * A subclass of {@code Options} underpinning the <i>Tools -&gt; Preferences</i> panel.
  * 
  * @author Ayco Holleman
  *
  */
-public class NaturalisOptions extends Options {
+public class GlobalOptions extends Options {
 
   /**
    * Configures up the <i>Tools -&gt; Preferences</i> panel.
    */
-  public NaturalisOptions() {
+  public GlobalOptions() {
 
     super();
 

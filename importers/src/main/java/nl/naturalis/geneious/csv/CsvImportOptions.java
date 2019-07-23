@@ -22,11 +22,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
-import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.base.Charsets;
 
 import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.util.CharsetDetector;
 
@@ -39,7 +39,7 @@ import nl.naturalis.geneious.util.CharsetDetector;
  * @param <T> An {@code enum} providing symbolic constants for the columns in a CSV-like file.
  * @param <U> The type of object that will contain the user-provided values.
  */
-public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends Options {
+public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportConfig<T>> extends OperationOptions<U> {
 
   private static final String FILE = "nl.naturalis.geneious.%s.file";
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.%s.skip";
@@ -109,15 +109,16 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return null; // Signals to Geneious it can continue
   }
 
-  public abstract CsvImportConfig<T> configureOperation();
-
   /**
-   * Returns a configuration object with all settings set to the default value.
+   * Initializes the provided configuration object with settings common to all operations that import CSV or CSV-like
+   * files (Sample Sheet Import, CRS Import and BOLD Import), for example the field delimiter.
    * 
    * @param config
    * @return
    */
-  protected final U initializeStandardOptions(U config) {
+  @Override
+  protected U configureDefaults(U config) {
+    super.configureDefaults(config);
     config.setFile(new File(file.getValue()));
     config.setSkipLines(linesToSkip.getValue());
     config.setDelimiter(delimiter.getValue().getName());

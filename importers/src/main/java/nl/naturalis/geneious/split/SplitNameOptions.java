@@ -1,7 +1,8 @@
 package nl.naturalis.geneious.split;
 
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.plugin.Options;
+
+import nl.naturalis.geneious.OperationOptions;
 
 /**
  * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name} operation. Once
@@ -11,7 +12,7 @@ import com.biomatters.geneious.publicapi.plugin.Options;
  * @author Ayco Holleman
  *
  */
-class SplitNameOptions extends Options {
+class SplitNameOptions extends OperationOptions<SplitNameConfig> {
 
   private final BooleanOption ignoreWithNaturalisNote;
 
@@ -22,8 +23,9 @@ class SplitNameOptions extends Options {
   /**
    * Produces an object containing all the user input for the Split Name operation.
    */
-  SplitNameConfig configureOperation() {
+  public SplitNameConfig configureOperation() {
     SplitNameConfig config = new SplitNameConfig();
+    super.configureDefaults(config);
     config.setIgnoreDocsWithNaturalisNote(ignoreWithNaturalisNote.getValue());
     return config;
   }

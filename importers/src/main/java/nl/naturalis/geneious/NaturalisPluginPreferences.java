@@ -9,7 +9,7 @@ import com.biomatters.geneious.publicapi.plugin.PluginPreferences;
  * @author Ayco Holleman
  *
  */
-public class NaturalisPluginPreferences extends PluginPreferences<NaturalisOptions> {
+public class NaturalisPluginPreferences extends PluginPreferences<GlobalOptions> {
 
   public NaturalisPluginPreferences() {
     super();
@@ -27,8 +27,8 @@ public class NaturalisPluginPreferences extends PluginPreferences<NaturalisOptio
    * Returns the actual configuration for the <i>Tools -&gt; Preferences panel.
    */
   @Override
-  protected NaturalisOptions createOptions() {
-    return new NaturalisOptions();
+  protected GlobalOptions createOptions() {
+    return new GlobalOptions();
   }
 
 }

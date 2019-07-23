@@ -21,7 +21,7 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
    */
   @Override
   public BoldImportConfig configureOperation() {
-    return initializeStandardOptions(new BoldImportConfig());
+    return configureDefaults(new BoldImportConfig());
   }
 
   @Override

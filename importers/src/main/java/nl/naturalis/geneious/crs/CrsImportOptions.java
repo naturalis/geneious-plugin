@@ -21,7 +21,7 @@ class CrsImportOptions extends CsvImportOptions<CrsColumn, CrsImportConfig> {
    */
   @Override
   public CrsImportConfig configureOperation() {
-    return initializeStandardOptions(new CrsImportConfig());
+    return configureDefaults(new CrsImportConfig());
   }
 
 }

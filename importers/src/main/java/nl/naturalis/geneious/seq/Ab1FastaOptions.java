@@ -8,13 +8,13 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
+import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 
-class Ab1FastaOptions extends Options {
+class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
 
   private static final String MSG_CHOOSE_FILES = "Choose AB1/fasta files to import";
 
@@ -46,8 +46,9 @@ class Ab1FastaOptions extends Options {
     return null;
   }
 
-  Ab1FastaImportConfig configureOperation() {
-    Ab1FastaImportConfig config = new Ab1FastaImportConfig();
+  @Override
+  public Ab1FastaImportConfig configureOperation() {
+    Ab1FastaImportConfig config = super.configureDefaults(new Ab1FastaImportConfig());
     config.setFiles(selectedFiles);
     return config;
   }

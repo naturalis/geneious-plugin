@@ -16,8 +16,8 @@ import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
  */
 public abstract class OperationConfig {
 
-  private final List<AnnotatedPluginDocument> selectedDocuments;
-  private final WritableDatabaseService targetFolder;
+  private List<AnnotatedPluginDocument> selectedDocuments;
+  private WritableDatabaseService targetFolder;
 
   public OperationConfig() {
     this.selectedDocuments = DocumentUtilities.getSelectedDocuments();
@@ -32,6 +32,10 @@ public abstract class OperationConfig {
    */
   public WritableDatabaseService getTargetFolder() {
     return targetFolder;
+  }
+
+  public void setTargetFolder(WritableDatabaseService targetFolder) {
+    this.targetFolder = targetFolder;
   }
 
   /**
@@ -63,6 +67,10 @@ public abstract class OperationConfig {
    */
   public List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
+  }
+
+  public void setSelectedDocuments(List<AnnotatedPluginDocument> selectedDocuments) {
+    this.selectedDocuments = selectedDocuments;
   }
 
 }

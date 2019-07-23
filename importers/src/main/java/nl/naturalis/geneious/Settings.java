@@ -45,7 +45,7 @@ public class Settings {
   private Settings() {}
 
   /**
-   * Callback method for the change listeners in {@link NaturalisOptions}.
+   * Callback method for the change listeners in {@link GlobalOptions}.
    * 
    * @param setting
    * @param value
