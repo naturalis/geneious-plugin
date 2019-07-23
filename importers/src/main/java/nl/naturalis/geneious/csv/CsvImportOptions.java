@@ -263,7 +263,6 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     types.add("txt");
     if(supportSpreadsheet()) {
       types.add("xls");
-      types.add("xlsx");
     }
     return types;
   }
