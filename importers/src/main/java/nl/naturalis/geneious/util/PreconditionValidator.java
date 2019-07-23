@@ -8,25 +8,24 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Geneious;
+import com.biomatters.geneious.publicapi.plugin.Geneious.MajorVersion;
 
-import nl.naturalis.geneious.PreconditionException;
 import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.Precondition;
-
-import static com.biomatters.geneious.publicapi.plugin.Geneious.MajorVersion;
+import nl.naturalis.geneious.PreconditionException;
 
 /**
- * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link PreconditionException}.
- * Note that the preconditions checked here partly overlap with the validations done in the input dialog for an
- * operation. For example, see {@code SampleSheetImportOptions.verifyOptionsAreValid()}. This is to make the code less
- * dependent on what happens in the GUI. The {@code PreconditionValidator
+ * Checks whether all preconditions for executing an operation are met and, if not, throws an
+ * {@link PreconditionException}. Note that the preconditions checked here partly overlap with the validations done in
+ * the input dialog for an operation. For example, see {@code SampleSheetImportOptions.verifyOptionsAreValid()}. This is
+ * to make the code less dependent on what happens in the GUI. The {@code PreconditionValidator
  * 
  * @author Ayco Holleman
  *
  */
 public class PreconditionValidator {
 
-  private static final String encoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
+  private static final String jvmEncoding = System.getProperty("file.encoding", "").toUpperCase().replace("-", "");
 
   private final OperationConfig config;
   private final Set<Precondition> preconditions;
@@ -49,7 +48,7 @@ public class PreconditionValidator {
   public void validate() throws PreconditionException {
     // Basic precondition checks:
     checkGeneiousVersion();
-    checkEncoding();
+    checkJvmEncoding();
     checkTargetDatabase();
     for(Precondition p : preconditions) {
       switch (p) {
@@ -76,9 +75,9 @@ public class PreconditionValidator {
     }
   }
 
-  private static void checkEncoding() throws PreconditionException {
-    if(!encoding.equals("UTF8")) {
-      smash("Unsupported character encoding: " + encoding);
+  private static void checkJvmEncoding() throws PreconditionException {
+    if(!jvmEncoding.equals("UTF8")) {
+      smash("Unsupported character encoding: " + jvmEncoding);
     }
   }
 

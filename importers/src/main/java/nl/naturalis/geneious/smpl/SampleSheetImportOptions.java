@@ -35,6 +35,10 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
 
   @Override
   public String verifyOptionsAreValid() {
+    String msg = super.verifyOptionsAreValid();
+    if(msg != null) {
+      return msg;
+    }
     if(DocumentUtilities.getSelectedDocuments().isEmpty() && !dummies.getValue().booleanValue()) {
       return String.format("Please select at least one document or check \"%s\"", CREATE_DUMMIES_LABEL);
     }

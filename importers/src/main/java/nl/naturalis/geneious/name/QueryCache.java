@@ -102,7 +102,7 @@ class QueryCache {
   }
 
   /**
-   * Transforms this cache into another cache that maps document names to (latest) version numbers.
+   * Transforms this cache into another cache that maps document names to latest document versions.
    * 
    * @return
    */

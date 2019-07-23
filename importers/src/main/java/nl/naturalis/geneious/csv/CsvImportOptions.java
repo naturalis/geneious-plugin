@@ -1,9 +1,14 @@
 package nl.naturalis.geneious.csv;
 
 import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -18,7 +24,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import static nl.naturalis.geneious.csv.CsvImportUtil.*;
+import com.google.common.base.Charsets;
+
+import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.geneious.gui.ShowDialog;
+import nl.naturalis.geneious.util.CharsetDetector;
 
 /**
  * Abstract base class for classes configuring a Geneious dialog that requests user input for the import of CSV-like
@@ -80,6 +90,21 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     if(!supportedFileTypes().contains(ext.toLowerCase())) {
       String fmt = "Unsupported file type: %s. Supported file types: %s";
       return String.format(fmt, ext, supportedFileTypesAsString());
+    }
+    if(isCsvFile(file.getValue())) {
+      try {
+        Charset charset = CharsetDetector.detectEncoding(Paths.get(file.getValue()));
+        if(charset.equals(Charsets.UTF_8)) {
+          return null;
+        }
+        String fileName = FilenameUtils.getName(file.getValue());
+        if(ShowDialog.continueWithDetectedCharset(fileName, charset)) {
+          return null;
+        }
+        return "Please select another file";
+      } catch(IOException e) {
+        throw new NaturalisPluginException(e);
+      }
     }
     return null; // Signals to Geneious it can continue
   }
