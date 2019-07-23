@@ -1,6 +1,5 @@
 package nl.naturalis.geneious.seq;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static nl.naturalis.geneious.Precondition.VALID_TARGET_FOLDER;
 
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.util.Set;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
+import jebl.util.ProgressListener;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.Precondition;
@@ -59,9 +59,8 @@ class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
         created = new ArrayList<>(docs.size());
         for(StorableDocument doc : docs) {
           doc.saveAnnotations();
-          created.add(doc.getGeneiousDocument());
+          created.add(config.getTargetFolder().addDocumentCopy(doc.getGeneiousDocument(), ProgressListener.EMPTY));
         }
-        created = addAndReturnGeneratedDocuments(created, true, Collections.emptyList());
       }
       int processed = 0, rejected = 0, imported = 0;
       if(!ab1s.isEmpty()) {
