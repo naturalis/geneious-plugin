@@ -13,18 +13,28 @@ import org.virion.jam.framework.AbstractFrame;
 
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
+import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.QueryUtils;
 
 /**
- * Various prefab alerts.
+ * Various prefab alerts and dialogs.
  */
 public class ShowDialog {
 
+  /**
+   * Message informing the user that no database has been selected yet.
+   */
   public static void pleaseSelectDatabase() {
     String msg = "Please select a database";
     showMessageDialog(frame(), msg, "No database selected", ERROR_MESSAGE);
   }
 
+  /**
+   * Confirmation dialog asking the user whether he/she really wants to re-generated the definitions of the
+   * Naturalis-specific annotations (for example their data types).
+   * 
+   * @return
+   */
   public static boolean confirmRegenerateAnnotationMetadata() {
     String msg = "This is advanced functionality that will impact the entire database. Only do this if you"
         + "understand consequences! Do you really want to update Naturalis annotation metadata for database "
@@ -33,6 +43,14 @@ public class ShowDialog {
     return answer == OK_OPTION;
   }
 
+  /**
+   * Confirmation dialog asking the user whether he/she wants to continue importing file even though the plugin has
+   * detected its encoding is not UTF-8.
+   * 
+   * @param fileName
+   * @param charset
+   * @return
+   */
   public static boolean continueWithDetectedCharset(String fileName, Charset charset) {
     String fmt = "It seems like the character encoding of %s is %s. Since Geneious expects text to be encoded as UTF-8, "
         + "this may cause diacritics like Ç, Ű or × (for hybrids) to be stored and displayed incorrectly in Geneious.\n\n"
@@ -42,12 +60,15 @@ public class ShowDialog {
     return answer == OK_OPTION;
   }
 
-  private static AbstractFrame frame() {
-    return GuiUtilities.getMainFrame();
-  }
-
+  /**
+   * Message informing that the ping history has been cleared. See {@link Ping}.
+   */
   public static void pingHistoryCleared() {
     showMessageDialog(frame(), "Ping history cleared");
+  }
+
+  private static AbstractFrame frame() {
+    return GuiUtilities.getMainFrame();
   }
 
 }
