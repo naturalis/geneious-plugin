@@ -30,14 +30,14 @@ public class ShowDialog {
   }
 
   /**
-   * Confirmation dialog asking the user whether he/she really wants to re-generated the definitions of the
-   * Naturalis-specific annotations (for example their data types).
+   * Confirmation dialog asking the user whether he/she really wants to re-generate the the note type definitions for the
+   * Naturalis-specific annotations.
    * 
    * @return
    */
   public static boolean confirmRegenerateAnnotationMetadata() {
     String msg = "This is advanced functionality that will impact the entire database. Only do this if you"
-        + "understand consequences! Do you really want to update Naturalis annotation metadata for database "
+        + "understand the consequences! Do you really want to update Naturalis annotation metadata for database "
         + QueryUtils.getTargetDatabaseName() + "?";
     int answer = showConfirmDialog(frame(), msg, "Update annotation metadata?", OK_CANCEL_OPTION, WARNING_MESSAGE);
     return answer == OK_OPTION;
