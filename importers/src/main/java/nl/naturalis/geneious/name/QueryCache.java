@@ -22,63 +22,36 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.JsonUtil;
 
 /**
- * Provides various types of lookups on a collection of Geneious documents, presumably fetched-and-cached using a
- * database query.
+ * Caches the result of a query issued by the {@link Annotator} and provides useful lookups against the query result.
  */
 class QueryCache {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(QueryCache.class);
 
   /**
-   * A compound key that is likely to be useful as a key for the query cache. The key consists of at least the document
-   * type (dummy/fasta/ab1) plus an arbitrary other property of the document.
-   *
+   * A compound key used as key for the lookups.
+   * 
    * @author Ayco Holleman
    */
   static class Key {
     final DocumentType docType;
-    final Object value;
+    final String extractId;
     final int hash;
 
-    Key(DocumentType docType, Object value) {
+    Key(DocumentType docType, String value) {
       Objects.requireNonNull(this.docType = docType, "Document type must not be null");
-      Objects.requireNonNull(this.value = value, "Value must not be null");
+      Objects.requireNonNull(this.extractId = value, "Value must not be null");
       hash = (docType.ordinal() * 31) + value.hashCode();
     }
 
-    /**
-     * Creates a cache key using the extract ID of the document.
-     * 
-     * @param doc
-     */
-    Key(StoredDocument doc) {
+    private Key(StoredDocument doc) {
       this(doc.getType(), doc.getNaturalisNote().getExtractId());
-    }
-
-    /**
-     * Creates a cache key using the extract ID of the document.
-     * 
-     * @param doc
-     */
-    Key(StorableDocument doc) {
-      this(doc, doc.getSequenceInfo().getNaturalisNote().getExtractId());
-    }
-
-    /**
-     * Creates a cache key using the provided document's type and the provided value (presumably retrieved from the same
-     * document).
-     * 
-     * @param doc
-     * @param val
-     */
-    Key(StorableDocument doc, Object val) {
-      this(doc.getSequenceInfo().getDocumentType(), val);
     }
 
     @Override
     public boolean equals(Object obj) {
       Key other = (Key) obj;
-      return docType == other.docType && value.equals(other.value);
+      return docType == other.docType && extractId.equals(other.extractId);
     }
 
     @Override
@@ -89,7 +62,7 @@ class QueryCache {
     @JsonValue
     @Override
     public String toString() {
-      return value + " (" + docType + ")";
+      return extractId + " (" + docType + ")";
     }
   }
 

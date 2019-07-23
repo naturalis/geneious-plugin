@@ -7,16 +7,19 @@ import org.apache.commons.collections4.CollectionUtils;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.plugin.Geneious;
 
-import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.PreconditionException;
 import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.Precondition;
 
+import static com.biomatters.geneious.publicapi.plugin.Geneious.MajorVersion;
+
 /**
- * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link NonFatalException}.
- * Note that the precondition checked here partly overlap with the validations done in the input dialog for an
+ * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link PreconditionException}.
+ * Note that the preconditions checked here partly overlap with the validations done in the input dialog for an
  * operation. For example, see {@code SampleSheetImportOptions.verifyOptionsAreValid()}. This is to make the code less
- * dependent on what happens in the GUI.
+ * dependent on what happens in the GUI. The {@code PreconditionValidator
  * 
  * @author Ayco Holleman
  *
@@ -41,10 +44,11 @@ public class PreconditionValidator {
   /**
    * Executes the validations.
    * 
-   * @throws NonFatalException
+   * @throws PreconditionException
    */
-  public void validate() throws NonFatalException {
+  public void validate() throws PreconditionException {
     // Basic precondition checks:
+    checkGeneiousVersion();
     checkEncoding();
     checkTargetDatabase();
     for(Precondition p : preconditions) {
@@ -64,19 +68,27 @@ public class PreconditionValidator {
     }
   }
 
-  private static void checkEncoding() throws NonFatalException {
+  private static void checkGeneiousVersion() throws PreconditionException {
+    MajorVersion version = Geneious.getMajorVersion();
+    if(version.ordinal() < 15) {
+      smash("You are running a Geneious version that is not supported by the Naturalis plugin: " + version
+          + ". Minimum supported version is " + MajorVersion.Version2019_1);
+    }
+  }
+
+  private static void checkEncoding() throws PreconditionException {
     if(!encoding.equals("UTF8")) {
       smash("Unsupported character encoding: " + encoding);
     }
   }
 
-  private void checkTargetDatabase() throws NonFatalException {
+  private void checkTargetDatabase() throws PreconditionException {
     if(config.getTargetDatabase() == null) {
       smash("No database (folder) selected");
     }
   }
 
-  private void checkValidTargetFolder() throws NonFatalException {
+  private void checkValidTargetFolder() throws PreconditionException {
     WritableDatabaseService svc = config.getTargetFolder();
     if(svc == null) { // Geneious will prevent this, but let's handle it anyhow.
       smash("Please select a target folder");
@@ -93,7 +105,7 @@ public class PreconditionValidator {
     } while(svc != null);
   }
 
-  private void checkAllDocsInSameDatabase() throws NonFatalException {
+  private void checkAllDocsInSameDatabase() throws PreconditionException {
     for(AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
       DatabaseService db = doc.getDatabase();
       if(db == null /* huh? */ || !(db instanceof WritableDatabaseService)) {
@@ -106,8 +118,8 @@ public class PreconditionValidator {
     }
   }
 
-  private static void smash(String message) throws NonFatalException {
-    throw new NonFatalException(message);
+  private static void smash(String message) throws PreconditionException {
+    throw new PreconditionException(message);
   }
 
 }

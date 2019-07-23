@@ -12,6 +12,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.Ping;
+import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
  * Abstract base class for all {@code SwingWorker} classes within the plugin. These are the classes that manage and
@@ -55,6 +56,8 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
   protected Void doInBackground() {
     try(LogSession session = GuiLogManager.startSession(getLogTitle())) {
       if(Ping.resume(config.getTargetDatabase())) {
+        PreconditionValidator validator = new PreconditionValidator(config, getPreconditions());
+        validator.validate();
         List<AnnotatedPluginDocument> createdOrUpdated = performOperation();
         if(!createdOrUpdated.isEmpty()) {
           try {

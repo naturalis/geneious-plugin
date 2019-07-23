@@ -25,9 +25,8 @@ import nl.naturalis.geneious.util.Messages.Error;
 import static nl.naturalis.geneious.note.NaturalisField.*;
 
 /**
- * Responsible for creating annotations, versioning documents, copying annotations from dummy documents to real
- * documents, and for deleting obsolete dummy documents. The generation of document version numbers os left to a
- * {@link VersionTracker}.
+ * Responsible for creating annotations and versioning documents. The generation of document version numbers is done by
+ * a {@link VersionTracker}.
  *
  * @author Ayco Holleman
  */
@@ -70,7 +69,7 @@ public class Annotator {
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
     for(StorableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
-      String extractId = doc.getSequenceInfo().getNaturalisNote().getExtractId();
+      String extractId = getExtractId(doc);
       List<StoredDocument> dummies = queryCache.findDummy(extractId);
       if(dummies != null) {
         if(dummies.size() > 1) {
