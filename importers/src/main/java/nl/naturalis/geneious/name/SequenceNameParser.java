@@ -17,8 +17,8 @@ import nl.naturalis.geneious.note.SeqPass;
 import nl.naturalis.geneious.util.Messages.Debug;
 
 /**
- * Parses an AB1 file name or fasta sequence header and creates a {@link NaturalisNote} from the extracted information.
- * This is in effect a {@link NoteFactory} for the AB1/Fasta Import opration and the Split Name operation.
+ * Parses an AB1 file name, a fasta sequence header or a document name and creates a {@link NaturalisNote} from it. This
+ * is in effect a {@link NoteFactory} for the AB1/Fasta Import opration and the Split Name operation.
  * 
  * @author Ayco Holleman
  *

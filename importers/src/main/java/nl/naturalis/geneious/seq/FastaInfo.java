@@ -14,7 +14,7 @@ import nl.naturalis.geneious.name.SequenceNameParser;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Provides information about a fasta-encoded sequence.
+ * A {@code SequenceInfo} object created from a fasta file.
  */
 final class FastaInfo extends SequenceInfo {
 
@@ -65,11 +65,11 @@ final class FastaInfo extends SequenceInfo {
    * @throws IOException
    */
   public String getSequence() throws IOException {
-    if (sequence == null) {
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(child)))) {
+    if(sequence == null) {
+      try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(child)))) {
         br.readLine(); // skip header
         StringBuilder sb = new StringBuilder(672); // fasta sequences actually contain 659 chars
-        for (String line = br.readLine(); line != null; line = br.readLine()) {
+        for(String line = br.readLine(); line != null; line = br.readLine()) {
           sb.append(line);
         }
         sequence = sb.toString();

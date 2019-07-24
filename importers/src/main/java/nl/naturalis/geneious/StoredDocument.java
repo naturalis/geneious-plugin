@@ -12,14 +12,13 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.Docum
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.note.Note;
 import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
- * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class with all of its Naturalis-specific
- * annotations pre-fetched into a {@link NaturalisNote} instance. A {@code StoredDocument} has presumably been retrieved
- * through some database query and upon instantiation is exactly like the database record. As the operation proceeds the
- * {@code NaturalisNote} instance may get updated, and, if so, will be saved back to the document.
+ * A wrapper around the Geneious's {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations
+ * pre-fetched into a {@link NaturalisNote} instance. A {@code StoredDocument} has been retrieved through some database
+ * query and upon instantiation is exactly like the database record. As an operation proceeds the {@code NaturalisNote}
+ * instance may get updated, and, if so, will be saved back to the document.
  */
 public class StoredDocument {
 
@@ -28,10 +27,6 @@ public class StoredDocument {
    */
   public static Comparator<StoredDocument> URN_COMPARATOR = (o1, o2) -> {
     return o1.doc.getURN().toString().compareTo(o2.doc.getURN().toString());
-  };
-
-  public static Comparator<StoredDocument> IDENTITY_COMPARATOR = (o1, o2) -> {
-    return System.identityHashCode(o1) - System.identityHashCode(o2);
   };
 
   private final AnnotatedPluginDocument doc;
@@ -82,7 +77,7 @@ public class StoredDocument {
   }
 
   /**
-   * Returns the full path for the document.
+   * Returns the full path, including its name, of the document.
    * 
    * @return
    */
@@ -93,7 +88,7 @@ public class StoredDocument {
     } else {
       folder = doc.getDatabase().getFullPath();
     }
-    return folder + System.getProperty("file.separator") + doc.getName();
+    return folder + '/' + doc.getName();
   }
 
   /**
@@ -106,25 +101,16 @@ public class StoredDocument {
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
-   */
-  public void attach(Note note) {
-    note.copyTo(getDocumentNotes());
-  }
-
-  /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
-   * Existing annotations will be overwritten. Returns {@code true} if the document actually changed as a consequence,
-   * {@code false} otherwise.
+   * Equivalent to {@code attach(note, true)}.
    */
   public boolean attach(NaturalisNote note) {
     return note.copyTo(this.note);
   }
 
   /**
-   * Adds the annotations present in the provided note to this document, but does not save the document to the database.
-   * Returns {@code true} if the document actually changed as a consequence, {@code false} otherwise. If {@code overwrite}
-   * is true, existing annotations will be overwritten, otherwise they are left alone.
+   * Copies the annotations within the provided into this document's note. Returns {@code true} if the document actually
+   * changed as a consequence, {@code false} otherwise. If {@code overwrite} is true, existing annotations will be
+   * overwritten, otherwise they are left alone.
    */
   public boolean attach(NaturalisNote note, boolean overwrite) {
     return overwrite ? note.copyTo(this.note) : note.mergeInto(this.note);

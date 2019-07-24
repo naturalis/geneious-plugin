@@ -3,16 +3,14 @@ package nl.naturalis.geneious.bold;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
- * Sets up a Geneious dialog requesting user input for the {@link BoldDocumentOperation BOLD Import} operation. Once the
- * user click OK, this class produces a {@link BoldImportConfig} object, which is then passed on to the
- * {@link BoldSwingWorker}.
+ * Underpins the user input dialog for the {@link BoldDocumentOperation BOLD Import} operation.
  * 
  * @author Ayco Holleman
  *
  */
 class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
 
-  public BoldImportOptions() {
+  BoldImportOptions() {
     super("bold");
   }
 

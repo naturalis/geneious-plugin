@@ -31,7 +31,7 @@ import nl.naturalis.geneious.util.Ping;
 public class GlobalOptions extends Options {
 
   /**
-   * Configures up the <i>Tools -&gt; Preferences</i> panel.
+   * Configures the <i>Tools -&gt; Preferences</i> panel.
    */
   public GlobalOptions() {
 

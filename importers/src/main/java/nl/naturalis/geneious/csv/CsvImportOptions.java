@@ -31,7 +31,7 @@ import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.util.CharsetDetector;
 
 /**
- * Abstract base class for classes configuring a Geneious dialog that requests user input for the import of CSV-like
+ * Abstract base class for classes underpinning a Geneious dialog that requests user input for the import of CSV-like
  * files.
  * 
  * @author Ayco Holleman

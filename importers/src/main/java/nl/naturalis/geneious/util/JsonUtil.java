@@ -10,7 +10,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import static nl.naturalis.geneious.Settings.settings;
 
 /**
- * Provides method for serializing objects to JSON.
+ * Provides method for serializing objects to JSON. Primarily intended for writing log messages.
  * 
  * @author Ayco Holleman
  *
@@ -29,11 +29,11 @@ public class JsonUtil {
    */
   public static String toJson(NaturalisNote note) {
     try {
-      if (settings().isPrettyNotes()) {
+      if(settings().isPrettyNotes()) {
         return noteWriter.withDefaultPrettyPrinter().writeValueAsString(note);
       }
       return noteWriter.writeValueAsString(note);
-    } catch (JsonProcessingException e) {
+    } catch(JsonProcessingException e) {
       throw new WrappedException(e);
     }
   }
@@ -47,7 +47,7 @@ public class JsonUtil {
   public static String toJson(Object obj) {
     try {
       return mapper.writeValueAsString(obj);
-    } catch (JsonProcessingException e) {
+    } catch(JsonProcessingException e) {
       throw new WrappedException(e);
     }
   }
@@ -61,7 +61,7 @@ public class JsonUtil {
   public static String toPrettyJson(Object obj) {
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-    } catch (JsonProcessingException e) {
+    } catch(JsonProcessingException e) {
       throw new WrappedException(e);
     }
   }

@@ -9,20 +9,25 @@ public class EnumParser {
 
   private final Class<?> enumClass;
 
+  /**
+   * Creates an {@code EnumParser} for the provided {@code enum} class.
+   * 
+   * @param enumClass
+   */
   public EnumParser(Class<?> enumClass) {
     this.enumClass = enumClass;
   }
 
   /**
-   * Parses the provided string into a enum constant of the class provided when instatiating the {@code EnumParser}.
+   * Parses the provided string into a enum constant of the class passed in through the constructor.
    * 
    * @param s
    * @return
    */
   @SuppressWarnings("unchecked")
   public <T extends Enum<T>> T parse(String s) {
-    for (Object obj : enumClass.getEnumConstants()) {
-      if (s.equals(obj.toString())) {
+    for(Object obj : enumClass.getEnumConstants()) {
+      if(s.equals(obj.toString())) {
         return (T) obj;
       }
     }

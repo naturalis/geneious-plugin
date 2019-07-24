@@ -34,7 +34,7 @@ class SequenceInfoProvider implements AutoCloseable {
    */
   static final int MAX_FASTAS_IN_MEMORY = 500;
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(SequenceInfoProvider.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(SequenceInfoProvider.class);
 
   private final boolean inMemory;
   private final FastaFileSplitter splitter;
@@ -53,7 +53,7 @@ class SequenceInfoProvider implements AutoCloseable {
     this.splitter = new FastaFileSplitter(inMemory);
     this.ab1Sequences = new ArrayList<>();
     this.fastaSequences = new ArrayList<>();
-    guiLogger.debug(() -> "Separating AB1 files from fasta files");
+    logger.debug(() -> "Separating AB1 files from fasta files");
     for (File f : files) {
       try {
         if (isAb1File(f)) {
@@ -61,10 +61,10 @@ class SequenceInfoProvider implements AutoCloseable {
         } else if (isFastaFile(f)) {
           fastaSequences.addAll(splitter.split(f));
         } else {
-          guiLogger.error("Cannot determine file type of %s", f.getName());
+          logger.error("Cannot determine file type of %s", f.getName());
         }
       } catch (IOException e) {
-        guiLogger.error("Error processing %s: %s", f.getPath(), e.getMessage());
+        logger.error("Error processing %s: %s", f.getPath(), e.getMessage());
       }
     }
   }
@@ -101,11 +101,11 @@ class SequenceInfoProvider implements AutoCloseable {
     if (!inMemory) {
       File dir = splitter.getFastaTempDirectory();
       if (settings().isDeleteTmpFastas()) {
-        guiLogger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getPath()));
+        logger.debugf(() -> format("Deleting temporary fasta files in %s", dir.getPath()));
         FileUtils.deleteDirectory(dir);
       } else {
-        guiLogger.info("Temporary fasta files were saved in %s", dir.getPath());
-        guiLogger.info("Please remember to delete the directory");
+        logger.info("Temporary fasta files were saved in %s", dir.getPath());
+        logger.info("Please remember to delete the directory");
       }
     }
   }

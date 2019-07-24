@@ -5,9 +5,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
- * Configures a Geneious dialog requesting user input for the {@link SampleSheetDocumentOperation Sample Sheet Import}
- * operation. Once the user click OK, this class produces a {@link SampleSheetImportConfig} object, which is then passed
- * on to the {@link SampleSheetSwingWorker}.
+ * Underpins the user input dialog for the {@link SampleSheetDocumentOperation Sample Sheet Import} operation.
  * 
  * @author Ayco Holleman
  *
@@ -23,9 +21,6 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     this.dummies = addDummiesOption();
   }
 
-  /**
-   * Produces a object containing all the user input for the Sample Sheet Import operation.
-   */
   @Override
   public SampleSheetImportConfig configureOperation() {
     SampleSheetImportConfig cfg = configureDefaults(new SampleSheetImportConfig());

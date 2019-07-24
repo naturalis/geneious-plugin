@@ -33,12 +33,12 @@ public enum DocumentType {
    */
   CONTIG(DefaultAlignmentDocument.class),
   /**
-   * The type of document created by the sample sheet importer when confronted with extract IDs for which no Geneious
+   * The type of document created by the sample sheet importer when processing rows with extract IDs for which no Geneious
    * documents exist yet. Note that this type maps to the {@link DummySequence} class, which is a home-grown subclass of
    * the Geneious's own {@code DefaultNucleotideSequence} class. However, the {@link DummySequence} class was only
-   * introduced with V2 of the plugin. In Version 1 of the plugin dummy documents were fasta documents (so
-   * {@code DefaultNucleotideSequence} documents) with special values that marked them as dummies. We still need to be
-   * able to handle documents created with that version 1!
+   * introduced with V2 of the plugin. In Version 1 of the plugin dummy documents were fasta-like documents
+   * ({@code DefaultNucleotideSequence} documents) with special values that marked them out as dummies. We still need to
+   * be able to handle documents created with that version 1!
    */
   DUMMY(DummySequence.class);
 
@@ -62,6 +62,7 @@ public enum DocumentType {
     return geneiousType;
   }
 
+  @Override
   public String toString() {
     return this == AB1 ? name() : name().toLowerCase();
   }

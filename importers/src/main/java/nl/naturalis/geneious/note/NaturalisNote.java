@@ -18,12 +18,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * A container for all annotations that can be added using the Naturalis plugin. A {@code NaturalisNote} will
- * <i>never</i> contain null or whitespace-only values. The latter applies even for non-string values: calling
- * {@code toString()} on them must never return a whitespace-only string. Trying to set any of its fields to null or a
- * whitespace-only string results in an {@link IllegalArgumentException}. Consequently, if the
- * {@link #get(NaturalisField) get} method of {@code NaturalisNote} returns null for a particular field, the field
- * really wasn't there (it was not present in the Geneious document).
+ * A container for all annotations that can be added using the Naturalis plugin. A {@code NaturalisNote} will never
+ * contain null or whitespace-only values. This even applies to non-string fields: calling {@code toString()} on them
+ * must never return null or a whitespace-only string. Trying to set any field to null or to a whitespace-only
+ * string results in an {@link IllegalArgumentException}. Consequently, if a {@code NaturalisNote} extracted from a
+ * Geneious document returns null for a particular field, it means the field was not present in the Geneious document.
  *
  * @author Ayco Holleman
  */
@@ -194,18 +193,6 @@ public final class NaturalisNote implements Note {
       }
     }
     return changed;
-  }
-
-  /**
-   * Removes the provided fields from this {@code NaturalisNote}.
-   * 
-   * @param field
-   * @return
-   */
-  public void remove(NaturalisField... fields) {
-    for(NaturalisField field : fields) {
-      data.remove(field);
-    }
   }
 
   /**

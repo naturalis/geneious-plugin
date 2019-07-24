@@ -2,6 +2,7 @@ package nl.naturalis.geneious.name;
 
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 
@@ -22,11 +23,9 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Error;
 
-import static nl.naturalis.geneious.note.NaturalisField.*;
-
 /**
- * Responsible for creating annotations and versioning documents. The generation of document version numbers is done by
- * a {@link VersionTracker}.
+ * Manages the actual annotation process. It uses a {@link SequenceNameParser} to split the document names, queries the
+ * database for dummies to get extra annotations from and uses a {@link VersionTracker} to assign document versions.
  *
  * @author Ayco Holleman
  */
@@ -63,9 +62,9 @@ public class Annotator {
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
     logger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
     logger.debugf(() -> format("Searching database %s for matching documents", config.getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> queryResult = findByExtractID(config.getTargetDatabase(), ids);
-    logger.debugf(() -> format("Found %s matching document%s", queryResult.size(), plural(queryResult)));
-    QueryCache queryCache = new QueryCache(queryResult);
+    List<AnnotatedPluginDocument> result = findByExtractID(config.getTargetDatabase(), ids);
+    logger.debugf(() -> format("Found %s matching document%s", result.size(), plural(result)));
+    QueryCache queryCache = new QueryCache(result);
     obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
     for(StorableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();

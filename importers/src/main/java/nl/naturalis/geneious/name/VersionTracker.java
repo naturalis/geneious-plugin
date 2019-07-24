@@ -1,7 +1,5 @@
 package nl.naturalis.geneious.name;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
-
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,9 +12,7 @@ import nl.naturalis.geneious.name.QueryCache.Key;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Keeps track of, and hands out version numbers for documents based on their {@link DocumentType} and name (not
- * including name suffixes like ".ab1", " (ab1)" and " (fasta)"). A {@code VersionTracker} starts out with a set of
- * initial document versions, which are the document versions of the most recent historical documents.
+ * Keeps track of, and hands out version numbers for documents.
  *
  * @author Ayco Holleman
  */
@@ -24,15 +20,20 @@ class VersionTracker {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(VersionTracker.class);
 
-  private final Map<Key, MutableInt> cache;
+  private final Map<Key, MutableInt> versions;
 
+  /**
+   * Creates a new {@code VersionTracker} using the provided map of initial document versions. The map key is the
+   * combination of a document's type and name while the map value is the latest document version for this combination.
+   * 
+   * @param initialVersions
+   */
   VersionTracker(Map<Key, MutableInt> initialVersions) {
-    cache = initialVersions;
+    versions = initialVersions;
   }
 
   /**
-   * Sets the document version on the provided document and then increments the document version for the combination of
-   * {@link DocumentType} and name found within the document.
+   * Sets the document version on the provided document and then updates the intern cache of document versions.
    * 
    * @param doc
    */
@@ -45,9 +46,8 @@ class VersionTracker {
       return;
     }
     Key key = new Key(documentType, documentName);
-    MutableInt version = cache.computeIfAbsent(key, k -> new MutableInt());
+    MutableInt version = versions.computeIfAbsent(key, k -> new MutableInt());
     version.increment();
-    logger.debugf(() -> format("Document %s (%s): document version set to %s", documentName, documentType, version));
     note.setDocumentVersion(version.intValue());
   }
 

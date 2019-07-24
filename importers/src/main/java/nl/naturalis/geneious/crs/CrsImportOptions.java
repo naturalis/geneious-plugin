@@ -3,22 +3,17 @@ package nl.naturalis.geneious.crs;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 
 /**
- * Configures a Geneious dialog requesting user input for the {@link CrsDocumentOperation CRS Import} operation. Once
- * the user click OK, this class produces a {@link CrsImportConfig} object, which is then passed on to the
- * {@link CrsSwingWorker}.
+ * Underpins the user input dialog for the {@link CrsDocumentOperation CRS Import} operation.
  * 
  * @author Ayco Holleman
  *
  */
 class CrsImportOptions extends CsvImportOptions<CrsColumn, CrsImportConfig> {
 
-  public CrsImportOptions() {
+  CrsImportOptions() {
     super("crs");
   }
 
-  /**
-   * Produces a object containing all the user input for the Sample Sheet Import operation.
-   */
   @Override
   public CrsImportConfig configureOperation() {
     return configureDefaults(new CrsImportConfig());

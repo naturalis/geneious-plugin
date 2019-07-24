@@ -6,10 +6,10 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * {@code SequenceInfo} objects are responsible for producing the annotations for a document. The annotations are
- * extracted from the sequence name. In case of AB1 files the sequence name is the same as the file name minus the file
- * extension. In case of fasta files the sequence name is the fasta header line minus the opening '&gt;' character.
- * {@code SequenceInfo} objects delegate the actual name parsing to a {@link SequenceNameParser}.
+ * A {@code SequenceInfo} contains all the information necessary to annotate single document. This information is
+ * usually extracted from the file from which the document was created. In case of the Split Name operation, where
+ * everything is already inside Geneious, the {@code SequenceInfo} object is created from the document itself (notably
+ * its name which is fed into a {@link SequenceNameParser} to produce the annotations.
  */
 public abstract class SequenceInfo {
 

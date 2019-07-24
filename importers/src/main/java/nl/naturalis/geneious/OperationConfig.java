@@ -8,8 +8,8 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 /**
- * Abstract base class for all objects that capture the user input and other configuration data for any of the plugin's
- * operations.
+ * Base class for objects capturing the user input and other configuration data for one of the plugin's operations.
+ * {@code OperationConfig} objects are generated from {@link OperationOptions} objects.
  * 
  * @author Ayco Holleman
  *

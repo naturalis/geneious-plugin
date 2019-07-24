@@ -54,7 +54,7 @@ class LogWriter {
   void write(LogRecord record) {
     if (area == null) {
       // A logger attempts to write outside of a log session. This can occasionally happen if Geneious calls plugin code while
-      // initializing. It should never happen when the plugin itself is in control !!
+      // initializing. It should never happen when the plugin itself is in control.
       System.out.println("[OUTSIDE LOG SESSION] - " + toString(record));
     } else {
       area.append(toString(record));

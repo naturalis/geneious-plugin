@@ -19,11 +19,11 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.crea
 import static nl.naturalis.geneious.log.GuiLogger.format;
 
 /**
- * Imports the AB1 files selected by the user into Geneious.
+ * Imports the fasta files selected by the user into Geneious.
  */
 class FastaImporter {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaImporter.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(FastaImporter.class);
 
   private final List<FastaInfo> sequences;
 
@@ -32,7 +32,7 @@ class FastaImporter {
   private int rejected;
 
   FastaImporter(List<FastaInfo> sequences) {
-    guiLogger.info("Starting fasta file importer");
+    logger.info("Starting fasta file importer");
     this.sequences = sequences;
   }
 
@@ -48,12 +48,12 @@ class FastaImporter {
     LinkedHashMap<File, ArrayList<FastaInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument apd;
-    for (File motherFile : fastas.keySet()) {
-      guiLogger.debugf(() -> format("Importing file %s", motherFile.getName()));
+    for(File motherFile : fastas.keySet()) {
+      logger.debugf(() -> format("Importing file %s", motherFile.getName()));
       Date date = new Date(motherFile.lastModified());
-      for (FastaInfo info : fastas.get(motherFile)) {
+      for(FastaInfo info : fastas.get(motherFile)) {
         ++processed;
-        guiLogger.debugf(() -> format("--> Importing sequence %s", info.getName()));
+        logger.debugf(() -> format("--> Importing sequence %s", info.getName()));
         sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
         apd = createAnnotatedPluginDocument(sequence);
         ++imported;
@@ -65,23 +65,38 @@ class FastaImporter {
     return importables;
   }
 
+  /**
+   * Returns the number of nucleotide sequences processed.
+   * 
+   * @return
+   */
   int getNumProcessed() {
     return processed;
   }
 
+  /**
+   * Returns the number of nucleotide sequences imported.
+   * 
+   * @return
+   */
   int getNumImported() {
     return imported;
   }
 
+  /**
+   * Returns the number of invalid nucleotide sequences.
+   * 
+   * @return
+   */
   int getNumRejected() {
     return rejected;
   }
 
   private LinkedHashMap<File, ArrayList<FastaInfo>> mapMothersToChildren() {
     LinkedHashMap<File, ArrayList<FastaInfo>> map = new LinkedHashMap<>();
-    for (FastaInfo info : sequences) {
+    for(FastaInfo info : sequences) {
       ArrayList<FastaInfo> infos = map.get(info.getImportedFrom());
-      if (infos == null) {
+      if(infos == null) {
         infos = new ArrayList<>();
         map.put(info.getImportedFrom(), infos);
       }

@@ -5,9 +5,7 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import nl.naturalis.geneious.OperationOptions;
 
 /**
- * Sets up a Geneious dialog requesting user input for the {@link SplitNameDocumentOperation Split Name} operation. Once
- * the user click OK, this class produces a {@link SplitNameConfig} object, which is then passed on to the
- * {@link SplitNameSwingWorker}.
+ * Underpins the user input dialog for the {@link SplitNameDocumentOperation Split Name} operation.
  * 
  * @author Ayco Holleman
  *
@@ -20,9 +18,7 @@ class SplitNameOptions extends OperationOptions<SplitNameConfig> {
     ignoreWithNaturalisNote = addIgnoreWithNaturalisNoteOption();
   }
 
-  /**
-   * Produces an object containing all the user input for the Split Name operation.
-   */
+  @Override
   public SplitNameConfig configureOperation() {
     SplitNameConfig config = new SplitNameConfig();
     super.configureDefaults(config);
@@ -32,6 +28,10 @@ class SplitNameOptions extends OperationOptions<SplitNameConfig> {
 
   @Override
   public String verifyOptionsAreValid() {
+    String msg = super.verifyOptionsAreValid();
+    if(msg != null) {
+      return msg;
+    }
     if(DocumentUtilities.getSelectedDocuments().isEmpty()) {
       return "Please select at least one document";
     }

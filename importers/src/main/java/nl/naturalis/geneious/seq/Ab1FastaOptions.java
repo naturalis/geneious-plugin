@@ -14,6 +14,12 @@ import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 
+/**
+ * Underpins the user input dialog for the {@link Ab1FastaDocumentOperation AB1/Fasta Import} operation.
+ * 
+ * @author Ayco Holleman
+ *
+ */
 class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
 
   private static final String MSG_CHOOSE_FILES = "Choose AB1/fasta files to import";

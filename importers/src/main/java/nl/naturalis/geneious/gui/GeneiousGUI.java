@@ -7,7 +7,7 @@ import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.base.Preconditions;
 
 /**
- * General utilities for the Geneious Desktop UI.
+ * Utilities for the Geneious Desktop UI.
  */
 public class GeneiousGUI {
 
@@ -22,6 +22,7 @@ public class GeneiousGUI {
 
   /**
    * Resizes the specified component to a square with the specified side length.
+   * 
    * @param component
    * @param w
    * @param h
@@ -32,6 +33,7 @@ public class GeneiousGUI {
 
   /**
    * Resizes the specified component to the specified width and height.
+   * 
    * @param component
    * @param w
    * @param h
@@ -94,8 +96,8 @@ public class GeneiousGUI {
   }
 
   /**
-   * Positions the specified component relative to the main Geneious window as obtained by GuiUtilities.getMainFrame(). Keeps a margin of
-   * 250 pixels around the component.
+   * Positions the specified component relative to the main Geneious window as obtained by GuiUtilities.getMainFrame().
+   * Keeps a margin of 250 pixels around the component.
    * 
    * @param component
    * @param offset
@@ -105,8 +107,8 @@ public class GeneiousGUI {
   }
 
   /**
-   * Positions the specified component relative to the main Geneious window as obtained by GuiUtilities.getMainFrame(). Keeps the specified
-   * margin around the component.
+   * Positions the specified component relative to the main Geneious window as obtained by GuiUtilities.getMainFrame().
+   * Keeps the specified margin around the component.
    * 
    * @param component
    * @param offset

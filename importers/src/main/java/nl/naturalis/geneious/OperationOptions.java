@@ -10,10 +10,9 @@ import com.biomatters.geneious.publicapi.plugin.Options;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 /**
- * Abstract base class for {@code Options} objects underpinning the user input dialogs for the various operations
- * provided by the plugin. Mainly servers to "freeze" the selected target folder and the selected documents. This is
- * necessary because the operations run in another thread than the GUI's event-dispatch thread, so the user could click
- * on another folder while the operation is running.
+ * An object underpinning the user input dialog for a particular operation. This base class only serves to "freeze" the
+ * folder and documents currently selected by the user. This is necessary because the operations run in another thread
+ * than the GUI's event-dispatch thread, so the user could click on another folder while the operation is executing.
  * 
  * @author Ayco Holleman
  *
@@ -23,21 +22,47 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
   private final List<AnnotatedPluginDocument> selectedDocuments;
   private final WritableDatabaseService targetFolder;
 
+  /**
+   * Creates a new {@code OperationOptions} object freezing the currently selected folder and documents.
+   */
   public OperationOptions() {
     selectedDocuments = Collections.unmodifiableList(DocumentUtilities.getSelectedDocuments());
     targetFolder = ServiceUtilities.getResultsDestination();
   }
 
-  public List<AnnotatedPluginDocument> getSelectedDocuments() {
+  /**
+   * Returns the currently selected documents.
+   * 
+   * @return
+   */
+  protected List<AnnotatedPluginDocument> getSelectedDocuments() {
     return selectedDocuments;
   }
 
-  public WritableDatabaseService getTargetFolder() {
+  /**
+   * Returns the currently selected folder.
+   * 
+   * @return
+   */
+  protected WritableDatabaseService getTargetFolder() {
     return targetFolder;
   }
 
-  public abstract T configureOperation();
+  /**
+   * Generates an implementation-specific configuration object to be passed on the {@link PluginSwingWorker} classes.
+   * 
+   * @return
+   */
+  protected abstract T configureOperation();
 
+  /**
+   * A helper method that can be used by subclasses when generating the configuration object. Subclasses <b>must</b> make
+   * sure that all configuration settings captured by classes higher up in the class hierarchy are set as well on the
+   * configuration object.
+   * 
+   * @param config
+   * @return
+   */
   protected T configureDefaults(T config) {
     config.setSelectedDocuments(selectedDocuments);
     config.setTargetFolder(targetFolder);

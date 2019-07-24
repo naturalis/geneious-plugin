@@ -5,10 +5,8 @@ import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * A note factory is used to convert a row in a CSV-like file into a set of annotations held together in a
- * {@link NaturalisNote}. Each of the subclasses of {@code NoteFactory} (e.g. {@code SmplNoteFactory}) produces a
- * {@code NaturalisNote} that is only partially populated (namely with the fields that can be set from the applicable
- * source file (e.g. a sample sheet).
+ * A note factory converts a row in a CSV file into a set of annotations held together in a {@link NaturalisNote}
+ * object.
  * 
  * @author Ayco Holleman
  *

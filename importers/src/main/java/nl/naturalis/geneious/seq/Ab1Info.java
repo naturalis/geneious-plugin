@@ -13,7 +13,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 /**
- * Provides information about an AB1-encoded sequence.
+ * A {@code SequenceInfo} object created from an AB1 file.
  */
 final class Ab1Info extends SequenceInfo {
 
@@ -26,9 +26,6 @@ final class Ab1Info extends SequenceInfo {
     name = getBaseName(getImportedFrom().getName());
   }
 
-  /**
-   * Returns {@link DocumentType.AB1 AB1}.
-   */
   @Override
   public DocumentType getDocumentType() {
     return DocumentType.AB1;
@@ -42,17 +39,11 @@ final class Ab1Info extends SequenceInfo {
     return name;
   }
 
-  /**
-   * Creates and caches a {@link NaturalisNote} from the elements in the name (using a {@link SequenceNameParser}).
-   */
   @Override
   public void createNote() throws NotParsableException {
     note = new SequenceNameParser(name).parseName();
   }
 
-  /**
-   * Returns the {@code NaturalisNote} created with {@link #createNote() createNote}.
-   */
   @Override
   public NaturalisNote getNaturalisNote() {
     Preconditions.checkNotNull(note, "Note not yet created");

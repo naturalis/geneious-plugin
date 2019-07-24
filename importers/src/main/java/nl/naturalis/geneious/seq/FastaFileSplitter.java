@@ -24,11 +24,11 @@ import nl.naturalis.geneious.log.GuiLogger;
 
 /**
  * Splits a fasta file into separate sequences. Depending on how the plugin is configured it may save the sequences to
- * tempoerary files.
+ * temporary files or keep them in-memory.
  */
 class FastaFileSplitter {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(FastaFileSplitter.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(FastaFileSplitter.class);
   private static final byte[] NEWLINE = IOUtils.LINE_SEPARATOR.getBytes(UTF_8);
 
   private final boolean inMemory;
@@ -68,7 +68,7 @@ class FastaFileSplitter {
       OUTER_LOOP: do {
         line = br.readLine();
         if(!isStartOfSequence(line)) {
-          guiLogger.error("Corrupt file: \"%s\". Expected start of nucleotide sequence below \"%s\"", motherFile, header);
+          logger.error("Corrupt file: \"%s\". Expected start of nucleotide sequence below \"%s\"", motherFile, header);
           break OUTER_LOOP;
         }
         INNER_LOOP: while(true) {
@@ -87,7 +87,7 @@ class FastaFileSplitter {
       } while(true);
     }
     if(files.size() > 1) {
-      guiLogger.debugf(() -> format("File %s was split into %s nucleotide sequences", motherFile.getName(), files.size()));
+      logger.debugf(() -> format("File %s was split into %s nucleotide sequences", motherFile.getName(), files.size()));
     }
     return files;
   }

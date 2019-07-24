@@ -3,7 +3,7 @@ package nl.naturalis.geneious.log;
 import java.util.HashMap;
 
 /**
- * Keeps track of and manages the loggers created by the classes participating in an operation.
+ * Manages the loggers created by the classes participating in an operation.
  *
  * @author Ayco Holleman
  */
@@ -22,7 +22,7 @@ public class GuiLogManager {
   }
 
   /**
-   * Creates a new log session. Log sessions must be created using a try-with-resources block. Loggers should only log
+   * Start a new log session. Log sessions must be created using a try-with-resources block. Loggers should only log
    * messages within the try-with-resources block, otherwise the messages will not become visible.
    * 
    * @param title
@@ -42,7 +42,7 @@ public class GuiLogManager {
 
   private GuiLogger getOrCreateLogger(Class<?> clazz) {
     GuiLogger logger = loggers.get(clazz);
-    if (logger == null) {
+    if(logger == null) {
       loggers.put(clazz, logger = new GuiLogger(clazz, writer));
     }
     return logger;

@@ -22,11 +22,11 @@ import nl.naturalis.geneious.log.GuiLogger;
 public class NameUtil {
 
   @SuppressWarnings("unused")
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(NameUtil.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(NameUtil.class);
 
-  public static final String[] ab1Suffixes = {".ab1"};
-  public static final String[] fastaSuffixes = {".fas", ".fasta", ".txt"};
-  public static final String[] dummySuffixes = {".dum"};
+  private static final String[] ab1Suffixes = {".ab1"};
+  private static final String[] fastaSuffixes = {".fas", ".fasta", ".txt"};
+  private static final String[] dummySuffixes = {".dum"};
 
   private static final String[] all = ArrayUtil.concat(ab1Suffixes, fastaSuffixes, dummySuffixes);
 
@@ -41,7 +41,7 @@ public class NameUtil {
   private NameUtil() {}
 
   /**
-   * Chops off any known suffix (like ".ab1") from the provided name.
+   * Chops off known suffixex like ".ab1" from the provided name.
    * 
    * @param name
    * @return
