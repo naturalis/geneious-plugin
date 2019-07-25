@@ -57,4 +57,12 @@ public class SequenceNameParserTest {
     assertEquals(expected, actual);
   }
 
+  @Test(expected = NotParsableException.class)
+  public void testAb1_02() throws NotParsableException {
+    // Not enough underscores
+    String name = "e4012524841_Phlter_RL031_COI-H2198.ab1";
+    SequenceNameParser parser = new SequenceNameParser(name);
+    parser.parseName();
+  }
+
 }

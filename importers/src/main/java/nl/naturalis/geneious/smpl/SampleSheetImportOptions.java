@@ -51,7 +51,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
   private BooleanOption addDummiesOption() {
     String name = "nl.naturalis.geneious.smpl.dummies";
     BooleanOption opt = addBooleanOption(name, CREATE_DUMMIES_LABEL, Boolean.TRUE);
-    opt.setHelp("You can choose to create placeholder documents (a.k.a. dummies) for sample sheet rows that refer"
+    opt.setHelp("You can choose to create placeholder documents (a.k.a. dummies) for sample sheet rows that refer "
         + "to yet-to-be imported AB1 or fasta sequences. The placeholder document then acquires the annotations "
         + "present in the sample sheet row. Once you import the real sequence, the annotations will be copied "
         + "from the placeholder document to the sequence document, and the placeholder document will be deleted.");

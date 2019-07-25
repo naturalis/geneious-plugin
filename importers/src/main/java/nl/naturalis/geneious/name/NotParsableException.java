@@ -5,7 +5,7 @@ package nl.naturalis.geneious.name;
  */
 public class NotParsableException extends Exception {
 
-  public static NotParsableException invalidNumberOfUnderscores(String fileName, int actual, int expected) {
+  static NotParsableException invalidNumberOfUnderscores(String fileName, int actual, int expected) {
     if (actual < expected) {
       String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
       return new NotParsableException(String.format(fmt, fileName, actual, expected));
@@ -14,27 +14,27 @@ public class NotParsableException extends Exception {
     return new NotParsableException(String.format(fmt, fileName, actual, expected));
   }
 
-  public static NotParsableException notEnoughUnderscores(String fileName, int actual, int expected) {
+  static NotParsableException notEnoughUnderscores(String fileName, int actual, int expected) {
     String fmt = "Not enough underscores in name \"%s\": %s (expected %s)";
     return new NotParsableException(String.format(fmt, fileName, actual, expected));
   }
 
-  public static NotParsableException missingHyphenInMarkerSegment(String name) {
+  static NotParsableException missingHyphenInMarkerSegment(String name) {
     String fmt = "Missing hyphen in marker segment of name \"%s\"";
     return new NotParsableException(String.format(fmt, name));
   }
 
-  public static NotParsableException badExtractId(String name, String extractId, String pattern) {
+  static NotParsableException badExtractId(String name, String extractId, String pattern) {
     String fmt = "Invalid extract ID in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, extractId, pattern));
   }
 
-  public static NotParsableException badPcrPlateID(String name, String pcrPlateId, String pattern) {
+  static NotParsableException badPcrPlateID(String name, String pcrPlateId, String pattern) {
     String fmt = "Invalid PCR plate ID in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, pcrPlateId, pattern));
   }
 
-  public static NotParsableException badMarkerSegment(String name, String marker, String pattern) {
+  static NotParsableException badMarkerSegment(String name, String marker, String pattern) {
     String fmt = "Invalid marker segment in \"%s\": \"%s\"";
     return new NotParsableException(String.format(fmt, name, marker, pattern));
   }
