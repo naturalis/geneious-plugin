@@ -5,13 +5,26 @@
 # wants it). The zip file contains a single folder with the same name as the
 # main plugin class: nl.naturalis.geneious.NaturalisGeneiousPlugin)
 
+here=$(pwd)
+
 # Constants
 naturalis_plugin_version="2.0"
 naturalis_common_version="1.0"
 poi_version="4.0.1"
 univocity_version="2.7.6"
+# The branch that we expect to be on
+expected_branch="v2_master"
 
-# Refuse te work in dirty git repo
+
+# Check some preconditions:
+
+curbranch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${curbranch}" != "${expected_branch}" ]
+then
+  echo "Can only created distributable on branch ${expected_branch}"
+  exit 1
+fi
+
 dirty="$(git status --porcelain)"
 if [ ! "${dirty}" ]
 then
@@ -33,9 +46,6 @@ then
 fi
 
 
-here=$(pwd)
-assembly_dir="${here}/target/nl.naturalis.geneious.NaturalisGeneiousPlugin"
-naturalis_common_dir="${here}/../../nl.naturalis.common"
 
 
 echo
@@ -43,14 +53,21 @@ echo
 echo "************************************************************************"
 echo "Building nl.naturalis.common"
 echo "************************************************************************"
+naturalis_common_dir=$(realpath "${here}/../../nl.naturalis.common")
+if [ ! -d "${naturalis_common_dir}" ]
+then
+  echo "Missing directory: ${naturalis_common_dir}"
+  echo "Please clone the naturalis-common git repo first"
+  exit 1
+fi
 cd ${naturalis_common_dir}
 mvn clean install || exit 1
+
 
 cd ${here}
 if [ ! -z ${newtag} ]
 then
-	git tag -a "${newtag}" -m "${newtag}"
-	[ ${?} != 0 ] && exit 1
+	git tag -a "${newtag}" -m "${newtag}" || exit 1
 	curtag="${newtag}"
 fi
 echo
@@ -65,11 +82,9 @@ echo
 echo
 echo "************************************************************************"
 echo "Assembling artifacts"
-echo "************************************************************************"	
-if [ -d ${assembly_dir} ]
-then
-  rm -rf ${assembly_dir}
-fi
+echo "************************************************************************"
+assembly_dir="${here}/target/nl.naturalis.geneious.NaturalisGeneiousPlugin"
+[ -d ${assembly_dir} ] && rm -rf ${assembly_dir}
 mkdir ${assembly_dir}
 mv "${here}/target/naturalis-geneious-plugin-${naturalis_plugin_version}.jar" "${assembly_dir}/"
 [ ${?} != 0 ] && exit 1
