@@ -125,5 +125,4 @@ else
   [ ${?} != 0 ] && exit 1
 fi
 echo "Distributable: ${git_repo}/distributable/${name}"
-echo "Success"
 exit 0
