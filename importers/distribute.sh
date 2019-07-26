@@ -29,7 +29,7 @@ if [ ! "${dirty}" ]
 then
   echo "Working directory not clean"
   echo ${dirty}
-#  exit 1
+  exit 1
 fi
 
 curtag="$(git describe --abbrev=0 --tags)"
@@ -105,7 +105,11 @@ name="${curtag}.${created}.gplugin"
 cd ${here}/target
 zip -r ${name} nl.naturalis.geneious.NaturalisGeneiousPlugin
 [ ${?} != 0 ] && exit 1
+echo "Distributable: ${git_repo}/distributable/${name}"
 
+
+echo
+echo
 echo "************************************************************************"
 echo "Pushing to github"
 echo "************************************************************************"
@@ -122,5 +126,7 @@ else
   [ ${?} != 0 ] && exit 1
 fi
 
-echo "Local distributable: ${git_repo}/distributable/${name}"
+echo
+echo
+echo "Success"
 exit 0
