@@ -105,7 +105,6 @@ name="${curtag}.${created}.gplugin"
 cd ${here}/target
 zip -r ${name} nl.naturalis.geneious.NaturalisGeneiousPlugin
 [ ${?} != 0 ] && exit 1
-echo "Distributable: ${git_repo}/distributable/${name}"
 
 
 echo
@@ -128,5 +127,5 @@ fi
 
 echo
 echo
-echo "Success"
+echo "Distributable: ${git_repo}/distributable/${name}"
 exit 0
