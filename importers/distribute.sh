@@ -100,7 +100,7 @@ echo
 echo "************************************************************************"
 echo "Creating distributable"
 echo "************************************************************************"
-created="$(date +%Y%m%d%H%M)"
+created="$(date +%Y%m%d.%H%M)"
 name="${curtag}.${created}.gplugin"
 cd ${here}/target
 zip -r ${name} nl.naturalis.geneious.NaturalisGeneiousPlugin
