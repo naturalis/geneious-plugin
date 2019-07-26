@@ -123,5 +123,4 @@ else
 fi
 
 echo "Local distributable: ${git_repo}/distributable/${name}"
-
 exit 0
