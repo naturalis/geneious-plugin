@@ -124,8 +124,6 @@ else
 	git add --all && git commit -m "Generated distributable for version ${curtag}" && git push && git push --tags
   [ ${?} != 0 ] && exit 1
 fi
-
-echo
-echo
 echo "Distributable: ${git_repo}/distributable/${name}"
+echo "Success"
 exit 0
