@@ -5,6 +5,14 @@ naturalis_common_version="1.0"
 poi_version="4.0.1"
 univocity_version="2.7.6"
 
+dirty="$(git status -- porcelain)"
+if [ ! "${dirty}" ]
+then
+  echo "Working directory not clean"
+  echo ${dirty}
+#  exit 1
+fi
+
 curtag="$(git describe --abbrev=0 --tags)"
 newtag="${1}"
 if [ -z ${newtag} ] 
@@ -35,7 +43,7 @@ mvn clean install
 [ ${?} != 0 ] && exit 1
 
 cd ${here}
-if [ ! -z ${newtag} ] 
+if [ ! -z ${newtag} ]
 then
 	git tag -a "${newtag}" -m "${newtag}"
 	[ ${?} != 0 ] && exit 1
@@ -81,5 +89,18 @@ created="$(date +%Y%m%d%H%M)"
 name="nbc-geneious-plugin.${curtag}.${created}.gplugin"
 cd ${here}/target
 zip -r ${name} nl.naturalis.geneious.NaturalisGeneiousPlugin
+[ ${?} != 0 ] && exit 1
+
+git_repo=$(realpath ${here}/../)
+mv "${here}/target/${name}" "${git_repo}/distributable/${name}"
+echo "Distributable: ${git_repo}/distributable/${name}"
+
+cd ${git_repo}
+if [ -z ${newtag} ]
+then
+	git add --all && git commit -m "Regenerated distributable for version ${curtag}" && git push
+else
+	git add --all && git commit -m "Generated distributable for version ${curtag}" && git push && git push --tags
+fi
 
 exit 0
