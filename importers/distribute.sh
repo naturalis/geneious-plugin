@@ -3,7 +3,7 @@
 # This script will create the distributable for the Naturalis Geneious plugin.
 # The distributable is a zip file with extension .gplugin (that's how Geneious
 # wants it). The zip file contains a single folder with the same name as the
-# main plugin class: nl.naturalis.geneious.NaturalisGeneiousPlugin)
+# main plugin class: nl.naturalis.geneious.NaturalisGeneiousPlugin).
 
 here=$(pwd)
 
@@ -12,7 +12,6 @@ naturalis_plugin_version="2.0"
 naturalis_common_version="1.0"
 poi_version="4.0.1"
 univocity_version="2.7.6"
-# The branch that we expect to be on
 expected_branch="v2_master"
 
 
@@ -21,7 +20,7 @@ expected_branch="v2_master"
 curbranch="$(git rev-parse --abbrev-ref HEAD)"
 if [ "${curbranch}" != "${expected_branch}" ]
 then
-  echo "Can only created distributable on branch ${expected_branch}"
+  echo "Can only create distributable on branch ${expected_branch}"
   exit 1
 fi
 
@@ -44,8 +43,6 @@ then
     exit 0
   fi
 fi
-
-
 
 
 echo
