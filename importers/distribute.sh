@@ -29,7 +29,7 @@ if [ ! "${dirty}" ]
 then
   echo "Working directory not clean"
   echo ${dirty}
-  exit 1
+#  exit 1
 fi
 
 curtag="$(git describe --abbrev=0 --tags)"
@@ -101,7 +101,7 @@ echo "************************************************************************"
 echo "Creating distributable"
 echo "************************************************************************"
 created="$(date +%Y%m%d%H%M)"
-name="nbc-geneious-plugin.${curtag}.${created}.gplugin"
+name="${curtag}.${created}.gplugin"
 cd ${here}/target
 zip -r ${name} nl.naturalis.geneious.NaturalisGeneiousPlugin
 [ ${?} != 0 ] && exit 1
