@@ -25,7 +25,7 @@ then
 fi
 
 dirty="$(git status --porcelain)"
-if [ ! "${dirty}" ]
+if [ ! -z "${dirty}" ]
 then
   echo "Working directory not clean"
   echo ${dirty}
