@@ -29,7 +29,7 @@ if [ ! "${dirty}" ]
 then
   echo "Working directory not clean"
   echo ${dirty}
-#  exit 1
+  exit 1
 fi
 
 curtag="$(git describe --abbrev=0 --tags)"
