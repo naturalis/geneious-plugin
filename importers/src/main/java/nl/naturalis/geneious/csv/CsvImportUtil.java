@@ -1,5 +1,8 @@
 package nl.naturalis.geneious.csv;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -10,8 +13,9 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class CsvImportUtil {
 
-  private CsvImportUtil() {
-  }
+  static final List<String> spreadSheetFileExts = Arrays.asList("xls", "xlsx");
+
+  private CsvImportUtil() {}
 
   /**
    * Returns true if the file name's extension is "xls",\; false otherwise.
@@ -25,7 +29,7 @@ public class CsvImportUtil {
       return false;
     }
     ext = ext.toLowerCase();
-    return ext.equals("xls");
+    return spreadSheetFileExts.stream().anyMatch(ext::equals);
   }
 
   /**

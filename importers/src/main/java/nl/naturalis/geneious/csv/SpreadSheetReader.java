@@ -36,6 +36,20 @@ class SpreadSheetReader {
     this.file = file;
   }
 
+  String[] getSheetNames() throws EncryptedDocumentException, IOException {
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    try (Workbook workbook = WorkbookFactory.create(file)) {
+      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+      String[] names = new String[workbook.getNumberOfSheets()];
+      for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
+        names[i] = workbook.getSheetAt(i).getSheetName();
+      }
+      return names;
+    } finally {
+      Thread.currentThread().setContextClassLoader(cl);
+    }
+  }
+
   /**
    * Loads and returns all rows of the speadsheet.
    * 
@@ -44,17 +58,17 @@ class SpreadSheetReader {
    * @throws IOException
    */
   List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
-    try(Workbook workbook = WorkbookFactory.create(file)) {
-      if(sheetNumber >= workbook.getNumberOfSheets()) {
+    try (Workbook workbook = WorkbookFactory.create(file)) {
+      if (sheetNumber >= workbook.getNumberOfSheets()) {
         String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
         throw new NaturalisPluginException(String.format(fmt, workbook.getNumberOfSheets()));
       }
       Sheet sheet = workbook.getSheetAt(sheetNumber);
       DataFormatter dataFormatter = new DataFormatter();
       List<String[]> rows = new ArrayList<>();
-      for(Row row : sheet) {
+      for (Row row : sheet) {
         List<String> values = new ArrayList<>();
-        for(Cell cell : row) {
+        for (Cell cell : row) {
           values.add(dataFormatter.formatCellValue(cell));
         }
         rows.add(values.toArray(new String[values.size()]));

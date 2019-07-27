@@ -1,10 +1,5 @@
 package nl.naturalis.geneious.csv;
 
-import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
-import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
-import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
-import static org.apache.commons.io.FilenameUtils.getExtension;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -16,23 +11,27 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.base.Charsets;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.util.CharsetDetector;
 
+import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
+
+import static org.apache.commons.io.FilenameUtils.getExtension;
+
+import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
+
 /**
- * Abstract base class for classes underpinning a Geneious dialog that requests user input for the import of CSV-like
- * files.
+ * Abstract base class for classes underpinning a Geneious dialog that requests user input for the import of CSV-like files.
  * 
  * @author Ayco Holleman
  *
@@ -74,35 +73,34 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message indicating
-   * what's wrong.
+   * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message indicating what's wrong.
    */
   @Override
   public String verifyOptionsAreValid() {
     String msg = super.verifyOptionsAreValid();
-    if(msg != null) {
+    if (msg != null) {
       return msg;
     }
-    if(StringUtils.isBlank(file.getValue())) {
+    if (StringUtils.isBlank(file.getValue())) {
       return "Please select a CSV file or spreadsheet to import";
     }
     String ext = getExtension(file.getValue());
-    if(!supportedFileTypes().contains(ext.toLowerCase())) {
+    if (!supportedFileTypes().contains(ext.toLowerCase())) {
       String fmt = "Unsupported file type: %s. Supported file types: %s";
       return String.format(fmt, ext, supportedFileTypesAsString());
     }
-    if(isCsvFile(file.getValue())) {
+    if (isCsvFile(file.getValue())) {
       try {
         Charset charset = CharsetDetector.detectEncoding(Paths.get(file.getValue()));
-        if(charset.equals(Charsets.UTF_8)) {
+        if (charset.equals(Charsets.UTF_8)) {
           return null;
         }
         String fileName = FilenameUtils.getName(file.getValue());
-        if(ShowDialog.continueWithDetectedCharset(fileName, charset)) {
+        if (ShowDialog.continueWithDetectedCharset(fileName, charset)) {
           return null;
         }
         return "Please select another file";
-      } catch(IOException e) {
+      } catch (IOException e) {
         throw new NaturalisPluginException(e);
       }
     }
@@ -110,8 +108,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Initializes the provided configuration object with settings common to all operations that import CSV or CSV-like
-   * files (Sample Sheet Import, CRS Import and BOLD Import), for example the field delimiter.
+   * Initializes the provided configuration object with settings common to all operations that import CSV or CSV-like files (Sample Sheet
+   * Import, CRS Import and BOLD Import), for example the field delimiter.
    * 
    * @param config
    * @return
@@ -122,7 +120,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     config.setFile(new File(file.getValue()));
     config.setSkipLines(linesToSkip.getValue());
     config.setDelimiter(delimiter.getValue().getName());
-    if(supportSpreadsheet()) {
+    if (supportSpreadsheet()) {
       config.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
     }
     return config;
@@ -194,32 +192,32 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void fileChanged() {
-    if(StringUtils.isBlank(file.getValue())) {
+    if (StringUtils.isBlank(file.getValue())) {
       /*
-       * When a file has been selected, and then you select another file, the change listener apparently fires twice. The
-       * first time the file is empty again. The second time you get the new file.
+       * When a file has been selected, and then you select another file, the change listener apparently fires twice. The first time the
+       * file is empty again. The second time you get the new file.
        */
       return;
     }
-    if(supportSpreadsheet()) { // must check that, otherwise the sheet isn't even there.
+    if (supportSpreadsheet()) { // must check that, otherwise the sheet isn't even there.
       sheet.setEnabled(false);
     }
     delimiter.setEnabled(false);
-    if(supportSpreadsheet() && isSpreadsheet(file.getValue())) {
+    if (supportSpreadsheet() && isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
       delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
       delimiter.setDefaultValue(OPT_NOT_APPLICABLE);
-    } else if(CsvImportUtil.isCsvFile(file.getValue())) {
+    } else if (CsvImportUtil.isCsvFile(file.getValue())) {
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
-      if(supportSpreadsheet()) {
+      if (supportSpreadsheet()) {
         sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
         sheet.setDefaultValue(OPT_NOT_APPLICABLE);
       }
     } else {
-      if(supportSpreadsheet()) {
+      if (supportSpreadsheet()) {
         sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
         sheet.setDefaultValue(SHEET_INIT);
       }
@@ -229,7 +227,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       StringBuilder sb = new StringBuilder(32);
       sb.append(title);
       String ext = getExtension(file.getValue());
-      if(StringUtils.isNotBlank(ext)) {
+      if (StringUtils.isNotBlank(ext)) {
         sb.append(": *.").append(ext);
       }
       showMessageDialog(sb.toString(), title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
@@ -238,14 +236,15 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   private void loadSheetNames() {
     try {
-      Workbook workbook = WorkbookFactory.create(new File(file.getValue()));
-      List<OptionValue> names = new ArrayList<>(workbook.getNumberOfSheets());
-      for(int i = 0; i < workbook.getNumberOfSheets(); ++i) {
-        names.add(new OptionValue(String.valueOf(i), "  " + workbook.getSheetAt(i).getSheetName() + "  "));
+      SpreadSheetReader ssr = new SpreadSheetReader(new File(file.getValue()));
+      String[] sheets = ssr.getSheetNames();
+      List<OptionValue> names = new ArrayList<>(sheets.length);
+      for (int i = 0; i < sheets.length; ++i) {
+        names.add(new OptionValue(String.valueOf(i), "  " + sheets[i] + "  "));
       }
       sheet.setPossibleValues(names);
       sheet.setDefaultValue(names.get(0));
-    } catch(Exception e) {
+    } catch (Exception e) {
       String title = "Error reading spreadsheet";
       String msg = title + ": " + e;
       showMessageDialog(msg, title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
@@ -257,12 +256,12 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private ArrayList<String> supportedFileTypes() {
-    ArrayList<String> types = new ArrayList<>(4);
+    ArrayList<String> types = new ArrayList<>(8);
     types.add("csv");
     types.add("tsv");
     types.add("txt");
-    if(supportSpreadsheet()) {
-      types.add("xls");
+    if (supportSpreadsheet()) {
+      types.addAll(CsvImportUtil.spreadSheetFileExts);
     }
     return types;
   }
