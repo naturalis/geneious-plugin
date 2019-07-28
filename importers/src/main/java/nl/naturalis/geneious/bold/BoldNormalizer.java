@@ -158,7 +158,7 @@ class BoldNormalizer {
   private static ArrayList<String> getMarkersInHeader(String[] header) {
     ArrayList<String> markers = new ArrayList<>(5);
     for(int i = 6; i < header.length && !header[i].equals("Image Count"); i += 3) {
-      markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim());
+      markers.add(StringUtils.substringBefore(header[i], "Seq. Length").trim().toUpperCase());
     }
     return markers;
   }

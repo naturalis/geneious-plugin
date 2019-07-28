@@ -44,7 +44,7 @@ class MarkerMap extends HashMap<String, String> {
         if(x == s.length() - 2) {
           throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
         }
-        String bold = s.substring(0, x).strip();
+        String bold = s.substring(0, x).strip().toUpperCase();
         if(bold.isEmpty()) {
           throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
         }
@@ -54,7 +54,7 @@ class MarkerMap extends HashMap<String, String> {
         if(unmapped.contains(bold)) {
           String[] naturalisMarkers = s.substring(x + 2).strip().split(",");
           for(int i = 0; i < naturalisMarkers.length; ++i) {
-            String naturalis = naturalisMarkers[i].strip();
+            String naturalis = naturalisMarkers[i].strip().toUpperCase();
             if(naturalis.isEmpty()) {
               throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
             }

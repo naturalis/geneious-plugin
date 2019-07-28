@@ -37,16 +37,12 @@ class SpreadSheetReader {
   }
 
   String[] getSheetNames() throws EncryptedDocumentException, IOException {
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
     try (Workbook workbook = WorkbookFactory.create(file)) {
-      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
       String[] names = new String[workbook.getNumberOfSheets()];
       for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
         names[i] = workbook.getSheetAt(i).getSheetName();
       }
       return names;
-    } finally {
-      Thread.currentThread().setContextClassLoader(cl);
     }
   }
 

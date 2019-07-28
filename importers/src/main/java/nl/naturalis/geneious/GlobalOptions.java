@@ -81,16 +81,16 @@ public class GlobalOptions extends Options {
 
     BooleanOption disableFastaCache = addBooleanOption(DISABLE_FASTA_CACHE.getName(), "Disable fasta cache", FALSE);
     disableFastaCache.setHelp("When importing fasta files, they are first split into single nucleotide sequences. If the "
-        + "resulting number of sequences is less than 500, they are processed in-memory; otherwise the nucleotide sequence is "
-        + "written to a temporary file. This option allows you to force the plugin to always create temporary files so you could "
+        + "resulting number of sequences is less than 500, they are processed in-memory; otherwise each nucleotide sequence is "
+        + "written to a temporary file. This option allows you to force the plugin to always create temporary files so you can "
         + "inspect or use them afterwards.");
     settings().update(DISABLE_FASTA_CACHE, disableFastaCache.getValue());
     disableFastaCache.addChangeListener(() -> settings().update(DISABLE_FASTA_CACHE, disableFastaCache.getValue()));
 
     BooleanOption deleteTmpFastas = addBooleanOption(DELETE_TMP_FASTAS.getName(), "Delete temporary fasta files", TRUE);
     deleteTmpFastas.setHelp("When you import a large number of fasta files at once, a lot of temporary files will be created. "
-        + "These are deleted once the import is finished. This option allows you to keep them on the file system. The plugin will "
-        + "tell you where they are. Make sure you delete them yourself when you are done with them.");
+        + "These are deleted once the import is finished. This option allows you to keep them on the file system. The plugin "
+        + "will tell you where they are. Make sure you delete them yourself when you are done with them.");
     settings().update(DELETE_TMP_FASTAS, deleteTmpFastas.getValue());
     deleteTmpFastas.addChangeListener(() -> settings().update(DELETE_TMP_FASTAS, deleteTmpFastas.getValue()));
 
@@ -111,8 +111,8 @@ public class GlobalOptions extends Options {
     addDivider("Logging ");
 
     BooleanOption debug = addBooleanOption(DEBUG.getName(), "Show debug info in plugin logs", FALSE);
-    debug.setHelp("Provide more detailed information as the Naturalis plugin is working. Please, enable when creating "
-        + "support tickets for bugs or perfomance issues.");
+    debug.setHelp("Provide more detailed information in the log window. Please, enable when creating support tickets for "
+        + "bugs or perfomance issues.");
     settings().update(DEBUG, debug.getValue());
 
     BooleanOption prettyNotes = addBooleanOption(PRETTY_NOTES.getName(), "Show pretty notes", FALSE);
@@ -142,7 +142,7 @@ public class GlobalOptions extends Options {
         + "use a comma to separate the Naturalis markers. For example: COI-5P -> COI, COI-5P. Whitespace and empty lines are ignored. "
         + "Lines starting with a # sign are ignored as well. If the BOLD marker is the same as the Naturalis marker (and has no "
         + "multiple mappings) including the mapping is optional. By default the plugin will assume that the BOLD marker maps to just "
-        + "one Naturalis marker with the same name.");
+        + "one Naturalis marker with exactly the same name. You can use uppercase and lowercase letters, but the plugin ignores casing.");
     settings().update(MARKER_MAP, markerMap.getValue());
     markerMap.addChangeListener(() -> settings().update(MARKER_MAP, markerMap.getValue()));
   }

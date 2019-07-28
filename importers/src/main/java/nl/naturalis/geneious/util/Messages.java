@@ -80,13 +80,12 @@ public class Messages {
     }
 
     /**
-     * Message informing the user that, although a row could be matched against several documents, the documents were not
-     * updated because the row contained no new values.
+     * Message informing the user that, although a row could be matched against several documents, the documents were not updated because
+     * the row contained no new values.
      * 
      * @param logger
+     * @param name
      * @param file
-     * @param keyName
-     * @param keyValue
      */
     public static void noNewValues(GuiLogger logger, String name, String file) {
       logger.debugf(() -> format("Document %s not updated. No new values in %s", name, file));
@@ -101,8 +100,10 @@ public class Messages {
      * @param keyValue
      */
     public static void updatedDocuments(GuiLogger logger, Collection<StoredDocument> docs, int updated, String keyName, Object keyValue) {
-      logger.debugf(() -> format("%d out of %d documents with %s %s were updated", updated, docs.size(), keyName, keyValue));
+      logger.debugf(() -> format("%d out of %d documents with %s %s updated", updated, docs.size(), keyName, keyValue));
     }
+    
+    
   }
 
   /**
@@ -137,15 +138,15 @@ public class Messages {
     }
 
     /**
-     * Message informing the user that there were multiple documents matching an extract ID, but that they were not selected
-     * and therefore not updated.
+     * Message informing the user that there were multiple documents matching an extract ID, but that they were not selected and therefore
+     * not updated.
      * 
      * @param logger
      * @param docs
      */
     public static void foundUnselectedDocuments(GuiLogger logger, List<StoredDocument> docs) {
       String msg;
-      if(docs.size() == 1) {
+      if (docs.size() == 1) {
         msg = new StringBuilder(255)
             .append("Found 1 ")
             .append(docs.get(0).getType())

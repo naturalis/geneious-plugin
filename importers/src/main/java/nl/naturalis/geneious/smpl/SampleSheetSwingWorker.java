@@ -33,7 +33,7 @@ import nl.naturalis.geneious.util.Messages.Info;
  */
 class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> {
 
-  static final String FILE_DESCRIPTION = "sample sheet";
+  static final String FILE_DESCRIPTION = "Sample sheet";
   static final String KEY_NAME = "extract ID";
 
   private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetSwingWorker.class);
