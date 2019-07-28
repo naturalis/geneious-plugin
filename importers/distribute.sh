@@ -59,7 +59,7 @@ then
   read -p "Do you wish to re-generate the distributable for version ${curversion}? [Y/n] " answer
   [ "${answer}" = "n" -o "${answer}" = "N" ] && exit 0
 else
-  read -p "Do you wish to create a distributable for version ${curversion}? [Y/n] " answer
+  read -p "Do you wish to create a distributable for version ${version}? [Y/n] " answer
   [ "${answer}" = "n" -o "${answer}" = "N" ] && exit 0
 fi
 
