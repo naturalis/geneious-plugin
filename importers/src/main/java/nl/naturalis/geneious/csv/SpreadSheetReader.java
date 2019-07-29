@@ -36,6 +36,13 @@ class SpreadSheetReader {
     this.file = file;
   }
 
+  /**
+   * Returns the names of the sheets with the spreadsheet.
+   * 
+   * @return
+   * @throws EncryptedDocumentException
+   * @throws IOException
+   */
   String[] getSheetNames() throws EncryptedDocumentException, IOException {
     try (Workbook workbook = WorkbookFactory.create(file)) {
       String[] names = new String[workbook.getNumberOfSheets()];

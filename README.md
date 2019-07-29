@@ -1,7 +1,13 @@
 # Naturalis Geneious Plugin
 
-This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the Geneious
-desktop application.
+This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the Geneious desktop application. It provides the following operations (erroneously themselves known as "plugins" by most users):
+
+- **AB1/Fasta Import**Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the resulting documents. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
+- **Split Name** This is like the AB1/Fasta Import except that it is meant to operate on existing documents, imported via Geneious's own import facility.
+- **Sample Sheet Import** Adds annotations related to the DNA samples to documents inside Geneious.
+- **CRS Import** Adds annotations retrieved from CRS to documents inside Geneious
+- **BOLD Import** Adds annotations retrieved from BOLD to documents inside Geneious
+
 
 ## Developer Setup
 To develop and build the plugin the following is required
@@ -53,7 +59,7 @@ $ ./distribute.sh --publish
 ```
 
 ## Dependency Management
-Although the plugin is built using Maven, Geneious itself is not. All of its dependencies are in its lib directory. To minimize the risk of _jar hell_, we try to keep our dependencies in lockstep with Geneious. Therefore there are a lot of system scope dependencies in the pom file (effectively hard-linking to the jar files in the lib directory). Sometimes, however, we do need another version of a library than Geneious provides us with. We use Apache POI for spreadsheet reading, but this library requires a more recent version of commons-compress than the version in the Geneious lib directory. This in itself is not a problem. Geneious sandboxes the plugin through the class loading mechanism. We just have to include our version of commons-compress to the gplugin file. It is a matter of trial and error to figure out which transitive dependencies you are then forced to include as well.
+Although the plugin is built using Maven, Geneious itself is not. All of its dependencies are in its lib directory. To minimize the risk of _jar hell_, we try to keep our dependencies in lockstep with Geneious. Therefore there are a lot of system scope dependencies in the pom file (effectively hard-linking to the jar files in the lib directory). Sometimes, however, we do need another version of a library than Geneious provides us with. We use Apache POI for spreadsheet reading, but this library requires a more recent version of commons-compress than the version in the Geneious lib directory. This in itself is not a problem. Geneious sandboxes the plugin through the class loading mechanism, giving precedence to the libraries within the gplugin file over those in its own lib directory, So we just have to include our version of commons-compress to the gplugin file. It is a matter of trial and error to figure out which transitive dependencies you are then forced to include as well.
 
 ## Developing in Eclipse
 - Import the GeneiousFiles directory inside the Geneious development kit. The GeneiousFiles directory actually is an Eclipse project that you can import using _File -> Import... -> General -> Existing Projects into Workspace_.
@@ -63,9 +69,13 @@ Although the plugin is built using Maven, Geneious itself is not. All of its dep
 ## Running from within Eclipse
 You can run Geneious along with the plugin from within Eclipse. After you imported the naturalis-geneious-plugin project you should have a new Run Configuration called _naturalis-geneious-plugin (64 bit)_. The Run Configuration can be found as a regular Java application in _Run -> Run Configurations..._ This allows you the run Geneious along with the plugin straight away.
 
+**Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries (provided Geneious doesn't choke on it.
+
 ![Run configuration](/docs/run-configuration.png)
 
 ## Technical Documentation
 The javadocs for the plugin can be found here: [http://naturalis.github.io/sd_java__geneious_plugin/v2/javadoc/](http://naturalis.github.io/sd_java__geneious_plugin/v2/javadoc/)
+
+The Javadocs for the Geneious API can be found inside the development kit or here: [https://assets.geneious.com/developer/geneious/javadoc/latest/index.html](https://assets.geneious.com/developer/geneious/javadoc/latest/index.html)
 
 

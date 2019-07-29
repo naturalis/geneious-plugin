@@ -15,10 +15,10 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
- * A wrapper around the Geneious's {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations
- * pre-fetched into a {@link NaturalisNote} instance. A {@code StoredDocument} has been retrieved through some database
- * query and upon instantiation is exactly like the database record. As an operation proceeds the {@code NaturalisNote}
- * instance may get updated, and, if so, will be saved back to the document.
+ * A wrapper around the {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched into a
+ * {@link NaturalisNote} instance. A {@code StoredDocument} has been retrieved through some database query and upon instantiation is exactly
+ * like the database record. As an operation proceeds the {@code NaturalisNote} instance may get updated, and, if so, will be saved back to
+ * the document.
  */
 public class StoredDocument {
 
@@ -45,8 +45,8 @@ public class StoredDocument {
   }
 
   /**
-   * Creates a wrapper around the provided document with the annotations explicitly provided through the {@code note}
-   * argument. Only used to created yet-to-be-saved dummy documents.
+   * Creates a wrapper around the provided document with the annotations explicitly provided through the {@code note} argument. Only used to
+   * created yet-to-be-saved dummy documents.
    * 
    * @param doc
    * @param note
@@ -83,7 +83,7 @@ public class StoredDocument {
    */
   public String getLocation() {
     String folder;
-    if(doc.getDatabase() == null) {
+    if (doc.getDatabase() == null) {
       folder = "<folder unknown>";
     } else {
       folder = doc.getDatabase().getFullPath();
@@ -108,9 +108,9 @@ public class StoredDocument {
   }
 
   /**
-   * Copies the annotations within the provided into this document's note. Returns {@code true} if the document actually
-   * changed as a consequence, {@code false} otherwise. If {@code overwrite} is true, existing annotations will be
-   * overwritten, otherwise they are left alone.
+   * Copies the annotations within the provided into this document's note. Returns {@code true} if the document actually changed as a
+   * consequence, {@code false} otherwise. If {@code overwrite} is true, existing annotations will be overwritten, otherwise they are left
+   * alone.
    */
   public boolean attach(NaturalisNote note, boolean overwrite) {
     return overwrite ? note.copyTo(this.note) : note.mergeInto(this.note);
@@ -175,7 +175,7 @@ public class StoredDocument {
   }
 
   private DocumentNotes getDocumentNotes() {
-    if(notes == null) {
+    if (notes == null) {
       notes = doc.getDocumentNotes(true);
     }
     return notes;

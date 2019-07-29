@@ -5,7 +5,7 @@ package nl.naturalis.geneious.note;
  *
  * @author Ayco Holleman
  */
-public class EnumParser {
+class EnumParser {
 
   private final Class<?> enumClass;
 
@@ -14,7 +14,7 @@ public class EnumParser {
    * 
    * @param enumClass
    */
-  public EnumParser(Class<?> enumClass) {
+  EnumParser(Class<?> enumClass) {
     this.enumClass = enumClass;
   }
 
@@ -25,7 +25,7 @@ public class EnumParser {
    * @return
    */
   @SuppressWarnings("unchecked")
-  public <T extends Enum<T>> T parse(String s) {
+  <T extends Enum<T>> T parse(String s) {
     for(Object obj : enumClass.getEnumConstants()) {
       if(s.equals(obj.toString())) {
         return (T) obj;

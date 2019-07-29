@@ -8,9 +8,11 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.note.Note;
 
 /**
- * A wrapper around the Geneious-native {@code AnnotatedPluginDocument} class along with a {@code SequenceInfo} object that will provide the
- * annotations for the document. The document itself has already been saved to the database, but the annotations are yet to be created and
- * saved.
+ * A wrapper around the {@code AnnotatedPluginDocument} class along with a {@code SequenceInfo} object that will provide the annotations for
+ * the document. The document has typically just been created by the plugin itself (i.e. the AB1/Fasta Import operation) and the annotations
+ * for it have yet to be created and attached. Contrast this with the {@link StoredDocument} class, which is also a wrapper around
+ * {@code AnnotatedPluginDocument} class, but here the document already resided in the database and was retrieved through some sort of
+ * query.
  * 
  * @see StoredDocument
  */

@@ -11,14 +11,16 @@ import com.biomatters.geneious.publicapi.plugin.Geneious;
 import com.biomatters.geneious.publicapi.plugin.Geneious.MajorVersion;
 
 import nl.naturalis.geneious.OperationConfig;
+import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.Precondition;
 import nl.naturalis.geneious.PreconditionException;
 
 /**
  * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link PreconditionException}. Note that the
- * preconditions checked here partly overlap with the validations done in the input dialog for an operation. For example, see
- * {@code SampleSheetImportOptions.verifyOptionsAreValid()}. This is to make the code less dependent on what happens in the GUI. The
- * {@code PreconditionValidator
+ * preconditions checked here partly overlap with the validations done in the input dialog for an operation (see {@link OperationOptions}).
+ * This is to make the code less dependent on what happens in the GUI. Another difference is that the {@code PreconditionValidator} is part
+ * of the operation itself (in fact it runs <i>after</i> the ping phase), so it allows for some last minute decisions on whether or not to
+ * abort.
  * 
  * @author Ayco Holleman
  *
@@ -33,7 +35,8 @@ public class PreconditionValidator {
   /**
    * Creates a {@code PreconditionValidator} that checks the provided preconditions.
    * 
-   * @param preconditions
+   * @param config The configuration used by the the operation
+   * @param preconditions The preconditions to check
    */
   public PreconditionValidator(OperationConfig config, Set<Precondition> preconditions) {
     this.config = config;
@@ -94,7 +97,7 @@ public class PreconditionValidator {
     }
     do {
       if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
-        smash("Illegal target folder: " + svc.getName());
+        smash("Illegal target folder: " + svc.getFullPath());
       }
       if (svc.getParentService() instanceof WritableDatabaseService) {
         svc = (WritableDatabaseService) svc.getParentService();
