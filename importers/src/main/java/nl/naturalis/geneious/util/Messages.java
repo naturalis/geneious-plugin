@@ -1,9 +1,5 @@
 package nl.naturalis.geneious.util;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
-import static nl.naturalis.geneious.util.JsonUtil.toJson;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -14,7 +10,11 @@ import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.smpl.SampleSheetImporter1;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
+
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 /**
  * Common messages or messages so verbose that they would clutter the code that emits them too much.
@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.*;
  */
 public class Messages {
 
-  public static final String LIST_ITEM = "\n**** ";
+  private static final String LIST_ITEM = "\n**** ";
 
   /**
    * Common DEBUG messages.
@@ -92,7 +92,7 @@ public class Messages {
     }
 
     /**
-     * <i>Updated [&#46;&#46;&#46;] documents [&#46;&#46;&#46;]</i>
+     * Message informing the user how many documents with a particular were updated.
      * 
      * @param logger
      * @param updated
@@ -192,7 +192,7 @@ public class Messages {
     public static void explainUnusedRowForSampleSheets2(GuiLogger logger) {
       logger.info("UNUSED ROW (explanation): The row's extract ID was found in an existing");
       logger.info("           document, but the document was not selected and therefore not");
-      logger.info("           updated.");
+      logger.info("           updated");
     }
 
     /**
