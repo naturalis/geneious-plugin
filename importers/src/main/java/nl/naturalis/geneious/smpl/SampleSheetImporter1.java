@@ -54,7 +54,7 @@ public class SampleSheetImporter1 {
       int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       SampleSheetRow row = new SampleSheetRow(config.getColumnNumbers(), rows.get(i));
-      String key = row.get(SampleSheetColumn.EXTRACT_ID);
+      String key = row.get(SampleSheetColumn.COL_EXTRACT_ID);
       if(key == null) {
         Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);

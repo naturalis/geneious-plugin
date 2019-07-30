@@ -9,14 +9,14 @@ package nl.naturalis.geneious.bold;
  */
 enum BoldColumn {
 
-  PROJECT_CODE,
-  PROCCES_ID,
-  SAMPLE_ID, // CRS registration number
-  FIELD_ID,
-  BIN,
-  SEQ_LENGTH,
-  TRACE_COUNT,
-  ACCESSION,
-  IMAGE_COUNT;
+  COL_PROJECT_CODE,
+  COL_PROCCES_ID,
+  COL_SAMPLE_ID, // CRS registration number
+  COL_FIELD_ID,
+  COL_BIN,
+  COL_SEQ_LENGTH,
+  COL_TRACE_COUNT,
+  COL_ACCESSION,
+  COL_IMAGE_COUNT;
 
 }

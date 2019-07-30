@@ -7,6 +7,7 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.name.StorableDocument;
+import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.smpl.SampleSheetImporter1;
 
@@ -102,8 +103,7 @@ public class Messages {
     public static void updatedDocuments(GuiLogger logger, Collection<StoredDocument> docs, int updated, String keyName, Object keyValue) {
       logger.debugf(() -> format("%d out of %d documents with %s %s updated", updated, docs.size(), keyName, keyValue));
     }
-    
-    
+
   }
 
   /**
@@ -249,6 +249,18 @@ public class Messages {
     public static void duplicateKey(GuiLogger logger, Object key, int line, int prevLine) {
       logger.warn("Ignoring row at line %d. Duplicate key: %s. Duplicate of row at line %d", line, key, prevLine);
     }
+
+    /**
+     * Warns the user about data corruption.
+     * 
+     * @param logger
+     * @param sd
+     */
+    public static void missingDocumentVersion(GuiLogger logger, StoredDocument sd, NaturalisField field) {
+      String fmt = "Encountered %s document with value for %s but no document version:%s%s";
+      logger.warn(fmt, sd.getType(), field, LIST_ITEM, sd.getLocation());
+    }
+
   }
 
   /**

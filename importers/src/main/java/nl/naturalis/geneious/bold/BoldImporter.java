@@ -1,7 +1,7 @@
 package nl.naturalis.geneious.bold;
 
-import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_SAMPLE_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_SEQ_LENGTH;
 import static nl.naturalis.geneious.bold.BoldSwingWorker.FILE_DESCRIPTION;
 import static nl.naturalis.geneious.bold.BoldSwingWorker.KEY_NAME;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
@@ -76,13 +76,13 @@ class BoldImporter {
       int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       BoldRow row = new BoldRow(config.getColumnNumbers(), rows.get(i));
-      String regno = row.get(SAMPLE_ID);
+      String regno = row.get(COL_SAMPLE_ID);
       if(regno == null) {
         Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);
         continue;
       }
-      if(marker != null & row.get(SEQ_LENGTH) == null) {
+      if(marker != null & row.get(COL_SEQ_LENGTH) == null) {
         logger.info("Ignoring row at line %d: no value for marker %s", line, marker);
         continue;
       }

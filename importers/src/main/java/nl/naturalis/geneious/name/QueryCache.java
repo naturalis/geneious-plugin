@@ -1,8 +1,5 @@
 package nl.naturalis.geneious.name;
 
-import static nl.naturalis.geneious.DocumentType.DUMMY;
-import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,16 +7,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.util.JsonUtil;
+import nl.naturalis.geneious.util.Messages.Warn;
+
+import static nl.naturalis.geneious.DocumentType.DUMMY;
+import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
 
 /**
  * Caches the result of a query issued by the {@link Annotator} and provides useful lookups against the query result.
@@ -69,18 +71,17 @@ class QueryCache {
   private final HashMap<Key, ArrayList<StoredDocument>> cache;
 
   /**
-   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the
-   * cache key.
+   * Creates and populates a {@code QueryCache} for the specified documents using the extract ID as the main component the cache key.
    * 
    * @param documents
    */
   QueryCache(Collection<AnnotatedPluginDocument> documents) {
     cache = new HashMap<>(documents.size(), 1F);
-    for(AnnotatedPluginDocument doc : documents) {
+    for (AnnotatedPluginDocument doc : documents) {
       StoredDocument sd = new StoredDocument(doc);
       Key key = new Key(sd);
       ArrayList<StoredDocument> sds = cache.get(key);
-      if(sds == null) {
+      if (sds == null) {
         sds = new ArrayList<StoredDocument>(8);
         cache.put(key, sds);
       }
@@ -89,10 +90,10 @@ class QueryCache {
   }
 
   /**
-   * Returns a list of dummy documents with the provided extract ID. Note that there SHOULD never be more than one dummy
-   * document for any given extract ID. However, to make the application more robust in the face of data corruption, we
-   * allow for that to be not the case. By returning a list of dummy documents rather than a single one, we allow the
-   * application to recover from data corruption (e.g. by deleting all but one of them).
+   * Returns a list of dummy documents with the provided extract ID. Note that there SHOULD never be more than one dummy document for any
+   * given extract ID. However, to make the application more robust in the face of data corruption, we allow for that to be not the case. By
+   * returning a list of dummy documents rather than a single one, we allow the application to recover from data corruption (e.g. by
+   * deleting all but one of them).
    * 
    * @param extractID
    * @return
@@ -108,32 +109,28 @@ class QueryCache {
    */
   Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
-    for(Key key : cache.keySet()) {
+    for (Key key : cache.keySet()) {
       List<StoredDocument> sds = cache.get(key);
-      for(StoredDocument sd : sds) {
-        if(sd.isDummy()) {
+      for (StoredDocument sd : sds) {
+        if (sd.isDummy()) {
           continue;
         }
         String name = removeKnownSuffixes(sd.getGeneiousDocument().getName());
         String version = sd.getNaturalisNote().getDocumentVersion();
-        if(version == null) {
-          /*
-           * If the document has any Naturalis annotation (and we know it has one b/c we queried on extract ID), then it must also
-           * have the document version annotation.
-           */
-          logger.error("Corrupt %s document: %s. Missing document version", key.docType, name);
+        if (version == null) {
+          Warn.missingDocumentVersion(logger, sd, NaturalisField.SEQ_EXTRACT_ID);
           continue;
         }
         Key newKey = new Key(sd.getType(), name);
         MutableInt mi1 = new MutableInt(version);
         MutableInt mi2 = versions.get(newKey);
-        if(mi2 == null) {
+        if (mi2 == null) {
           versions.put(newKey, mi1);
-        } else if(mi1.intValue() > mi2.intValue()) {
+        } else if (mi1.intValue() > mi2.intValue()) {
           mi2.setValue(mi1.intValue());
-        } else if(mi1.intValue() == mi2.intValue()) {
-          String fmt = "Corrupt %s documents: same name (%s) and same document version (%s)";
-          logger.error(fmt, key.docType, name, version);
+        } else if (mi1.intValue() == mi2.intValue()) {
+          String fmt = "Encountered 2 %s documents with the same name (%s) and the same document version (%s)";
+          logger.warn(fmt, key.docType, name, version);
         }
       }
     }

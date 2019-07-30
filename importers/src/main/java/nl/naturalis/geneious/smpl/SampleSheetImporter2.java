@@ -93,7 +93,7 @@ class SampleSheetImporter2 {
       int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       SampleSheetRow row = new SampleSheetRow(config.getColumnNumbers(), rows.get(i));
-      String key = row.get(SampleSheetColumn.EXTRACT_ID);
+      String key = row.get(SampleSheetColumn.COL_EXTRACT_ID);
       if(key == null) {
         Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);
@@ -148,7 +148,7 @@ class SampleSheetImporter2 {
   }
 
   private Set<String> collectIdsInSampleSheet(List<String[]> rows) {
-    int colno = config.getColumnNumbers().get(SampleSheetColumn.EXTRACT_ID);
+    int colno = config.getColumnNumbers().get(SampleSheetColumn.COL_EXTRACT_ID);
     return rows.stream()
         .filter(row -> colno < row.length)
         .filter(row -> StringUtils.isNotBlank(row[colno]))

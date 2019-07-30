@@ -1,12 +1,12 @@
 package nl.naturalis.geneious.csv;
 
 import nl.naturalis.common.base.ThrowingFunction;
+import nl.naturalis.common.base.ThrowingSupplier;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * A note factory converts a row in a CSV file into a set of annotations held together in a {@link NaturalisNote}
- * object.
+ * A note factory converts a row in a CSV file into a set of annotations held together in a {@link NaturalisNote} object.
  * 
  * @author Ayco Holleman
  *
@@ -18,8 +18,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
   private final int line;
 
   /**
-   * Creates a {@link NoteFactory} for the provided row ({@code cells}). The provided row number is used for reporting
-   * only and should be the absolute (including header rows) and user-friendly (one-based) line number of the row.
+   * Creates a {@link NoteFactory} for the provided row ({@code cells}). The provided row number is used for reporting only and should be
+   * the absolute (including header rows) and user-friendly (one-based) line number of the row.
    * 
    * @param row
    * @param lineNumber
@@ -42,9 +42,9 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Left to subclasses to implement: the actual population of the {@code NaturalisNote}. Subclasses are assisted by (and
-   * can probably completely rely on) utility methods present in this class (e.g.
-   * {@link #setRequiredValue(NaturalisNote, NaturalisField, Enum) setRequiredValue}).
+   * Left to subclasses to implement: the actual population of the {@code NaturalisNote}. Subclasses are assisted by (and can probably
+   * completely rely on) utility methods present in this class (e.g. {@link #setRequiredValue(NaturalisNote, NaturalisField, Enum)
+   * setRequiredValue}).
    * 
    * @param note
    * @throws InvalidRowException
@@ -71,8 +71,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Returns the value of the provided column or throws an {@code InvalidRowException} if the row does not have a value
-   * for that column.
+   * Returns the value of the provided column or throws an {@code InvalidRowException} if the row does not have a value for that column.
    * 
    * @param column
    * @return
@@ -80,7 +79,7 @@ public abstract class NoteFactory<T extends Enum<T>> {
    */
   protected String getRequired(T column) throws InvalidRowException {
     String s = row.get(column);
-    if(s == null) {
+    if (s == null) {
       throw InvalidRowException.missingValue(this, column);
     }
     return s;
@@ -95,14 +94,14 @@ public abstract class NoteFactory<T extends Enum<T>> {
    */
   protected void setValue(NaturalisNote note, NaturalisField field, T column) {
     String val = get(column);
-    if(val != null) {
+    if (val != null) {
       note.parseAndSet(field, val);
     }
   }
 
   /**
-   * Sets the specified field within the {@code NaturalisNote} to the value of the provided column or throws an
-   * {@code InvalidRowException} if the row does not have a value for that column.
+   * Sets the specified field within the {@code NaturalisNote} to the value of the provided column or throws an {@code InvalidRowException}
+   * if the row does not have a value for that column.
    * 
    * @param note
    * @param field
@@ -114,9 +113,8 @@ public abstract class NoteFactory<T extends Enum<T>> {
   }
 
   /**
-   * Transforms the value of the provided column using the provided {@code transformer} and then sets the specified field
-   * to the transformed value. If the transformed value is null the {@code NaturalisNote} is left alone (it is forbidden
-   * to set any of its fields to null).
+   * Sets the provided field to the value produced by the provided {@code transformer} <i>if</i> the produced value is not null. The value
+   * of the provided column is supposedly the thing that gets transformed and then assign to the field.
    * 
    * @param note
    * @param field
@@ -127,16 +125,30 @@ public abstract class NoteFactory<T extends Enum<T>> {
   protected void setValue(NaturalisNote note, NaturalisField field, T column,
       ThrowingFunction<String, Object, InvalidRowException> transformer) throws InvalidRowException {
     Object val = transformer.apply(get(column));
-    if(val != null) {
+    if (val != null) {
       note.castAndSet(field, val);
     }
   }
 
   /**
-   * Transforms the value of the provided column using the provided {@code transformer} and then sets the specified field
-   * to the transformed value, <i>or</i> throws an {@code InvalidRowException} if the row does not have a value for the
-   * provided column. Subclasses must not provide transformers that transfor non-null values into null values. Doing so
-   * will cause an {@code IllegalArgumentException} to be thrown.
+   * Sets the provided field to the value produced by the provided {@code supplier} <i>if</i> the produced value is not null.
+   * 
+   * @param note
+   * @param field
+   * @param supplier
+   * @throws InvalidRowException
+   */
+  protected void setValue(NaturalisNote note, NaturalisField field, ThrowingSupplier<Object, InvalidRowException> supplier)
+      throws InvalidRowException {
+    Object val = supplier.get();
+    if (val != null) {
+      note.castAndSet(field, val);
+    }
+  }
+
+  /**
+   * Sets the provided field to the value produced by the provided {@code transformer} or throws an {@code InvalidRowException} if the row
+   * does not have a value for the provided column.
    * 
    * @param note
    * @param field

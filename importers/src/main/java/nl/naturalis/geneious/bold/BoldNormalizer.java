@@ -1,15 +1,15 @@
 package nl.naturalis.geneious.bold;
 
 import static java.util.stream.Collectors.joining;
-import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
-import static nl.naturalis.geneious.bold.BoldColumn.BIN;
-import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.IMAGE_COUNT;
-import static nl.naturalis.geneious.bold.BoldColumn.PROCCES_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
-import static nl.naturalis.geneious.bold.BoldColumn.SAMPLE_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
-import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_ACCESSION;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_BIN;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_FIELD_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_IMAGE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_PROCCES_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_PROJECT_CODE;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_SAMPLE_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_SEQ_LENGTH;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_TRACE_COUNT;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -96,12 +96,12 @@ class BoldNormalizer {
       for(int j = cfg.getSkipLines(); j < originalRows.size(); ++j) {
         String[] line = originalRows.get(j);
         String[] row = new String[BoldColumn.values().length];
-        row[PROJECT_CODE.ordinal()] = line[0];
-        row[PROCCES_ID.ordinal()] = line[1];
-        row[SAMPLE_ID.ordinal()] = line[2];
-        row[FIELD_ID.ordinal()] = line[3];
-        row[BIN.ordinal()] = line[4];
-        row[IMAGE_COUNT.ordinal()] = line[6];
+        row[COL_PROJECT_CODE.ordinal()] = line[0];
+        row[COL_PROCCES_ID.ordinal()] = line[1];
+        row[COL_SAMPLE_ID.ordinal()] = line[2];
+        row[COL_FIELD_ID.ordinal()] = line[3];
+        row[COL_BIN.ordinal()] = line[4];
+        row[COL_IMAGE_COUNT.ordinal()] = line[6];
         rows.add(row);
       }
       return rows;
@@ -127,20 +127,20 @@ class BoldNormalizer {
       for(int j = cfg.getSkipLines(); j < originalRows.size(); ++j) {
         String[] line = originalRows.get(j);
         String[] row = new String[BoldColumn.values().length];
-        row[PROJECT_CODE.ordinal()] = line[0];
-        row[PROCCES_ID.ordinal()] = line[1];
-        row[SAMPLE_ID.ordinal()] = line[2];
-        row[FIELD_ID.ordinal()] = line[3];
-        row[BIN.ordinal()] = line[4];
-        row[SEQ_LENGTH.ordinal()] = line[6 + (i * 3)];
-        if(isNotBlank(row[SEQ_LENGTH.ordinal()])) {
+        row[COL_PROJECT_CODE.ordinal()] = line[0];
+        row[COL_PROCCES_ID.ordinal()] = line[1];
+        row[COL_SAMPLE_ID.ordinal()] = line[2];
+        row[COL_FIELD_ID.ordinal()] = line[3];
+        row[COL_BIN.ordinal()] = line[4];
+        row[COL_SEQ_LENGTH.ordinal()] = line[6 + (i * 3)];
+        if(isNotBlank(row[COL_SEQ_LENGTH.ordinal()])) {
           allBlank = false;
-          row[TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
-          row[ACCESSION.ordinal()] = line[8 + (i * 3)];
+          row[COL_TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
+          row[COL_ACCESSION.ordinal()] = line[8 + (i * 3)];
         } else if(isNotBlank(line[7 + (i * 3)]) || isNotBlank(line[8 + (i * 3)])) {
           guiLogger.warn("Line %d: ignoring marker info (missing value for \"%s Seq. Length\")", j + 1, marker);
         }
-        row[IMAGE_COUNT.ordinal()] = line[6 + (markers.size() * 3)];
+        row[COL_IMAGE_COUNT.ordinal()] = line[6 + (markers.size() * 3)];
         rows.add(row);
       }
       if(allBlank) {

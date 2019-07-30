@@ -4,14 +4,14 @@ import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.NoteFactory;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.bold.BoldColumn.ACCESSION;
-import static nl.naturalis.geneious.bold.BoldColumn.BIN;
-import static nl.naturalis.geneious.bold.BoldColumn.FIELD_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.IMAGE_COUNT;
-import static nl.naturalis.geneious.bold.BoldColumn.PROCCES_ID;
-import static nl.naturalis.geneious.bold.BoldColumn.PROJECT_CODE;
-import static nl.naturalis.geneious.bold.BoldColumn.SEQ_LENGTH;
-import static nl.naturalis.geneious.bold.BoldColumn.TRACE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_ACCESSION;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_BIN;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_FIELD_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_IMAGE_COUNT;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_PROCCES_ID;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_PROJECT_CODE;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_SEQ_LENGTH;
+import static nl.naturalis.geneious.bold.BoldColumn.COL_TRACE_COUNT;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_BIN_CODE;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_FIELD_ID;
 import static nl.naturalis.geneious.note.NaturalisField.BOLD_GEN_BANK_ID;
@@ -46,17 +46,17 @@ class BoldNoteFactory extends NoteFactory<BoldColumn> {
 
   @Override
   protected void populate(NaturalisNote note) throws InvalidRowException {
-    setRequiredValue(note, BOLD_ID, PROCCES_ID);
-    setRequiredValue(note, BOLD_PROJECT_ID, PROJECT_CODE);
-    setValue(note, BOLD_FIELD_ID, FIELD_ID);
-    setValue(note, BOLD_BIN_CODE, BIN);
-    setValue(note, BOLD_NUM_IMAGES, IMAGE_COUNT);
-    setValue(note, BOLD_URI, PROCCES_ID, val -> BOLD_URI_PREFIX + val);
+    setRequiredValue(note, BOLD_ID, COL_PROCCES_ID);
+    setRequiredValue(note, BOLD_PROJECT_ID, COL_PROJECT_CODE);
+    setValue(note, BOLD_FIELD_ID, COL_FIELD_ID);
+    setValue(note, BOLD_BIN_CODE, COL_BIN);
+    setValue(note, BOLD_NUM_IMAGES, COL_IMAGE_COUNT);
+    setValue(note, BOLD_URI, COL_PROCCES_ID, val -> BOLD_URI_PREFIX + val);
     if(!ignoreMarkerColumns) {
-      setValue(note, BOLD_NUCLEOTIDE_LENGTH, SEQ_LENGTH);
-      setValue(note, BOLD_NUM_TRACES, TRACE_COUNT);
-      setValue(note, BOLD_GEN_BANK_ID, ACCESSION);
-      setValue(note, BOLD_GEN_BANK_URI, ACCESSION, val -> val == null ? null : GEN_BANK_URI_PREFIX + val);
+      setValue(note, BOLD_NUCLEOTIDE_LENGTH, COL_SEQ_LENGTH);
+      setValue(note, BOLD_NUM_TRACES, COL_TRACE_COUNT);
+      setValue(note, BOLD_GEN_BANK_ID, COL_ACCESSION);
+      setValue(note, BOLD_GEN_BANK_URI, COL_ACCESSION, val -> val == null ? null : GEN_BANK_URI_PREFIX + val);
     }
   }
 
