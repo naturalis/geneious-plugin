@@ -45,10 +45,10 @@ class SmplNoteFactory extends NoteFactory<SampleSheetColumn> {
 
   @Override
   protected void populate(NaturalisNote note) throws InvalidRowException {
-    setRequiredValue(note, SMPL_EXTRACT_PLATE_ID, COL_EXTRACT_PLATE_ID, this::getExtractPlateId);
-    setRequiredValue(note, SMPL_PLATE_POSITION, COL_PLATE_POSITION);
-    setRequiredValue(note, SMPL_EXTRACT_ID, COL_EXTRACT_ID, this::getExtractId);
     setRequiredValue(note, SMPL_SAMPLE_PLATE_ID, COL_SAMPLE_PLATE_ID);
+    setRequiredValue(note, SMPL_PLATE_POSITION, COL_PLATE_POSITION);
+    setRequiredValue(note, SMPL_EXTRACT_PLATE_ID, COL_EXTRACT_PLATE_ID, this::getExtractPlateId);
+    setRequiredValue(note, SMPL_EXTRACT_ID, COL_EXTRACT_ID, this::getExtractId);
     setValue(note, SMPL_REGISTRATION_NUMBER, COL_REGISTRATION_NUMBER);
     setValue(note, SMPL_SCIENTIFIC_NAME, COL_SCIENTIFIC_NAME);
     setValue(note, SMPL_EXTRACTION_METHOD, COL_EXTRACTION_METHOD);
