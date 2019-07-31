@@ -3,6 +3,7 @@ package nl.naturalis.geneious.util;
 import java.util.Collection;
 import java.util.List;
 
+import nl.naturalis.common.base.ArrayUtil;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -102,6 +103,10 @@ public class Messages {
      */
     public static void updatedDocuments(GuiLogger logger, Collection<StoredDocument> docs, int updated, String keyName, Object keyValue) {
       logger.debugf(() -> format("%d out of %d documents with %s %s updated", updated, docs.size(), keyName, keyValue));
+    }
+
+    public static void ignoringSelectedDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
+      logger.debugf(() -> format("Ignoring selected document %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason)));
     }
 
   }
@@ -292,6 +297,19 @@ public class Messages {
           .toString();
       logger.error(msg);
     }
+
+    /**
+     * Informs the user about data corruption.
+     * 
+     * @param logger
+     * @param sd
+     * @param reason
+     * @param msgArgs
+     */
+    public static void corruptDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
+      logger.error("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason));
+    }
+
   }
 
   private Messages() {}

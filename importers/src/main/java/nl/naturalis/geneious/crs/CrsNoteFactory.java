@@ -7,22 +7,22 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
-import static nl.naturalis.geneious.crs.CrsColumn.AGENT;
-import static nl.naturalis.geneious.crs.CrsColumn.ALTITUDE;
-import static nl.naturalis.geneious.crs.CrsColumn.COLLECTING_START_DATE;
-import static nl.naturalis.geneious.crs.CrsColumn.COUNTRY;
-import static nl.naturalis.geneious.crs.CrsColumn.FULL_SCIENTIFIC_NAME;
-import static nl.naturalis.geneious.crs.CrsColumn.GENUS_OR_MONOMIAL;
-import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_NAMES;
-import static nl.naturalis.geneious.crs.CrsColumn.HIGHER_RANKS;
-import static nl.naturalis.geneious.crs.CrsColumn.IDENTIFIED_BY;
-import static nl.naturalis.geneious.crs.CrsColumn.LATTITUDE;
-import static nl.naturalis.geneious.crs.CrsColumn.LOCALITY;
-import static nl.naturalis.geneious.crs.CrsColumn.LONGITUDE;
-import static nl.naturalis.geneious.crs.CrsColumn.PHASE_OR_STAGE;
-import static nl.naturalis.geneious.crs.CrsColumn.REGISTRATION_NUMBER;
-import static nl.naturalis.geneious.crs.CrsColumn.SEX;
-import static nl.naturalis.geneious.crs.CrsColumn.STATE_OR_PROVINCE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_AGENT;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_ALTITUDE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_COLLECTING_START_DATE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_COUNTRY;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_FULL_SCIENTIFIC_NAME;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_GENUS_OR_MONOMIAL;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_HIGHER_NAMES;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_HIGHER_RANKS;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_IDENTIFIED_BY;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_LATTITUDE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_LOCALITY;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_LONGITUDE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_PHASE_OR_STAGE;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_SEX;
+import static nl.naturalis.geneious.crs.CrsColumn.COL_STATE_OR_PROVINCE;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_ALTITUDE;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_CLASS;
 import static nl.naturalis.geneious.note.NaturalisField.CRS_COLLECTOR;
@@ -56,26 +56,26 @@ class CrsNoteFactory extends NoteFactory<CrsColumn> {
   @Override
   protected void populate(NaturalisNote note) throws InvalidRowException {
     note.castAndSet(CRS_CRS, Boolean.TRUE);
-    setRequiredValue(note, SMPL_REGISTRATION_NUMBER, REGISTRATION_NUMBER);
-    setRequiredValue(note, CRS_SCIENTIFIC_NAME, FULL_SCIENTIFIC_NAME);
-    setValue(note, CRS_IDENTIFIER, IDENTIFIED_BY);
-    setValue(note, CRS_GENUS, GENUS_OR_MONOMIAL);
-    setValue(note, CRS_SEX, SEX);
-    setValue(note, CRS_COLLECTOR, AGENT);
-    setValue(note, CRS_DATE, COLLECTING_START_DATE);
-    setValue(note, CRS_STAGE, PHASE_OR_STAGE);
-    setValue(note, CRS_LATITUDE, LATTITUDE);
-    setValue(note, CRS_LONGITUDE, LONGITUDE);
-    setValue(note, CRS_ALTITUDE, ALTITUDE);
-    setValue(note, CRS_COUNTRY, COUNTRY);
-    setValue(note, CRS_REGION, STATE_OR_PROVINCE);
-    setValue(note, CRS_LOCALITY, LOCALITY);
+    setRequiredValue(note, SMPL_REGISTRATION_NUMBER, COL_REGISTRATION_NUMBER);
+    setRequiredValue(note, CRS_SCIENTIFIC_NAME, COL_FULL_SCIENTIFIC_NAME);
+    setValue(note, CRS_IDENTIFIER, COL_IDENTIFIED_BY);
+    setValue(note, CRS_GENUS, COL_GENUS_OR_MONOMIAL);
+    setValue(note, CRS_SEX, COL_SEX);
+    setValue(note, CRS_COLLECTOR, COL_AGENT);
+    setValue(note, CRS_DATE, COL_COLLECTING_START_DATE);
+    setValue(note, CRS_STAGE, COL_PHASE_OR_STAGE);
+    setValue(note, CRS_LATITUDE, COL_LATTITUDE);
+    setValue(note, CRS_LONGITUDE, COL_LONGITUDE);
+    setValue(note, CRS_ALTITUDE, COL_ALTITUDE);
+    setValue(note, CRS_COUNTRY, COL_COUNTRY);
+    setValue(note, CRS_REGION, COL_STATE_OR_PROVINCE);
+    setValue(note, CRS_LOCALITY, COL_LOCALITY);
     addClassification(note);
   }
 
   private void addClassification(NaturalisNote note) throws InvalidRowException {
-    String r = (r = get(HIGHER_RANKS)) == null ? "" : r;
-    String n = (n = get(HIGHER_NAMES)) == null ? "" : n;
+    String r = (r = get(COL_HIGHER_RANKS)) == null ? "" : r;
+    String n = (n = get(COL_HIGHER_NAMES)) == null ? "" : n;
     String[] ranks = split(r, '/');
     String[] names = split(n, '/');
     if (ranks.length != names.length) {

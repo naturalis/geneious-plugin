@@ -52,7 +52,7 @@ class CrsImporter {
       int line = i + +config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       CrsRow row = new CrsRow(config.getColumnNumbers(), rows.get(i));
-      String key = row.get(CrsColumn.REGISTRATION_NUMBER);
+      String key = row.get(CrsColumn.COL_REGISTRATION_NUMBER);
       if(key == null) {
         Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);

@@ -64,9 +64,9 @@ class BoldImporter {
    */
   void importRows(List<String[]> rows, String marker, BoldLookupTable lookups) {
     if(marker == null) {
-      logger.info("Processing remaining documents (matching on registration number only)");
+      logger.info("Processing rows while matching on registration number only");
     } else {
-      logger.info("Processing marker %s", marker);
+      logger.info("Processing rows while matching on marker %s", marker);
     }
     int updated = 0; // The number of updates for this particular marker
     for(int i = 0; i < rows.size(); ++i) {

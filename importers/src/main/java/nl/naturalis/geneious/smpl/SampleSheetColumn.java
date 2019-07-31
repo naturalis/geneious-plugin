@@ -1,10 +1,10 @@
 package nl.naturalis.geneious.smpl;
+
 /**
  * Symbolic constants for the columns in a sample sheet.
  *
  * @author Ayco Holleman
  */
-
 enum SampleSheetColumn {
 
   COL_SAMPLE_PLATE_ID,

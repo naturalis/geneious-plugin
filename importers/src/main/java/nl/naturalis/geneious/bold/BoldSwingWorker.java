@@ -1,12 +1,5 @@
 package nl.naturalis.geneious.bold;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-import static java.util.stream.Collectors.toList;
-import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.util.JsonUtil.toJson;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -23,6 +16,15 @@ import nl.naturalis.geneious.csv.RuntimeInfo;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.Messages.Info;
+
+import static java.util.stream.Collectors.toList;
+
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.util.JsonUtil.*;
 
 /**
  * Manages and coordinates the import of BOLD files into Geneious.
@@ -49,13 +51,12 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
     BoldImporter importer = new BoldImporter(config, runtime);
     List<String> markers = normalizer.getMarkers();
     MarkerMap markerMap = new MarkerMap(markers);
+    logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toPrettyJson(markerMap)));
     BoldLookupTable lookups = BoldLookupTable.newInstance(selectedDocuments, markerMap);
     if(markers.isEmpty()) {
-      logger.debugf(() -> format("No marker columns BOLD file (matching on %s only", KEY_NAME));
       lookups = lookups.rebuildWithPartialKey();
       importer.importRows(normalizer.getRows(), lookups);
     } else {
-      logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toJson(markerMap)));
       for(String marker : normalizer.getRowsPerMarker().keySet()) {
         List<String[]> rows = normalizer.getRowsPerMarker().get(marker);
         importer.importRows(rows, marker, lookups);
