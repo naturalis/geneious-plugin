@@ -1,5 +1,7 @@
 package nl.naturalis.geneious.note;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Symbolic constants for the valid values for the "Pass (Seq)" annotation.
  * 
@@ -22,6 +24,7 @@ public enum SeqPass {
   }
 
   @Override
+  @JsonValue
   public String toString() {
     return value;
   }

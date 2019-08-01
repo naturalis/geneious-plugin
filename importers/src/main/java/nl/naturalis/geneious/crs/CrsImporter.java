@@ -1,9 +1,5 @@
 package nl.naturalis.geneious.crs;
 
-import static nl.naturalis.geneious.crs.CrsSwingWorker.FILE_DESCRIPTION;
-import static nl.naturalis.geneious.crs.CrsSwingWorker.KEY_NAME;
-import static nl.naturalis.geneious.util.JsonUtil.toJson;
-
 import java.util.List;
 
 import nl.naturalis.geneious.StoredDocument;
@@ -13,9 +9,14 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.DocumentLookupTable;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Warn;
-import nl.naturalis.geneious.util.DocumentLookupTable;
+
+import static nl.naturalis.geneious.crs.CrsColumn.COL_REGISTRATION_NUMBER;
+import static nl.naturalis.geneious.crs.CrsSwingWorker.FILE_DESCRIPTION;
+import static nl.naturalis.geneious.crs.CrsSwingWorker.KEY_NAME;
+import static nl.naturalis.geneious.util.JsonUtil.toJson;
 
 /**
  * Responsible for the actual processing of the row in a CRS file.
@@ -30,8 +31,8 @@ class CrsImporter {
   private final RuntimeInfo runtime;
 
   /**
-   * Creates a new {@code CrsImporter} instance configured using the provided configuration object and updating the
-   * provided runtime object as it proceeds.
+   * Creates a new {@code CrsImporter} instance configured using the provided configuration object and updating the provided runtime object
+   * as it proceeds.
    * 
    * @param config
    * @param runtime
@@ -48,29 +49,29 @@ class CrsImporter {
    * @param lookups
    */
   void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) {
-    for(int i = 0; i < rows.size(); ++i) {
-      int line = i + +config.getSkipLines() + 1;
+    for (int i = 0; i < rows.size(); ++i) {
+      int line = i + config.getSkipLines() + 1;
       Debug.showRow(logger, line, rows.get(i));
       CrsRow row = new CrsRow(config.getColumnNumbers(), rows.get(i));
-      String key = row.get(CrsColumn.COL_REGISTRATION_NUMBER);
-      if(key == null) {
+      String key = row.get(COL_REGISTRATION_NUMBER);
+      if (key == null) {
         Warn.missingKey(logger, KEY_NAME, line);
         runtime.markBad(i);
         continue;
       }
       Integer prevLine = runtime.checkAndAddKey(key, line);
-      if(prevLine != null) {
+      if (prevLine != null) {
         Warn.duplicateKey(logger, key, line, prevLine);
         continue;
       }
       Debug.scanningSelectedDocuments(logger, KEY_NAME, toJson(key));
       List<StoredDocument> docs = lookups.get(key);
-      if(docs == null) {
+      if (docs == null) {
         continue;
       }
       Debug.foundDocumensMatchingKey(logger, docs, KEY_NAME, key);
       NaturalisNote note = createNote(row, line);
-      if(note == null) {
+      if (note == null) {
         runtime.markBad(i);
         continue;
       }
@@ -82,8 +83,8 @@ class CrsImporter {
 
   private void annotateDocuments(List<StoredDocument> docs, NaturalisNote note) {
     int updated = 0;
-    for(StoredDocument doc : docs) {
-      if(doc.attach(note)) {
+    for (StoredDocument doc : docs) {
+      if (doc.attach(note)) {
         runtime.updated(doc);
         ++updated;
       } else {
@@ -99,7 +100,7 @@ class CrsImporter {
       NaturalisNote note = factory.createNote();
       Debug.showNote(logger, note);
       return note;
-    } catch(InvalidRowException e) {
+    } catch (InvalidRowException e) {
       logger.error(e.getMessage());
       return null;
     }

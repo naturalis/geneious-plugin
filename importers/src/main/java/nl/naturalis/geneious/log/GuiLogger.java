@@ -10,6 +10,8 @@ import static nl.naturalis.geneious.log.LogLevel.WARN;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import nl.naturalis.common.base.ArrayUtil;
+
 /**
  * Provides various ways of logging messages.
  * 
@@ -19,18 +21,15 @@ import java.util.function.Supplier;
 public class GuiLogger {
 
   /**
-   * Provides syntactic sugar when using the {@code Supplier}-based log methods. The first argument is presumed to be the
-   * message pattern and the second the message arguments passed to {@code String.format()}.
+   * Provides syntactic sugar when using the {@code Supplier}-based log methods. The first argument is presumed to be the message pattern
+   * and the second the message arguments passed to {@code String.format()}.
    * 
    * @param pattern
    * @param args
    * @return
    */
   public static Object[] format(String pattern, Object... args) {
-    Object[] objs = new Object[args.length + 1];
-    objs[0] = pattern;
-    System.arraycopy(args, 0, objs, 1, args.length);
-    return objs;
+    return ArrayUtil.prefix(args, pattern);
   }
 
   /**
@@ -114,9 +113,9 @@ public class GuiLogger {
   }
 
   /**
-   * Logs a DEBUG message by calling the provided message supplier's {@code get()} method. The first element in the array
-   * returned from {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments.
-   * See also {@link #format(String, Object...) format}.
+   * Logs a DEBUG message by calling the provided message supplier's {@code get()} method. The first element in the array returned from
+   * {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments. See also
+   * {@link #format(String, Object...) format}.
    * 
    * @param messageSupplier
    */
@@ -144,9 +143,9 @@ public class GuiLogger {
   }
 
   /**
-   * Logs an INFO message by calling the provided message supplier's {@code get()} method. The first element in the array
-   * returned from {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments.
-   * See also {@link #format(String, Object...) format}.
+   * Logs an INFO message by calling the provided message supplier's {@code get()} method. The first element in the array returned from
+   * {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments. See also
+   * {@link #format(String, Object...) format}.
    * 
    * @param messageSupplier
    */
@@ -174,9 +173,9 @@ public class GuiLogger {
   }
 
   /**
-   * Logs a WARN message by calling the provided message supplier's {@code get()} method. The first element in the array
-   * returned from {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments.
-   * See also {@link #format(String, Object...) format}.
+   * Logs a WARN message by calling the provided message supplier's {@code get()} method. The first element in the array returned from
+   * {@code get()} must be the message pattern; the remaining elements are presumed to be message arguments. See also
+   * {@link #format(String, Object...) format}.
    * 
    * @param messageSupplier
    */
@@ -235,8 +234,8 @@ public class GuiLogger {
   }
 
   private void record(LogLevel level, String msg, Throwable exc, Object... msgArgs) {
-    if(level.ordinal() >= writer.getLogLevel().ordinal()) {
-      if(msgArgs.length > 0) {
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
+      if (msgArgs.length > 0) {
         writer.write(new LogRecord(clazz, level, String.format(msg, msgArgs), exc));
       } else {
         writer.write(new LogRecord(clazz, level, msg, exc));
@@ -245,15 +244,15 @@ public class GuiLogger {
   }
 
   private void record(LogLevel level, Supplier<String> msgSupplier, Throwable exc) {
-    if(level.ordinal() >= writer.getLogLevel().ordinal()) {
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
       writer.write(new LogRecord(clazz, level, msgSupplier.get(), exc));
     }
   }
 
   private void recordf(LogLevel level, Supplier<Object[]> msgSupplier, Throwable exc) {
-    if(level.ordinal() >= writer.getLogLevel().ordinal()) {
+    if (level.ordinal() >= writer.getLogLevel().ordinal()) {
       Object[] chunks = msgSupplier.get();
-      if(chunks.length == 1) {
+      if (chunks.length == 1) {
         writer.write(new LogRecord(clazz, level, chunks[0].toString(), exc));
       } else {
         String msg = String.format(chunks[0].toString(), copyOfRange(chunks, 1, chunks.length));

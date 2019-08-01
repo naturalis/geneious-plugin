@@ -26,7 +26,7 @@ import static nl.naturalis.geneious.name.NameUtil.removeKnownSuffixes;
 /**
  * Caches the result of a query issued by the {@link Annotator} and provides useful lookups against the query result.
  */
-class QueryCache {
+public class QueryCache {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(QueryCache.class);
 
@@ -75,7 +75,7 @@ class QueryCache {
    * 
    * @param documents
    */
-  QueryCache(Collection<AnnotatedPluginDocument> documents) {
+  public QueryCache(Collection<AnnotatedPluginDocument> documents) {
     cache = new HashMap<>(documents.size(), 1F);
     for (AnnotatedPluginDocument doc : documents) {
       StoredDocument sd = new StoredDocument(doc);
@@ -98,7 +98,7 @@ class QueryCache {
    * @param extractID
    * @return
    */
-  List<StoredDocument> findDummy(String extractId) {
+  public List<StoredDocument> findDummy(String extractId) {
     return cache.get(new Key(DUMMY, extractId));
   }
 

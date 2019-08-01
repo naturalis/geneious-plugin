@@ -11,7 +11,7 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.Messages.Debug;
-import nl.naturalis.geneious.util.Messages.Error;
+import nl.naturalis.geneious.util.Messages.Warn;
 
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_REGISTRATION_NUMBER;
@@ -76,7 +76,7 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
     }
     String naturalisMarker = sd.getNaturalisNote().get(SEQ_MARKER);
     if (naturalisMarker == null) {
-      Error.corruptDocument(logger, sd, "Has registration number but no marker");
+      Warn.corruptDocument(logger, sd, "Has registration number but no marker");
       return null;
     }
     String boldMarker = markerMap.get(naturalisMarker);

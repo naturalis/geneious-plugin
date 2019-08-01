@@ -13,7 +13,7 @@ public class SampleSheetImportConfig extends CsvImportConfig<SampleSheetColumn> 
   private boolean createDummies;
 
   SampleSheetImportConfig() {
-    super(); // initializes target folder & selected documents
+    super(); // do not leave this out!
   }
 
   /**

@@ -4,10 +4,11 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.naturalis.common.base.ArrayUtil;
+import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.name.StorableDocument;
+import nl.naturalis.geneious.name.NotParsableException;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.smpl.SampleSheetImporter1;
@@ -82,15 +83,15 @@ public class Messages {
     }
 
     /**
-     * Message informing the user that, although a row could be matched against several documents, the documents were not updated because
-     * the row contained no new values.
+     * Message informing the user a document was not updated because the values in the document did not differ from the values in the data
+     * source.
      * 
      * @param logger
      * @param name
-     * @param file
+     * @param dataSource
      */
-    public static void noNewValues(GuiLogger logger, String name, String file) {
-      logger.debugf(() -> format("Document %s not updated. No new values in %s", name, file));
+    public static void noNewValues(GuiLogger logger, String name, String dataSource) {
+      logger.debugf(() -> format("Document %s not updated. No new values in %s", name, dataSource));
     }
 
     /**
@@ -105,8 +106,38 @@ public class Messages {
       logger.debugf(() -> format("%d out of %d documents with %s %s updated", updated, docs.size(), keyName, keyValue));
     }
 
+    /**
+     * Message informing the user that one of the selected document could not be processed for some reason.
+     * 
+     * @param logger
+     * @param sd
+     * @param reason
+     * @param msgArgs
+     */
     public static void ignoringSelectedDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
       logger.debugf(() -> format("Ignoring selected document %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason)));
+    }
+
+    /**
+     * Message informing the user that a dummy has been foud for the extract ID currently being processed.
+     * 
+     * @param logger
+     * @param extractId
+     * @param copyToType
+     */
+    public static void foundDummyForExtractId(GuiLogger logger, String extractId, DocumentType copyToType) {
+      logger.debugf(() -> format("Found dummy for extract ID %s. Copying annotations to %s document", extractId, copyToType));
+    }
+
+    /**
+     * Message informing the user that a dummy document will be deleted.
+     * 
+     * @param logger
+     * @param extractId
+     * @param dummies
+     */
+    public static void dummyQueuedForDeletion(GuiLogger logger, String extractId) {
+      logger.debugf(() -> format("Dummy with extract ID %s queued for deletion", extractId));
     }
 
   }
@@ -176,6 +207,16 @@ public class Messages {
             .toString();
       }
       logger.info(msg);
+    }
+
+    /**
+     * Message informing the user that the provided dummies will be sent to their graves.
+     * 
+     * @param logger
+     * @param dummies
+     */
+    public static void deletingObsoleteDummies(GuiLogger logger, Collection<?> dummies) {
+      logger.info("Deleting %s obsolete dummy document%s", dummies.size(), plural(dummies));
     }
 
     /**
@@ -262,8 +303,19 @@ public class Messages {
      * @param sd
      */
     public static void missingDocumentVersion(GuiLogger logger, StoredDocument sd, NaturalisField field) {
-      String fmt = "Encountered %s document with value for %s but no document version:%s%s";
-      logger.warn(fmt, sd.getType(), field, LIST_ITEM, sd.getLocation());
+      corruptDocument(logger, sd, "Document has value for %d but no document version", field);
+    }
+
+    /**
+     * Informs the user about data corruption.
+     * 
+     * @param logger
+     * @param sd
+     * @param reason
+     * @param msgArgs
+     */
+    public static void corruptDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
+      logger.warn("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason));
     }
 
   }
@@ -277,6 +329,10 @@ public class Messages {
   public static class Error {
     private Error() {}
 
+    public static void nameParsingFailed(GuiLogger logger, String name, NotParsableException exception) {
+      logger.error("Error while parsing \"%\"s: %s", name, exception);
+    }
+
     /**
      * <i>Found multiple dummy documents with extract ID [&#46;&#46;&#46;]</i>
      * 
@@ -284,30 +340,18 @@ public class Messages {
      * @param doc
      * @param dummies
      */
-    public static void duplicateDummies(GuiLogger logger, StorableDocument doc, List<StoredDocument> dummies) {
+    public static void duplicateDummies(GuiLogger logger, String docName, String extractId, List<StoredDocument> dummies) {
       String msg = new StringBuilder(255)
           .append("Error while annotating document ")
-          .append(doc.getSequenceInfo().getName())
+          .append(docName)
           .append(". Found multiple dummy documents with extract ID ")
-          .append(doc.getSequenceInfo().getNaturalisNote().getExtractId())
+          .append(extractId)
           .append(LIST_ITEM)
           .append(dummies.stream()
               .map(StoredDocument::getLocation)
               .collect(joining(LIST_ITEM)))
           .toString();
       logger.error(msg);
-    }
-
-    /**
-     * Informs the user about data corruption.
-     * 
-     * @param logger
-     * @param sd
-     * @param reason
-     * @param msgArgs
-     */
-    public static void corruptDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
-      logger.error("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason));
     }
 
   }

@@ -28,12 +28,6 @@ public class StorableDocument {
     this.sequenceInfo = info;
   }
 
-  public StorableDocument(AnnotatedPluginDocument doc) {
-    this.document = doc;
-    this.notes = document.getDocumentNotes(true);
-    this.sequenceInfo = new DefaultSequenceInfo(doc);
-  }
-
   /**
    * Returns the {@code SequenceInfo} object containing the annotations for the Geneious document.
    * 

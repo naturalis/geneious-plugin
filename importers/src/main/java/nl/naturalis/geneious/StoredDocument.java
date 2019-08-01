@@ -16,9 +16,9 @@ import nl.naturalis.geneious.util.DocumentUtils;
 
 /**
  * A wrapper around the {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched into a
- * {@link NaturalisNote} instance. A {@code StoredDocument} has been retrieved through some database query and upon instantiation is exactly
- * like the database record. As an operation proceeds the {@code NaturalisNote} instance may get updated, and, if so, will be saved back to
- * the document.
+ * {@link NaturalisNote} instance. A {@code StoredDocument} either is one of the documents selected by the user, or it is a document
+ * retrieved through a database query. In the former case, the {@code NaturalisNote} instance may get updated as an operation proceeds and,
+ * if so, will be saved back to the document.
  */
 public class StoredDocument {
 

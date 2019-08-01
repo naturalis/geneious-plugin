@@ -1,11 +1,5 @@
 package nl.naturalis.geneious.name;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,11 +15,19 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisNote;
+import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Error;
+import nl.naturalis.geneious.util.Messages.Info;
+
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
 
 /**
- * Manages the actual annotation process. It uses a {@link SequenceNameParser} to split the document names, queries the
- * database for dummies to get extra annotations from and uses a {@link VersionTracker} to assign document versions.
+ * Manages the actual annotation process. It uses a {@link SequenceNameParser} to split the document names, queries the database for dummies
+ * to get extra annotations from and uses a {@link VersionTracker} to assign document versions.
  *
  * @author Ayco Holleman
  */
@@ -35,8 +37,6 @@ public class Annotator {
 
   private final OperationConfig config;
   private final List<StorableDocument> docs;
-
-  private Set<StoredDocument> obsoleteDummies;
 
   /**
    * Creates a new {@code Annotator} for the provided list of {@code StorableDocument} instances.
@@ -49,9 +49,9 @@ public class Annotator {
   }
 
   /**
-   * Creates the annotations and adds them to the Geneious documents. Returns a list of {@code StorableDocument} instances
-   * that were successfully annotated. The new annotations have not yet been saved yet to the database yet, so you must
-   * still call {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
+   * Creates the annotations and adds them to the Geneious documents. Returns a list of {@code StorableDocument} instances that were
+   * successfully annotated. The new annotations have not yet been saved yet to the database yet, so you must still call
+   * {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
    * 
    * @throws DatabaseServiceException
    */
@@ -65,19 +65,20 @@ public class Annotator {
     List<AnnotatedPluginDocument> result = findByExtractID(config.getTargetDatabase(), ids);
     logger.debugf(() -> format("Found %s matching document%s", result.size(), plural(result)));
     QueryCache queryCache = new QueryCache(result);
-    obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR); // Guarantees we won't attempt to delete the same dummy twice
-    for(StorableDocument doc : documents) {
+    Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
+    for (StorableDocument doc : documents) {
       NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
-      String extractId = getExtractId(doc);
-      List<StoredDocument> dummies = queryCache.findDummy(extractId);
-      if(dummies != null) {
-        if(dummies.size() > 1) {
-          Error.duplicateDummies(logger, doc, dummies);
+      String id = getExtractId(doc);
+      List<StoredDocument> dummies = queryCache.findDummy(id);
+      if (dummies != null) {
+        if (dummies.size() > 1) {
+          Error.duplicateDummies(logger, doc.getSequenceInfo().getName(), id, dummies);
         } else {
-          logger.debugf(() -> format("Found dummy document matching %s. Copying annotations to %s document", extractId, getType(doc)));
+          Debug.foundDummyForExtractId(logger, id, getType(doc));
           dummies.get(0).getNaturalisNote().mergeInto(note, DOCUMENT_VERSION);
-          obsoleteDummies.add(dummies.get(0));
-          logger.debug(() -> "Dummy document queued for deletion");
+          if (obsoleteDummies.add(dummies.get(0))) {
+            Debug.dummyQueuedForDeletion(logger, id);
+          }
         }
       }
     }
@@ -86,8 +87,8 @@ public class Annotator {
     documents.forEach(versioner::setDocumentVersion);
     logger.info("Attaching annotations");
     documents.forEach(StorableDocument::attachNaturalisNote);
-    if(!obsoleteDummies.isEmpty()) {
-      logger.info("Deleting %s obsolete dummy document%s", obsoleteDummies.size(), plural(obsoleteDummies));
+    if (!obsoleteDummies.isEmpty()) {
+      Info.deletingObsoleteDummies(logger, obsoleteDummies);
       deleteDocuments(config.getTargetDatabase(), obsoleteDummies);
     }
     return documents;
@@ -95,14 +96,14 @@ public class Annotator {
 
   private List<StorableDocument> getAnnotatableDocuments() {
     List<StorableDocument> annotatables = new ArrayList<>(docs.size());
-    for(StorableDocument doc : docs) {
+    for (StorableDocument doc : docs) {
       try {
         logger.debugf(() -> format("Parsing \"%s\"", doc.getSequenceInfo().getName()));
         doc.getSequenceInfo().createNote();
         annotatables.add(doc);
-      } catch(NotParsableException e) {
+      } catch (NotParsableException e) {
         String name;
-        if(doc.getSequenceInfo().getImportedFrom() == null) { // A higher-level document, created from other documents
+        if (doc.getSequenceInfo().getImportedFrom() == null) { // A higher-level document, created from other documents
           name = doc.getSequenceInfo().getName();
         } else {
           name = doc.getSequenceInfo().getImportedFrom().getName();

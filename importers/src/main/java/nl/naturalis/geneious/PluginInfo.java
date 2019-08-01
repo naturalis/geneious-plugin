@@ -5,8 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Contains and provides version-related information about the current release of the plugin. Used in the <i>Tools -&gt;
- * Preferences</i> panel.
+ * Contains and provides version-related information showin in the <i>Tools -&gt; Preferences</i> panel.
  *
  * @author Ayco Holleman
  */
@@ -35,7 +34,7 @@ public class PluginInfo {
   private PluginInfo() {
     InputStream is = getClass().getResourceAsStream("/git.properties");
     if (is == null) {
-      // Can only happen during development
+      // Can only happen during development. This file is generated in the "target" folder by the git commit id plugin.
       throw new RuntimeException("Yo, run Maven -> Update Project...");
     }
     Properties props = new Properties();

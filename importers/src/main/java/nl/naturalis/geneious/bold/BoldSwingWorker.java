@@ -51,12 +51,12 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
     BoldImporter importer = new BoldImporter(config, runtime);
     List<String> markers = normalizer.getMarkers();
     MarkerMap markerMap = new MarkerMap(markers);
-    logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toPrettyJson(markerMap)));
     BoldLookupTable lookups = BoldLookupTable.newInstance(selectedDocuments, markerMap);
     if(markers.isEmpty()) {
       lookups = lookups.rebuildWithPartialKey();
       importer.importRows(normalizer.getRows(), lookups);
     } else {
+      logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toPrettyJson(markerMap)));
       for(String marker : normalizer.getRowsPerMarker().keySet()) {
         List<String[]> rows = normalizer.getRowsPerMarker().get(marker);
         importer.importRows(rows, marker, lookups);

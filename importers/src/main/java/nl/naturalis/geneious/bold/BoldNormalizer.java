@@ -61,8 +61,8 @@ class BoldNormalizer {
   }
 
   /**
-   * Returns the markers found in the header of the spreadsheet. Note however that if the "Seq. Length" column of a triplet of marker
-   * columns is completely empty (i.e. none of the rows have a value in the "Seq. Length" column), that marker is considered absent and will
+   * Returns the markers found in the header of the spreadsheet. Note that if the <i>Seq. Length</i> column of a triplet of marker columns
+   * is completely empty (i.e. none of the rows have a value in the <i>Seq. Length</i> column), that marker is considered absent and will
    * <i>not</i> be included in the returned list.
    * 
    * @return
@@ -73,8 +73,8 @@ class BoldNormalizer {
 
   /**
    * Returns a per-marker list of rows. The map might be empty if the BOLD spreadsheet did not contain any marker-related columns or (more
-   * hypothetically) it did, but the "Seq. Length" column was blank for all rows. The keys in the returned map are the markers, in the same
-   * order as they were found in the spreadsheet.
+   * hypothetically) it did, but the <i>Seq. Length</i> column was blank for all rows. The keys in the returned map are the markers, in the
+   * same order as they were found in the spreadsheet.
    * 
    * @return
    */
@@ -84,7 +84,8 @@ class BoldNormalizer {
 
   /**
    * Returns the rows for an arbitrary marker or, if the spreadsheet did not contain any markers, a new list of rows with only specimen
-   * information.
+   * information. Used in the final stage of the operation when we attempt to match any selected documents left untouched thus far on
+   * registration number only.
    * 
    * @return
    */
@@ -135,6 +136,7 @@ class BoldNormalizer {
           row[COL_TRACE_COUNT.ordinal()] = line[7 + (i * 3)];
           row[COL_ACCESSION.ordinal()] = line[8 + (i * 3)];
         } else if (isNotBlank(line[7 + (i * 3)]) || isNotBlank(line[8 + (i * 3)])) {
+          // Odd to have those columns populated but not the Seq. Lenght column
           logger.warn("Line %d: ignoring marker info (missing value for \"%s Seq. Length\")", j + 1, marker);
         }
         row[COL_IMAGE_COUNT.ordinal()] = line[6 + (markers.size() * 3)];

@@ -1,7 +1,17 @@
 package nl.naturalis.geneious;
 
+import java.io.IOException;
+
+import com.biomatters.geneious.publicapi.plugin.Options;
+import com.google.common.base.Charsets;
+
+import org.apache.commons.io.IOUtils;
+
+import nl.naturalis.geneious.util.Ping;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+
 import static nl.naturalis.geneious.Setting.AB1_EXTS;
 import static nl.naturalis.geneious.Setting.DEBUG;
 import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
@@ -12,18 +22,8 @@ import static nl.naturalis.geneious.Setting.PING_HISTORY;
 import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
 import static nl.naturalis.geneious.Settings.settings;
 
-import java.io.IOException;
-
-import org.apache.commons.io.IOUtils;
-
-import com.biomatters.geneious.publicapi.plugin.Options;
-import com.google.common.base.Charsets;
-
-import nl.naturalis.geneious.note.AnnotationMetadataUpdater;
-import nl.naturalis.geneious.util.Ping;
-
 /**
- * A subclass of {@code Options} underpinning the <i>Tools -&gt; Preferences</i> panel.
+ * An object underpinning the <i>Tools -&gt; Preferences</i> panel.
  * 
  * @author Ayco Holleman
  *
@@ -69,10 +69,14 @@ public class GlobalOptions extends Options {
         + "indexing to complete. Make sure all documents have been indexed before continuing to use the plugin");
     clearPingdata.addActionListener(e -> Ping.clear());
 
-    ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata");
-    updateMetadata.addActionListener(e -> AnnotationMetadataUpdater.saveFieldDefinitions());
-    updateMetadata.setHelp("Advanced functionality. Don't do this unless you know what you are doing.");
-
+    /*
+     * This button can be handy in the beginningof a development cycle, if we want to update the data types of the notes, but is dangerous
+     * to open to users. So do not remove this comment.
+     * 
+     * ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata"); updateMetadata.addActionListener(e ->
+     * AnnotationMetadataUpdater.saveFieldDefinitions());
+     * updateMetadata.setHelp("Advanced functionality. Don't do this unless you know what you are doing.");
+     */
     endAlignHorizontally();
   }
 

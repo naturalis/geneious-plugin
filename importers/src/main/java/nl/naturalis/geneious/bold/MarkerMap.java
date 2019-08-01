@@ -13,8 +13,8 @@ import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
  * Reads the marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them to a Java {@code HashMap}. Note that the marker
- * mappings in the <i>Tools -&gt; Preferences</i> panel map BOLD markers to (one or more) Naturalis markers, but this class represents a
- * reverse map, mapping one Naturalis marker to (exactly) one BOLD marker.
+ * mappings in the <i>Tools -&gt; Preferences</i> panel map BOLD markers to Naturalis markers, but this class creates a reverse map, mapping
+ * Naturalis markers to BOLD markers. Also note that One BOLD marker (e.g. COI-5P) may map to multiple Naturalis markers (e.g. COI, COI-5P).
  * 
  * @author Ayco Holleman
  *
@@ -28,8 +28,6 @@ class MarkerMap extends HashMap<String, String> {
    * @throws BoldNormalizationException
    */
   MarkerMap(List<String> markersInSpreadSheet) throws BoldNormalizationException {
-    // Markers in the spreadsheet for which no explicit mapping was found in Tools -> Preferences. Will be mapped to
-    // themselves.
     HashSet<String> unmapped = new HashSet<>(markersInSpreadSheet);
     String mappings = settings().getMarkerMap();
     try (LineNumberReader lnr = new LineNumberReader(new StringReader(mappings))) {
@@ -47,9 +45,6 @@ class MarkerMap extends HashMap<String, String> {
         String bold = s.substring(0, x).strip().toUpperCase();
         if (bold.isEmpty()) {
           throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
-        }
-        if (containsValue(bold)) {
-          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Duplicate BOLD marker: " + bold + ". ");
         }
         String[] naturalisMarkers = s.substring(x + 2).strip().split(",");
         for (int i = 0; i < naturalisMarkers.length; ++i) {

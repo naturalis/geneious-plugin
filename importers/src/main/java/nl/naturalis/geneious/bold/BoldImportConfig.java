@@ -11,7 +11,7 @@ import nl.naturalis.geneious.csv.CsvImportConfig;
 class BoldImportConfig extends CsvImportConfig<BoldColumn> {
 
   BoldImportConfig() {
-    super(); // initializes target folder & selected documents
+    super(); // do not leave this out!
   }
 
   /**
@@ -19,7 +19,7 @@ class BoldImportConfig extends CsvImportConfig<BoldColumn> {
    */
   @Override
   public EnumToIntMap<BoldColumn> getColumnNumbers() {
-    // Column numbers correspond exactly to ordinal values (after normalization!)
+    // Column numbers correspond exactly to ordinal values - after normalization !!!
     return new EnumToIntMap<>(BoldColumn.class, Enum::ordinal);
   }
 

@@ -28,7 +28,7 @@ import static nl.naturalis.geneious.crs.CrsColumn.COL_STATE_OR_PROVINCE;
 class CrsImportConfig extends CsvImportConfig<CrsColumn> {
   
   CrsImportConfig() {
-    super(); // initializes target folder & selected documents
+    super(); // do not leave this out!
   }
 
   /**
