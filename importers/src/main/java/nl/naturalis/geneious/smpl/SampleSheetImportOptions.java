@@ -47,6 +47,17 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
   protected String getDefaultFileSelectionLabel() {
     return "Sample sheet";
   }
+  
+  @Override
+  protected boolean supportSpreadsheet() {
+    return true;
+  }
+
+  @Override
+  protected boolean isSpreadsheetWithFormulas() {
+    return true;
+  }
+
 
   private BooleanOption addDummiesOption() {
     String name = "nl.naturalis.geneious.smpl.dummies";

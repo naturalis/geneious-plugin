@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +21,8 @@ import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.util.CharsetDetector;
+
+import static java.util.Arrays.asList;
 
 import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
 
@@ -49,8 +50,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
 
   private static final OptionValue DELIM_INIT = new OptionValue("0", "  --- csv/tsv/txt ---  ");
   private static final OptionValue SHEET_INIT = new OptionValue("0", "  --- spreadsheet ---  ");
+  private static final OptionValue LOADING_SPREADSHEET = new OptionValue("0", "  Loading spreadsheet ...  ");
 
-  private static final List<OptionValue> DELIM_OPTIONS = Arrays.asList(
+  private static final List<OptionValue> DELIM_OPTIONS = asList(
       new OptionValue("\t", "  tab  "),
       new OptionValue(",", "  comma  "),
       new OptionValue(";", "  semi-colon  "),
@@ -122,6 +124,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     config.setDelimiter(delimiter.getValue().getName());
     if (supportSpreadsheet()) {
       config.setSheetNumber(Integer.parseInt(sheet.getValue().getName()));
+      config.setSpreadsheetWithFormulas(isSpreadsheetWithFormulas());
     }
     return config;
   }
@@ -153,6 +156,15 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return false;
   }
 
+  /**
+   * Whether or not the spreadsheet (if applicable) may contain formulas. (default: {@code false}).
+   * 
+   * @return
+   */
+  protected boolean isSpreadsheetWithFormulas() {
+    return false;
+  }
+
   private FileSelectionOption addFileSelectionOption() {
     FileSelectionOption opt = addFileSelectionOption(
         name(FILE),
@@ -177,14 +189,14 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private ComboBoxOption<OptionValue> addDelimiterOption() {
-    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(DELIMITER), "Field separator", Arrays.asList(DELIM_INIT), DELIM_INIT);
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(DELIMITER), "Field separator", asList(DELIM_INIT), DELIM_INIT);
     opt.setDescription("The character used to separate values within a row");
     opt.setEnabled(false);
     return opt;
   }
 
   private ComboBoxOption<OptionValue> addSheetNameOption() {
-    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(SHEET_NAME), "Sheet name", Arrays.asList(SHEET_INIT), SHEET_INIT);
+    ComboBoxOption<OptionValue> opt = addComboBoxOption(name(SHEET_NAME), "Sheet name", asList(SHEET_INIT), SHEET_INIT);
     opt.setFillHorizontalSpace(true);
     opt.setDescription("The name of the sheet (a.k.a. tab) within the spreadsheet.");
     opt.setEnabled(false);
@@ -206,38 +218,32 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     if (supportSpreadsheet() && isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
-      delimiter.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
+      delimiter.setPossibleValues(asList(OPT_NOT_APPLICABLE));
       delimiter.setDefaultValue(OPT_NOT_APPLICABLE);
     } else if (CsvImportUtil.isCsvFile(file.getValue())) {
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
       if (supportSpreadsheet()) {
-        sheet.setPossibleValues(Arrays.asList(OPT_NOT_APPLICABLE));
+        sheet.setPossibleValues(asList(OPT_NOT_APPLICABLE));
         sheet.setDefaultValue(OPT_NOT_APPLICABLE);
       }
     } else {
       if (supportSpreadsheet()) {
-        sheet.setPossibleValues(Arrays.asList(SHEET_INIT));
+        sheet.setPossibleValues(asList(SHEET_INIT));
         sheet.setDefaultValue(SHEET_INIT);
       }
-      delimiter.setPossibleValues(Arrays.asList(DELIM_INIT));
+      delimiter.setPossibleValues(asList(DELIM_INIT));
       delimiter.setDefaultValue(DELIM_INIT);
-      String title = "Unsupported file type";
-      StringBuilder sb = new StringBuilder(32);
-      sb.append(title);
-      String ext = getExtension(file.getValue());
-      if (StringUtils.isNotBlank(ext)) {
-        sb.append(": *.").append(ext);
-      }
-      showMessageDialog(sb.toString(), title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
+      String msg = "Unsupported file type";
+      showMessageDialog(msg, msg, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
     }
   }
 
   private void loadSheetNames() {
+    sheet.setPossibleValues(asList(LOADING_SPREADSHEET));
     try {
-      SpreadSheetReader ssr = new SpreadSheetReader(new File(file.getValue()));
-      String[] sheets = ssr.getSheetNames();
+      String[] sheets = SpreadSheetReader.getSheetNames(new File(file.getValue()));
       List<OptionValue> names = new ArrayList<>(sheets.length);
       for (int i = 0; i < sheets.length; ++i) {
         names.add(new OptionValue(String.valueOf(i), "  " + sheets[i] + "  "));

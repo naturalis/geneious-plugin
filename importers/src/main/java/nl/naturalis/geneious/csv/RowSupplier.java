@@ -1,20 +1,21 @@
 package nl.naturalis.geneious.csv;
 
-import static nl.naturalis.geneious.log.GuiLogger.plural;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.apache.commons.lang3.StringUtils;
+
 import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.NaturalisPluginException;
-import static nl.naturalis.geneious.csv.CsvImportUtil.*;
+
+import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
+import static nl.naturalis.geneious.log.GuiLogger.plural;
 
 /**
  * A simple reader for all CSV-like formats suported by the plugin: CSV files, TSV files and spreadsheets.
@@ -38,11 +39,10 @@ public class RowSupplier {
     File file = config.getFile();
     List<String[]> rows;
     try {
-      if(isSpreadsheet(file.getName())) {
-        SpreadSheetReader ssr = new SpreadSheetReader(file);
-        ssr.setSheetNumber(config.getSheetNumber());
+      if (isSpreadsheet(file.getName())) {
+        SpreadSheetReader ssr = new SpreadSheetReader(config);
         rows = ssr.readAllRows();
-      } else if(isCsvFile(file.getName())) {
+      } else if (isCsvFile(file.getName())) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setLineSeparator("\n");
         settings.getFormat().setDelimiter(config.getDelimiter().charAt(0));
@@ -52,7 +52,7 @@ public class RowSupplier {
         throw new IllegalStateException("File type check failure");
       }
       return trim(rows);
-    } catch(Throwable t) {
+    } catch (Throwable t) {
       throw new WrappedException(t);
     }
   }
@@ -64,7 +64,7 @@ public class RowSupplier {
    */
   public List<String[]> getDataRows() {
     List<String[]> all = getAllRows();
-    if(all.size() == config.getSkipLines()) {
+    if (all.size() == config.getSkipLines()) {
       return Collections.emptyList();
     }
     return all.subList(config.getSkipLines(), all.size());
@@ -73,18 +73,18 @@ public class RowSupplier {
   // Removes any trailing whitespace-only rows.
   private List<String[]> trim(List<String[]> rows) {
     int skip = config.getSkipLines();
-    if(rows.size() != 0) {
+    if (rows.size() != 0) {
       int i;
-      for(i = rows.size() - 1; i != 0; --i) {
-        if(containsData(rows.get(i))) {
+      for (i = rows.size() - 1; i != 0; --i) {
+        if (containsData(rows.get(i))) {
           break;
         }
       }
-      if(i <= skip) {
+      if (i <= skip) {
         String msg = String.format("No rows remaining after skipping %d line%s", skip, plural(skip));
         throw new NaturalisPluginException(msg);
       }
-      if(i != rows.size() - 1) {
+      if (i != rows.size() - 1) {
         return rows.subList(skip, i + 1);
       }
     }

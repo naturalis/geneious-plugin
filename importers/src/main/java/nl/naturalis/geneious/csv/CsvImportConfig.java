@@ -6,8 +6,7 @@ import nl.naturalis.common.collection.EnumToIntMap;
 import nl.naturalis.geneious.OperationConfig;
 
 /**
- * Abstract base class for all objects that capture the user input and other configuration data for the import of
- * CSV-like files.
+ * Abstract base class for all objects that capture the user input and other configuration data for the import of CSV-like files.
  *
  * @author Ayco Holleman
  */
@@ -17,6 +16,7 @@ public abstract class CsvImportConfig<T extends Enum<T>> extends OperationConfig
   private String delimiter;
   private int skipLines;
   private int sheetNumber;
+  private boolean spreadsheetWithFormulas;
 
   public CsvImportConfig() {
     super();
@@ -95,13 +95,30 @@ public abstract class CsvImportConfig<T extends Enum<T>> extends OperationConfig
   }
 
   /**
-   * Returns a mapping of symbolic column names to actual column numbers. We use symbolic column names (e.g. see
-   * {@code BoldColumn}) rather than column numbers to make the code less error prone. All subclasses of
-   * {@code CsvImportConfig} currently return a hard-coded map. However in the future, we might need user input to
-   * properly configure a column mapping or to make it less rigid.
+   * Returns a mapping of symbolic column names to actual column numbers. We use symbolic column names (e.g. see {@code BoldColumn}) rather
+   * than column numbers to make the code less error prone. All subclasses of {@code CsvImportConfig} currently return a hard-coded map.
+   * However in the future, we might need user input to properly configure a column mapping or to make it less rigid.
    * 
    * @return
    */
   public abstract EnumToIntMap<T> getColumnNumbers();
+
+  /**
+   * Whether or not the spreadsheet (if applicable) may contain formulas.
+   * 
+   * @return
+   */
+  public boolean isSpreadsheetWithFormulas() {
+    return spreadsheetWithFormulas;
+  }
+
+  /**
+   * Sets whether or not the spreadsheet (if applicable) may contain formulas.
+   * 
+   * @param spreadsheetWithFormulas
+   */
+  public void setSpreadsheetWithFormulas(boolean spreadsheetWithFormulas) {
+    this.spreadsheetWithFormulas = spreadsheetWithFormulas;
+  }
 
 }

@@ -1,9 +1,16 @@
 package nl.naturalis.geneious;
 
+import java.util.Date;
+
 public class Test {
 
   public static void main(String[] args) {
-    System.out.println("Document with extract ID %s not updated (no new values in sample sheet)".length());
+    double x = 18.0000;
+    if ((int) x == x) {
+      System.out.println("yes");
+    } else {
+      System.out.println("no");      
+    }
   }
 
 }
