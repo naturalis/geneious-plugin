@@ -157,7 +157,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Whether or not the spreadsheet (if applicable) may contain formulas. (default: {@code false}).
+   * Whether or not the spreadsheet (if applicable) may contain formulas. (default: {@code false}). This is currently a hard-coded value
+   * (either here or in the subclasses), but we might have to make it dependent on user input, so that's why we include this setting here
+   * rather than in {@link CsvImportConfig}.
    * 
    * @return
    */

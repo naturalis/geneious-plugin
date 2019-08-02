@@ -21,6 +21,7 @@ import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.name.NotParsableException;
 import nl.naturalis.geneious.name.QueryCache;
 import nl.naturalis.geneious.name.SequenceNameParser;
+import nl.naturalis.geneious.name.VersionTracker;
 import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Error;
@@ -33,7 +34,7 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addA
 import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findDummies;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
 
 /**
  * Manages and coordinates the Split Name operation.
@@ -100,7 +101,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
         iterator.remove();
       }
     }
-    List<AnnotatedPluginDocument> result = findDummies(config.getTargetDatabase(), ids);
+    List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
     QueryCache queryCache = new QueryCache(result);
     Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
     for (StoredDocument doc : documents) {
@@ -118,6 +119,13 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
         }
       }
     }
+    logger.info("Setting document versions");
+    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
+    documents.forEach(sd -> {
+      if (sd.getNaturalisNote().getDocumentVersion() == null) {
+        versioner.setDocumentVersion(sd);
+      }
+    });
     if (!obsoleteDummies.isEmpty()) {
       Info.deletingObsoleteDummies(logger, obsoleteDummies);
       deleteDocuments(config.getTargetDatabase(), obsoleteDummies);

@@ -24,7 +24,7 @@ import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
 
 /**
  * Manages the actual annotation process. It uses a {@link SequenceNameParser} to split the document names, queries the database for dummies
@@ -64,7 +64,7 @@ public class Annotator {
     Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
     logger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
     logger.debugf(() -> format("Searching database %s for matching documents", config.getTargetDatabaseName()));
-    List<AnnotatedPluginDocument> result = findByExtractID(config.getTargetDatabase(), ids);
+    List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
     logger.debugf(() -> format("Found %s matching document%s", result.size(), plural(result)));
     QueryCache queryCache = new QueryCache(result);
     Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);

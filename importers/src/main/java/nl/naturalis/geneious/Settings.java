@@ -62,8 +62,12 @@ public class Settings {
   public boolean isDebug() {
     return (Boolean) cache.get(DEBUG);
   }
-  
-  public int getQueryBatchSize() {
+
+  /**
+   * Returns the maximum number of query constraints that the plugin will generate per query.
+   * @return
+   */
+  public int getQuerySize() {
     return (int) cache.get(QUERY_SIZE);
   }
 

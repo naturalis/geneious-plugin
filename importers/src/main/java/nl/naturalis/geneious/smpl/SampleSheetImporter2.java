@@ -79,7 +79,7 @@ class SampleSheetImporter2 {
         .filter(not(lookups::containsKey))
         .map(id -> "e" + id)
         .collect(toSet());
-    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractID(config.getTargetDatabase(), extraIds);
+    List<AnnotatedPluginDocument> searchResult = QueryUtils.findByExtractId(config.getTargetDatabase(), extraIds);
     // All documents that correspond to a sample sheet row, but that were not selected by the user
     DocumentLookupTable<String> unselected = new DocumentLookupTable<>(searchResult, this::getKey);
     // The extract IDs that are both in the sample sheet and in the selected documents:

@@ -107,7 +107,7 @@ public class QueryCache {
    * 
    * @return
    */
-  Map<Key, MutableInt> getLatestDocumentVersions() {
+  public Map<Key, MutableInt> getLatestDocumentVersions() {
     HashMap<Key, MutableInt> versions = new HashMap<>();
     for (Key key : cache.keySet()) {
       List<StoredDocument> sds = cache.get(key);

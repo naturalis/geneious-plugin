@@ -20,10 +20,8 @@ import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.smpl.DummySequence;
 import nl.naturalis.geneious.util.Messages.Error;
 
-import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createAndQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
@@ -97,7 +95,7 @@ public class QueryUtils {
    * @throws DatabaseServiceException
    * @throws NonFatalException
    */
-  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, Collection<String> extractIds)
+  public static List<AnnotatedPluginDocument> findByExtractId(WritableDatabaseService database, Collection<String> extractIds)
       throws NonFatalException {
     if (extractIds.size() == 0) {
       return Collections.emptyList();
@@ -110,7 +108,7 @@ public class QueryUtils {
     }
     List<AnnotatedPluginDocument> result = new ArrayList<>(ids.size());
     // Divide by 2 b/c we're pumping 2 constraints per extract ID into the batch
-    int sz = settings().getQueryBatchSize() / 2;
+    int sz = settings().getQuerySize() / 2;
     List<String> chunk;
     for (int x = 0; !(chunk = sublist(ids, x, sz)).isEmpty(); x += sz) {
       List<Query> constraints = new ArrayList<>(sz);
@@ -132,51 +130,6 @@ public class QueryUtils {
   }
 
   /**
-   * Return all documents with the specified extract IDs.
-   * 
-   * @param database
-   * @param extractIds
-   * @return
-   * @throws DatabaseServiceException
-   * @throws NonFatalException
-   */
-  public static List<AnnotatedPluginDocument> findDummies(WritableDatabaseService database, Collection<String> extractIds)
-      throws NonFatalException {
-    Query dummiesOnly = createFieldQuery(QF_SEQ_MARKER, EQUAL, DummySequence.DUMMY_MARKER);
-    if (extractIds.size() == 0) {
-      return Collections.emptyList();
-    }
-    ArrayList<String> ids;
-    if (extractIds instanceof ArrayList) {
-      ids = (ArrayList<String>) extractIds;
-    } else {
-      ids = new ArrayList<>(extractIds);
-    }
-    List<AnnotatedPluginDocument> result = new ArrayList<>(ids.size());
-    // Divide by 2 b/c we're pumping 2 constraints per extract ID into the batch plus a dummies-only constraint
-    int sz = settings().getQueryBatchSize() / 2 - 1;
-    List<String> chunk;
-    for (int x = 0; !(chunk = sublist(ids, x, sz)).isEmpty(); x += sz) {
-      List<Query> constraints = new ArrayList<>(sz);
-      for (String id : chunk) {
-        constraints.add(createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id));
-        constraints.add(createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id));
-      }
-      Query[] orClauses = constraints.toArray(new Query[constraints.size()]);
-      Query orQuery = createOrQuery(orClauses, Collections.emptyMap());
-      Query query = createAndQuery(new Query[] {dummiesOnly, orQuery}, Collections.emptyMap());
-      logger.debugf(() -> format("Executing query: %s", query));
-      try {
-        result.addAll(database.retrieve(query, ProgressListener.EMPTY));
-      } catch (Exception e) {
-        Error.queryError(logger, e);
-        throw new NonFatalException("Operation aborted");
-      }
-    }
-    return result;
-  }
-
-  /**
    * Return all documents with the specified extract ID. Since this method exists to facility the {@link Ping} mechanism, it does not log
    * anything.
    * 
@@ -184,7 +137,7 @@ public class QueryUtils {
    * @return
    * @throws DatabaseServiceException
    */
-  public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, String extractId)
+  public static List<AnnotatedPluginDocument> findByExtractId(WritableDatabaseService database, String extractId)
       throws DatabaseServiceException {
     Query[] constraints = new Query[2];
     constraints[0] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, extractId);

@@ -9,8 +9,6 @@ import java.util.Set;
 
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.documents.URN;
 
 import jebl.util.ProgressListener;
 import nl.naturalis.geneious.NonFatalException;
@@ -94,14 +92,7 @@ class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
         logger.info("Total number of annotation failures ...: %3d", docs.size() - annotated.size());
       }
       Info.operationCompletedSuccessfully(logger, Ab1FastaDocumentOperation.NAME);
-      if (created == null) {
-        return Collections.emptyList();
-      }
-      List<URN> urns = new ArrayList<URN>(config.getSelectedDocuments().size() + created.size());
-      config.getSelectedDocuments().stream().map(AnnotatedPluginDocument::getURN).forEach(urns::add);
-      created.stream().map(AnnotatedPluginDocument::getURN).forEach(urns::add);
-      DocumentUtilities.selectDocuments(urns);
-      return created;
+      return created == null ? Collections.emptyList() : created;
     }
   }
 

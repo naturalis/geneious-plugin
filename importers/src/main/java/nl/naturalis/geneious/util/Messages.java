@@ -366,7 +366,7 @@ public class Messages {
       logger.debug(() -> ExceptionUtil.getRootStackTraceAsString(e));
       logger.error("Error while querying database: %s", e.toString());
       logger.error("This problem could possibly be solved by going to Tools -> Preferences");
-      logger.error("and lowering the value of Max. query size (currently %d). If the problem", settings().getQueryBatchSize());
+      logger.error("and lowering the value of Max. query size (currently %d). If the problem", settings().getQuerySize());
       logger.error("persists, enable DEBUG mode in Tools -> Preferences, try again, and send");
       logger.error("a copy of the log to support");
     }

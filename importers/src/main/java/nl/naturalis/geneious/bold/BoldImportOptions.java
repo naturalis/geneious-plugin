@@ -50,8 +50,5 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
   protected boolean supportSpreadsheet() {
     return true;
   }
-  
-  protected boolean isSpreadsheetWithFormulas() {
-    return true;
-  }
+
 }

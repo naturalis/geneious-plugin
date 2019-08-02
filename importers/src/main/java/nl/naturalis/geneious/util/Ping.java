@@ -1,7 +1,7 @@
 package nl.naturalis.geneious.util;
 
 import static com.biomatters.geneious.publicapi.utilities.GuiUtilities.getMainFrame;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractID;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
 
 import java.util.List;
 
@@ -162,7 +162,7 @@ public class Ping {
       // Seems like you can make this happen with a rather contrived sequence of actions in the GUI
       throw pingCorrupted();
     }
-    List<AnnotatedPluginDocument> response = findByExtractID(database, pingValue);
+    List<AnnotatedPluginDocument> response = findByExtractId(database, pingValue);
     return response.isEmpty() ? null : response.get(0);
   }
 
