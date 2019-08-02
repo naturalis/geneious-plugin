@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.InvalidRowException;
 import nl.naturalis.geneious.csv.RuntimeInfo;
@@ -65,9 +65,9 @@ class SampleSheetImporter2 {
    * 
    * @param rows
    * @param lookups
-   * @throws DatabaseServiceException
+   * @throws NonFatalException 
    */
-  void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) throws DatabaseServiceException {
+  void importRows(List<String[]> rows, DocumentLookupTable<String> lookups) throws NonFatalException {
     /*
      * Collect all extract IDs in the sample sheet that do not correspond to any of the selected documents. For those IDs we need to check
      * whether or not they exist at all in the Geneious database.

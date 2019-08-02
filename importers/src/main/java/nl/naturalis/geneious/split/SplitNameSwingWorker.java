@@ -78,7 +78,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
     return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
   }
 
-  private List<StoredDocument> splitName(List<StoredDocument> documents) throws DatabaseServiceException {
+  private List<StoredDocument> splitName(List<StoredDocument> documents) throws DatabaseServiceException, NonFatalException {
     Iterator<StoredDocument> iterator = documents.iterator();
     Set<String> ids = new HashSet<String>(documents.size(), 1F);
     while (iterator.hasNext()) {

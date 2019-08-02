@@ -62,6 +62,10 @@ public class Settings {
   public boolean isDebug() {
     return (Boolean) cache.get(DEBUG);
   }
+  
+  public int getQueryBatchSize() {
+    return (int) cache.get(QUERY_SIZE);
+  }
 
   /**
    * Returns the ping history as a JSON string.

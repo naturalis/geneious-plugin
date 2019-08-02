@@ -1,16 +1,15 @@
 package nl.naturalis.geneious;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Test {
 
   public static void main(String[] args) {
-    double x = 18.0000;
-    if ((int) x == x) {
-      System.out.println("yes");
-    } else {
-      System.out.println("no");      
-    }
+    List<String> l1 = Arrays.asList("1","2","3","4");
+    List<String> l2 = l1.subList(2, 2);
+    System.out.println("XXXXX"+l2.size());
   }
 
 }

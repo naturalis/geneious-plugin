@@ -18,7 +18,10 @@ public enum Setting {
    * Show pretty notes when in DEBUG mode.
    */
   PRETTY_NOTES("nl.naturalis.geneious.log.prettyNotes"),
-
+  /**
+   * The maximum number of query constraints allowed to go into a database query.
+   */
+  QUERY_SIZE("nl.naturalis.geneious.querySize"),
   /**
    * A JSON string serializing ping history: per database the timestamp used to construct a ping value.
    */

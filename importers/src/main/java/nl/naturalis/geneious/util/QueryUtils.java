@@ -1,12 +1,6 @@
 package nl.naturalis.geneious.util;
 
-import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
-import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.*;
-import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
-import static nl.naturalis.geneious.note.NaturalisField.*;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -20,12 +14,26 @@ import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 import jebl.util.ProgressListener;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.smpl.DummySequence;
+import nl.naturalis.geneious.util.Messages.Error;
+
+import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createAndQuery;
+import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
+import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
+import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
+
+import static nl.naturalis.common.collection.CollectionUtil.sublist;
+import static nl.naturalis.geneious.Settings.settings;
+import static nl.naturalis.geneious.log.GuiLogger.format;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
+import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
+import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
 
 /**
  * Methods for querying the Geneious database.
@@ -34,7 +42,7 @@ import nl.naturalis.geneious.smpl.DummySequence;
  */
 public class QueryUtils {
 
-  private static final GuiLogger guiLogger = GuiLogManager.getLogger(QueryUtils.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(QueryUtils.class);
 
   /**
    * The {@code DocumentField} to use for queries on the <i>Extract ID (Seq)</i> field
@@ -87,21 +95,40 @@ public class QueryUtils {
    * @param extractIds
    * @return
    * @throws DatabaseServiceException
+   * @throws NonFatalException
    */
   public static List<AnnotatedPluginDocument> findByExtractID(WritableDatabaseService database, Collection<String> extractIds)
-      throws DatabaseServiceException {
+      throws NonFatalException {
     if (extractIds.size() == 0) {
       return Collections.emptyList();
     }
-    Query[] constraints = new Query[extractIds.size() * 2];
-    int i = 0;
-    for (String id : extractIds) {
-      constraints[i++] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id);
-      constraints[i++] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id);
+    ArrayList<String> ids;
+    if (extractIds instanceof ArrayList) {
+      ids = (ArrayList<String>) extractIds;
+    } else {
+      ids = new ArrayList<>(extractIds);
     }
-    Query query = createOrQuery(constraints, Collections.emptyMap());
-    guiLogger.debugf(() -> format("Executing query: %s", query));
-    return database.retrieve(query, ProgressListener.EMPTY);
+    List<AnnotatedPluginDocument> result = new ArrayList<>(ids.size());
+    // Divide by 2 b/c we're pumping 2 constraints per extract ID into the batch
+    int sz = settings().getQueryBatchSize() / 2;
+    List<String> chunk;
+    for (int x = 0; !(chunk = sublist(ids, x, sz)).isEmpty(); x += sz) {
+      List<Query> constraints = new ArrayList<>(sz);
+      for (String id : chunk) {
+        constraints.add(createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id));
+        constraints.add(createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id));
+      }
+      Query[] orClauses = constraints.toArray(new Query[constraints.size()]);
+      Query orQuery = createOrQuery(orClauses, Collections.emptyMap());
+      logger.debugf(() -> format("Executing query: %s", orQuery));
+      try {
+        result.addAll(database.retrieve(orQuery, ProgressListener.EMPTY));
+      } catch (Exception e) {
+        Error.queryError(logger, e);
+        throw new NonFatalException("Operation aborted");
+      }
+    }
+    return result;
   }
 
   /**
@@ -111,23 +138,42 @@ public class QueryUtils {
    * @param extractIds
    * @return
    * @throws DatabaseServiceException
+   * @throws NonFatalException
    */
   public static List<AnnotatedPluginDocument> findDummies(WritableDatabaseService database, Collection<String> extractIds)
-      throws DatabaseServiceException {
+      throws NonFatalException {
+    Query dummiesOnly = createFieldQuery(QF_SEQ_MARKER, EQUAL, DummySequence.DUMMY_MARKER);
     if (extractIds.size() == 0) {
       return Collections.emptyList();
     }
-    Query[] constraints = new Query[extractIds.size() * 2];
-    int i = 0;
-    for (String id : extractIds) {
-      constraints[i++] = createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id);
-      constraints[i++] = createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id);
+    ArrayList<String> ids;
+    if (extractIds instanceof ArrayList) {
+      ids = (ArrayList<String>) extractIds;
+    } else {
+      ids = new ArrayList<>(extractIds);
     }
-    Query subquery = createOrQuery(constraints, Collections.emptyMap());
-    Query dummiesOnly = createFieldQuery(QF_SEQ_MARKER, EQUAL, DummySequence.DUMMY_MARKER);
-    Query query = createAndQuery(new Query[] {dummiesOnly, subquery}, Collections.emptyMap());
-    guiLogger.debugf(() -> format("Executing query: %s", query));
-    return database.retrieve(query, ProgressListener.EMPTY);
+    List<AnnotatedPluginDocument> result = new ArrayList<>(ids.size());
+    // Divide by 2 b/c we're pumping 2 constraints per extract ID into the batch plus a dummies-only constraint
+    int sz = settings().getQueryBatchSize() / 2 - 1;
+    List<String> chunk;
+    for (int x = 0; !(chunk = sublist(ids, x, sz)).isEmpty(); x += sz) {
+      List<Query> constraints = new ArrayList<>(sz);
+      for (String id : chunk) {
+        constraints.add(createFieldQuery(QF_SEQ_EXTRACT_ID, EQUAL, id));
+        constraints.add(createFieldQuery(QF_SMPL_EXTRACT_ID, EQUAL, id));
+      }
+      Query[] orClauses = constraints.toArray(new Query[constraints.size()]);
+      Query orQuery = createOrQuery(orClauses, Collections.emptyMap());
+      Query query = createAndQuery(new Query[] {dummiesOnly, orQuery}, Collections.emptyMap());
+      logger.debugf(() -> format("Executing query: %s", query));
+      try {
+        result.addAll(database.retrieve(query, ProgressListener.EMPTY));
+      } catch (Exception e) {
+        Error.queryError(logger, e);
+        throw new NonFatalException("Operation aborted");
+      }
+    }
+    return result;
   }
 
   /**

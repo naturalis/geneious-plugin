@@ -10,6 +10,7 @@ import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceExceptio
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
@@ -54,8 +55,9 @@ public class Annotator {
    * {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
    * 
    * @throws DatabaseServiceException
+   * @throws NonFatalException 
    */
-  public List<StorableDocument> annotateDocuments() throws DatabaseServiceException {
+  public List<StorableDocument> annotateDocuments() throws DatabaseServiceException, NonFatalException {
     logger.info("Annotating documents");
     List<StorableDocument> documents = getAnnotatableDocuments();
     logger.debug(() -> "Collecting extract IDs");

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.naturalis.common.base.ArrayUtil;
+import nl.naturalis.common.base.ExceptionUtil;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
@@ -15,6 +16,7 @@ import nl.naturalis.geneious.smpl.SampleSheetImporter1;
 
 import static java.util.stream.Collectors.joining;
 
+import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.util.JsonUtil.toJson;
@@ -352,6 +354,21 @@ public class Messages {
               .collect(joining(LIST_ITEM)))
           .toString();
       logger.error(msg);
+    }
+
+    /**
+     * Message informing the use that an exception was thrown while executing a database query.
+     * 
+     * @param logger
+     * @param e
+     */
+    public static void queryError(GuiLogger logger, Exception e) {
+      logger.debug(() -> ExceptionUtil.getRootStackTraceAsString(e));
+      logger.error("Error while querying database: %s", e.toString());
+      logger.error("This problem could possibly be solved by going to Tools -> Preferences");
+      logger.error("and lowering the value of Max. query size (currently %d). If the problem", settings().getQueryBatchSize());
+      logger.error("persists, enable DEBUG mode in Tools -> Preferences, try again, and send");
+      logger.error("a copy of the log to support");
     }
 
   }

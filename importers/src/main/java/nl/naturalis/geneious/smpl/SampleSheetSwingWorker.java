@@ -72,7 +72,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     return updated == null ? Collections.emptyList() : updated;
   }
 
-  private List<AnnotatedPluginDocument> updateOrCreateDummies() throws DatabaseServiceException {
+  private List<AnnotatedPluginDocument> updateOrCreateDummies() throws NonFatalException {
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
