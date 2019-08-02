@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -14,7 +15,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.geneious.NonFatalException;
 
 /**
  * A simple reader for MS spreadsheets. Loads and returns all rows at once.
@@ -58,13 +59,10 @@ class SpreadSheetReader {
    * @return
    * @throws EncryptedDocumentException
    * @throws IOException
+   * @throws NonFatalException
    */
-  List<String[]> readAllRows() throws EncryptedDocumentException, IOException {
+  List<String[]> readAllRows() throws EncryptedDocumentException, IOException, NonFatalException {
     try (Workbook workbook = WorkbookFactory.create(config.getFile())) {
-      if (config.getSheetNumber() >= workbook.getNumberOfSheets()) {
-        String fmt = "Sheet number exceeds number of sheets in spreadsheet (%s)";
-        throw new NaturalisPluginException(String.format(fmt, workbook.getNumberOfSheets()));
-      }
       FormulaEvaluator evaluator = null;
       if (config.isSpreadsheetWithFormulas()) {
         workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
@@ -76,51 +74,50 @@ class SpreadSheetReader {
       for (Row row : sheet) {
         List<String> values = new ArrayList<>();
         for (Cell cell : row) {
-          switch (cell.getCellType()) {
-            case STRING:
-              values.add(cell.getStringCellValue());
-              break;
-            case NUMERIC:
-              values.add(getNumber((cell.getNumericCellValue())));
-              break;
-            case BOOLEAN:
-              values.add(String.valueOf(cell.getBooleanCellValue()));
-              break;
-            case FORMULA:
-              if (!config.isSpreadsheetWithFormulas()) {
-                throw new NaturalisPluginException("Formulas not supported");
-              }
-              CellValue cv = evaluator.evaluate(cell);
-              switch (cv.getCellType()) {
-                case STRING:
-                  values.add(cv.getStringValue());
-                  break;
-                case NUMERIC:
-                  values.add(getNumber(cv.getNumberValue()));
-                  break;
-                case BOOLEAN:
-                  values.add(String.valueOf(cv.getBooleanValue()));
-                  break;
-                case ERROR:
-                  values.add("<bad spreadsheet cell>");
-                  break;
-                default:
-                  values.add("");
-                  break;
-              }
-              break;
-            case ERROR:
-              values.add("<bad spreadsheet cell>");
-              break;
-            default:
-              values.add("");
-              break;
-          }
+          values.add(getCellValue(cell, evaluator));
         }
         rows.add(values.toArray(new String[values.size()]));
       }
       return rows;
     }
+  }
+
+  private String getCellValue(Cell cell, FormulaEvaluator evaluator) throws NonFatalException {
+    switch (cell.getCellType()) {
+      case STRING:
+        return cell.getStringCellValue();
+      case NUMERIC:
+        return getNumber((cell.getNumericCellValue()));
+      case BOOLEAN:
+        return String.valueOf(cell.getBooleanCellValue());
+      case FORMULA:
+        if (!config.isSpreadsheetWithFormulas()) {
+          throw new NonFatalException("Spreadsheet formulas not supported for this operation");
+        }
+        CellValue cv = evaluator.evaluate(cell);
+        switch (cv.getCellType()) {
+          case STRING:
+            return cv.getStringValue();
+          case NUMERIC:
+            return getNumber(cv.getNumberValue());
+          case BOOLEAN:
+            return String.valueOf(cv.getBooleanValue());
+          case ERROR:
+            throw badCell(cell);
+          default:
+            return StringUtils.EMPTY;
+        }
+      case ERROR:
+        throw badCell(cell);
+      default:
+        return StringUtils.EMPTY;
+    }
+  }
+
+  private static NonFatalException badCell(Cell cell) {
+    String fmt = "Bad row at row %s, cell %s";
+    String msg = String.format(fmt, cell.getRowIndex() + 1, cell.getColumnIndex());
+    return new NonFatalException(msg);
   }
 
   private static String getNumber(double d) {
