@@ -2,6 +2,7 @@ package nl.naturalis.geneious.csv;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,10 +120,10 @@ class SpreadSheetReader {
     String msg = String.format(fmt, cell.getRowIndex() + 1, cell.getColumnIndex());
     return new NonFatalException(msg);
   }
-
+  
   private static String getNumber(double d) {
-    int i = (int) d;
-    return (i == d) ? String.valueOf(i) : String.valueOf(d);
+    // We really don't want scientific notation
+    return new BigDecimal(d).toPlainString();
   }
 
 }
