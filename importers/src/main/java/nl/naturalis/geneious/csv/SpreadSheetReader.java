@@ -93,7 +93,8 @@ class SpreadSheetReader {
         return String.valueOf(cell.getBooleanCellValue());
       case FORMULA:
         if (!config.isSpreadsheetWithFormulas()) {
-          String msg = "Spreadsheet contains formulas, which are not supported for this operation";
+          String fmt = "%s contains formulas, which are not supported for by the %s operation";
+          String msg = String.format(fmt, config.getFile().getName(), config.getOperationName());
           throw new NonFatalException(msg);
         }
         CellValue cv = evaluator.evaluate(cell);

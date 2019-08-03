@@ -14,6 +14,13 @@ class SplitNameConfig extends OperationConfig {
   SplitNameConfig() {
     super(); // initializes target folder & selected documents
   }
+  
+
+  @Override
+  public String getOperationName() {
+    return SplitNameDocumentOperation.NAME;
+  }
+
 
   /**
    * Whether or not to ignore documents that already have annotations (their names will not be split again).

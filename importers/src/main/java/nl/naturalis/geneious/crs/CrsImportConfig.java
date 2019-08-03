@@ -26,7 +26,7 @@ import static nl.naturalis.geneious.crs.CrsColumn.COL_STATE_OR_PROVINCE;
  * @author Ayco Holleman
  */
 class CrsImportConfig extends CsvImportConfig<CrsColumn> {
-  
+
   CrsImportConfig() {
     super(); // do not leave this out!
   }
@@ -53,6 +53,11 @@ class CrsImportConfig extends CsvImportConfig<CrsColumn> {
         .set(COL_LATTITUDE, 13)
         .set(COL_LONGITUDE, 14)
         .set(COL_ALTITUDE, 15);
+  }
+
+  @Override
+  public String getOperationName() {
+    return CrsDocumentOperation.NAME;
   }
 
 }

@@ -20,4 +20,9 @@ class Ab1FastaImportConfig extends OperationConfig {
     this.files = files;
   }
 
+  @Override
+  public String getOperationName() {
+    return Ab1FastaDocumentOperation.NAME;
+  }
+
 }

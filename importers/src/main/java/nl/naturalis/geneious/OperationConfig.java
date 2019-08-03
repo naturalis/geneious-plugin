@@ -8,8 +8,8 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 /**
- * Base class for objects capturing the user input and other configuration data for one of the plugin's operations.
- * {@code OperationConfig} objects are generated from {@link OperationOptions} objects.
+ * Base class for objects capturing the user input and other configuration data for one of the plugin's operations. {@code OperationConfig}
+ * objects are generated from {@link OperationOptions} objects.
  * 
  * @author Ayco Holleman
  *
@@ -25,8 +25,8 @@ public abstract class OperationConfig {
   }
 
   /**
-   * Returns the folder selected by the user just before the start of the operation. We must freeze this value immediately
-   * because the operation runs in a separate thread, so the user can click around while the operation is in progress.
+   * Returns the folder selected by the user just before the start of the operation. We must freeze this value immediately because the
+   * operation runs in a separate thread, so the user can click around while the operation is in progress.
    * 
    * @return
    */
@@ -34,6 +34,11 @@ public abstract class OperationConfig {
     return targetFolder;
   }
 
+  /**
+   * Sets the folder selected by the user.
+   * 
+   * @param targetFolder
+   */
   public void setTargetFolder(WritableDatabaseService targetFolder) {
     this.targetFolder = targetFolder;
   }
@@ -48,13 +53,13 @@ public abstract class OperationConfig {
   }
 
   /**
-   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database
-   * selected&gt;" if no folder has been selected yet.
+   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database selected&gt;" if no
+   * folder has been selected yet.
    * 
    * @return
    */
   public String getTargetDatabaseName() {
-    if(getTargetDatabase() == null) {
+    if (getTargetDatabase() == null) {
       return "<no database selected>";
     }
     return getTargetDatabase().getFolderName();
@@ -69,8 +74,20 @@ public abstract class OperationConfig {
     return selectedDocuments;
   }
 
+  /**
+   * Sets the documents selected by the user.
+   * 
+   * @param selectedDocuments
+   */
   public void setSelectedDocuments(List<AnnotatedPluginDocument> selectedDocuments) {
     this.selectedDocuments = selectedDocuments;
   }
+
+  /**
+   * Returns the name of the operation configured by this configuration object.
+   * 
+   * @return
+   */
+  public abstract String getOperationName();
 
 }

@@ -23,4 +23,9 @@ class BoldImportConfig extends CsvImportConfig<BoldColumn> {
     return new EnumToIntMap<>(BoldColumn.class, Enum::ordinal);
   }
 
+  @Override
+  public String getOperationName() {
+    return BoldDocumentOperation.NAME;
+  }
+
 }

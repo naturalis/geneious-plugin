@@ -25,6 +25,11 @@ public class SampleSheetImportConfig extends CsvImportConfig<SampleSheetColumn> 
     return new EnumToIntMap<>(SampleSheetColumn.class, Enum::ordinal);
   }
 
+  @Override
+  public String getOperationName() {
+    return SampleSheetDocumentOperation.NAME;
+  }
+
   /**
    * Whether or not the user requested to create dummies for new extract IDs.
    * 

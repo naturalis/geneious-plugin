@@ -20,6 +20,8 @@ import nl.naturalis.geneious.name.Annotator;
 import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.util.Messages.Info;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+
 import static nl.naturalis.geneious.Precondition.VALID_TARGET_FOLDER;
 
 /**
@@ -60,6 +62,7 @@ class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
         for (StorableDocument doc : docs) {
           doc.saveAnnotations();
           created.add(config.getTargetFolder().addDocumentCopy(doc.getGeneiousDocument(), ProgressListener.EMPTY));
+          created = addAndReturnGeneratedDocuments(created, true, Collections.emptyList());
         }
       }
       int processed = 0, rejected = 0, imported = 0;
