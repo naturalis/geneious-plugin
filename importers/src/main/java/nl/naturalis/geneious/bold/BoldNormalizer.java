@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.csv.RowSupplier;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -41,7 +42,7 @@ class BoldNormalizer {
   private final ArrayList<String> markers;
   private final Map<String, List<String[]>> rowsPerMarker;
 
-  BoldNormalizer(BoldImportConfig cfg) throws BoldNormalizationException {
+  BoldNormalizer(BoldImportConfig cfg) throws NonFatalException {
     this.cfg = cfg;
     this.originalRows = new RowSupplier(cfg).getAllRows();
     int x = originalRows.size() - cfg.getSkipLines();

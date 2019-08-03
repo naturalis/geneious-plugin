@@ -28,7 +28,7 @@ class BoldImportOptions extends CsvImportOptions<BoldColumn, BoldImportConfig> {
     if(msg != null) {
       return msg;
     }
-    if(linesToSkip.getValue() == 0) {
+    if(getLinesToSkip() == 0) {
       return "\"Lines to skip\" must not be 0 (zero). Bold files must have at least one header line containing " +
           "the column names (usually line 3).";
     }

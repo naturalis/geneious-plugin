@@ -45,12 +45,11 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.%s.skip";
   private static final String DELIMITER = "nl.naturalis.geneious.%s.delim";
   private static final String SHEET_NAME = "nl.naturalis.geneious.%s.sheet";
+  private static final String SELECTED_SHEET = "nl.naturalis.geneious.%s.selectedSheet";
 
-  private static final OptionValue OPT_NOT_APPLICABLE = new OptionValue("0", "  n/a  ");
-
+  private static final OptionValue NOT_APPLICABLE = new OptionValue("0", "  n/a  ");
   private static final OptionValue DELIM_INIT = new OptionValue("0", "  --- csv/tsv/txt ---  ");
   private static final OptionValue SHEET_INIT = new OptionValue("0", "  --- spreadsheet ---  ");
-  private static final OptionValue LOADING_SPREADSHEET = new OptionValue("0", "  Loading spreadsheet ...  ");
 
   private static final List<OptionValue> DELIM_OPTIONS = asList(
       new OptionValue("\t", "  tab  "),
@@ -59,18 +58,20 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       new OptionValue("|", "  pipe  "));
 
   // An identifier provided by the subclasses to differentiate the option names.
-  protected final String identifier;
-  protected final FileSelectionOption file;
-  protected final IntegerOption linesToSkip;
-  protected final ComboBoxOption<OptionValue> delimiter;
-  protected final ComboBoxOption<OptionValue> sheet; // Name of sheet (tab) within the spreadsheet
+  private final String identifier;
+  private final FileSelectionOption file;
+  private final IntegerOption linesToSkip;
+  private final ComboBoxOption<OptionValue> delimiter;
+  private final ComboBoxOption<OptionValue> sheet;
+  private final IntegerOption selectedSheet;
 
   public CsvImportOptions(String identifier) {
     this.identifier = identifier;
     this.file = addFileSelectionOption();
     this.linesToSkip = addLinesToSkipOption();
     this.delimiter = addDelimiterOption();
-    this.sheet = supportSpreadsheet() ? addSheetNameOption() : null;
+    this.sheet = supportSpreadsheet() ? addSheetOption() : null;
+    this.selectedSheet = addSelectedSheetOption();
     file.addChangeListener(this::fileChanged);
   }
 
@@ -130,6 +131,15 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
+   * Returns the current value of the "Lines to skip" field in the options panel.
+   * 
+   * @return
+   */
+  protected final int getLinesToSkip() {
+    return linesToSkip.getValue();
+  }
+
+  /**
    * The text to display before the file selection field in the dialog. Default: "File".
    * 
    * @return
@@ -148,7 +158,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   /**
-   * Whether or not to support spreadsheets (default: {@code false}).
+   * Whether or not to support spreadsheets (default: {@code false}). Can be overriden by subclasses.
    * 
    * @return
    */
@@ -159,7 +169,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   /**
    * Whether or not the spreadsheet (if applicable) may contain formulas. (default: {@code false}). This is currently a hard-coded value
    * (either here or in the subclasses), but we might have to make it dependent on user input, so that's why we include this setting here
-   * rather than in {@link CsvImportConfig}.
+   * rather than in {@link CsvImportConfig}. Can be overriden by subclasses.
    * 
    * @return
    */
@@ -197,11 +207,23 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     return opt;
   }
 
-  private ComboBoxOption<OptionValue> addSheetNameOption() {
+  private ComboBoxOption<OptionValue> addSheetOption() {
     ComboBoxOption<OptionValue> opt = addComboBoxOption(name(SHEET_NAME), "Sheet name", asList(SHEET_INIT), SHEET_INIT);
     opt.setFillHorizontalSpace(true);
     opt.setDescription("The name of the sheet (a.k.a. tab) within the spreadsheet.");
     opt.setEnabled(false);
+    opt.addChangeListener(() -> {
+      OptionValue v = opt.getPossibleOptionValues().get(0);
+      if (v != SHEET_INIT && v != NOT_APPLICABLE) {
+        selectedSheet.setValue(Integer.valueOf(opt.getValueAsString()));
+      }
+    });
+    return opt;
+  }
+
+  private IntegerOption addSelectedSheetOption() {
+    IntegerOption opt = addIntegerOption(SELECTED_SHEET, "", -1);
+    opt.setHidden();
     return opt;
   }
 
@@ -213,22 +235,22 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
        */
       return;
     }
-    if (supportSpreadsheet()) { // must check that, otherwise the sheet isn't even there.
+    if (supportSpreadsheet()) { // must check that, otherwise sheet is null
       sheet.setEnabled(false);
     }
     delimiter.setEnabled(false);
     if (supportSpreadsheet() && isSpreadsheet(file.getValue())) {
       loadSheetNames();
       sheet.setEnabled(true);
-      delimiter.setPossibleValues(asList(OPT_NOT_APPLICABLE));
-      delimiter.setDefaultValue(OPT_NOT_APPLICABLE);
+      delimiter.setPossibleValues(asList(NOT_APPLICABLE));
+      delimiter.setDefaultValue(NOT_APPLICABLE);
     } else if (CsvImportUtil.isCsvFile(file.getValue())) {
       delimiter.setPossibleValues(DELIM_OPTIONS);
       delimiter.setDefaultValue(DELIM_OPTIONS.get(0));
       delimiter.setEnabled(true);
       if (supportSpreadsheet()) {
-        sheet.setPossibleValues(asList(OPT_NOT_APPLICABLE));
-        sheet.setDefaultValue(OPT_NOT_APPLICABLE);
+        sheet.setPossibleValues(asList(NOT_APPLICABLE));
+        sheet.setDefaultValue(NOT_APPLICABLE);
       }
     } else {
       if (supportSpreadsheet()) {
@@ -243,15 +265,24 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void loadSheetNames() {
-    sheet.setPossibleValues(asList(LOADING_SPREADSHEET));
     try {
-      String[] sheets = SpreadSheetReader.getSheetNames(new File(file.getValue()));
-      List<OptionValue> names = new ArrayList<>(sheets.length);
-      for (int i = 0; i < sheets.length; ++i) {
-        names.add(new OptionValue(String.valueOf(i), "  " + sheets[i] + "  "));
+      String[] sheetNames = SpreadSheetReader.getSheetNames(new File(file.getValue()));
+      List<OptionValue> options = new ArrayList<>(sheetNames.length);
+      OptionValue selected = null;
+      for (int i = 0; i < sheetNames.length; ++i) {
+        String label = sheetNames[i];
+        OptionValue opt = new OptionValue(String.valueOf(i), "  " + label + "  ");
+        options.add(opt);
+        if (i == selectedSheet.getValue()) {
+          selected = opt;
+        }
       }
-      sheet.setPossibleValues(names);
-      sheet.setDefaultValue(names.get(0));
+      sheet.setPossibleValues(options);
+      if (selected == null) {
+        sheet.setValue(options.get(0));
+      } else {
+        sheet.setValue(selected);
+      }
     } catch (Exception e) {
       String title = "Error reading spreadsheet";
       String msg = title + ": " + e;

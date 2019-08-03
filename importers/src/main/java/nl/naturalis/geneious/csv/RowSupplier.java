@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.common.base.WrappedException;
 import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.geneious.NonFatalException;
 
 import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
 import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
@@ -34,8 +35,9 @@ public class RowSupplier {
    * Returns all rows, including header rows, within the file.
    * 
    * @return
+   * @throws NonFatalException 
    */
-  public List<String[]> getAllRows() {
+  public List<String[]> getAllRows() throws NonFatalException {
     File file = config.getFile();
     List<String[]> rows;
     try {
@@ -52,6 +54,8 @@ public class RowSupplier {
         throw new IllegalStateException("File type check failure");
       }
       return trim(rows);
+    } catch(NonFatalException e) {
+      throw e;
     } catch (Throwable t) {
       throw new WrappedException(t);
     }
@@ -61,8 +65,9 @@ public class RowSupplier {
    * Returns all rows minus the header rows;
    * 
    * @return
+   * @throws NonFatalException 
    */
-  public List<String[]> getDataRows() {
+  public List<String[]> getDataRows() throws NonFatalException {
     List<String[]> all = getAllRows();
     if (all.size() == config.getSkipLines()) {
       return Collections.emptyList();

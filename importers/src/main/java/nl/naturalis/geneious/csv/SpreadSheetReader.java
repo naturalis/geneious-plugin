@@ -93,7 +93,8 @@ class SpreadSheetReader {
         return String.valueOf(cell.getBooleanCellValue());
       case FORMULA:
         if (!config.isSpreadsheetWithFormulas()) {
-          throw new NonFatalException("Spreadsheet formulas not supported for this operation");
+          String msg = "Spreadsheet contains formulas, which are not supported for this operation";
+          throw new NonFatalException(msg);
         }
         CellValue cv = evaluator.evaluate(cell);
         switch (cv.getCellType()) {
@@ -120,7 +121,7 @@ class SpreadSheetReader {
     String msg = String.format(fmt, cell.getRowIndex() + 1, cell.getColumnIndex());
     return new NonFatalException(msg);
   }
-  
+
   private static String getNumber(double d) {
     // We really don't want scientific notation
     return new BigDecimal(d).toPlainString();

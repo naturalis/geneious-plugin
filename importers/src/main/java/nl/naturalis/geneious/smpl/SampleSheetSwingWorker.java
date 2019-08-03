@@ -50,7 +50,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     return updateOnly();
   }
 
-  private List<AnnotatedPluginDocument> updateOnly() {
+  private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
     Info.loadingFile(logger, FILE_DESCRIPTION, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
