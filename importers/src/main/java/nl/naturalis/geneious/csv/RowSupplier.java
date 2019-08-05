@@ -11,7 +11,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.common.base.WrappedException;
-import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.NonFatalException;
 
 import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
@@ -35,7 +34,7 @@ public class RowSupplier {
    * Returns all rows, including header rows, within the file.
    * 
    * @return
-   * @throws NonFatalException 
+   * @throws NonFatalException
    */
   public List<String[]> getAllRows() throws NonFatalException {
     File file = config.getFile();
@@ -54,7 +53,7 @@ public class RowSupplier {
         throw new IllegalStateException("File type check failure");
       }
       return trim(rows);
-    } catch(NonFatalException e) {
+    } catch (NonFatalException e) {
       throw e;
     } catch (Throwable t) {
       throw new WrappedException(t);
@@ -65,7 +64,7 @@ public class RowSupplier {
    * Returns all rows minus the header rows;
    * 
    * @return
-   * @throws NonFatalException 
+   * @throws NonFatalException
    */
   public List<String[]> getDataRows() throws NonFatalException {
     List<String[]> all = getAllRows();
@@ -76,7 +75,7 @@ public class RowSupplier {
   }
 
   // Removes any trailing whitespace-only rows.
-  private List<String[]> trim(List<String[]> rows) {
+  private List<String[]> trim(List<String[]> rows) throws NonFatalException {
     int skip = config.getSkipLines();
     if (rows.size() != 0) {
       int i;
@@ -87,7 +86,7 @@ public class RowSupplier {
       }
       if (i <= skip) {
         String msg = String.format("No rows remaining after skipping %d line%s", skip, plural(skip));
-        throw new NaturalisPluginException(msg);
+        throw new NonFatalException(msg);
       }
       if (i != rows.size() - 1) {
         return rows.subList(skip, i + 1);

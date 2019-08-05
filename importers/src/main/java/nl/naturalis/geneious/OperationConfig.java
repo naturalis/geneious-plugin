@@ -84,7 +84,8 @@ public abstract class OperationConfig {
   }
 
   /**
-   * Returns the name of the operation configured by this configuration object.
+   * Returns the name of the operation configured by this configuration object. This is useful for code that only knows about the base class
+   * (this class) but still wants to log an operation-specific message.
    * 
    * @return
    */

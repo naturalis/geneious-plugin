@@ -65,11 +65,9 @@ class SpreadSheetReader {
   List<String[]> readAllRows() throws EncryptedDocumentException, IOException, NonFatalException {
     try (Workbook workbook = WorkbookFactory.create(config.getFile())) {
       FormulaEvaluator evaluator = null;
-      if (config.isSpreadsheetWithFormulas()) {
-        workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-        evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        evaluator.evaluateAll();
-      }
+      workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+      evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+      evaluator.evaluateAll();
       Sheet sheet = workbook.getSheetAt(config.getSheetNumber());
       List<String[]> rows = new ArrayList<>();
       for (Row row : sheet) {
@@ -83,7 +81,7 @@ class SpreadSheetReader {
     }
   }
 
-  private String getCellValue(Cell cell, FormulaEvaluator evaluator) throws NonFatalException {
+  private static String getCellValue(Cell cell, FormulaEvaluator evaluator) throws NonFatalException {
     switch (cell.getCellType()) {
       case STRING:
         return cell.getStringCellValue();
@@ -92,11 +90,6 @@ class SpreadSheetReader {
       case BOOLEAN:
         return String.valueOf(cell.getBooleanCellValue());
       case FORMULA:
-        if (!config.isSpreadsheetWithFormulas()) {
-          String fmt = "%s contains formulas, which are not supported for by the %s operation";
-          String msg = String.format(fmt, config.getFile().getName(), config.getOperationName());
-          throw new NonFatalException(msg);
-        }
         CellValue cv = evaluator.evaluate(cell);
         switch (cv.getCellType()) {
           case STRING:

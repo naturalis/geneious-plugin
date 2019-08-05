@@ -53,12 +53,6 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     return true;
   }
 
-  @Override
-  protected boolean isSpreadsheetWithFormulas() {
-    return true;
-  }
-
-
   private BooleanOption addDummiesOption() {
     String name = "nl.naturalis.geneious.smpl.dummies";
     BooleanOption opt = addBooleanOption(name, CREATE_DUMMIES_LABEL, Boolean.TRUE);

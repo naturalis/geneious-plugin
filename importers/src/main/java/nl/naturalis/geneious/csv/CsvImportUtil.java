@@ -13,27 +13,19 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class CsvImportUtil {
 
-  static final List<String> spreadSheetFileExts = Arrays.asList("xls", "xlsx");
+  /**
+   * Valid file extensions for CSV files: csv, tsv, txt.
+   */
+  static final List<String> csvFileExtension = Arrays.asList("csv", "tsv", "txt");
+  /**
+   * Valid file extensions for spreadsheets: xls, xlsx.
+   */
+  static final List<String> spreadSheetFileExtension = Arrays.asList("xls", "xlsx");
 
   private CsvImportUtil() {}
 
   /**
-   * Returns true if the file name's extension is "xls",\; false otherwise.
-   * 
-   * @param fileName
-   * @return
-   */
-  public static boolean isSpreadsheet(String fileName) {
-    String ext = FilenameUtils.getExtension(fileName);
-    if (ext == null) {
-      return false;
-    }
-    ext = ext.toLowerCase();
-    return spreadSheetFileExts.stream().anyMatch(ext::equals);
-  }
-
-  /**
-   * Returns true if the file name's extension is "csv", "tsv" or "txt"; false oterwise.
+   * Returns true if the file name's extension is "csv", "tsv" or "txt", false oterwise.
    * 
    * @param fileName
    * @return
@@ -44,7 +36,22 @@ public class CsvImportUtil {
       return false;
     }
     ext = ext.toLowerCase();
-    return ext.equals("csv") || ext.equals("tsv") || ext.equals("txt");
+    return csvFileExtension.stream().anyMatch(ext::equals);
+  }
+
+  /**
+   * Returns true if the file name's extension is "xls" or "xlsx", false otherwise.
+   * 
+   * @param fileName
+   * @return
+   */
+  public static boolean isSpreadsheet(String fileName) {
+    String ext = FilenameUtils.getExtension(fileName);
+    if (ext == null) {
+      return false;
+    }
+    ext = ext.toLowerCase();
+    return spreadSheetFileExtension.stream().anyMatch(ext::equals);
   }
 
 }

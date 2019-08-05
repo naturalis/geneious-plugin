@@ -16,7 +16,6 @@ public abstract class CsvImportConfig<T extends Enum<T>> extends OperationConfig
   private String delimiter;
   private int skipLines;
   private int sheetNumber;
-  private boolean spreadsheetWithFormulas;
 
   public CsvImportConfig() {
     super();
@@ -102,23 +101,5 @@ public abstract class CsvImportConfig<T extends Enum<T>> extends OperationConfig
    * @return
    */
   public abstract EnumToIntMap<T> getColumnNumbers();
-
-  /**
-   * Whether or not the spreadsheet (if applicable) may contain formulas.
-   * 
-   * @return
-   */
-  public boolean isSpreadsheetWithFormulas() {
-    return spreadsheetWithFormulas;
-  }
-
-  /**
-   * Sets whether or not the spreadsheet (if applicable) may contain formulas.
-   * 
-   * @param spreadsheetWithFormulas
-   */
-  public void setSpreadsheetWithFormulas(boolean spreadsheetWithFormulas) {
-    this.spreadsheetWithFormulas = spreadsheetWithFormulas;
-  }
 
 }
