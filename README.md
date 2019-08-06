@@ -1,12 +1,14 @@
 # Naturalis Geneious Plugin
 
-This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the Geneious desktop application. It provides the following operations (erroneously themselves known as "plugins" by most users):
+This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the Geneious desktop application. It provides the following operations (themselves known as "plugins" by most users):
 
-- **AB1/Fasta Import**Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the resulting documents. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
-- **Split Name** This is like the AB1/Fasta Import except that it is meant to operate on existing documents, imported via Geneious's own import facility.
-- **Sample Sheet Import** Adds annotations related to the DNA samples to documents inside Geneious.
-- **CRS Import** Adds annotations retrieved from CRS to documents inside Geneious
-- **BOLD Import** Adds annotations retrieved from BOLD to documents inside Geneious
+- **AB1/Fasta Import**  Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the resulting documents. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
+- **Split Name**  This is like the AB1/Fasta Import except that it is meant to operate on existing documents, imported via Geneious's own import facility.
+- **Sample Sheet Import**  Adds annotations related to the DNA samples to documents inside Geneious.
+- **CRS Import**  Adds annotations retrieved from CRS to documents inside Geneious.
+- **BOLD Import**  Adds annotations retrieved from BOLD to documents inside Geneious.
+
+The AB1/Fasta Import operation and the Split Name operation are alike in that they annotate documents by parsing their names, which follow a naming convention that allows you to split the name in various meaningful name parts. Therefore these operations share a substantial code base ([nl.naturalis.geneious.name](src/main/java/nl/naturalis/geneious/name)).
 
 
 ## Developer Setup
@@ -18,7 +20,7 @@ To develop and build the plugin the following is required
 ## Building the Plugin
 - Clone this repository
 - Clone the [naturalis-common](https://github.com/naturalis/sd_java__common_lang) repository
-- Create a profile in .m2/settings.xml as shown below. The path you make `geneious.home` point to should contain a "lib" directory containing Geneious's dependencies. (For that reason, by the way, you could run your Maven build just as well against a regular installation, which contains an identical "lib" directory.)
+- Create a profile in .m2/settings.xml as shown below. The path you make `geneious.home` point to should contain a "lib" directory containing Geneious's dependencies. For the Geneious development kit this directory is called __GeneiousFiles__ (under the examples directory). You could run your Maven build just as well against a regular Geneious installation, which also contains a lib directory. It's only when running Geneious from within Eclipse that it pays to use the development kit (see below).
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
