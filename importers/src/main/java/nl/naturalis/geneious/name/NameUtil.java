@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.common.base.ArrayUtil;
 import nl.naturalis.geneious.DocumentType;
+import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 
@@ -48,11 +49,19 @@ public class NameUtil {
    */
   public static String removeKnownSuffixes(String name) {
     for (String suffix : all) {
-      if(name.endsWith(suffix)) {
+      if (name.endsWith(suffix)) {
         return StringUtils.removeEnd(name, suffix);
       }
     }
     return name;
+  }
+
+  public static String getExtractId(StoredDocument doc) {
+    return doc.getNaturalisNote().getExtractId();
+  }
+
+  public static String getExtractId(StorableDocument doc) {
+    return doc.getSequenceInfo().getNaturalisNote().getExtractId();
   }
 
 }

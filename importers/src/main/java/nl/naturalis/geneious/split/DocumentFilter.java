@@ -39,6 +39,7 @@ class DocumentFilter {
       String name = doc.getName();
       if (DocumentUtils.getDocumentType(doc) == DocumentType.UNKNOWN) {
         logger.warn("Ignoring document \"%s\". Unexpected document type: %s", name, doc.getDocumentClass());
+        continue;
       }
       if (DocumentUtils.getDocumentType(doc) == DocumentType.DUMMY) {
         logger.debugf(() -> format("Ignoring dummy document \"%s\".", name));

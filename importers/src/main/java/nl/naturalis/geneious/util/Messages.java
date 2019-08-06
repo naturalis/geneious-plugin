@@ -62,6 +62,52 @@ public class Messages {
     }
 
     /**
+     * <i>Splitting "x"</i>
+     * 
+     * @param logger
+     * @param name
+     */
+    public static void splittingName(GuiLogger logger, String name) {
+      logger.debugf(() -> format("Splitting \"%s\"", name));
+    }
+
+    /**
+     * <i>Collecting extract IDs</i>
+     * 
+     * @param logger
+     */
+    public static void collectingExtractIds(GuiLogger logger) {
+      logger.debug(() -> "Collecting extract IDs");
+    }
+
+    /**
+     * <i>Collected x extract IDs</i>
+     * 
+     * @param logger
+     */
+    public static void collectedExtractIds(GuiLogger logger, Collection<String> ids) {
+      logger.debugf(() -> format("Collected %d extract ID%s", ids.size(), plural(ids)));
+    }
+
+    /**
+     * <i>Searching database x for matching documents</i>
+     * 
+     * @param logger
+     */
+    public static void searchingForDocuments(GuiLogger logger, String dbName) {
+      logger.debugf(() -> format("Searching database %s for matching documents", dbName));
+    }
+
+    /**
+     * <i>Found x for matching documents</i>
+     * 
+     * @param logger
+     */
+    public static void foundDocuments(GuiLogger logger, Collection<?> documents) {
+      logger.debugf(() -> format("Found %d matching document%s", documents.size(), plural(documents)));
+    }
+
+    /**
      * <i>Scanning selected documents for [&#46;&#46;&#46;]</i>
      * 
      * @param logger
@@ -176,6 +222,24 @@ public class Messages {
     }
 
     /**
+     * <i>Annotating documents</i>
+     * 
+     * @param logger
+     */
+    public static void annotatingDocuments(GuiLogger logger) {
+      logger.info("Annotating documents");
+    }
+
+    /**
+     * <i>Versioning document(s)</i>
+     * 
+     * @param logger
+     */
+    public static void versioningDocuments(GuiLogger logger, Collection<?> documents) {
+      logger.info("Versioning document%s", plural(documents));
+    }
+
+    /**
      * Message informing the user that there were multiple documents matching an extract ID, but that they were not selected and therefore
      * not updated.
      * 
@@ -209,6 +273,11 @@ public class Messages {
             .toString();
       }
       logger.info(msg);
+    }
+
+    public static void documentsUpdatedFromDummies(GuiLogger logger, Collection<?> docs, Collection<?> dummies) {
+      String fmt = "%d document%s updated with annotations from %d dummy document%s";
+      logger.info(fmt, docs.size(), plural(docs), dummies.size(), plural(dummies));
     }
 
     /**
@@ -299,25 +368,37 @@ public class Messages {
     }
 
     /**
-     * Warns the user about data corruption.
+     * Warns the user that a document is missing the required document version annotation.
      * 
      * @param logger
-     * @param sd
+     * @param doc
+     * @param field
      */
-    public static void missingDocumentVersion(GuiLogger logger, StoredDocument sd, NaturalisField field) {
-      corruptDocument(logger, sd, "Document has value for %d but no document version", field);
+    public static void missingDocumentVersion(GuiLogger logger, StoredDocument doc, NaturalisField field) {
+      corruptDocument(logger, doc, "Document has value for %d but no document version", field);
+    }
+
+    /**
+     * Warns the user that a duplicate document version has been encountered.
+     * 
+     * @param logger
+     * @param docName
+     * @param docVersion
+     */
+    public static void duplicateDocumentVersion(GuiLogger logger, String docName, String docVersion) {
+      logger.warn("Data corruption: multiple documents with identical name (%s) and document version (%s)", docName, docVersion);
     }
 
     /**
      * Informs the user about data corruption.
      * 
      * @param logger
-     * @param sd
+     * @param doc
      * @param reason
      * @param msgArgs
      */
-    public static void corruptDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
-      logger.warn("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason));
+    public static void corruptDocument(GuiLogger logger, StoredDocument doc, String reason, Object... msgArgs) {
+      logger.warn("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, doc.getName(), reason));
     }
 
   }
@@ -332,7 +413,7 @@ public class Messages {
     private Error() {}
 
     public static void nameParsingFailed(GuiLogger logger, String name, NotParsableException exception) {
-      logger.error("Error while parsing \"%\"s: %s", name, exception);
+      logger.error("Error while parsing \"%s\": %s", name, exception.getMessage());
     }
 
     /**

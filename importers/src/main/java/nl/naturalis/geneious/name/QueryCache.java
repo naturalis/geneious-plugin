@@ -129,14 +129,13 @@ public class QueryCache {
         } else if (mi1.intValue() > mi2.intValue()) {
           mi2.setValue(mi1.intValue());
         } else if (mi1.intValue() == mi2.intValue()) {
-          String fmt = "Encountered 2 %s documents with the same name (%s) and the same document version (%s)";
-          logger.warn(fmt, key.docType, name, version);
+          Warn.duplicateDocumentVersion(logger, name, version);
         }
       }
     }
     return versions;
   }
-
+  
   @Override
   public String toString() {
     return JsonUtil.toPrettyJson(cache);

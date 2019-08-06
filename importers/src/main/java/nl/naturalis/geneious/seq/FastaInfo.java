@@ -68,7 +68,7 @@ final class FastaInfo extends SequenceInfo {
     if(sequence == null) {
       try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(child)))) {
         br.readLine(); // skip header
-        StringBuilder sb = new StringBuilder(672); // fasta sequences actually contain 659 chars
+        StringBuilder sb = new StringBuilder(1024);
         for(String line = br.readLine(); line != null; line = br.readLine()) {
           sb.append(line);
         }

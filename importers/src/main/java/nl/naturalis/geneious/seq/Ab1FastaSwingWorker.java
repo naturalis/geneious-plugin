@@ -56,8 +56,8 @@ class Ab1FastaSwingWorker extends PluginSwingWorker<Ab1FastaImportConfig> {
         docs.addAll(fastaImporter.importFiles());
       }
       if (docs.size() != 0) {
-        Annotator annotator = new Annotator(config, docs);
-        annotated = annotator.annotateDocuments();
+        Annotator annotator = new Annotator(config);
+        annotated = annotator.annotateDocuments(docs);
         created = new ArrayList<>(docs.size());
         for (StorableDocument doc : docs) {
           doc.saveAnnotations();

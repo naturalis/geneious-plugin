@@ -1,9 +1,8 @@
 package nl.naturalis.geneious.split;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +27,7 @@ import nl.naturalis.geneious.util.Messages.Error;
 import nl.naturalis.geneious.util.Messages.Info;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 
@@ -53,10 +53,9 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
   protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
     DocumentFilter filter = new DocumentFilter(config);
     List<StoredDocument> docs = filter.applyFilters();
-    List<StoredDocument> updated = splitName(docs);
+    List<StoredDocument> updated = annotateDocuments(docs);
     List<AnnotatedPluginDocument> all = null;
     if (!updated.isEmpty()) {
-      updated.forEach(StoredDocument::saveAnnotations);
       all = updated.stream().map(StoredDocument::getGeneiousDocument).collect(toList());
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
@@ -79,58 +78,86 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
     return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
   }
 
-  private List<StoredDocument> splitName(List<StoredDocument> documents) throws DatabaseServiceException, NonFatalException {
-    Iterator<StoredDocument> iterator = documents.iterator();
-    Set<String> ids = new HashSet<String>(documents.size(), 1F);
-    while (iterator.hasNext()) {
-      StoredDocument doc = iterator.next();
+  private List<StoredDocument> annotateDocuments(List<StoredDocument> documents) throws DatabaseServiceException, NonFatalException {
+    Info.annotatingDocuments(logger);
+    ArrayList<StoredDocument> docs = splitNames(documents);
+    if (docs.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Debug.collectingExtractIds(logger);
+    Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(toSet());
+    Debug.collectedExtractIds(logger, ids);
+    Debug.searchingForDocuments(logger, config.getTargetDatabaseName());
+    List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
+    Debug.foundDocuments(logger, result);
+    QueryCache queryCache = new QueryCache(result);
+    copyAnnotationsFromDummies(docs, queryCache);
+    Info.versioningDocuments(logger, docs);
+    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
+    docs.forEach(sd -> {
+      if (sd.getNaturalisNote().getDocumentVersion() == null) {
+        versioner.setDocumentVersion(sd);
+      }
+      sd.saveAnnotations();
+    });
+    return documents;
+  }
+
+  private static ArrayList<StoredDocument> splitNames(List<StoredDocument> documents) {
+    ArrayList<StoredDocument> docs = new ArrayList<>(documents.size());
+    for (StoredDocument doc : documents) {
       String name = NameUtil.removeKnownSuffixes(doc.getName());
-      doc.getGeneiousDocument().setName(name);
       SequenceNameParser parser = new SequenceNameParser(name);
       NaturalisNote note;
       try {
+        Debug.splittingName(logger, name);
         note = parser.parseName();
       } catch (NotParsableException e) {
         Error.nameParsingFailed(logger, doc.getName(), e);
         continue;
       }
-      if (note.copyTo(doc.getNaturalisNote())) {
-        ids.add(note.getExtractId());
+      if (note.copyTo(doc.getNaturalisNote())) { // Possibly false if user decided to not ignoreDocsWithNaturalisNote
+        docs.add(doc);
+        if (!name.equals(doc.getName())) {
+          // Only update document name if we also added/updated some annotations
+          doc.getGeneiousDocument().setName(name);
+        }
       } else {
-        Debug.noNewValues(logger, doc.getName(), "name parts");
-        iterator.remove();
+        Debug.noNewValues(logger, doc.getName(), "name");
       }
     }
-    List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
-    QueryCache queryCache = new QueryCache(result);
+    return docs;
+  }
+
+  private void copyAnnotationsFromDummies(List<StoredDocument> docs, QueryCache queryCache) throws DatabaseServiceException {
     Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
-    for (StoredDocument doc : documents) {
-      String id = doc.getNaturalisNote().getExtractId();
+    int updated = 0;
+    for (StoredDocument doc : docs) {
+      String id = NameUtil.getExtractId(doc);
       List<StoredDocument> dummies = queryCache.findDummy(id);
       if (dummies != null) {
         if (dummies.size() > 1) {
           Error.duplicateDummies(logger, doc.getName(), id, dummies);
         } else {
           Debug.foundDummyForExtractId(logger, id, doc.getType());
-          dummies.get(0).getNaturalisNote().mergeInto(doc.getNaturalisNote(), DOCUMENT_VERSION);
-          if (obsoleteDummies.add(dummies.get(0))) {
-            Debug.dummyQueuedForDeletion(logger, id);
+          NaturalisNote myNote = doc.getNaturalisNote();
+          NaturalisNote dummyNote = dummies.get(0).getNaturalisNote();
+          if (dummyNote.mergeInto(myNote, DOCUMENT_VERSION)) {
+            ++updated;
+            if (obsoleteDummies.add(dummies.get(0))) {
+              Debug.dummyQueuedForDeletion(logger, id);
+            }
+          } else {
+            Debug.noNewValues(logger, doc.getName(), "dummy document");
           }
         }
       }
     }
-    logger.info("Setting document versions");
-    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
-    documents.forEach(sd -> {
-      if (sd.getNaturalisNote().getDocumentVersion() == null) {
-        versioner.setDocumentVersion(sd);
-      }
-    });
-    if (!obsoleteDummies.isEmpty()) {
+    if (updated != 0) {
+      Info.documentsUpdatedFromDummies(logger, docs, obsoleteDummies);
       Info.deletingObsoleteDummies(logger, obsoleteDummies);
       deleteDocuments(config.getTargetDatabase(), obsoleteDummies);
     }
-    return documents;
   }
 
 }

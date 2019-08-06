@@ -1,6 +1,7 @@
 package nl.naturalis.geneious.name;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,8 +21,6 @@ import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Error;
 import nl.naturalis.geneious.util.Messages.Info;
 
-import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
 import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
 import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
 import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
@@ -37,16 +36,14 @@ public class Annotator {
   private static final GuiLogger logger = GuiLogManager.getLogger(Annotator.class);
 
   private final OperationConfig config;
-  private final List<StorableDocument> docs;
 
   /**
    * Creates a new {@code Annotator} for the provided list of {@code StorableDocument} instances.
    * 
-   * @param docs
+   * @param config
    */
-  public Annotator(OperationConfig config, List<StorableDocument> docs) {
+  public Annotator(OperationConfig config) {
     this.config = config;
-    this.docs = docs;
   }
 
   /**
@@ -54,70 +51,76 @@ public class Annotator {
    * successfully annotated. The new annotations have not yet been saved yet to the database yet, so you must still call
    * {@link StorableDocument#saveAnnotations(boolean) StorableDocument.saveAnnotations} afterwards.
    * 
+   * @param documents
    * @throws DatabaseServiceException
-   * @throws NonFatalException 
+   * @throws NonFatalException
    */
-  public List<StorableDocument> annotateDocuments() throws DatabaseServiceException, NonFatalException {
-    logger.info("Annotating documents");
-    List<StorableDocument> documents = getAnnotatableDocuments();
-    logger.debug(() -> "Collecting extract IDs");
-    Set<String> ids = documents.stream().map(Annotator::getExtractId).collect(Collectors.toSet());
-    logger.debugf(() -> format("Collected %s unique extract ID%s", ids.size(), plural(ids)));
-    logger.debugf(() -> format("Searching database %s for matching documents", config.getTargetDatabaseName()));
+  public List<StorableDocument> annotateDocuments(List<StorableDocument> documents) throws DatabaseServiceException, NonFatalException {
+    Info.annotatingDocuments(logger);
+    ArrayList<StorableDocument> docs = splitNames(documents);
+    if (docs.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Debug.collectingExtractIds(logger);
+    Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(Collectors.toSet());
+    Debug.collectedExtractIds(logger, ids);
+    Debug.searchingForDocuments(logger, config.getTargetDatabaseName());
     List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
-    logger.debugf(() -> format("Found %s matching document%s", result.size(), plural(result)));
+    Debug.foundDocuments(logger, result);
     QueryCache queryCache = new QueryCache(result);
-    Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
+    copyAnnotationsFromDummies(docs, queryCache);
+    Info.versioningDocuments(logger, docs);
+    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
+    docs.forEach(sd -> {
+      versioner.setDocumentVersion(sd);
+      sd.attachNaturalisNote();
+    });
+    return docs;
+  }
+
+  private static ArrayList<StorableDocument> splitNames(List<StorableDocument> documents) {
+    ArrayList<StorableDocument> docs = new ArrayList<>(documents.size());
     for (StorableDocument doc : documents) {
-      NaturalisNote note = doc.getSequenceInfo().getNaturalisNote();
-      String id = getExtractId(doc);
+      try {
+        Debug.splittingName(logger, doc.getSequenceInfo().getName());
+        doc.getSequenceInfo().createNote();
+        docs.add(doc);
+      } catch (NotParsableException e) {
+        Error.nameParsingFailed(logger, doc.getSequenceInfo().getName(), e);
+      }
+    }
+    return docs;
+  }
+
+  private void copyAnnotationsFromDummies(List<StorableDocument> docs, QueryCache queryCache) throws DatabaseServiceException {
+    Set<StoredDocument> obsoleteDummies = new TreeSet<>(StoredDocument.URN_COMPARATOR);
+    int updated = 0;
+    for (StorableDocument doc : docs) {
+      String id = NameUtil.getExtractId(doc);
       List<StoredDocument> dummies = queryCache.findDummy(id);
       if (dummies != null) {
         if (dummies.size() > 1) {
           Error.duplicateDummies(logger, doc.getSequenceInfo().getName(), id, dummies);
         } else {
           Debug.foundDummyForExtractId(logger, id, getType(doc));
-          dummies.get(0).getNaturalisNote().mergeInto(note, DOCUMENT_VERSION);
-          if (obsoleteDummies.add(dummies.get(0))) {
-            Debug.dummyQueuedForDeletion(logger, id);
+          NaturalisNote myNote = doc.getSequenceInfo().getNaturalisNote();
+          NaturalisNote dummyNote = dummies.get(0).getNaturalisNote();
+          if (dummyNote.mergeInto(myNote, DOCUMENT_VERSION)) {
+            ++updated;
+            if (obsoleteDummies.add(dummies.get(0))) {
+              Debug.dummyQueuedForDeletion(logger, id);
+            }
+          } else {
+            Debug.noNewValues(logger, doc.getSequenceInfo().getName(), "dummy document");
           }
         }
       }
     }
-    logger.info("Setting document versions");
-    VersionTracker versioner = new VersionTracker(queryCache.getLatestDocumentVersions());
-    documents.forEach(versioner::setDocumentVersion);
-    logger.info("Attaching annotations");
-    documents.forEach(StorableDocument::attachNaturalisNote);
-    if (!obsoleteDummies.isEmpty()) {
+    if (updated != 0) {
+      Info.documentsUpdatedFromDummies(logger, docs, obsoleteDummies);
       Info.deletingObsoleteDummies(logger, obsoleteDummies);
       deleteDocuments(config.getTargetDatabase(), obsoleteDummies);
     }
-    return documents;
-  }
-
-  private List<StorableDocument> getAnnotatableDocuments() {
-    List<StorableDocument> annotatables = new ArrayList<>(docs.size());
-    for (StorableDocument doc : docs) {
-      try {
-        logger.debugf(() -> format("Parsing \"%s\"", doc.getSequenceInfo().getName()));
-        doc.getSequenceInfo().createNote();
-        annotatables.add(doc);
-      } catch (NotParsableException e) {
-        String name;
-        if (doc.getSequenceInfo().getImportedFrom() == null) { // A higher-level document, created from other documents
-          name = doc.getSequenceInfo().getName();
-        } else {
-          name = doc.getSequenceInfo().getImportedFrom().getName();
-        }
-        logger.error("Error processing %s: %s", name, e.getMessage());
-      }
-    }
-    return annotatables;
-  }
-
-  private static String getExtractId(StorableDocument doc) {
-    return doc.getSequenceInfo().getNaturalisNote().getExtractId();
   }
 
   private static DocumentType getType(StorableDocument doc) {
