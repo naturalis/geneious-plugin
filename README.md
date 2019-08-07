@@ -8,7 +8,7 @@ This repository contains the Java source for the Naturalis Geneious Plugin. The 
 - **CRS Import**  Adds annotations retrieved from CRS to documents inside Geneious.
 - **BOLD Import**  Adds annotations retrieved from BOLD to documents inside Geneious.
 
-The AB1/Fasta Import operation and the Split Name operation are alike in that they annotate documents by parsing their names, which follow a naming convention that allows you to split the name in various meaningful name parts. Therefore these operations share a substantial code base ([nl.naturalis.geneious.name](src/main/java/nl/naturalis/geneious/name)).
+The AB1/Fasta Import operation and the Split Name operation are alike in that they annotate documents by parsing their names, which follow a naming convention that allows you to split the name in various meaningful name parts. Therefore these operations share a substantial code base ([nl.naturalis.geneious.name](/importers/src/main/java/nl/naturalis/geneious/name)).
 
 
 ## Developer Setup
