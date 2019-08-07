@@ -71,7 +71,7 @@ Although the plugin is built using Maven, Geneious itself is not. All of its dep
 ## Running from within Eclipse
 You can run Geneious along with the plugin from within Eclipse. After you imported the naturalis-geneious-plugin project you should have a new Run Configuration called _naturalis-geneious-plugin (64 bit)_. The Run Configuration can be found as a regular Java application in _Run -> Run Configurations..._ This allows you the run Geneious along with the plugin straight away.
 
-**Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries (provided Geneious doesn't choke on it.
+**Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries.
 
 ![Run configuration](/docs/run-configuration.png)
 
