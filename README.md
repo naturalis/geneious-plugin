@@ -1,14 +1,14 @@
 # Naturalis Geneious Plugin
 
-This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the Geneious desktop application. It provides the following operations (themselves known as "plugins" by most users):
+This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the [Geneious desktop application](https://www.geneious.com/). It provides the following operations (themselves known as "plugins" by most users):
 
-- **AB1/Fasta Import**  Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the resulting documents. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
-- **Split Name**  This is like the AB1/Fasta Import except that it is meant to operate on existing documents, imported via Geneious's own import facility.
-- **Sample Sheet Import**  Adds annotations related to the DNA samples to documents inside Geneious.
-- **CRS Import**  Adds annotations retrieved from CRS to documents inside Geneious.
-- **BOLD Import**  Adds annotations retrieved from BOLD to documents inside Geneious.
+- **AB1/Fasta Import**  Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the documents Geneious created for the nucleotide sequences. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
+- **Split Name**  This is like the AB1/Fasta Import operation except that it operates on existing documents, imported via Geneious's own import facility.
+- **Sample Sheet Import**  Adds annotations related to DNA samples to existing nucleotide sequence documents. This operation can potentially also create new documents wrapping a bepoke [DummySequence](/importers/src/main/java/nl/naturalis/geneious/smpl/DummySequence.java).
+- **CRS Import**  Adds annotations retrieved from CRS to to existing nucleotide sequence documents.
+- **BOLD Import**  Adds annotations retrieved from BOLD to to existing nucleotide sequence documents.
 
-The AB1/Fasta Import operation and the Split Name operation are alike in that they annotate documents by parsing their names, which follow a naming convention that allows you to split the name in various meaningful name parts. Therefore these operations share a substantial code base ([nl.naturalis.geneious.name](src/main/java/nl/naturalis/geneious/name)).
+The AB1/Fasta Import operation and the Split Name operations share a substantial code base in ([nl.naturalis.geneious.name](/importers/src/main/java/nl/naturalis/geneious/name)). Likewise the Sample Sheet, CRS and BOLD operation
 
 
 ## Developer Setup
@@ -46,12 +46,12 @@ To develop and build the plugin the following is required
 - Build the plugin using maven. Note that the pom file does not reside in the root of the git repository but in the `importers` directory underneath it.
 
 ## Distributing the Plugin
-The final artifact representing the plugin is a zip file with a .gplugin extension, which can be installed from within the Geneious GUI. The zip file contains the main artifact (naturalis-geneious-plugin.jar) plus all its dependencies _except those already present in Geneious's lib directory_ (however, see below). The easiest way to build and publish the plugin is to run the [distribute.sh script](importers/distribute.sh) in the importers directory. This script will:
+The final artifact representing the plugin is a zip file with a .gplugin extension, which can be installed from within the Geneious GUI. The zip file contains the main artifact (naturalis-geneious-plugin.jar) plus all its dependencies _except those already present in Geneious's lib directory_ (however, see below). The easiest way to build and publish the plugin is to run the [distribute.sh](/importers/distribute.sh) script in the importers directory. This script will:
 + build naturalis-common using maven
 + build naturalis-geneious-plugin using maven
 + collect naturalis-geneious-plugin.jar and its dependencies into a single folder
 + zip the folder and move the zip file to the [distributable](distributable) directory
-+ execute a git commit/push
++ execute a git commit/push (you will still have to provide your github credentials at this point)
 
 ```
 # Publish a new version:
@@ -61,17 +61,17 @@ $ ./distribute.sh --publish
 ```
 
 ## Dependency Management
-Although the plugin is built using Maven, Geneious itself is not. All of its dependencies are in its lib directory. To minimize the risk of _jar hell_, we try to keep our dependencies in lockstep with Geneious. Therefore there are a lot of system scope dependencies in the pom file (effectively hard-linking to the jar files in the lib directory). Sometimes, however, we do need another version of a library than Geneious provides us with. We use Apache POI for spreadsheet reading, but this library requires a more recent version of commons-compress than the version in the Geneious lib directory. This in itself is not a problem. Geneious sandboxes the plugin through the class loading mechanism, giving precedence to the libraries within the gplugin file over those in its own lib directory, So we just have to include our version of commons-compress to the gplugin file. It is a matter of trial and error to figure out which transitive dependencies you are then forced to include as well.
+Although the plugin is built using Maven, Geneious itself is not. All of its dependencies are in its lib directory. To minimize the risk of _jar hell_, we try to keep our dependencies in lockstep with Geneious. Therefore there are a lot of system scope dependencies in the pom file (effectively hard-linking to the jar files in the lib directory). Sometimes, however, we do need another version of a library than Geneious provides us with. We use Apache POI for spreadsheet reading, but this library requires a more recent version of commons-compress than the version in the Geneious lib directory. This in itself is not a problem. Geneious sandboxes the plugin through the class loading mechanism, giving precedence to the libraries within the gplugin file over those in its own lib directory. So we just have to include our version of commons-compress in the gplugin file. It is a matter of trial and error to figure out which transitive dependencies you are then forced to include as well.
 
 ## Developing in Eclipse
 - Import the GeneiousFiles directory inside the Geneious development kit. The GeneiousFiles directory actually is an Eclipse project that you can import using _File -> Import... -> General -> Existing Projects into Workspace_.
 - Import naturalis-common using _File -> Import... -> Maven -> Existing Maven Projects_
-- Import naturalis-geneious-plugin _File -> Import... -> Maven -> Existing Maven Projects_ (Again, does not reside in the root of the git repository but in the `importers` directory underneath it)
+- Import naturalis-geneious-plugin _File -> Import... -> Maven -> Existing Maven Projects_ (Again, the pom file does not reside in the root of the git repository but in the `importers` directory underneath it)
 
 ## Running from within Eclipse
 You can run Geneious along with the plugin from within Eclipse. After you imported the naturalis-geneious-plugin project you should have a new Run Configuration called _naturalis-geneious-plugin (64 bit)_. The Run Configuration can be found as a regular Java application in _Run -> Run Configurations..._ This allows you the run Geneious along with the plugin straight away.
 
-**Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries (provided Geneious doesn't choke on it.
+**Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries.
 
 ![Run configuration](/docs/run-configuration.png)
 
