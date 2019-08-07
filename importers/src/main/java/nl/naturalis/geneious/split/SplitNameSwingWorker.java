@@ -100,7 +100,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
       }
       sd.saveAnnotations();
     });
-    return documents;
+    return docs;
   }
 
   private static ArrayList<StoredDocument> splitNames(List<StoredDocument> documents) {
