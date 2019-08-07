@@ -66,7 +66,7 @@ Although the plugin is built using Maven, Geneious itself is not. All of its dep
 ## Developing in Eclipse
 - Import the GeneiousFiles directory inside the Geneious development kit. The GeneiousFiles directory actually is an Eclipse project that you can import using _File -> Import... -> General -> Existing Projects into Workspace_.
 - Import naturalis-common using _File -> Import... -> Maven -> Existing Maven Projects_
-- Import naturalis-geneious-plugin _File -> Import... -> Maven -> Existing Maven Projects_ (Again, does not reside in the root of the git repository but in the `importers` directory underneath it)
+- Import naturalis-geneious-plugin _File -> Import... -> Maven -> Existing Maven Projects_ (Again, the pom file does not reside in the root of the git repository but in the `importers` directory underneath it)
 
 ## Running from within Eclipse
 You can run Geneious along with the plugin from within Eclipse. After you imported the naturalis-geneious-plugin project you should have a new Run Configuration called _naturalis-geneious-plugin (64 bit)_. The Run Configuration can be found as a regular Java application in _Run -> Run Configurations..._ This allows you the run Geneious along with the plugin straight away.
