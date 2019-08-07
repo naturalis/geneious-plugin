@@ -11,11 +11,11 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.lang3.StringUtils;
 
 import nl.naturalis.common.base.WrappedException;
+import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.NonFatalException;
 
 import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
 import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
-import static nl.naturalis.geneious.log.GuiLogger.plural;
 
 /**
  * A simple reader for all CSV-like formats suported by the plugin: CSV files, TSV files and spreadsheets.
@@ -50,7 +50,7 @@ public class RowSupplier {
         CsvParser parser = new CsvParser(settings);
         rows = parser.parseAll(file);
       } else { // Shouldn't happen (already checked)
-        throw new IllegalStateException("File type check failure");
+        throw new NaturalisPluginException("File type check failure");
       }
       return trim(rows);
     } catch (NonFatalException e) {
@@ -76,7 +76,6 @@ public class RowSupplier {
 
   // Removes any trailing whitespace-only rows.
   private List<String[]> trim(List<String[]> rows) throws NonFatalException {
-    int skip = config.getSkipLines();
     if (rows.size() != 0) {
       int i;
       for (i = rows.size() - 1; i != 0; --i) {
@@ -84,12 +83,11 @@ public class RowSupplier {
           break;
         }
       }
-      if (i <= skip) {
-        String msg = String.format("No rows remaining after skipping %d line%s", skip, plural(skip));
-        throw new NonFatalException(msg);
+      if (i == 0) {
+        throw new NonFatalException("Empty file: " + config.getFile().getName());
       }
       if (i != rows.size() - 1) {
-        return rows.subList(skip, i + 1);
+        return rows.subList(0, i + 1);
       }
     }
     return rows;

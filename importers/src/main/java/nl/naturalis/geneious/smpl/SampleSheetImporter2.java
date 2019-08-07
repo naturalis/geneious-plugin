@@ -72,7 +72,7 @@ class SampleSheetImporter2 {
      * Collect all extract IDs in the sample sheet that do not correspond to any of the selected documents. For those IDs we need to check
      * whether or not they exist at all in the Geneious database.
      */
-    logger.info("Collecting extract IDs in sample sheet");
+    logger.info("Collecting extract IDs from sample sheet");
     Set<String> idsInSampleSheet = collectIdsInSampleSheet(rows);
     Set<String> extraIds = idsInSampleSheet
         .stream()

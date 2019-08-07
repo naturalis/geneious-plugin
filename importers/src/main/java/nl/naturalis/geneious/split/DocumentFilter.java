@@ -42,12 +42,12 @@ class DocumentFilter {
         continue;
       }
       if (DocumentUtils.getDocumentType(doc) == DocumentType.DUMMY) {
-        logger.debugf(() -> format("Ignoring dummy document \"%s\".", name));
+        logger.debugf(() -> format("Ignoring dummy document \"%s\"", name));
         continue;
       }
       StoredDocument sd = new StoredDocument(doc);
       if (config.isIgnoreDocsWithNaturalisNote() && !sd.getNaturalisNote().isEmpty()) {
-        logger.debugf(() -> format("Ignoring document \"%s\". Already annotated by Naturalis plugin", name));
+        logger.debugf(() -> format("Ignoring annotated document \"%s\"", name));
         continue;
       }
       filtered.add(sd);
