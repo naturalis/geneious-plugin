@@ -1,10 +1,10 @@
 # Naturalis Geneious Plugin
 
-This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the ([Geneious desktop application](https://www.geneious.com/)). It provides the following operations (themselves known as "plugins" by most users):
+This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the [Geneious desktop application](https://www.geneious.com/). It provides the following operations (themselves known as "plugins" by most users):
 
 - **AB1/Fasta Import**  Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the documents Geneious created for the nucleotide sequences. The annotations are obtained by parsing the name of the AB1 file c.q. the header within the Fasta file.
 - **Split Name**  This is like the AB1/Fasta Import operation except that it operates on existing documents, imported via Geneious's own import facility.
-- **Sample Sheet Import**  Adds annotations related to DNA samples to existing nucleotide sequence documents. This operation can potentially also create new documents wrapping a bepoke ([DummySequence](/importers/src/main/java/nl/naturalis/geneious/smpl/DummySequence.java)).
+- **Sample Sheet Import**  Adds annotations related to DNA samples to existing nucleotide sequence documents. This operation can potentially also create new documents wrapping a bepoke [DummySequence](/importers/src/main/java/nl/naturalis/geneious/smpl/DummySequence.java).
 - **CRS Import**  Adds annotations retrieved from CRS to to existing nucleotide sequence documents.
 - **BOLD Import**  Adds annotations retrieved from BOLD to to existing nucleotide sequence documents.
 
