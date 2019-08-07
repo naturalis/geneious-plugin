@@ -38,7 +38,7 @@ public class CrsDocumentOperation extends DocumentOperation {
   @Override
   public GeneiousActionOptions getActionOptions() {
     return new GeneiousActionOptions(NAME, DESCRIPTION,
-        getIconsFromJar(getClass(), "/images/nbc_red_square.png"))
+        getIconsFromJar(getClass(), "/images/nbc_blue_square.png"))
             .setMainMenuLocation(GeneiousActionOptions.MainMenu.Tools, menuPos)
             .setInMainToolbar(true, toolPos)
             .setInPopupMenu(true, menuPos)

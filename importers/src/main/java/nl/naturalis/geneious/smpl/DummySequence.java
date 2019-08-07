@@ -13,8 +13,8 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant to create dummy documents. The dummy
- * documents will be removed as soon as the real fasta and AB1 sequences are imported, providing them with the
+ * An extension of Geneious's {@code DefaultNucleotideSequence} class solely meant for the creation of dummy documents. The dummy
+ * documents will be removed as soon as the real fasta and AB1 sequences are imported into Geneious, providing them with the
  * annotations saved to the dummy document.
  *
  * @author Ayco Holleman
@@ -26,11 +26,11 @@ public class DummySequence extends DefaultNucleotideSequence {
    */
   public static final String DUMMY_SEQUENCE = "NNNNNNNNNN";
   /**
-   * The plate ID used for all documents: "AA000"
+   * The plate ID used for all dummy documents: "AA000"
    */
   public static final String DUMMY_PCR_PLATE_ID = "AA000";
   /**
-   * The marker used for all documents: "Dum"
+   * The marker used for all dummy documents: "Dum"
    */
   public static final String DUMMY_MARKER = "Dum";
 
