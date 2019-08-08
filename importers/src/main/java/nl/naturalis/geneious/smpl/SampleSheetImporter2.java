@@ -39,7 +39,7 @@ import static nl.naturalis.geneious.smpl.SampleSheetSwingWorker.KEY_NAME;
  */
 class SampleSheetImporter2 {
 
-  private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetImporter1.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(SampleSheetImporter2.class);
 
   private final SampleSheetImportConfig config;
   private final RuntimeInfo runtime;
