@@ -8,7 +8,7 @@ This repository contains the Java source for the Naturalis Geneious Plugin. The 
 - **CRS Import**  Adds annotations retrieved from CRS to existing nucleotide sequence documents.
 - **BOLD Import**  Adds annotations retrieved from BOLD to existing nucleotide sequence documents.
 
-The AB1/Fasta Import operation and the Split Name operations share a substantial code in the [nl.naturalis.geneious.name](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operation also share a substantial amount of code in the [nl.naturalis.geneious.csv](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
+The AB1/Fasta Import operation and the Split Name operations share a substantial code base in the [nl.naturalis.geneious.name](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operations are all creating annotations from the rows in a CSV file and/or spreadsheet. They also share a substantial code base in the [nl.naturalis.geneious.csv](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
 
 
 ## Developer Setup
