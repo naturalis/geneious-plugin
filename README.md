@@ -5,8 +5,8 @@ This repository contains the Java source for the Naturalis Geneious Plugin. The 
 - **AB1/Fasta Import**  Imports nucleotide sequence files of the AB1 and Fasta variety. Geneious already has this functionality straight out of the box, but the plugin also immediately adds some useful annotations to the documents Geneious created for the nucleotide sequences. These annotations are extracted from the name of the AB1 file c.q. the header within the Fasta file.
 - **Split Name**  This is like the AB1/Fasta Import operation except that it operates on existing documents, imported via Geneious's own import facility.
 - **Sample Sheet Import**  Adds metadata about DNA samples to existing nucleotide sequence documents. If desired, this operation will also create place-holder documents (a.k.a. "dummies") for DNA samples whose nucleotide sequences have yet to be imported into Geneious. As soon as the real sequence is imported it receives the annotations from the place-holder document, and the place-holder document is deleted.
-- **CRS Import**  Adds annotations retrieved from CRS to to existing nucleotide sequence documents.
-- **BOLD Import**  Adds annotations retrieved from BOLD to to existing nucleotide sequence documents.
+- **CRS Import**  Adds annotations retrieved from CRS to existing nucleotide sequence documents.
+- **BOLD Import**  Adds annotations retrieved from BOLD to existing nucleotide sequence documents.
 
 The AB1/Fasta Import operation and the Split Name operations share a substantial code in the [nl.naturalis.geneious.name](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operation also share a substantial amount of code in the [nl.naturalis.geneious.csv](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
 
