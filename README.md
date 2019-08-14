@@ -34,7 +34,10 @@ To develop and build the plugin the following is required
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
+				<!-- devkit -->
 				<geneious.home>/home/ayco/apps/geneious-2019.2.1-devkit/examples/GeneiousFiles</geneious.home>
+				<!-- regular installation -->
+				<!--geneious.home>/home/ayco/Geneious_Prime</geneious.home-->
 			</properties>
 		</profile>
 	</profiles>
