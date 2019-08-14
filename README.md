@@ -49,7 +49,9 @@ To develop and build the plugin the following is required
 - Build the plugin using maven. Note that the pom file does not reside in the root of the git repository but in the `importers` directory underneath it.
 
 ## Distributing the Plugin
-The final artifact representing the plugin is a zip file with a .gplugin extension, which can be installed from within the Geneious GUI. (Within Geneious, go to _Tools -> Plugins..._ and press the _Install plugin from a gplugin file..._ button.) The zip file contains the main artifact (naturalis-geneious-plugin.jar) plus all its dependencies _except those already present in Geneious's lib directory_ (however, see below). The easiest way to build and publish the plugin is to run the [distribute.sh](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/distribute.sh) script in the importers directory. This script will:
+The final artifact representing the plugin is a zip file with a .gplugin extension, which can be installed from within the Geneious GUI (within Geneious, go to _Tools -> Plugins..._ and press the _Install plugin from a gplugin file..._ button). The zip file contains the main artifact (naturalis-geneious-plugin.jar) plus all its dependencies except those already present in Geneious's lib directory (however, see below).
+
+The easiest way to build and publish the plugin is to run the [distribute.sh](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/distribute.sh) script in the importers directory. This script will:
 + build naturalis-common using maven
 + build naturalis-geneious-plugin using maven
 + collect naturalis-geneious-plugin.jar and its dependencies into a single folder
