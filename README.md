@@ -20,7 +20,7 @@ To develop and build the plugin the following is required
 ## Building the Plugin
 - Clone this repository
 - Clone the [naturalis-common](https://github.com/naturalis/sd_java__common_lang) repository
-- Create a profile in .m2/settings.xml as shown below. The path you make `geneious.home` point to should contain a "lib" directory containing Geneious's dependencies. For the Geneious development kit this directory is called __GeneiousFiles__ (under the examples directory). You could run your Maven build just as well against a regular Geneious installation, which also contains a lib directory. It's only when running Geneious from within Eclipse that it pays to use the development kit (see below).
+- Create a profile in .m2/settings.xml as shown below. The path you make `geneious.home` point to should contain a "lib" directory containing Geneious's dependencies. For the Geneious development kit this directory is called _GeneiousFiles_ (under the examples directory). You could run your Maven build just as well against a regular Geneious installation, which contains the same lib directory. It's only when running Geneious from within Eclipse that it pays to use the development kit (see below).
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
