@@ -17,6 +17,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
 
 /**
  * A simple reader for MS spreadsheets. Loads and returns all rows at once.
@@ -25,6 +27,8 @@ import nl.naturalis.geneious.NonFatalException;
  *
  */
 class SpreadSheetReader {
+
+  private static final GuiLogger logger = GuiLogManager.getLogger(SpreadSheetReader.class);
 
   /**
    * Returns the names of the sheets with the spreadsheet.
@@ -64,9 +68,9 @@ class SpreadSheetReader {
    */
   List<String[]> readAllRows() throws EncryptedDocumentException, IOException, NonFatalException {
     try (Workbook workbook = WorkbookFactory.create(config.getFile())) {
-      FormulaEvaluator evaluator = null;
       workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-      evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+      logger.debug(() -> "Evaluating spreadsheet formulas");
+      FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
       evaluator.evaluateAll();
       Sheet sheet = workbook.getSheetAt(config.getSheetNumber());
       List<String[]> rows = new ArrayList<>();

@@ -61,7 +61,7 @@ public class Annotator {
     if (docs.isEmpty()) {
       return Collections.emptyList();
     }
-    Debug.collectingExtractIds(logger);
+    Debug.collectingExtractIds(logger, "generated annotations");
     Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(Collectors.toSet());
     Debug.collectedExtractIds(logger, ids);
     Debug.searchingForDocuments(logger, config.getTargetDatabaseName());

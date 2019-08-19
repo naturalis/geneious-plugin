@@ -84,7 +84,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
     if (docs.isEmpty()) {
       return Collections.emptyList();
     }
-    Debug.collectingExtractIds(logger);
+    Debug.collectingExtractIds(logger, "generated annotations");
     Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(toSet());
     Debug.collectedExtractIds(logger, ids);
     Debug.searchingForDocuments(logger, config.getTargetDatabaseName());
@@ -119,7 +119,6 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
       if (note.copyTo(doc.getNaturalisNote())) { // Possibly false if user decided to not ignoreDocsWithNaturalisNote
         docs.add(doc);
         if (!name.equals(doc.getName())) {
-          // Only update document name if we also added/updated some annotations
           doc.getGeneiousDocument().setName(name);
         }
       } else {

@@ -1,10 +1,5 @@
 package nl.naturalis.geneious.smpl;
 
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-import static java.util.stream.Collectors.toList;
-import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -26,6 +21,13 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.DocumentLookupTable;
 import nl.naturalis.geneious.util.Messages.Info;
 
+import static java.util.stream.Collectors.toList;
+
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
+
 /**
  * Manages and coordinates the import of sample sheets into Geneious.
  * 
@@ -44,14 +46,14 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
 
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws DatabaseServiceException, NonFatalException {
-    if(config.isCreateDummies()) {
+    if (config.isCreateDummies()) {
       return updateOrCreateDummies();
     }
     return updateOnly();
   }
 
   private List<AnnotatedPluginDocument> updateOnly() throws NonFatalException {
-    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    Info.loadingFile(logger, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
@@ -60,7 +62,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> updated = null;
-    if(runtime.countUpdatedDocuments() != 0) {
+    if (runtime.countUpdatedDocuments() != 0) {
       runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
       updated = runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).collect(toList());
       updated = addAndReturnGeneratedDocuments(updated, true, Collections.emptyList());
@@ -73,7 +75,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
   }
 
   private List<AnnotatedPluginDocument> updateOrCreateDummies() throws NonFatalException {
-    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    Info.loadingFile(logger, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
@@ -82,7 +84,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
     DocumentLookupTable<String> lookups = new DocumentLookupTable<>(selectedDocuments, this::getKey);
     importer.importRows(rows, lookups);
     List<AnnotatedPluginDocument> all = null;
-    if(runtime.countUpdatedDocuments() > 0 || importer.getNewDummies().size() > 0) {
+    if (runtime.countUpdatedDocuments() > 0 || importer.getNewDummies().size() > 0) {
       runtime.getUpdatedDocuments().forEach(StoredDocument::saveAnnotations);
       importer.getNewDummies().forEach(StoredDocument::saveAnnotations);
       all = new ArrayList<>(runtime.countUpdatedDocuments() + importer.getNewDummies().size());
@@ -116,7 +118,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
 
   @Override
   protected Set<Precondition> getPreconditions() {
-    if(config.isCreateDummies()) {
+    if (config.isCreateDummies()) {
       return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
     }
     return EnumSet.of(AT_LEAST_ONE_DOCUMENT_SELECTED, ALL_DOCUMENTS_IN_SAME_DATABASE);

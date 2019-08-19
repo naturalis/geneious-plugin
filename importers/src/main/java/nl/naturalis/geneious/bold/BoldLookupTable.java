@@ -61,7 +61,7 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
    */
   BoldLookupTable rebuildWithPartialKey() {
     BoldLookupTable tbl = new BoldLookupTable();
-    entrySet().forEach(e -> tbl.merge(new BoldKey(e.getKey().getRegno()), e.getValue(), BiFunctions::append));
+    entrySet().forEach(e -> tbl.merge(new BoldKey(e.getKey().getRegno()), e.getValue(), BiFunctions::concat));
     return tbl;
   }
 
@@ -72,7 +72,7 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
       return null; // do not add to lookup table
     }
     if (sd.isDummy()) {
-      return new BoldKey(regno); // Dummies always matched on registration number only 
+      return new BoldKey(regno); // Dummies always matched on registration number only
     }
     String naturalisMarker = sd.getNaturalisNote().get(SEQ_MARKER);
     if (naturalisMarker == null) {

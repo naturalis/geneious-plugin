@@ -76,8 +76,8 @@ public class Messages {
      * 
      * @param logger
      */
-    public static void collectingExtractIds(GuiLogger logger) {
-      logger.debug(() -> "Collecting extract IDs");
+    public static void collectingExtractIds(GuiLogger logger, String source) {
+      logger.debugf(() -> format("Collecting extract IDs from %s", source));
     }
 
     /**
@@ -206,7 +206,7 @@ public class Messages {
      * @param file
      * @param config
      */
-    public static void loadingFile(GuiLogger logger, String file, CsvImportConfig<?> config) {
+    public static void loadingFile(GuiLogger logger, CsvImportConfig<?> config) {
       logger.info("Loading " + config.getFile().getPath());
     }
 
@@ -421,6 +421,7 @@ public class Messages {
 
     /**
      * <i>Error while parsing "x"</i>
+     * 
      * @param logger
      * @param name
      * @param exception

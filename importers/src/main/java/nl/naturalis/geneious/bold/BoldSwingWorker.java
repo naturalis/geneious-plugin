@@ -45,7 +45,7 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    Info.loadingFile(logger, config);
     BoldNormalizer normalizer = new BoldNormalizer(config);
     RuntimeInfo runtime = new RuntimeInfo(normalizer.countRows());
     BoldImporter importer = new BoldImporter(config, runtime);

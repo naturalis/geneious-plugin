@@ -44,7 +44,7 @@ class CrsSwingWorker extends PluginSwingWorker<CrsImportConfig> {
   @Override
   protected List<AnnotatedPluginDocument> performOperation() throws NonFatalException {
     List<AnnotatedPluginDocument> selectedDocuments = config.getSelectedDocuments();
-    Info.loadingFile(logger, FILE_DESCRIPTION, config);
+    Info.loadingFile(logger, config);
     List<String[]> rows = new RowSupplier(config).getDataRows();
     Info.displayRowCount(logger, FILE_DESCRIPTION, rows.size());
     RuntimeInfo runtime = new RuntimeInfo(rows.size());
