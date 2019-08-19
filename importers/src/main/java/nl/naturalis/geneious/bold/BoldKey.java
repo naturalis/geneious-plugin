@@ -2,6 +2,8 @@ package nl.naturalis.geneious.bold;
 
 import java.util.Objects;
 
+import nl.naturalis.geneious.util.JsonUtil;
+
 /**
  * The key used to store and find the selected documents in an in-memory lookup table
  * 
@@ -51,19 +53,19 @@ class BoldKey {
    * @return
    */
   public String getMarker() {
-    return marker;
+    return marker == null ? "<any>" : marker;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null || getClass() != obj.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     BoldKey other = (BoldKey) obj;
-    return regno.equals(other.regno) && Objects.deepEquals(marker, other.marker);
+    return regno.equals(other.regno) && Objects.equals(marker, other.marker);
   }
 
   @Override
@@ -71,14 +73,9 @@ class BoldKey {
     return hash;
   }
 
+  @Override
   public String toString() {
-    return new StringBuilder()
-        .append("[regno=\"")
-        .append(regno)
-        .append("\"; marker=\"")
-        .append(marker == null ? "<any>" : marker)
-        .append("\"]")
-        .toString();
+    return JsonUtil.toJson(this);
   }
 
   private int getHashCode() {

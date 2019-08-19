@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
@@ -24,7 +25,7 @@ import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addA
 import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
 import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
 import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.util.JsonUtil.*;
+import static nl.naturalis.geneious.util.JsonUtil.toPrettyJson;
 
 /**
  * Manages and coordinates the import of BOLD files into Geneious.
@@ -56,7 +57,7 @@ class BoldSwingWorker extends PluginSwingWorker<BoldImportConfig> {
       lookups = lookups.rebuildWithPartialKey();
       importer.importRows(normalizer.getRows(), lookups);
     } else {
-      logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toPrettyJson(markerMap)));
+      logger.debugf(() -> format("Will use these Naturalis-to-BOLD marker mappings: %s", toPrettyJson(new TreeMap<>(markerMap))));
       for(String marker : normalizer.getRowsPerMarker().keySet()) {
         List<String[]> rows = normalizer.getRowsPerMarker().get(marker);
         importer.importRows(rows, marker, lookups);

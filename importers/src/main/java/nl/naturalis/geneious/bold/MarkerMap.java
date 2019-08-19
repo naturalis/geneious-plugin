@@ -1,7 +1,5 @@
 package nl.naturalis.geneious.bold;
 
-import static nl.naturalis.geneious.Settings.settings;
-
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
@@ -10,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import nl.naturalis.geneious.NaturalisPluginException;
+
+import static nl.naturalis.geneious.Settings.settings;
 
 /**
  * Reads the marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them to a Java {@code HashMap}. Note that the marker
@@ -40,7 +40,7 @@ class MarkerMap extends HashMap<String, String> {
           throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "Missing mapping separator \"->\". ");
         }
         if (x == s.length() - 2) {
-          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1, "");
+          throw invalidMarkerMapping(s, lnr.getLineNumber() + 1);
         }
         String bold = s.substring(0, x).strip().toUpperCase();
         if (bold.isEmpty()) {
@@ -64,6 +64,12 @@ class MarkerMap extends HashMap<String, String> {
     } catch (IOException e) {
       throw new NaturalisPluginException(e);
     }
+  }
+
+  private static BoldNormalizationException invalidMarkerMapping(String line, int lineNo) {
+    String fmt = "Invalid marker mapping at line %d. Go to Tools -> Preferences (Marker mappings) to fix this problem";
+    String msg = String.format(fmt, lineNo, line);
+    return new BoldNormalizationException(msg);
   }
 
   private static BoldNormalizationException invalidMarkerMapping(String line, int lineNo, String err) {
