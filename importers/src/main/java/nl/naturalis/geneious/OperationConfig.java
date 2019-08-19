@@ -8,8 +8,11 @@ import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 /**
- * Base class for objects capturing the user input and other configuration data for one of the plugin's operations. {@code OperationConfig}
- * objects are generated from {@link OperationOptions} objects.
+ * Base class for all objects that capture user input for one of the plugin's operations. For each operation there is a separate subclass of
+ * {@code OperationConfig}. {@code OperationConfig} objects are generated from {@link OperationOptions} objects and passed on (as
+ * constructor arguments) to {@link PluginSwingWorker} objects. The purpose of this base class is to capture and "freeze" the currently
+ * selected documents and the currently selected folder. Because the {@code PluginSwingWorker} objects execute in a separate thread, the
+ * user could click around, and thereby change the target folder, while the operation is in progress.
  * 
  * @author Ayco Holleman
  *
@@ -25,8 +28,7 @@ public abstract class OperationConfig {
   }
 
   /**
-   * Returns the folder selected by the user just before the start of the operation. We must freeze this value immediately because the
-   * operation runs in a separate thread, so the user can click around while the operation is in progress.
+   * Returns the folder selected by the user just before the start of the operation.
    * 
    * @return
    */
@@ -66,7 +68,7 @@ public abstract class OperationConfig {
   }
 
   /**
-   * Returns the documents selected by the user.
+   * Returns the documents selected by the user just before the start of the operation.
    * 
    * @return
    */

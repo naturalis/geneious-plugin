@@ -8,7 +8,7 @@ import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 /**
- * Maintains tallies and other types of objects accumulating or evolving as a CSV import operation proceeds.
+ * Maintains counters and other types of objects accumulating or evolving as a CSV import operation proceeds.
  * 
  * @author Ayco Holleman
  *

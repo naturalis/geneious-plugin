@@ -7,5 +7,24 @@ package nl.naturalis.geneious.log;
  *
  */
 public enum LogLevel {
-  DEBUG, INFO, WARN, ERROR, FATAL
+  /**
+   * Indicates a debug message.
+   */
+  DEBUG,
+  /**
+   * Indicates an informational message.
+   */
+  INFO,
+  /**
+   * Indicates a warning.
+   */
+  WARN,
+  /**
+   * Indicates an error message.
+   */
+  ERROR,
+  /**
+   * Indicates a fatal condition.
+   */
+  FATAL
 }

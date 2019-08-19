@@ -18,8 +18,8 @@ import nl.naturalis.geneious.smpl.SampleSheetDocumentOperation;
 import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 
 /**
- * The main hook into the Geneious plugin architecture. Its main function is to inform Geneious which services the
- * plugin provides, and which classes implement them.
+ * <b>Main hook into the Geneious plugin architecture (start here!)</b>. Tells Geneious which services the plugin provides, and which classes
+ * implement them. Everything drills down from here.
  * 
  * @author Ayco Holleman
  *
@@ -27,10 +27,9 @@ import nl.naturalis.geneious.split.SplitNameDocumentOperation;
 public class NaturalisGeneiousPlugin extends GeneiousPlugin {
 
   /*
-   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is
-   * called. This method returns our implementation classes these in turn have static initalizers that depend on the
-   * preferences being set and readable. That's the only reason why we have this (unused) class variable here. (See also
-   * NaturalisPreferencesOptions)
+   * We must instantiate a NaturalisPluginPreferences object as soon as possible, before getDocumentOperations() is called. This method
+   * returns our implementation classes these in turn have static initalizers that depend on the preferences being set and readable. That's
+   * the only reason why we have this (unused) class variable here. (See also NaturalisPreferencesOptions)
    */
   @SuppressWarnings("unused")
   private static final NaturalisPluginPreferences prefs = new NaturalisPluginPreferences();

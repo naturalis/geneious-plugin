@@ -24,7 +24,7 @@ import static nl.naturalis.geneious.Setting.QUERY_SIZE;
 import static nl.naturalis.geneious.Settings.settings;
 
 /**
- * An object underpinning the <i>Tools -&gt; Preferences</i> panel.
+ * An object underpinning Naturalis tab within the <i>Tools -&gt; Preferences</i> panel.
  * 
  * @author Ayco Holleman
  *
@@ -32,7 +32,7 @@ import static nl.naturalis.geneious.Settings.settings;
 public class GlobalOptions extends Options {
 
   /**
-   * Configures the <i>Tools -&gt; Preferences</i> panel.
+   * Configures the Naturalis tab within <i>Tools -&gt; Preferences</i> panel.
    */
   public GlobalOptions() {
 
@@ -80,7 +80,7 @@ public class GlobalOptions extends Options {
     clearPingdata.addActionListener(e -> Ping.clear());
 
     /*
-     * This button can be handy in the beginningof a development cycle, if we want to update the data types of the notes, but is dangerous
+     * This button can be handy in the beginning of a development cycle, if we want to update the data types of the notes, but is dangerous
      * to open to users. So do not remove this comment.
      * 
      * ButtonOption updateMetadata = addButtonOption("foo-1", "", "Update annotation metadata"); updateMetadata.addActionListener(e ->

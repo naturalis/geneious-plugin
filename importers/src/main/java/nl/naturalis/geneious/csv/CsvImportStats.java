@@ -6,6 +6,10 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
 import nl.naturalis.geneious.log.GuiLogger;
 
+/**
+ * Prints statistics for operations based on the import of CSV files and/or spreadsheets. These fall apart into statistics about the rows in
+ * the CSV file and statistics about the documents updated from those rows.
+ */
 public class CsvImportStats {
 
   private final List<AnnotatedPluginDocument> docs;
@@ -16,6 +20,11 @@ public class CsvImportStats {
     this.runtime = runtime;
   }
 
+  /**
+   * Prints the statistics using the provided logger.
+   * 
+   * @param logger
+   */
   public void print(GuiLogger logger) {
     logger.info("Number of valid rows ............: %3d", runtime.countGoodRows());
     logger.info("Number of empty/bad rows ........: %3d", runtime.countBadRows());

@@ -275,6 +275,13 @@ public class Messages {
       logger.info(msg);
     }
 
+    /**
+     * Message informing the user how many documents were updated with annotations present in the povided dummy documents.
+     * 
+     * @param logger
+     * @param docs
+     * @param dummies
+     */
     public static void documentsUpdatedFromDummies(GuiLogger logger, Collection<?> docs, Collection<?> dummies) {
       String fmt = "%d document%s updated with annotations from %d dummy document%s";
       logger.info(fmt, docs.size(), plural(docs), dummies.size(), plural(dummies));
@@ -412,6 +419,12 @@ public class Messages {
   public static class Error {
     private Error() {}
 
+    /**
+     * <i>Error while parsing "x"</i>
+     * @param logger
+     * @param name
+     * @param exception
+     */
     public static void nameParsingFailed(GuiLogger logger, String name, NotParsableException exception) {
       logger.error("Error while parsing \"%s\": %s", name, exception.getMessage());
     }
