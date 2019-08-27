@@ -69,7 +69,7 @@ class SpreadSheetReader {
   List<String[]> readAllRows() throws EncryptedDocumentException, IOException, NonFatalException {
     try (Workbook workbook = WorkbookFactory.create(config.getFile())) {
       workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-      logger.debug(() -> "Evaluating spreadsheet formulas");
+      logger.debug(() -> "Searching and executing spreadsheet formulas");
       FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
       evaluator.evaluateAll();
       Sheet sheet = workbook.getSheetAt(config.getSheetNumber());

@@ -14,7 +14,8 @@ import static nl.naturalis.geneious.Settings.settings;
 /**
  * Reads the marker mappings in the <i>Tools -&gt; Preferences</i> panel and converts them to a Java {@code HashMap}. Note that the marker
  * mappings in the <i>Tools -&gt; Preferences</i> panel map BOLD markers to Naturalis markers, but this class creates a reverse map, mapping
- * Naturalis markers to BOLD markers. Also note that One BOLD marker (e.g. COI-5P) may map to multiple Naturalis markers (e.g. COI, COI-5P).
+ * Naturalis markers to BOLD markers. Also note that a BOLD marker (e.g. COI-5P) may map to multiple Naturalis markers (e.g. COI, COI-5P),
+ * but not vice versa.
  * 
  * @author Ayco Holleman
  *
@@ -22,7 +23,9 @@ import static nl.naturalis.geneious.Settings.settings;
 class MarkerMap extends HashMap<String, String> {
 
   /**
-   * Creates a new {@code MarkerMap} from the lines within the marker mappings input field.
+   * Creates a {@code MarkerMap} based on the text in the marker mappings input field of the <i>Tools -> Preferences</i> panel, and on the
+   * actual markers in the BOLD spreadsheet selected by the user. Markers in the BOLD spreadsheet for which no exlicit mapping is provided
+   * in the <i>Tools -> Preferences</i> panel will be mapped to themselves (i.e. Naturalis uses the same marker string as BOLD).
    * 
    * @param markersInSpreadSheet
    * @throws BoldNormalizationException

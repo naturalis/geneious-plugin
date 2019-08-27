@@ -30,7 +30,7 @@
 		<mysql-connector-java.version>5.1.47</mysql-connector-java.version>
 		<org.apache.poi.version>4.0.1</org.apache.poi.version>
 		<com.univocity.univocity-parsers.version>2.7.6</com.univocity.univocity-parsers.version>
-		<nl.naturalis.common.version>1.0</nl.naturalis.common.version>
+		<nl.naturalis.common.version>1.0.0</nl.naturalis.common.version>
 		<junit.version>4.12</junit.version>
 
 

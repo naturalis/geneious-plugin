@@ -81,8 +81,8 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
     }
     String boldMarker = markerMap.get(naturalisMarker);
     if (boldMarker == null) {
-      String fmt = "Unknown marker \"%s\" in document %s (go to Tools -> Preferences to add a mapping for this marker)";
-      logger.warn(fmt, sd.getName(), naturalisMarker, sd.getName());
+      String fmt = "Marker \"%s\" in document %s not present in BOLD file. Go to Tools -> Preferences to add a mapping for this marker.";
+      logger.warn(fmt, naturalisMarker, sd.getName());
       return new BoldKey(regno);
     }
     return new BoldKey(regno, boldMarker);
