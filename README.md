@@ -1,4 +1,4 @@
-# Naturalis Geneious Plugin
+# Naturalis Geneious Plugin (version 2.x)
 
 This repository contains the Java source for the Naturalis Geneious Plugin. The Naturalis Geneious Plugin is a plugin for the [Geneious desktop application](https://www.geneious.com/). It provides the following operations (themselves known as "plugins" by most users):
 
@@ -10,6 +10,8 @@ This repository contains the Java source for the Naturalis Geneious Plugin. The 
 
 The AB1/Fasta Import operation and the Split Name operations share a substantial code base in the [nl.naturalis.geneious.name](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operations are all creating annotations from the rows in a CSV file and/or spreadsheet. They also share a substantial code base in the [nl.naturalis.geneious.csv](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
 
+## Version 1 vs. Version 2 of the Plugin
+Version 2 of the plugin is a complete rewrite of the original plugin. It does not share any code with version 1 of the plugin. This repository is self-contained and has no dependencies on the other Geneious-related repositories.
 
 ## Developer Setup
 To develop and build the plugin the following is required
