@@ -84,6 +84,7 @@ The Geneious plugin also has some dependencies on Geneious libraries. In order t
 	</servers>
 
 	<profiles>
+
 		<profile>
 			<id>any</id>
 			<activation>
@@ -108,9 +109,9 @@ The Geneious plugin also has some dependencies on Geneious libraries. In order t
 		<profile>
 			<id>geneious</id>
 			<properties>
-				<!-- devkit -->
+				<!-- devkit: -->
 				<geneious.home>/home/ayco/apps/geneious-2019.2.1-devkit/examples/GeneiousFiles</geneious.home>
-				<!-- regular installation -->
+				<!-- regular installation: -->
 				<!--geneious.home>/home/ayco/Geneious_Prime</geneious.home-->
 			</properties>
 		</profile>
@@ -120,7 +121,7 @@ The Geneious plugin also has some dependencies on Geneious libraries. In order t
 	<activeProfiles>
 		<activeProfile>geneious</activeProfile>
 	</activeProfiles>
-	
+
 </settings>
 ```
 
