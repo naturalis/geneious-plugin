@@ -104,6 +104,7 @@ The Geneious plugin also has some dependencies on Geneious libraries. In order t
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>
+
 		<profile>
 			<id>geneious</id>
 			<properties>
@@ -113,10 +114,13 @@ The Geneious plugin also has some dependencies on Geneious libraries. In order t
 				<!--geneious.home>/home/ayco/Geneious_Prime</geneious.home-->
 			</properties>
 		</profile>
+
 	</profiles>
+
 	<activeProfiles>
 		<activeProfile>geneious</activeProfile>
 	</activeProfiles>
+	
 </settings>
 ```
 
