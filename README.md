@@ -22,7 +22,7 @@ To develop and build the plugin the following is required
 ## Building the Plugin
 ### Clone the git repository for the Geneious plugin
 ```git clone https://github.com/naturalis/geneious-plugin.git```
-### Configure Maven
+### Configure Maven (repository setup)
 The Geneious plugin has a dependency on naturalis-common, an in-house Java utilities library. This dependency is resolved through the Naturalis Maven repository. This repository needs to be configured in Maven's settings.xml file. Edit settings.xml as follows:
 
 ```xml
@@ -66,7 +66,8 @@ The Geneious plugin has a dependency on naturalis-common, an in-house Java utili
 
 The password of the Maven repository manager (defined in the ```<server>``` element) can be found in bitwarden.
 
-- The geneious plugin also has some dependencies on Geneious libraries. In order to make Maven pick these up properly, add the following extra lines to settings.xml:
+### Configure Maven (Geneious libraries)
+The geneious plugin naturalis also has some dependencies on Geneious libraries. In order to make Maven pick these up properly, add the following extra lines to settings.xml:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
