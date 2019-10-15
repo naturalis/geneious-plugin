@@ -420,7 +420,7 @@ public class Messages {
     private Error() {}
 
     /**
-     * <i>Error while parsing "x"</i>
+     * <i>Error while parsing &lt;name&gt;</i>
      * 
      * @param logger
      * @param name
@@ -431,7 +431,7 @@ public class Messages {
     }
 
     /**
-     * <i>Found multiple dummy documents with extract ID [&#46;&#46;&#46;]</i>
+     * <i>Found multiple dummy documents with extract ID [etc.]</i>
      * 
      * @param logger
      * @param doc

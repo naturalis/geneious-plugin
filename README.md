@@ -8,7 +8,7 @@ This repository contains the Java source for the Naturalis Geneious Plugin. The 
 - **CRS Import**  Adds annotations retrieved from CRS to existing nucleotide sequence documents.
 - **BOLD Import**  Adds annotations retrieved from BOLD to existing nucleotide sequence documents.
 
-The AB1/Fasta Import operation and the Split Name operations share a substantial code base in the [nl.naturalis.geneious.name](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operations are all creating annotations from the rows in a CSV file and/or spreadsheet. They also share a substantial code base in the [nl.naturalis.geneious.csv](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
+The AB1/Fasta Import operation and the Split Name operations share a substantial code base in the [nl.naturalis.geneious.name](https://github.com/naturalis/geneious-plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/name) package. The Sample Sheet, CRS and BOLD operations are all creating annotations from the rows in a CSV file and/or spreadsheet. They also share a substantial code base in the [nl.naturalis.geneious.csv](https://github.com/naturalis/geneious-plugin/tree/v2_master/importers/src/main/java/nl/naturalis/geneious/csv) package.
 
 ## Version 1 vs. Version 2 of the Plugin
 Version 2 of the plugin is a complete rewrite of the original plugin. It does not share any code with version 1 of the plugin. This repository is self-contained and has no dependencies on the other Geneious-related repositories.
@@ -20,21 +20,91 @@ To develop and build the plugin the following is required
 3. Maven 3.6.1
 
 ## Building the Plugin
-- Clone the [naturalis-geneious-plugin](https://github.com/naturalis/sd_java__geneious_plugin) repository
-- Clone the [naturalis-common](https://github.com/naturalis/sd_java__common_lang) repository
-- Create a profile in .m2/settings.xml as shown below. The path you make `geneious.home` point to should contain a "lib" directory containing Geneious's dependencies. For the Geneious development kit this directory is called _GeneiousFiles_ (under the examples directory). You could run your Maven build just as well against a regular Geneious installation, which contains the same lib directory. It's only when running Geneious from within Eclipse that it pays to use the development kit (see below).
+### Clone the git repository for the Geneious plugin
+```git clone https://github.com/naturalis/geneious-plugin.git```
+### Configure Maven
+The Geneious plugin has a dependency on naturalis-common, an in-house Java utilities library. This dependency is resolved through the Naturalis Maven repository. This repository needs to be configured in Maven's settings.xml file. Edit settings.xml as follows:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<servers>
+		<server>
+			<id>naturalis</id>
+			<username>admin</username>
+			<password>secret</password>
+		</server>
+	</servers>
 
 	<profiles>
 		<profile>
-			<id>geneious</id>
+			<id>always-active</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
+			<repositories>
+				<repository>
+					<id>naturalis</id>
+					<name>Naturalis</name>
+					<url>http://145.136.242.169:8081/repository/naturalis/</url>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>naturalis</id>
+					<name>Naturalis</name>
+					<url>http://145.136.242.169:8081/repository/naturalis/</url>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+</settings>
+```
+
+The password of the Maven repository manager (defined in the ```<server>``` element) can be found in bitwarden.
+
+- The geneious plugin also has some dependencies on Geneious libraries. In order to make Maven pick these up properly, add the following extra lines to settings.xml:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<servers>
+		<server>
+			<id>naturalis</id>
+			<username>admin</username>
+			<password>secret</password>
+		</server>
+	</servers>
+
+	<profiles>
+		<profile>
+			<id>always-active</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>naturalis</id>
+					<name>Naturalis</name>
+					<url>http://145.136.242.169:8081/repository/naturalis/</url>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>naturalis</id>
+					<name>Naturalis</name>
+					<url>http://145.136.242.169:8081/repository/naturalis/</url>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+		<profile>
+			<id>geneious</id>
 			<properties>
 				<!-- devkit -->
 				<geneious.home>/home/ayco/apps/geneious-2019.2.1-devkit/examples/GeneiousFiles</geneious.home>
@@ -43,21 +113,27 @@ To develop and build the plugin the following is required
 			</properties>
 		</profile>
 	</profiles>
-
+	<activeProfiles>
+		<activeProfile>geneious</activeProfile>
+	</activeProfiles>
 </settings>
 ```
 
-- Build the naturalis-common library using maven
-- Build the plugin using maven. Note that the pom file does not reside in the root of the git repository but in the `importers` directory underneath it.
+The path specified in ```<geneious.home>``` should contain a "lib" directory containing the Geneious Java libraries. For the Geneious development kit this directory is called _GeneiousFiles_ (under the examples directory). You could, however, run your Maven build just as well against a regular Geneious installation, which contains the same lib directory. It's only when running Geneious from within Eclipse that it pays to use the development kit (see below).
+
+### Build the plugin using maven
+
+```mvn clean install```
+
+Note that the pom file does not reside in the root of the git repository but in the ```importers``` directory underneath it, so run the mvn command from there.
 
 ## Distributing the Plugin
 The final artifact representing the plugin is a zip file with a .gplugin extension, which can be installed from within the Geneious GUI (within Geneious, go to _Tools -> Plugins..._ and press the _Install plugin from a gplugin file..._ button). The zip file contains the main artifact (naturalis-geneious-plugin.jar) plus all its dependencies except those already present in Geneious's lib directory (however, see below).
 
-The easiest way to build and publish the plugin is to run the [distribute.sh](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/importers/distribute.sh) script in the importers directory. This script will:
-+ build naturalis-common using maven
+The easiest way to build and publish the plugin is to run the [distribute.sh](https://github.com/naturalis/geneious-plugin/tree/v2_master/importers/distribute.sh) script in the importers directory. This script will:
 + build naturalis-geneious-plugin using maven
 + collect naturalis-geneious-plugin.jar and its dependencies into a single folder
-+ zip the folder and move the zip file to the [distributable](https://github.com/naturalis/sd_java__geneious_plugin/tree/v2_master/distributable) directory
++ zip the folder and move the zip file to the [distributable](https://github.com/naturalis/geneious-plugin/tree/v2_master/distributable) directory
 + execute a git commit/push (you will still have to provide your github credentials at this point)
 
 ```
@@ -80,10 +156,10 @@ You can run Geneious along with the plugin from within Eclipse. After you import
 
 **Warning** As shown in the image below, always make sure the Maven-managed dependencies come before the /GeneiousFiles/lib dependencies. This allows you to use your own version of certain libraries.
 
-![Run configuration](/docs/run-configuration.png)
+![Run configuration](https://github.com/naturalis/geneious-plugin/blob/v2_master/docs/run-configuration.png)
 
 ## Technical Documentation
-The javadocs for the plugin can be found here: [http://naturalis.github.io/sd_java__geneious_plugin/v2/javadoc/](http://naturalis.github.io/sd_java__geneious_plugin/v2/javadoc/)
+The javadocs for the plugin can be found here: [http://naturalis.github.io/geneious-plugin/v2/javadoc/](http://naturalis.github.io/geneious-plugin/v2/javadoc/)
 
 The Javadocs for the Geneious API can be found inside the development kit or here: [https://assets.geneious.com/developer/geneious/javadoc/latest/index.html](https://assets.geneious.com/developer/geneious/javadoc/latest/index.html)
 

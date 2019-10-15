@@ -1,24 +1,25 @@
 package nl.naturalis.geneious;
 
+import java.util.EnumMap;
+
+import jebl.evolution.io.FastaImporter;
+
 import static nl.naturalis.geneious.Setting.AB1_EXTS;
 import static nl.naturalis.geneious.Setting.DEBUG;
 import static nl.naturalis.geneious.Setting.DELETE_TMP_FASTAS;
 import static nl.naturalis.geneious.Setting.DISABLE_FASTA_CACHE;
 import static nl.naturalis.geneious.Setting.FASTA_EXTS;
+import static nl.naturalis.geneious.Setting.MARKER_MAP;
 import static nl.naturalis.geneious.Setting.PING_HISTORY;
-import static nl.naturalis.geneious.Setting.*;
-
-import java.util.EnumMap;
-
-import jebl.evolution.io.FastaImporter;
+import static nl.naturalis.geneious.Setting.PRETTY_NOTES;
+import static nl.naturalis.geneious.Setting.QUERY_SIZE;
 
 /**
- * Provides access to the settings in the <i>Tools -&gt; Preferences</i> tab. This class mainly exists to work around an
- * awkward Geneious feature (if not bug) that makes directly accessing the options defined in the Preferences tab
- * tricky. Notably tricky are the hidden settings. For these there are setters in this class that do not update the
- * {@code Settings} object directly, but in stead update the corresponding option in the Preferences panel. That in turn
- * triggers a change listener in the panel which updates the {@code Settings} object. That sounds like a round-about
- * that could be short-circuited. Be careful if you try.
+ * Provides access to the settings in the <i>Tools -&gt; Preferences</i> tab. This class mainly exists to work around an awkward Geneious
+ * feature (if not bug) that makes directly accessing the options defined in the Preferences tab tricky. Notably tricky are the hidden
+ * settings. For these there are setters in this class that do not update the {@code Settings} object directly, but in stead update the
+ * corresponding option in the Preferences panel. That in turn triggers a change listener in the panel which updates the {@code Settings}
+ * object. That sounds like a round-about that could be short-circuited. Be careful if you try.
  * 
  * @author Ayco Holleman
  */
@@ -60,11 +61,12 @@ public class Settings {
    * @return
    */
   public boolean isDebug() {
-    return (Boolean) cache.get(DEBUG);
+    return (Boolean) cache.getOrDefault(DEBUG, Boolean.FALSE);
   }
 
   /**
    * Returns the maximum number of query constraints that the plugin will generate per query.
+   * 
    * @return
    */
   public int getQuerySize() {
@@ -81,8 +83,8 @@ public class Settings {
   }
 
   /**
-   * Sets the ping history as a JSON string (so it will survive Geneious sessions). The ping history is a
-   * per-user-per-database map of ping start times.
+   * Sets the ping history as a JSON string (so it will survive Geneious sessions). The ping history is a per-user-per-database map of ping
+   * start times.
    * 
    * @param history
    */
