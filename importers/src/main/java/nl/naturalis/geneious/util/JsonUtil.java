@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import nl.naturalis.common.base.WrappedException;
+import nl.naturalis.common.exception.UncheckedException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
 import static nl.naturalis.geneious.Settings.settings;
@@ -21,20 +21,20 @@ public class JsonUtil {
   private static final ObjectWriter noteWriter = mapper.writerFor(NaturalisNote.class);
 
   /**
-   * Serializes a {@link NaturalisNote} object to JSON. If "Show pretty notes" was checked in <i>Tools -&gt;
-   * Preferences</i>, a pretty printer will be used.
+   * Serializes a {@link NaturalisNote} object to JSON. If "Show pretty notes" was checked in <i>Tools -&gt; Preferences</i>, a pretty
+   * printer will be used.
    * 
    * @param note
    * @return
    */
   public static String toJson(NaturalisNote note) {
     try {
-      if(settings().isPrettyNotes()) {
+      if (settings().isPrettyNotes()) {
         return noteWriter.withDefaultPrettyPrinter().writeValueAsString(note);
       }
       return noteWriter.writeValueAsString(note);
-    } catch(JsonProcessingException e) {
-      throw new WrappedException(e);
+    } catch (JsonProcessingException e) {
+      throw new UncheckedException(e);
     }
   }
 
@@ -47,8 +47,8 @@ public class JsonUtil {
   public static String toJson(Object obj) {
     try {
       return mapper.writeValueAsString(obj);
-    } catch(JsonProcessingException e) {
-      throw new WrappedException(e);
+    } catch (JsonProcessingException e) {
+      throw new UncheckedException(e);
     }
   }
 
@@ -61,8 +61,8 @@ public class JsonUtil {
   public static String toPrettyJson(Object obj) {
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-    } catch(JsonProcessingException e) {
-      throw new WrappedException(e);
+    } catch (JsonProcessingException e) {
+      throw new UncheckedException(e);
     }
   }
 

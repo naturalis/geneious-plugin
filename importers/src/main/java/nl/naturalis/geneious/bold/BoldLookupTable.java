@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 
-import nl.naturalis.common.base.BiFunctions;
+import nl.naturalis.common.function.BinaryOperators;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
@@ -61,7 +61,7 @@ class BoldLookupTable extends HashMap<BoldKey, ArrayList<StoredDocument>> {
    */
   BoldLookupTable rebuildWithPartialKey() {
     BoldLookupTable tbl = new BoldLookupTable();
-    entrySet().forEach(e -> tbl.merge(new BoldKey(e.getKey().getRegno()), e.getValue(), BiFunctions::concat));
+    entrySet().forEach(e -> tbl.merge(new BoldKey(e.getKey().getRegno()), e.getValue(), BinaryOperators::concat));
     return tbl;
   }
 

@@ -3,8 +3,8 @@ package nl.naturalis.geneious.util;
 import java.util.Collection;
 import java.util.List;
 
-import nl.naturalis.common.base.ArrayUtil;
-import nl.naturalis.common.base.ExceptionUtil;
+import nl.naturalis.common.ArrayMethods;
+import nl.naturalis.common.ExceptionMethods;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.csv.CsvImportConfig;
@@ -163,7 +163,7 @@ public class Messages {
      * @param msgArgs
      */
     public static void ignoringSelectedDocument(GuiLogger logger, StoredDocument sd, String reason, Object... msgArgs) {
-      logger.debugf(() -> format("Ignoring selected document %s. %s", ArrayUtil.prefix(msgArgs, sd.getName(), reason)));
+      logger.debugf(() -> format("Ignoring selected document %s. %s", ArrayMethods.prefix(msgArgs, sd.getName(), reason)));
     }
 
     /**
@@ -405,7 +405,7 @@ public class Messages {
      * @param msgArgs
      */
     public static void corruptDocument(GuiLogger logger, StoredDocument doc, String reason, Object... msgArgs) {
-      logger.warn("Corrupt document: %s. %s", ArrayUtil.prefix(msgArgs, doc.getName(), reason));
+      logger.warn("Corrupt document: %s. %s", ArrayMethods.prefix(msgArgs, doc.getName(), reason));
     }
 
   }
@@ -458,7 +458,7 @@ public class Messages {
      * @param e
      */
     public static void queryError(GuiLogger logger, Exception e) {
-      logger.debug(() -> ExceptionUtil.getRootStackTraceAsString(e));
+      logger.debug(() -> ExceptionMethods.getRootStackTraceAsString(e));
       logger.error("Error while querying database: %s", e.toString());
       logger.error("This problem could possibly be solved by going to Tools -> Preferences");
       logger.error("and lowering the value of Max. query size (currently %d). If the problem", settings().getQuerySize());

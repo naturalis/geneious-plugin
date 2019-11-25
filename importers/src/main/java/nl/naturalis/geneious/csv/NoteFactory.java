@@ -1,7 +1,7 @@
 package nl.naturalis.geneious.csv;
 
-import nl.naturalis.common.base.ThrowingFunction;
-import nl.naturalis.common.base.ThrowingSupplier;
+import nl.naturalis.common.function.ThrowingFunction;
+import nl.naturalis.common.function.ThrowingSupplier;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 

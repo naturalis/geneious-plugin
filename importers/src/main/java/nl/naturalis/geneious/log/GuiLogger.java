@@ -1,16 +1,17 @@
 package nl.naturalis.geneious.log;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+
+import nl.naturalis.common.ArrayMethods;
+
 import static java.util.Arrays.copyOfRange;
+
 import static nl.naturalis.geneious.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.log.LogLevel.ERROR;
 import static nl.naturalis.geneious.log.LogLevel.FATAL;
 import static nl.naturalis.geneious.log.LogLevel.INFO;
 import static nl.naturalis.geneious.log.LogLevel.WARN;
-
-import java.util.Collection;
-import java.util.function.Supplier;
-
-import nl.naturalis.common.base.ArrayUtil;
 
 /**
  * Provides various ways of logging messages.
@@ -29,7 +30,7 @@ public class GuiLogger {
    * @return
    */
   public static Object[] format(String pattern, Object... args) {
-    return ArrayUtil.prefix(args, pattern);
+    return ArrayMethods.prefix(args, pattern);
   }
 
   /**

@@ -9,8 +9,8 @@ import javax.swing.JTextArea;
 
 import org.apache.commons.lang3.StringUtils;
 
-import static nl.naturalis.common.base.ExceptionUtil.getRootStackTraceAsString;
-import static nl.naturalis.common.base.StringUtil.rpad;
+import static nl.naturalis.common.ExceptionMethods.getRootStackTraceAsString;
+import static nl.naturalis.common.StringMethods.rpad;
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.log.LogLevel.DEBUG;
 import static nl.naturalis.geneious.log.LogLevel.INFO;

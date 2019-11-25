@@ -26,7 +26,7 @@ import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.cr
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
 
-import static nl.naturalis.common.collection.CollectionUtil.sublist;
+import static nl.naturalis.common.CollectionMethods.sublist;
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;

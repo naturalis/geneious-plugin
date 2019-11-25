@@ -1,33 +1,29 @@
 package nl.naturalis.geneious.util;
 
-import static nl.naturalis.geneious.DocumentType.AB1;
-import static nl.naturalis.geneious.DocumentType.CONTIG;
-import static nl.naturalis.geneious.DocumentType.DUMMY;
-import static nl.naturalis.geneious.DocumentType.FASTA;
-import static nl.naturalis.geneious.DocumentType.UNKNOWN;
-import static nl.naturalis.geneious.Settings.settings;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.stripEnd;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
+import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
+
+import org.apache.commons.io.FileUtils;
 
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
+
+import static nl.naturalis.geneious.DocumentType.AB1;
+import static nl.naturalis.geneious.DocumentType.CONTIG;
+import static nl.naturalis.geneious.DocumentType.DUMMY;
+import static nl.naturalis.geneious.DocumentType.FASTA;
+import static nl.naturalis.geneious.DocumentType.UNKNOWN;
 
 /**
  * Various methods related to Geneious documents.
@@ -39,8 +35,8 @@ public class DocumentUtils {
   private DocumentUtils() {}
 
   /**
-   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the
-   * annotations on the document.
+   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the annotations on the
+   * document.
    * 
    * @param name
    * @return
@@ -50,26 +46,26 @@ public class DocumentUtils {
   }
 
   /**
-   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the
-   * provided annotations (presumedly read from the document).
+   * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the provided
+   * annotations (presumedly read from the document).
    * 
    * @param apd
    * @param note
    * @return
    */
   public static DocumentType getDocumentType(AnnotatedPluginDocument apd, NaturalisNote note) {
-    if(apd.getDocumentClass() == DUMMY.getGeneiousType()) {
+    if (apd.getDocumentClass() == DUMMY.getGeneiousType()) {
       // That's 100% certainty, but this class was only introduced in version 2 of the plugin.
       return DUMMY;
     }
-    if(apd.getDocumentClass() == AB1.getGeneiousType()) {
+    if (apd.getDocumentClass() == AB1.getGeneiousType()) {
       return AB1;
     }
-    if(apd.getDocumentClass() == CONTIG.getGeneiousType()) {
+    if (apd.getDocumentClass() == CONTIG.getGeneiousType()) {
       return CONTIG;
     }
-    if(apd.getDocumentClass() == FASTA.getGeneiousType()) {
-      if(note.isEmpty() || !note.get(NaturalisField.SEQ_MARKER).equals("Dum")) {
+    if (apd.getDocumentClass() == FASTA.getGeneiousType()) {
+      if (note.isEmpty() || !note.get(NaturalisField.SEQ_MARKER).equals("Dum")) {
         return FASTA;
       }
       return DUMMY;
@@ -85,27 +81,27 @@ public class DocumentUtils {
    */
   public static Date getDateModifield(AnnotatedPluginDocument doc) {
     Date d = (Date) doc.getFieldValue(DocumentField.MODIFIED_DATE_FIELD);
-    if(d == null) {
+    if (d == null) {
       throw new NaturalisPluginException("Document \"%s\": Modified date not set", doc.getName());
     }
     return d;
   }
 
   /**
-   * Whether or not the provided file is an AB1 file, judged by the file name extension and <i>negatively</i> judged by
-   * the contents not looking like a fasta file.
+   * Whether or not the provided file is an AB1 file, judged by the file name extension and <i>negatively</i> judged by the contents not
+   * looking like a fasta file.
    * 
    * @param f
    * @return
    * @throws IOException
    */
   public static boolean isAb1File(File f) throws IOException {
-    Set<String> exts = DocumentUtils.getAb1Extensions();
-    if(exts.isEmpty()) { // then this is the best we can do:
+    List<String> exts = NameUtil.getCurrentAb1Extensions();
+    if (exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) != '>';
     }
-    for(String ext : exts) {
-      if(f.getName().endsWith(ext)) {
+    for (String ext : exts) {
+      if (f.getName().endsWith(ext)) {
         return true;
       }
     }
@@ -120,68 +116,26 @@ public class DocumentUtils {
    * @throws IOException
    */
   public static boolean isFastaFile(File f) throws IOException {
-    Set<String> exts = DocumentUtils.getFastaExtensions();
-    if(exts.isEmpty()) { // then this is the best we can do:
+    if(firstChar(f) != '>') {
+      logger.warn("Invalid fasta file: %s. First character in fasta file must be '>'", f.getName());
+      return false;      
+    }
+    List<String> exts = NameUtil.getCurrentFastaExtensions();
+    if (exts.isEmpty()) { // then this is the best we can do:
       return firstChar(f) == '>';
     }
-    for(String ext : exts) {
-      if(f.getName().endsWith(ext)) {
-        if(firstChar(f) == '>') {
+    for (String ext : exts) {
+      if (f.getName().endsWith(ext)) {
+        if (firstChar(f) == '>') {
           return true;
         }
-        logger.warn("Invalid fasta file: %s. First character in file must be '>'", f.getName());
-        return false;
       }
     }
     return false;
   }
 
-  /**
-   * Returns the AB1 file extensions in the Geneious Preferences panel.
-   * 
-   * @return
-   */
-  public static Set<String> getAb1Extensions() {
-    Set<String> exts = new HashSet<>();
-    String s = settings().getAb1FileExtensions();
-    if(s != null && !(s = stripEnd(s, ", ")).equals("*")) {
-      Arrays.stream(s.split(",")).forEach(ext -> {
-        ext = ext.trim().toLowerCase();
-        if(isNotBlank(ext)) {
-          if(!ext.startsWith(".")) {
-            ext = "." + ext;
-          }
-          exts.add(ext);
-        }
-      });
-    }
-    return exts;
-  }
-
-  /**
-   * Returns the fasta file extensions in the Geneious Preferences panel.
-   * 
-   * @return
-   */
-  public static Set<String> getFastaExtensions() {
-    Set<String> exts = new HashSet<>();
-    String s = settings().getFastaFileExtensions();
-    if(s != null && !(s = stripEnd(s, ", ")).equals("*")) {
-      Arrays.stream(s.split(",")).forEach(ext -> {
-        ext = ext.trim().toLowerCase();
-        if(isNotBlank(ext)) {
-          if(!ext.startsWith(".")) {
-            ext = "." + ext;
-          }
-          exts.add(ext);
-        }
-      });
-    }
-    return exts;
-  }
-
   private static char firstChar(File f) throws IOException {
-    try(InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
+    try (InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
       return (char) isr.read();
     }
   }

@@ -7,6 +7,7 @@ import com.google.common.base.Charsets;
 
 import org.apache.commons.io.IOUtils;
 
+import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.util.Ping;
 
 import static java.lang.Boolean.FALSE;
@@ -93,13 +94,13 @@ public class GlobalOptions extends Options {
   private void addAb1FastaImportOptions() {
     addDivider("AB1/Fasta import ");
 
-    StringOption fastaExts = addStringOption(FASTA_EXTS.getName(), "Fasta file extensions", "fas,fasta,txt");
+    StringOption fastaExts = addStringOption(FASTA_EXTS.getName(), "Fasta file extensions", NameUtil.getDefaultFastaExtensionsAsString());
     fastaExts.setHelp("A comma-separated list of valid file extensions for Fasta files. You can leave this field empty or "
         + "enter '*'. In any case only files whose first character is '>' will be considered for import");
     settings().update(FASTA_EXTS, fastaExts.getValue());
     fastaExts.addChangeListener(() -> settings().update(FASTA_EXTS, fastaExts.getValue()));
 
-    StringOption ab1Exts = addStringOption(AB1_EXTS.getName(), "AB1 file extendsions", "ab1,ab1 (reversed)");
+    StringOption ab1Exts = addStringOption(AB1_EXTS.getName(), "AB1 file extendsions", NameUtil.getDefaultAb1ExtensionsAsString());
     ab1Exts.setHelp("A comma-separated list of valid file extensions for AB1 files. You can leave this field empty or enter '*'.");
     settings().update(AB1_EXTS, ab1Exts.getValue());
     ab1Exts.addChangeListener(() -> settings().update(AB1_EXTS, ab1Exts.getValue()));

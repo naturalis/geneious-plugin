@@ -6,9 +6,11 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-import com.google.common.base.Preconditions;
+import nl.naturalis.common.Check;
 
-import nl.naturalis.geneious.util.DocumentUtils;
+import static nl.naturalis.common.StringMethods.endsWith;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentAb1ExtensionsWithDot;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentFastaExtensionsWithDot;
 
 /**
  * A file filter for the file selection popup of the AB1/Fasta import. Limits the visible files within a folder to those with a valid AB1 or
@@ -20,18 +22,18 @@ public class Ab1FastaFileFilter extends FileFilter {
   private final String description;
 
   public Ab1FastaFileFilter(boolean showAB1Files, boolean showFastaFiles) {
-    Preconditions.checkArgument(showAB1Files || showFastaFiles, "Either show AB1 files or fasta files or both");
+    Check.argument(showAB1Files || showFastaFiles, "Either show AB1 files or fasta files or both");
     exts = new HashSet<>();
     if (showAB1Files) {
-      exts.addAll(DocumentUtils.getAb1Extensions());
+      exts.addAll(getCurrentAb1ExtensionsWithDot());
       if (showFastaFiles) {
-        exts.addAll(DocumentUtils.getFastaExtensions());
+        exts.addAll(getCurrentFastaExtensionsWithDot());
         description = "AB1 and fasta files";
       } else {
         description = "AB1 files";
       }
     } else {
-      exts.addAll(DocumentUtils.getFastaExtensions());
+      exts.addAll(getCurrentFastaExtensionsWithDot());
       description = "Fasta files";
     }
   }
@@ -41,7 +43,7 @@ public class Ab1FastaFileFilter extends FileFilter {
     if (f.isDirectory() || exts.isEmpty()) {
       return true;
     }
-    return exts.stream().filter(ext -> f.getName().endsWith(ext)).findFirst().isPresent();
+    return endsWith(f.getName(), true, exts);
   }
 
   @Override

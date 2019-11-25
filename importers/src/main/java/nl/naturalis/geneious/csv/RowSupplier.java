@@ -10,7 +10,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
-import nl.naturalis.common.base.WrappedException;
+import nl.naturalis.common.ExceptionMethods;
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.NonFatalException;
 
@@ -55,8 +55,8 @@ public class RowSupplier {
       return trim(rows);
     } catch (NonFatalException e) {
       throw e;
-    } catch (Throwable t) {
-      throw new WrappedException(t);
+    } catch (Exception e) {
+      throw ExceptionMethods.uncheck(e);
     }
   }
 
