@@ -24,7 +24,6 @@ import static nl.naturalis.geneious.Settings.settings;
  */
 public class NameUtil {
 
-  @SuppressWarnings("unused")
   private static final GuiLogger logger = GuiLogManager.getLogger(NameUtil.class);
 
   private static final String[] ab1Exts = {"ab1", "ab1 (reversed)"};
@@ -90,7 +89,9 @@ public class NameUtil {
    */
   public static List<String> getCurrentAb1Extensions() {
     String setting = settings().getAb1FileExtensions();
-    if (setting == null) {
+    if (StringMethods.isBlank(setting)) {
+      logger.warn("No AB1 file extensions defined. Go to Tools -> Preference to define them. Using default file extensions:",
+          getDefaultAb1ExtensionsAsString());
       return getDefaultAb1Suffixes();
     }
     String[] exts = StringUtils.split(setting, ",");

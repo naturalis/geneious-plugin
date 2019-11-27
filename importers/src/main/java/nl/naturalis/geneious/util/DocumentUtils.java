@@ -4,18 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
-import java.util.List;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 
 import org.apache.commons.io.FileUtils;
 
+import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.name.NameUtil;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
@@ -24,6 +23,8 @@ import static nl.naturalis.geneious.DocumentType.CONTIG;
 import static nl.naturalis.geneious.DocumentType.DUMMY;
 import static nl.naturalis.geneious.DocumentType.FASTA;
 import static nl.naturalis.geneious.DocumentType.UNKNOWN;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentAb1ExtensionsWithDot;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentFastaExtensionsWithDot;
 
 /**
  * Various methods related to Geneious documents.
@@ -96,16 +97,7 @@ public class DocumentUtils {
    * @throws IOException
    */
   public static boolean isAb1File(File f) throws IOException {
-    List<String> exts = NameUtil.getCurrentAb1Extensions();
-    if (exts.isEmpty()) { // then this is the best we can do:
-      return firstChar(f) != '>';
-    }
-    for (String ext : exts) {
-      if (f.getName().endsWith(ext)) {
-        return true;
-      }
-    }
-    return false;
+    return StringMethods.endsWith(f.getName(), true, getCurrentAb1ExtensionsWithDot());
   }
 
   /**
@@ -116,27 +108,19 @@ public class DocumentUtils {
    * @throws IOException
    */
   public static boolean isFastaFile(File f) throws IOException {
-    if(firstChar(f) != '>') {
-      logger.warn("Invalid fasta file: %s. First character in fasta file must be '>'", f.getName());
-      return false;      
-    }
-    List<String> exts = NameUtil.getCurrentFastaExtensions();
-    if (exts.isEmpty()) { // then this is the best we can do:
-      return firstChar(f) == '>';
-    }
-    for (String ext : exts) {
-      if (f.getName().endsWith(ext)) {
-        if (firstChar(f) == '>') {
-          return true;
-        }
+    if (StringMethods.endsWith(f.getName(), true, getCurrentFastaExtensionsWithDot())) {
+      if (firstChar(f) != '>') {
+        logger.warn("Invalid fasta file: %s. First character in fasta file must be '>'", f.getName());
+        return false;
       }
+      return true;
     }
     return false;
   }
 
   private static char firstChar(File f) throws IOException {
-    try (InputStreamReader isr = new InputStreamReader(FileUtils.openInputStream(f))) {
-      return (char) isr.read();
+    try (InputStreamReader r = new InputStreamReader(FileUtils.openInputStream(f))) {
+      return (char) r.read();
     }
   }
 

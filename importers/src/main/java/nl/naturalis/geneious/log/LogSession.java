@@ -2,8 +2,8 @@ package nl.naturalis.geneious.log;
 
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
@@ -26,8 +26,6 @@ public final class LogSession implements AutoCloseable {
   private final LogWriter writer;
   private final String title;
 
-  private Dimension windowSize;
-
   /**
    * Starts a new log session.
    * 
@@ -48,19 +46,8 @@ public final class LogSession implements AutoCloseable {
   private void start() {
     writer.initialize();
     JDialog dialog = new JDialog(GuiUtilities.getMainFrame());
-    writer.getArea().addMouseListener(new MouseListener() {
-
-      @Override
-      public void mouseReleased(MouseEvent e) {}
-
-      @Override
-      public void mousePressed(MouseEvent e) {}
-
-      @Override
-      public void mouseExited(MouseEvent e) {}
-
-      @Override
-      public void mouseEntered(MouseEvent e) {}
+    writer.getArea().addMouseListener(new MouseAdapter() {
+      private Dimension windowSize;
 
       @Override
       public void mouseClicked(MouseEvent e) {
