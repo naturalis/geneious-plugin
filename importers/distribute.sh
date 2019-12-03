@@ -67,9 +67,9 @@ fi
 echo
 echo
 echo "************************************************************************"
-echo "Building nl.naturalis.common"
+echo "Building naturalis-common"
 echo "************************************************************************"
-naturalis_common_dir=$(realpath "${here}/../../nl.naturalis.common")
+naturalis_common_dir=$(realpath "${here}/../../naturalis-common")
 if [ ! -d "${naturalis_common_dir}" ]
 then
   echo "Missing directory: ${naturalis_common_dir}"
