@@ -4,12 +4,17 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
+import com.biomatters.geneious.publicapi.components.Dialogs;
+import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
+import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.gui.GeneiousGUI;
 
 /**
@@ -23,6 +28,7 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
  */
 public final class LogSession implements AutoCloseable {
 
+  private final PluginSwingWorker<?> worker;
   private final LogWriter writer;
   private final String title;
 
@@ -32,7 +38,8 @@ public final class LogSession implements AutoCloseable {
    * @param writer
    * @param title
    */
-  LogSession(LogWriter writer, String title) {
+  LogSession(PluginSwingWorker<?> worker, LogWriter writer, String title) {
+    this.worker = worker;
     this.writer = writer;
     this.title = title;
     start();
@@ -68,8 +75,27 @@ public final class LogSession implements AutoCloseable {
     GeneiousGUI.scale(dialog, .5, .4, 600, 400);
     dialog.pack();
     dialog.setLocationRelativeTo(null);
-    dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     dialog.setVisible(true);
+    dialog.addWindowListener(new WindowAdapter() {
+
+      @Override
+      public void windowClosing(WindowEvent e) {
+        if (worker.isFinished()) {
+          dialog.dispose();
+        } else {
+          String msg = "Closing the log window will not terminate the operation. It is recommended that you keep "
+              + "the log window until the operation has finished. Close log window now?";
+          boolean close = Dialogs.showContinueCancelDialogWithDontShowAgain(
+              msg,
+              "Close log window?", GuiUtilities.getMainFrame(), DialogIcon.WARNING, "");
+          if (close) {
+            dialog.dispose();
+          }
+        }
+      }
+
+    });
   }
 
 }

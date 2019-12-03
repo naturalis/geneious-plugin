@@ -24,7 +24,7 @@ public class AnnotationMetadataUpdater {
     if (!ShowDialog.confirmRegenerateAnnotationMetadata()) {
       return;
     }
-    try (LogSession session = GuiLogManager.startSession("Update annotation metadata")) {
+    try (LogSession session = GuiLogManager.startSession(null, "Update annotation metadata")) {
       for (NaturalisField field : NaturalisField.values()) {
         field.saveOrUpdateNoteType();
       }

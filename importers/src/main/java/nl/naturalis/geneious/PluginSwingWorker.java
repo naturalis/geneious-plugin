@@ -42,8 +42,14 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
 
   protected final T config;
 
+  private boolean finished = false;
+
   public PluginSwingWorker(T config) {
     this.config = config;
+  }
+
+  public boolean isFinished() {
+    return finished;
   }
 
   /**
@@ -51,7 +57,7 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
    */
   @Override
   protected Void doInBackground() {
-    try (LogSession session = GuiLogManager.startSession(getLogTitle())) {
+    try (LogSession session = GuiLogManager.startSession(this, getLogTitle())) {
       if (Ping.resume(config.getTargetDatabase())) {
         PreconditionValidator validator = new PreconditionValidator(config, getPreconditions());
         validator.validate();
@@ -69,6 +75,7 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
     } catch (Throwable t) {
       logger.fatal(t);
     }
+    finished = true;
     return null;
   }
 

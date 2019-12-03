@@ -2,6 +2,8 @@ package nl.naturalis.geneious.log;
 
 import java.util.HashMap;
 
+import nl.naturalis.geneious.PluginSwingWorker;
+
 /**
  * Manages the loggers created by the classes participating in an operation.
  *
@@ -22,14 +24,14 @@ public class GuiLogManager {
   }
 
   /**
-   * Start a new log session. Log sessions must be created using a try-with-resources block. Loggers should only log
-   * messages within the try-with-resources block, otherwise the messages will not become visible.
+   * Start a new log session. Log sessions must be created using a try-with-resources block. Loggers should only log messages within the
+   * try-with-resources block, otherwise the messages will not become visible.
    * 
    * @param title
    * @return
    */
-  public static LogSession startSession(String title) {
-    return new LogSession(instance.writer, title);
+  public static LogSession startSession(PluginSwingWorker<?> worker, String title) {
+    return new LogSession(worker, instance.writer, title);
   }
 
   private final LogWriter writer;
@@ -42,7 +44,7 @@ public class GuiLogManager {
 
   private GuiLogger getOrCreateLogger(Class<?> clazz) {
     GuiLogger logger = loggers.get(clazz);
-    if(logger == null) {
+    if (logger == null) {
       loggers.put(clazz, logger = new GuiLogger(clazz, writer));
     }
     return logger;
