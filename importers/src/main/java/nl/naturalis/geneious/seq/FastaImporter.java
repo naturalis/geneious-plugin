@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
@@ -16,6 +18,7 @@ import nl.naturalis.geneious.name.StorableDocument;
 import nl.naturalis.geneious.note.ImportedFromNote;
 
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.createAnnotatedPluginDocument;
+
 import static nl.naturalis.geneious.log.GuiLogger.format;
 
 /**
@@ -24,6 +27,8 @@ import static nl.naturalis.geneious.log.GuiLogger.format;
 class FastaImporter {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(FastaImporter.class);
+
+  private static final Pattern pattern = Pattern.compile("[^actgACTG]");
 
   private final List<FastaInfo> sequences;
 
@@ -48,18 +53,27 @@ class FastaImporter {
     LinkedHashMap<File, ArrayList<FastaInfo>> fastas = mapMothersToChildren();
     DefaultNucleotideSequence sequence;
     AnnotatedPluginDocument apd;
-    for(File motherFile : fastas.keySet()) {
+    for (File motherFile : fastas.keySet()) {
       logger.debugf(() -> format("Importing file %s", motherFile.getName()));
       Date date = new Date(motherFile.lastModified());
-      for(FastaInfo info : fastas.get(motherFile)) {
+      for (FastaInfo info : fastas.get(motherFile)) {
         ++processed;
         logger.debugf(() -> format("--> Importing sequence %s", info.getName()));
-        sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
-        apd = createAnnotatedPluginDocument(sequence);
-        ++imported;
-        StorableDocument doc = new StorableDocument(apd, info);
-        doc.attach(new ImportedFromNote(motherFile));
-        importables.add(doc);
+        Matcher matcher = pattern.matcher(info.getSequence());
+        if (matcher.find()) {
+          ++rejected;
+          int i = matcher.start();
+          char c = info.getSequence().charAt(i);
+          logger.error("Illegal character in nucletotide sequence at position %d: '%s'", i + 1, c);
+        } else {
+          logger.info("Nucleotide sequence: %s", info.getSequence());
+          sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
+          apd = createAnnotatedPluginDocument(sequence);
+          ++imported;
+          StorableDocument doc = new StorableDocument(apd, info);
+          doc.attach(new ImportedFromNote(motherFile));
+          importables.add(doc);
+        }
       }
     }
     return importables;
@@ -94,9 +108,9 @@ class FastaImporter {
 
   private LinkedHashMap<File, ArrayList<FastaInfo>> mapMothersToChildren() {
     LinkedHashMap<File, ArrayList<FastaInfo>> map = new LinkedHashMap<>();
-    for(FastaInfo info : sequences) {
+    for (FastaInfo info : sequences) {
       ArrayList<FastaInfo> infos = map.get(info.getImportedFrom());
-      if(infos == null) {
+      if (infos == null) {
         infos = new ArrayList<>();
         map.put(info.getImportedFrom(), infos);
       }
