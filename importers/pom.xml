@@ -27,10 +27,9 @@
 		<!-- *** Check for updates: mvn versions:display-dependency-updates   *** -->
 		<!-- *** Check dependencies: mvn dependency:analyze                   *** --> 
 		<!-- ==================================================================== -->
-		<mysql-connector-java.version>5.1.47</mysql-connector-java.version>
 		<org.apache.poi.version>4.0.1</org.apache.poi.version>
 		<com.univocity.univocity-parsers.version>2.7.6</com.univocity.univocity-parsers.version>
-		<naturalis-common.version>2.0.0</naturalis-common.version>
+		<naturalis-common.version>2.0.1</naturalis-common.version>
 		<junit.version>4.12</junit.version>
 
 
@@ -86,8 +85,6 @@
 			<artifactId>univocity-parsers</artifactId>
 			<version>${com.univocity.univocity-parsers.version}</version>
 		</dependency>
-		<!-- dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId>
-			<version>5.1.47</version> </dependency -->
 
 		<!-- TEST scope -->
 		<dependency>
