@@ -1,5 +1,10 @@
 package nl.naturalis.geneious.csv;
 
+import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
+import static java.util.Arrays.asList;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
+import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
+import static org.apache.commons.io.FilenameUtils.getExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -7,29 +12,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.swing.JFileChooser;
-
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import com.google.common.base.Charsets;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import nl.naturalis.geneious.NaturalisPluginException;
+import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.util.CharsetDetector;
-
-import static java.util.Arrays.asList;
-
-import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDialog;
-
-import static org.apache.commons.io.FilenameUtils.getExtension;
-
-import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
-import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
 
 /**
  * Abstract base class for classes underpinning a Geneious dialog that requests user input for the import of CSV-like files.
@@ -78,6 +70,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     file.addChangeListener(this::fileChanged);
   }
 
+  private String fileChangedErrorMessage;
+
   /**
    * Verifies the validity of the user input. Returns null if the user input is valid, otherwise a message indicating what's wrong.
    */
@@ -86,6 +80,9 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     String msg = super.verifyOptionsAreValid();
     if (msg != null) {
       return msg;
+    }
+    if (fileChangedErrorMessage != null) {
+      return fileChangedErrorMessage;
     }
     if (StringUtils.isBlank(file.getValue())) {
       return "Please select a CSV file or spreadsheet to import";
@@ -107,7 +104,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
         }
         return "Please select another file";
       } catch (IOException e) {
-        throw new NaturalisPluginException(e);
+        return e.getMessage();
       }
     }
     return null; // Signals to Geneious it can continue
@@ -239,6 +236,7 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void fileChanged() {
+    fileChangedErrorMessage = null;
     if (StringUtils.isBlank(file.getValue())) {
       /*
        * When a file has been selected, and then you select another file, the change listener apparently fires twice. The first time the
@@ -297,26 +295,34 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void loadSheetNamesIntoCombobox() {
+    String[] sheetNames;
     try {
-      String[] sheetNames = SpreadSheetReader.getSheetNames(new File(file.getValue()));
-      List<OptionValue> options = new ArrayList<>(sheetNames.length);
-      for (int i = 0; i < sheetNames.length; ++i) {
-        String label = sheetNames[i];
-        OptionValue opt = new OptionValue(String.valueOf(i), "  " + label + "  ");
-        options.add(opt);
-      }
-      int x = selectedSheet.getValue().intValue();
-      sheet.setPossibleValues(options);
-      if (x >= 0 && x < options.size()) {
-        sheet.setDefaultValue(options.get(x));
-        sheet.setValue(options.get(x));
-      }
-      sheet.setEnabled(true);
+      sheetNames = SpreadSheetReader.getSheetNames(new File(file.getValue()));
     } catch (Exception e) {
       String title = "Error reading spreadsheet";
-      String msg = title + ": " + e;
-      showMessageDialog(msg, title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
+      StringBuilder sb = new StringBuilder(100);
+      sb.append(title).append(". ").append(e.getMessage());
+      if (!StringMethods.endsWith(e.getMessage(), false, ".", "!", "?")) {
+        sb.append(".");
+      }
+      sb.append(" Please cancel the current operation and try again after you have fixed the problem.");
+      fileChangedErrorMessage = sb.toString();
+      showMessageDialog(fileChangedErrorMessage, title, GuiUtilities.getMainFrame(), DialogIcon.ERROR);
+      return;
     }
+    List<OptionValue> options = new ArrayList<>(sheetNames.length);
+    for (int i = 0; i < sheetNames.length; ++i) {
+      String label = sheetNames[i];
+      OptionValue opt = new OptionValue(String.valueOf(i), "  " + label + "  ");
+      options.add(opt);
+    }
+    int x = selectedSheet.getValue().intValue();
+    sheet.setPossibleValues(options);
+    if (x >= 0 && x < options.size()) {
+      sheet.setDefaultValue(options.get(x));
+      sheet.setValue(options.get(x));
+    }
+    sheet.setEnabled(true);
   }
 
   private String getOptionName(String format) {

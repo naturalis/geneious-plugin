@@ -146,6 +146,13 @@
 			<scope>system</scope>
 			<systemPath>${geneious.home}/lib/jackson-annotations-2.7.5.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>geneious</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${geneious.home}/lib/jdom.jar</systemPath>
+		</dependency>
 	</dependencies>
 
 	<build>
