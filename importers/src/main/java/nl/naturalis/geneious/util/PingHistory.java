@@ -1,26 +1,24 @@
 package nl.naturalis.geneious.util;
 
 import static nl.naturalis.geneious.Settings.settings;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
+import nl.naturalis.common.ExceptionMethods;
 import nl.naturalis.geneious.NaturalisPluginException;
 
 /**
- * Generates and saves unique ping values that are inserted as extract IDs into special, temporary documents. The
- * {@code PingHistory} survives Geneious sessions, so that pinging will resume until and unless a document is found with
- * the extract ID provided by the {@code PingHistory}.
+ * Generates and saves unique ping values that are inserted as extract IDs into special, temporary documents. The {@code PingHistory}
+ * survives Geneious sessions, so that pinging will resume until and unless a document is found with the extract ID provided by the
+ * {@code PingHistory}.
  * 
  * @author Ayco Holleman
  *
@@ -33,15 +31,9 @@ public class PingHistory {
 
   private static final String user = System.getProperty("user.name");
 
+  private final WritableDatabaseService database;
   private final Map<String, String> cache;
   private final String key;
-
-  /**
-   * Loads the ping history for the currently selected database.
-   */
-  public PingHistory() {
-    this(QueryUtils.getTargetDatabase());
-  }
 
   /**
    * Loads the ping history for the provided database.
@@ -49,13 +41,14 @@ public class PingHistory {
    * @param database
    */
   public PingHistory(WritableDatabaseService database) {
-    cache = loadHistory();
-    key = user + '@' + database.getUniqueID();
+    this.database = database;
+    this.cache = loadHistory();
+    this.key = user + '@' + database.getUniqueID();
   }
 
   /**
-   * Whether or not operations can safely start doing what they are meant to do, knowing that any documents created or
-   * updated by a previous operation have now been indexed.
+   * Whether or not operations can safely start doing what they are meant to do, knowing that any documents created or updated by a previous
+   * operation have now been indexed.
    * 
    * @return
    */
@@ -64,18 +57,22 @@ public class PingHistory {
   }
 
   /**
-   * Clears the ping history. An panic method in case a user accidentally deleted his own or someone else's ping folder,
-   * in which case operations will never get past the pinging phase.
+   * Clears the ping history. A panic method in case a user accidentally deleted his own or someone else's ping folder, in which case
+   * operations will never get past the pinging phase.
    */
   public void clear() {
     cache.remove(key);
     try {
       String json = writer.writeValueAsString(cache);
       settings().setPingHistory(json);
-    } catch(JsonProcessingException e) {
+    } catch (JsonProcessingException e) {
       throw new NaturalisPluginException(e);
     }
-    PingSequence.deleteUserFolder();
+    try {
+      database.createChildFolder(PingSequence.PING_FOLDER).removeChildFolder(user);
+    } catch (DatabaseServiceException e) {
+      // no ping folder for current user in currently selected database
+    }
   }
 
   /**
@@ -100,20 +97,19 @@ public class PingHistory {
   }
 
   /**
-   * Generates and returns a new ping value. The new ping value is stored in the ping history before being returned. The
-   * value has the following format: &lt;user&gt;//&lt;timestamp&gt; and is stored in the ping history under key
-   * &lt;user&gt;@&lt;database&gt;.
+   * Generates and returns a new ping value. The new ping value is stored in the ping history before being returned. The value has the
+   * following format: &lt;user&gt;//&lt;timestamp&gt; and is stored in the ping history under key &lt;user&gt;@&lt;database&gt;.
    * 
    * @return
    */
   public String generateNewPingValue() {
-    if(isClear()) {
+    if (isClear()) {
       String value = user + "//" + System.currentTimeMillis();
       cache.put(key, value);
       try {
         String json = writer.writeValueAsString(cache);
         settings().setPingHistory(json);
-      } catch(JsonProcessingException e) {
+      } catch (JsonProcessingException e) {
         throw new NaturalisPluginException(e);
       }
       return value;
@@ -123,13 +119,13 @@ public class PingHistory {
 
   private static Map<String, String> loadHistory() {
     String s = settings().getPingHistory();
-    if(StringUtils.isEmpty(s)) {
+    if (StringUtils.isEmpty(s)) {
       return new HashMap<>();
     }
     try {
       return reader.readValue(s);
-    } catch(IOException e) {
-      throw new NaturalisPluginException(e);
+    } catch (IOException e) {
+      throw ExceptionMethods.uncheck(e);
     }
   }
 

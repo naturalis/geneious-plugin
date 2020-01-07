@@ -12,6 +12,7 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.Ping;
+import nl.naturalis.geneious.util.PluginUtils;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -58,15 +59,19 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
   @Override
   protected Void doInBackground() {
     try (LogSession session = GuiLogManager.startSession(this, getLogTitle())) {
-      if (Ping.resume(config.getTargetDatabase())) {
-        PreconditionValidator validator = new PreconditionValidator(config, getPreconditions());
-        validator.validate();
-        List<AnnotatedPluginDocument> createdOrUpdated = performOperation();
-        if (!createdOrUpdated.isEmpty()) {
-          try {
-            Ping.start(config.getTargetDatabase());
-          } finally {
-            createdOrUpdated.forEach(doc -> doc.setUnread(true));
+      if (PluginUtils.getSelectedDatabase().isEmpty()) {
+        logger.error("Please select a database first");
+      } else {
+        if (Ping.resume(config.getTargetDatabase())) {
+          PreconditionValidator validator = new PreconditionValidator(config, getPreconditions());
+          validator.validate();
+          List<AnnotatedPluginDocument> createdOrUpdated = performOperation();
+          if (!createdOrUpdated.isEmpty()) {
+            try {
+              Ping.start(config.getTargetDatabase());
+            } finally {
+              createdOrUpdated.forEach(doc -> doc.setUnread(true));
+            }
           }
         }
       }

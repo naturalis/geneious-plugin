@@ -1,21 +1,17 @@
 package nl.naturalis.geneious.seq;
 
 import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
-
 import java.util.List;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
-
 import jebl.util.ProgressListener;
 
 /**
- * Hooks the AB1/Fasta Import operation into Geneious. Informs Geneious how to display and kick off the AB1/Fasta Import
- * operation.
+ * Hooks the AB1/Fasta Import operation into Geneious. Informs Geneious how to display and kick off the AB1/Fasta Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -66,6 +62,13 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
   @Override
   public DocumentSelectionSignature[] getSelectionSignatures() {
     return new DocumentSelectionSignature[0];
+  }
+
+  @Override
+  public boolean isDocumentGenerator() {
+    // This subclass does in fact generate documents, but this method only signals to Geneious that it should bring up a folder
+    // selection dialog, which is not what we want.
+    return false;
   }
 
 }

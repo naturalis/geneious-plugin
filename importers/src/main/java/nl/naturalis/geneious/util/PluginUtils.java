@@ -1,15 +1,23 @@
 package nl.naturalis.geneious.util;
 
+import static nl.naturalis.geneious.DocumentType.AB1;
+import static nl.naturalis.geneious.DocumentType.CONTIG;
+import static nl.naturalis.geneious.DocumentType.DUMMY;
+import static nl.naturalis.geneious.DocumentType.FASTA;
+import static nl.naturalis.geneious.DocumentType.UNKNOWN;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentAb1ExtensionsWithDot;
+import static nl.naturalis.geneious.name.NameUtil.getCurrentFastaExtensionsWithDot;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
-
+import java.util.Optional;
+import org.apache.commons.io.FileUtils;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
-
-import org.apache.commons.io.FileUtils;
-
+import com.biomatters.geneious.publicapi.plugin.GeneiousService;
+import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.NaturalisPluginException;
@@ -18,22 +26,32 @@ import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.note.NaturalisField;
 import nl.naturalis.geneious.note.NaturalisNote;
 
-import static nl.naturalis.geneious.DocumentType.AB1;
-import static nl.naturalis.geneious.DocumentType.CONTIG;
-import static nl.naturalis.geneious.DocumentType.DUMMY;
-import static nl.naturalis.geneious.DocumentType.FASTA;
-import static nl.naturalis.geneious.DocumentType.UNKNOWN;
-import static nl.naturalis.geneious.name.NameUtil.getCurrentAb1ExtensionsWithDot;
-import static nl.naturalis.geneious.name.NameUtil.getCurrentFastaExtensionsWithDot;
-
 /**
- * Various methods related to Geneious documents.
+ * Commonly used methods.
  */
-public class DocumentUtils {
+public class PluginUtils {
 
-  private static final GuiLogger logger = GuiLogManager.getLogger(DocumentUtils.class);
+  private static final GuiLogger logger = GuiLogManager.getLogger(PluginUtils.class);
 
-  private DocumentUtils() {}
+  private PluginUtils() {}
+
+  public static Optional<WritableDatabaseService> getSelectedFolder() {
+    GeneiousService svc = ServiceUtilities.getSelectedService();
+    if (svc instanceof WritableDatabaseService) {
+      return Optional.of((WritableDatabaseService) svc);
+    }
+    return Optional.empty();
+  }
+
+  public static Optional<WritableDatabaseService> getSelectedDatabase() {
+    Optional<WritableDatabaseService> sf = getSelectedFolder();
+    return sf.isEmpty() ? sf : Optional.of(sf.get().getPrimaryDatabaseRoot());
+  }
+
+  public static String getSelectedDatabaseName() {
+    Optional<WritableDatabaseService> db = getSelectedDatabase();
+    return db.isEmpty() ? "<no database selected>" : db.get().getFolderName();
+  }
 
   /**
    * Returns the {@link DocumentType document type} of the provided document, based on the class of the document and the annotations on the

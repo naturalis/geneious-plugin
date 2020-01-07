@@ -19,8 +19,7 @@ import nl.naturalis.geneious.PreconditionException;
  * Checks whether all preconditions for executing an operation are met and, if not, throws an {@link PreconditionException}. Note that the
  * preconditions checked here partly overlap with the validations done in the input dialog for an operation (see {@link OperationOptions}).
  * This is to make the code less dependent on what happens in the GUI. Another difference is that the {@code PreconditionValidator} is part
- * of the operation itself (in fact it runs <i>after</i> the ping phase), so it allows for some last minute decisions on whether or not to
- * abort.
+ * of the operation itself (it runs after the ping phase), so it allows for some last minute decisions on whether or not to abort.
  * 
  * @author Ayco Holleman
  *
@@ -86,17 +85,17 @@ public class PreconditionValidator {
 
   private void checkTargetDatabase() throws PreconditionException {
     if (config.getTargetDatabase() == null) {
-      smash("No database (folder) selected");
+      smash("No database selected");
     }
   }
 
   private void checkValidTargetFolder() throws PreconditionException {
     WritableDatabaseService svc = config.getTargetFolder();
-    if (svc == null) { // Geneious will prevent this, but let's handle it anyhow.
+    if (svc == null) {
       smash("Please select a target folder");
     }
     do {
-      if (svc.getFolderName().equals(PingSequence.PING_FOLER)) {
+      if (svc.getFolderName().equals(PingSequence.PING_FOLDER)) {
         smash("Illegal target folder: " + svc.getFullPath());
       }
       if (svc.getParentService() instanceof WritableDatabaseService) {

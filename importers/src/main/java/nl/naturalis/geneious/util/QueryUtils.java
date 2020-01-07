@@ -1,37 +1,30 @@
 package nl.naturalis.geneious.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
-import com.biomatters.geneious.publicapi.databaseservice.Query;
-import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentField;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
-
-import jebl.util.ProgressListener;
-import nl.naturalis.geneious.NonFatalException;
-import nl.naturalis.geneious.OperationConfig;
-import nl.naturalis.geneious.PluginSwingWorker;
-import nl.naturalis.geneious.StoredDocument;
-import nl.naturalis.geneious.log.GuiLogManager;
-import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.Messages.Error;
-
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createFieldQuery;
 import static com.biomatters.geneious.publicapi.databaseservice.Query.Factory.createOrQuery;
 import static com.biomatters.geneious.publicapi.documents.Condition.EQUAL;
-
 import static nl.naturalis.common.CollectionMethods.sublist;
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.log.GuiLogger.format;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
 import static nl.naturalis.geneious.note.NaturalisField.SMPL_EXTRACT_ID;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
+import com.biomatters.geneious.publicapi.databaseservice.Query;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.DocumentField;
+import jebl.util.ProgressListener;
+import nl.naturalis.geneious.NonFatalException;
+import nl.naturalis.geneious.StoredDocument;
+import nl.naturalis.geneious.log.GuiLogManager;
+import nl.naturalis.geneious.log.GuiLogger;
+import nl.naturalis.geneious.util.Messages.Error;
 
 /**
  * Methods for querying the Geneious database.
@@ -57,34 +50,6 @@ public class QueryUtils {
 
   private QueryUtils() {}
 
-  /**
-   * Returns the currently selected database (i&#46;e&#46; the root folder of the currently selected folder). May return null. <i><b>Do not
-   * call this method when inside a {@link PluginSwingWorker}!</b></i> Since code inside a {@code PluginSwingWorker} runs in another thread
-   * than the GUI's event-dispatch thread, the user may click on another folder while the operation is running. Use
-   * {@link OperationConfig#getTargetDatabase()} when inside a {@code PluginSwingWorker}. That method will always return the database that
-   * was selected at the time the operation began.
-   * 
-   * @return
-   */
-  public static WritableDatabaseService getTargetDatabase() {
-    if (ServiceUtilities.getResultsDestination() == null) {
-      return null;
-    }
-    return ServiceUtilities.getResultsDestination().getPrimaryDatabaseRoot();
-  }
-
-  /**
-   * Returns the name of the currently selected database or "&lt;no database selected&gt;" if no database has been selected yet. <i><b>Do
-   * not call this method when inside a {@code DocumentOperation}!</b></i>
-   * 
-   * @return
-   */
-  public static String getTargetDatabaseName() {
-    if (getTargetDatabase() == null) {
-      return "<no database selected>";
-    }
-    return getTargetDatabase().getFolderName();
-  }
 
   /**
    * Return all documents with the specified extract IDs.

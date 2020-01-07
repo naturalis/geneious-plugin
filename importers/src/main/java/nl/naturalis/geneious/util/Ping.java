@@ -93,7 +93,7 @@ public class Ping {
    * the user to forcefully clean the ping history.
    */
   public static void clear() {
-    WritableDatabaseService svc = QueryUtils.getTargetDatabase();
+    WritableDatabaseService svc = PluginUtils.getSelectedDatabase().orElse(null);
     if(svc == null) {
       ShowDialog.pleaseSelectDatabase();
     } else {
@@ -105,9 +105,9 @@ public class Ping {
   private final WritableDatabaseService database;
   private final PingHistory history;
 
-  private Ping(WritableDatabaseService targetDatabase) {
-    this.database = targetDatabase;
-    history = new PingHistory(targetDatabase);
+  private Ping(WritableDatabaseService database) {
+    this.database = database;
+    this.history = new PingHistory(database);
   }
 
   private boolean doStart() throws DatabaseServiceException {

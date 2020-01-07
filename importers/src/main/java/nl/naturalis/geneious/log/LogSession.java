@@ -85,7 +85,7 @@ public final class LogSession implements AutoCloseable {
           dialog.dispose();
         } else {
           String msg = "Closing the log window will not terminate the operation. It is recommended that you keep "
-              + "the log window until the operation has finished. Close log window now?";
+              + "the log window open until the operation has finished. Close log window now?";
           boolean close = Dialogs.showContinueCancelDialogWithDontShowAgain(
               msg,
               "Close log window?", GuiUtilities.getMainFrame(), DialogIcon.WARNING, "");

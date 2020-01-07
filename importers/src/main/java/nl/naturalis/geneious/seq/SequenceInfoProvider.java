@@ -14,8 +14,8 @@ import nl.naturalis.geneious.name.NotParsableException;
 
 import static nl.naturalis.geneious.Settings.settings;
 import static nl.naturalis.geneious.log.GuiLogger.format;
-import static nl.naturalis.geneious.util.DocumentUtils.isAb1File;
-import static nl.naturalis.geneious.util.DocumentUtils.isFastaFile;
+import static nl.naturalis.geneious.util.PluginUtils.isAb1File;
+import static nl.naturalis.geneious.util.PluginUtils.isFastaFile;
 
 /**
  * Separates AB1 files from fasta files and then calls the {@link FastaFileSplitter} to split the fasta files into

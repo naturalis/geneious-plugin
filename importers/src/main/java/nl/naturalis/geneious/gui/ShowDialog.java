@@ -6,46 +6,49 @@ import static javax.swing.JOptionPane.OK_OPTION;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
-
 import java.nio.charset.Charset;
-
 import org.virion.jam.framework.AbstractFrame;
-
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-
 import nl.naturalis.geneious.util.Ping;
-import nl.naturalis.geneious.util.QueryUtils;
+import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * Various prefab alerts and dialogs.
  */
 public class ShowDialog {
 
+  public static void targetFolderCannotBeChanged() {
+    String msg = "Target folder cannot be changed once selected. Please cancel the operation and start again "
+        + "after having selected another folder";
+    showMessageDialog(frame(), msg, "Target folder cannot be changed", ERROR_MESSAGE);
+
+  }
+
   /**
    * Message informing the user that no database has been selected yet.
    */
   public static void pleaseSelectDatabase() {
-    String msg = "Please select a database";
+    String msg = "Please select a database first";
     showMessageDialog(frame(), msg, "No database selected", ERROR_MESSAGE);
   }
 
   /**
-   * Confirmation dialog asking the user whether he/she really wants to re-generate the the note type definitions for the
-   * Naturalis-specific annotations.
+   * Confirmation dialog asking the user whether he/she really wants to re-generate the the note type definitions for the Naturalis-specific
+   * annotations.
    * 
    * @return
    */
   public static boolean confirmRegenerateAnnotationMetadata() {
     String msg = "This is advanced functionality that will impact the entire database. Only do this if you"
         + "understand the consequences! Do you really want to update Naturalis annotation metadata for database "
-        + QueryUtils.getTargetDatabaseName() + "?";
+        + PluginUtils.getSelectedDatabaseName() + "?";
     int answer = showConfirmDialog(frame(), msg, "Update annotation metadata?", OK_CANCEL_OPTION, WARNING_MESSAGE);
     return answer == OK_OPTION;
   }
 
   /**
-   * Confirmation dialog asking the user whether he/she wants to continue importing file even though the plugin has
-   * detected its encoding is not UTF-8.
+   * Confirmation dialog asking the user whether he/she wants to continue importing a file even though the plugin has detected its encoding
+   * is not UTF-8.
    * 
    * @param fileName
    * @param charset

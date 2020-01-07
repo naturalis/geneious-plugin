@@ -9,7 +9,7 @@ import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.StoredDocument;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
-import nl.naturalis.geneious.util.DocumentUtils;
+import nl.naturalis.geneious.util.PluginUtils;
 
 import static nl.naturalis.geneious.log.GuiLogger.format;
 
@@ -37,11 +37,11 @@ class DocumentFilter {
     List<StoredDocument> filtered = new ArrayList<>(config.getSelectedDocuments().size());
     for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
       String name = doc.getName();
-      if (DocumentUtils.getDocumentType(doc) == DocumentType.UNKNOWN) {
+      if (PluginUtils.getDocumentType(doc) == DocumentType.UNKNOWN) {
         logger.warn("Ignoring document \"%s\". Unexpected document type: %s", name, doc.getDocumentClass());
         continue;
       }
-      if (DocumentUtils.getDocumentType(doc) == DocumentType.DUMMY) {
+      if (PluginUtils.getDocumentType(doc) == DocumentType.DUMMY) {
         logger.debugf(() -> format("Ignoring dummy document \"%s\"", name));
         continue;
       }

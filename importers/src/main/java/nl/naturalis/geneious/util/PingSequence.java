@@ -3,14 +3,11 @@ package nl.naturalis.geneious.util;
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_EXTRACT_ID;
 import static nl.naturalis.geneious.note.NaturalisField.SEQ_MARKER;
-import static nl.naturalis.geneious.util.QueryUtils.getTargetDatabase;
-
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
@@ -18,7 +15,6 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.DocumentNotes;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.implementations.sequence.DefaultNucleotideSequence;
-
 import nl.naturalis.geneious.NaturalisPluginException;
 import nl.naturalis.geneious.note.NaturalisNote;
 
@@ -29,7 +25,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public class PingSequence extends DefaultNucleotideSequence {
 
-  static final String PING_FOLER = "等待 (ping documents)";
+  static final String PING_FOLDER = "等待 (ping documents)";
 
   private static final String NUCLEOTIDES = "AAAAAAAAAA";
   private static final String DUMMY_MARKER = "Ping";
@@ -48,27 +44,12 @@ public class PingSequence extends DefaultNucleotideSequence {
     DatabaseService userFolder = pingDocument.getDatabase();
     if(userFolder.getName().equals(geneiousFolderPrefix + userFolderName)) {
       WritableDatabaseService pingFolder = (WritableDatabaseService) userFolder.getParentService();
-      if(pingFolder.getName().equals(geneiousFolderPrefix + PING_FOLER)) {
+      if(pingFolder.getName().equals(geneiousFolderPrefix + PING_FOLDER)) {
         pingFolder.removeChildFolder(userFolderName);
         return;
       }
     }
     throw new NaturalisPluginException("Unexpected location for ping document: " + pingDocument.getDatabase().getFullPath());
-  }
-
-  /**
-   * Deletes the folder underneath the ping folder into which the current user's ping documents are stored. Called when
-   * clearing the ping history. This is not really necessary because the folder will anyhow be deleted when the next ping
-   * phase comes along, but let's do it anyhow.
-   * 
-   * @throws DatabaseServiceException
-   */
-  static void deleteUserFolder() {
-    try {
-      getTargetDatabase().createChildFolder(PING_FOLER).removeChildFolder(userFolderName);
-    } catch (DatabaseServiceException e) {
-      // User folder not there
-    }
   }
 
   private final String pingValue;
@@ -92,7 +73,7 @@ public class PingSequence extends DefaultNucleotideSequence {
    * @throws DatabaseServiceException
    */
   void save(WritableDatabaseService database) throws DatabaseServiceException {
-    WritableDatabaseService pingFolder = database.createChildFolder(PING_FOLER);
+    WritableDatabaseService pingFolder = database.createChildFolder(PING_FOLDER);
     WritableDatabaseService userFolder = pingFolder.createChildFolder(userFolderName);
     pingFolder.setColor(Color.lightGray);
     userFolder.setColor(Color.lightGray);

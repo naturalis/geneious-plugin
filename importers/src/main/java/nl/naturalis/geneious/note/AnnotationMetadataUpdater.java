@@ -4,7 +4,7 @@ import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
-import nl.naturalis.geneious.util.QueryUtils;
+import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * Utility class that synchronizes the plugin's definitions of the various annotations with Geneious's definitions of
@@ -28,7 +28,7 @@ public class AnnotationMetadataUpdater {
       for (NaturalisField field : NaturalisField.values()) {
         field.saveOrUpdateNoteType();
       }
-      guiLogger.info("Updated annotation metadata for database \"%s\"", QueryUtils.getTargetDatabaseName());
+      guiLogger.info("Updated annotation metadata for database \"%s\"", PluginUtils.getSelectedDatabaseName());
     }
   }
 

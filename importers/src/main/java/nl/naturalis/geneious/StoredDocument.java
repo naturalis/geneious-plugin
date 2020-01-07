@@ -12,7 +12,7 @@ import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument.Docum
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import nl.naturalis.geneious.note.NaturalisNote;
-import nl.naturalis.geneious.util.DocumentUtils;
+import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * A wrapper around the {@code AnnotatedPluginDocument} class with all of its Naturalis-specific annotations pre-fetched into a
@@ -54,7 +54,7 @@ public class StoredDocument {
   public StoredDocument(AnnotatedPluginDocument doc, NaturalisNote note) {
     this.doc = doc;
     this.note = note;
-    this.type = DocumentUtils.getDocumentType(doc, note);
+    this.type = PluginUtils.getDocumentType(doc, note);
   }
 
   /**

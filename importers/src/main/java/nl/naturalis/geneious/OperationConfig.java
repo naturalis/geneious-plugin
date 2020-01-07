@@ -1,11 +1,8 @@
 package nl.naturalis.geneious;
 
 import java.util.List;
-
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
 
 /**
  * Base class for all objects that capture user input for one of the plugin's operations. For each operation there is a separate subclass of
@@ -22,10 +19,7 @@ public abstract class OperationConfig {
   private List<AnnotatedPluginDocument> selectedDocuments;
   private WritableDatabaseService targetFolder;
 
-  public OperationConfig() {
-    this.selectedDocuments = DocumentUtilities.getSelectedDocuments();
-    this.targetFolder = ServiceUtilities.getResultsDestination();
-  }
+  public OperationConfig() {}
 
   /**
    * Returns the folder selected by the user just before the start of the operation.
@@ -51,7 +45,7 @@ public abstract class OperationConfig {
    * @return
    */
   public WritableDatabaseService getTargetDatabase() {
-    return getTargetFolder().getPrimaryDatabaseRoot();
+    return targetFolder == null ? null : targetFolder.getPrimaryDatabaseRoot();
   }
 
   /**

@@ -10,7 +10,7 @@ import nl.naturalis.geneious.log.GuiLogger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import static nl.naturalis.geneious.util.DocumentUtils.getDateModifield;
+import static nl.naturalis.geneious.util.PluginUtils.getDateModifield;
 
 /**
  * Sorts StoredDocument instances according to the document version (descending). If the document versions of two
