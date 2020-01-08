@@ -24,8 +24,8 @@ import nl.naturalis.geneious.csv.CsvImportOptions;
 class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
 
   private static final String CREATE_DUMMIES_LABEL = "Create dummy documents for rows containing new extract IDs";
-  private static final String FOLDER_LABEL0 = "Folder for dummy documents: (please select)";
-  private static final String FOLDER_LABEL1 = "Folder for dummy documents: ";
+  private static final String FOLDER_LABEL0 = "Please select a folder for the dummy documents";
+  private static final String FOLDER_LABEL1 = "Target folder: ";
   private static final String FOLDER_LABEL2 = "No documents selected and dummy document creation disabled!  ";
   private static final String FOLDER_LABEL3 = "Database for this operation: ";
 

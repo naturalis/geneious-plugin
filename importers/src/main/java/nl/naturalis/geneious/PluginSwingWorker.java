@@ -2,17 +2,13 @@ package nl.naturalis.geneious;
 
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.SwingWorker;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.crs.CrsDocumentOperation;
 import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.log.LogSession;
 import nl.naturalis.geneious.util.Ping;
-import nl.naturalis.geneious.util.PluginUtils;
 import nl.naturalis.geneious.util.PreconditionValidator;
 
 /**
@@ -59,7 +55,7 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
   @Override
   protected Void doInBackground() {
     try (LogSession session = GuiLogManager.startSession(this, getLogTitle())) {
-      if (PluginUtils.getSelectedDatabase().isEmpty()) {
+      if (config.getTargetDatabase() == null) {
         logger.error("Please select a database first");
       } else {
         if (Ping.resume(config.getTargetDatabase())) {

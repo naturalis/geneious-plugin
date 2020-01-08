@@ -1,7 +1,11 @@
 package nl.naturalis.geneious.seq;
 
 import static com.biomatters.geneious.publicapi.plugin.PluginUtilities.getWritableDatabaseServiceRoots;
+import static nl.naturalis.geneious.util.PluginUtils.getPath;
+import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -13,7 +17,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
@@ -29,10 +32,16 @@ import nl.naturalis.geneious.gui.GeneiousGUI;
  */
 class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
 
+  private static final String FOLDER_LABEL0 = "Please select a target folder";
+  private static final String FOLDER_LABEL1 = "Target folder: ";
+
   private final StringOption ab1FastaDir;
 
   private final JTextField filesDisplay;
   private final JLabel fileCountLabel;
+
+  private final JLabel folderDisplay;
+  private final WritableDatabaseServiceTree folderTree;
 
   private File[] selectedFiles;
 
@@ -51,11 +60,31 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     filesDisplay.addMouseListener(getMouseListener());
     addCustomComponent(filesDisplay);
 
-    showFolderSelectionOption();
+    folderDisplay = new JLabel(FOLDER_LABEL0);
+    folderTree = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
+    if (getTargetFolder() != null) {
+      folderTree.setSelectedService(getTargetFolder());
+      disableFolderSelection();
+    }
+    folderTree.setBorder(BorderFactory.createLoweredBevelBorder());
+    folderTree.addTreeSelectionListener(e -> {
+      WritableDatabaseService folder = folderTree.getSelectedService();
+      setTargetFolder(folder);
+      setTargetDatabase(folder.getPrimaryDatabaseRoot());
+      setFolderDisplayText(isPingFolder(folder), FOLDER_LABEL1 + getPath(folder));
+    });
+
+    addCustomComponent(folderDisplay);
+    addCustomComponent(folderTree);
+
   }
 
   @Override
   public String verifyOptionsAreValid() {
+    String msg = super.verifyOptionsAreValid();
+    if (msg != null) {
+      return msg;
+    }
     if (ArrayUtils.isEmpty(selectedFiles)) {
       return "Please select at least one AB1 or Fasta file";
     }
@@ -67,25 +96,6 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     Ab1FastaImportConfig config = super.configureDefaults(new Ab1FastaImportConfig());
     config.setFiles(selectedFiles);
     return config;
-  }
-
-  private void showFolderSelectionOption() {
-    JLabel folderLabel = new JLabel("Please select a target folder");
-    addCustomComponent(folderLabel);
-    if (getTargetFolder() != null) {
-      String folder = getTargetFolder().getFolderName();
-      folderLabel.setText("Target folder: " + folder);
-    } else {
-      WritableDatabaseServiceTree folderView = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
-      folderView.setOpaque(false);
-      folderView.setBorder(BorderFactory.createLoweredBevelBorder());
-      folderView.addTreeSelectionListener(e -> {
-        setTargetFolder(folderView.getSelectedService());
-        setTargetDatabase(folderView.getSelectedService().getPrimaryDatabaseRoot());
-        folderLabel.setText("Target folder: " + getPath(getTargetFolder()));
-      });
-      addCustomComponent(folderView);
-    }
   }
 
   private JFileChooser newFileChooser() {
@@ -152,8 +162,38 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     };
   }
 
-  private static String getPath(WritableDatabaseService db) {
-    return StringUtils.substringAfter(db.getFullPath(), "Shared Databases").substring(1);
+  private void setFolderDisplayText(boolean isWarning, String text) {
+    HashMap<TextAttribute, Object> attribs = new HashMap<TextAttribute, Object>();
+    if (isWarning) {
+      attribs.put(TextAttribute.FOREGROUND, Color.RED);
+      attribs.put(TextAttribute.FONT, Font.ITALIC);
+    } else {
+      attribs.put(TextAttribute.FOREGROUND, Color.BLACK);
+      attribs.put(TextAttribute.FONT, Font.PLAIN);
+    }
+    folderDisplay.setFont(folderDisplay.getFont().deriveFont(attribs));
+    folderDisplay.setText(text);
+  }
+
+  /*
+   * For some reason the setEnabled and setEditable methods don't have any effect, maybe because the Geneious subclass of JTree does some
+   * "clever" things. Therefore we go in hard and simply remove all relevant listeners from the component.
+   */
+  private void disableFolderSelection() {
+    folderTree.setFocusable(false);
+    MouseListener[] mouseListeners = folderTree.getMouseListeners();
+    for (MouseListener listener : mouseListeners) {
+      folderTree.removeMouseListener(listener);
+    }
+    // This isn't really necessary, because setFocusable(false) does work, so the user can never tab to the component and then use the arrow
+    // keys to navigate the tree. But we do it anyhow.
+    KeyListener[] keyListeners = folderTree.getKeyListeners();
+    for (KeyListener listener : keyListeners) {
+      folderTree.removeKeyListener(listener);
+    }
+    // Won't work:
+    // folderTree.setEnabled(false);
+    // folderTree.setEditable(false);
   }
 
 }
