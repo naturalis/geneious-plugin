@@ -29,7 +29,7 @@
 		<!-- ==================================================================== -->
 		<org.apache.poi.version>4.0.1</org.apache.poi.version>
 		<com.univocity.univocity-parsers.version>2.7.6</com.univocity.univocity-parsers.version>
-		<naturalis-common.version>2.0.1</naturalis-common.version>
+		<naturalis-common.version>2.0.2</naturalis-common.version>
 		<junit.version>4.12</junit.version>
 
 

@@ -13,6 +13,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 import nl.naturalis.geneious.OperationOptions;
@@ -70,17 +72,17 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
   private void showFolderSelectionOption() {
     JLabel folderLabel = new JLabel("Please select a target folder");
     addCustomComponent(folderLabel);
-    if (selectedFolder != null) {
-      String folder = getSelectedFolder().getFolderName();
+    if (getTargetFolder() != null) {
+      String folder = getTargetFolder().getFolderName();
       folderLabel.setText("Target folder: " + folder);
     } else {
       WritableDatabaseServiceTree folderView = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
       folderView.setOpaque(false);
       folderView.setBorder(BorderFactory.createLoweredBevelBorder());
       folderView.addTreeSelectionListener(e -> {
-        setSelectedFolder(folderView.getSelectedService());
-        String folder = getSelectedFolder().getFolderName();
-        folderLabel.setText("Target folder: " + folder);
+        setTargetFolder(folderView.getSelectedService());
+        setTargetDatabase(folderView.getSelectedService().getPrimaryDatabaseRoot());
+        folderLabel.setText("Target folder: " + getPath(getTargetFolder()));
       });
       addCustomComponent(folderView);
     }
@@ -149,4 +151,9 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
       }
     };
   }
+
+  private static String getPath(WritableDatabaseService db) {
+    return StringUtils.substringAfter(db.getFullPath(), "Shared Databases").substring(1);
+  }
+
 }

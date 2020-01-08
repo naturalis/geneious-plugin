@@ -1,12 +1,12 @@
 package nl.naturalis.geneious;
 
+import static nl.naturalis.geneious.util.PluginUtils.allDocumentsInSameFolder;
 import java.util.Collections;
 import java.util.List;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.Options;
-import nl.naturalis.geneious.seq.Ab1FastaDocumentOperation;
 import nl.naturalis.geneious.util.PluginUtils;
 
 /**
@@ -21,14 +21,20 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
 
   private final List<AnnotatedPluginDocument> selectedDocuments;
 
-  protected WritableDatabaseService selectedFolder;
+  private WritableDatabaseService targetFolder;
+  private WritableDatabaseService targetDatabase;
 
   /**
    * Creates a new {@code OperationOptions} object freezing the currently selected folder and documents.
    */
   public OperationOptions() {
     selectedDocuments = Collections.unmodifiableList(DocumentUtilities.getSelectedDocuments());
-    selectedFolder = PluginUtils.getSelectedFolder().orElse(null);
+    targetFolder = PluginUtils.getSelectedFolder().orElseGet(() -> {
+      return allDocumentsInSameFolder(selectedDocuments) ? (WritableDatabaseService) getSelectedDocuments().get(0).getDatabase() : null;
+    });
+    if (targetFolder != null) {
+      targetDatabase = targetFolder.getPrimaryDatabaseRoot();
+    }
   }
 
   /**
@@ -41,25 +47,39 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
   }
 
   /**
-   * Returns the currently selected folder. Note that every operation within this plugin requires the user to have selected a folder, even
-   * those operations that do not import any files (all but {@link Ab1FastaDocumentOperation}). This is because the ping phase, which is
-   * common to all operations, needs to know which database to send the ping document to. However, only for the
-   * {@code Ab1FastaDocumentOperation} is the exact folder selection relevant. For the other operations it's just used to infer the
-   * database.
+   * Returns the currently selected folder or, if no folder was selected all selected documents (if any) are in the same folder, that
+   * folder. For operations that do not create documents, it is not required that the user has selected a folder in the left panel of the
+   * GUI, or that a target folder can be inferred from the selected documents. However, the {@link #getTargetDatabase() target database}
+   * must always be known because the ping mechanism must know to which database to send the ping document.
    * 
    * @return
    */
-  protected WritableDatabaseService getSelectedFolder() {
-    return selectedFolder;
+  protected WritableDatabaseService getTargetFolder() {
+    return targetFolder;
   }
 
-  /**
-   * Sets the selected folder.
-   * 
-   * @param folder
-   */
-  protected void setSelectedFolder(WritableDatabaseService folder) {
-    this.selectedFolder = folder;
+  public void setTargetFolder(WritableDatabaseService targetFolder) {
+    this.targetFolder = targetFolder;
+  }
+
+  public WritableDatabaseService getTargetDatabase() {
+    return targetDatabase;
+  }
+
+  public void setTargetDatabase(WritableDatabaseService targetDatabase) {
+    this.targetDatabase = targetDatabase;
+  }
+
+  @Override
+  public String verifyOptionsAreValid() {
+    String msg = super.verifyOptionsAreValid();
+    if (msg != null) {
+      return msg;
+    }
+    if (getTargetDatabase() == null) {
+      return "Could not determine database on which to execute the operation";
+    }
+    return null;
   }
 
   /**
@@ -78,7 +98,8 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
    */
   protected T configureDefaults(T config) {
     config.setSelectedDocuments(selectedDocuments);
-    config.setTargetFolder(selectedFolder);
+    config.setTargetFolder(targetFolder);
+    config.setTargetDatabase(targetDatabase);
     return config;
   }
 

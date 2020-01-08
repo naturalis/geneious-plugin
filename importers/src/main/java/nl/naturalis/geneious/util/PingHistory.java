@@ -23,7 +23,7 @@ import nl.naturalis.geneious.NaturalisPluginException;
  * @author Ayco Holleman
  *
  */
-public class PingHistory {
+class PingHistory {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final ObjectReader reader = mapper.readerFor(new TypeReference<Map<String, String>>() {});
@@ -40,7 +40,7 @@ public class PingHistory {
    * 
    * @param database
    */
-  public PingHistory(WritableDatabaseService database) {
+  PingHistory(WritableDatabaseService database) {
     this.database = database;
     this.cache = loadHistory();
     this.key = user + '@' + database.getUniqueID();
@@ -52,7 +52,7 @@ public class PingHistory {
    * 
    * @return
    */
-  public boolean isClear() {
+  boolean isClear() {
     return !cache.containsKey(key);
   }
 
@@ -60,7 +60,7 @@ public class PingHistory {
    * Clears the ping history. A panic method in case a user accidentally deleted his own or someone else's ping folder, in which case
    * operations will never get past the pinging phase.
    */
-  public void clear() {
+  void clear() {
     cache.remove(key);
     try {
       String json = writer.writeValueAsString(cache);
@@ -80,7 +80,7 @@ public class PingHistory {
    * 
    * @return
    */
-  public String getPingValue() {
+  String getPingValue() {
     return cache.get(key);
   }
 
@@ -90,7 +90,7 @@ public class PingHistory {
    * @param minutes
    * @return
    */
-  public boolean isOlderThan(int minutes) {
+  boolean isOlderThan(int minutes) {
     String pingValue = cache.get(key);
     long timestamp = Long.parseLong(pingValue.substring(pingValue.lastIndexOf('/') + 1));
     return (System.currentTimeMillis() - timestamp) > (minutes * 60 * 1000);
@@ -102,7 +102,7 @@ public class PingHistory {
    * 
    * @return
    */
-  public String generateNewPingValue() {
+  String generateNewPingValue() {
     if (isClear()) {
       String value = user + "//" + System.currentTimeMillis();
       cache.put(key, value);

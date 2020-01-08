@@ -11,13 +11,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
+import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentField;
 import com.biomatters.geneious.publicapi.plugin.GeneiousService;
 import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
+import nl.naturalis.common.Check;
 import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.NaturalisPluginException;
@@ -37,7 +41,7 @@ public class PluginUtils {
 
   public static Optional<WritableDatabaseService> getSelectedFolder() {
     GeneiousService svc = ServiceUtilities.getSelectedService();
-    if (svc instanceof WritableDatabaseService) {
+    if (svc != null && svc instanceof WritableDatabaseService) {
       return Optional.of((WritableDatabaseService) svc);
     }
     return Optional.empty();
@@ -49,8 +53,78 @@ public class PluginUtils {
   }
 
   public static String getSelectedDatabaseName() {
-    Optional<WritableDatabaseService> db = getSelectedDatabase();
-    return db.isEmpty() ? "<no database selected>" : db.get().getFolderName();
+    return getSelectedDatabase().map(db -> getPath(db)).orElse("(no database selected)");
+  }
+
+  /**
+   * Whether or not all of the provided documents are in the same folder, implicitly testing that at least one document is selected and that
+   * the folder is writable.
+   * 
+   * @param docs
+   * @return
+   */
+  public static boolean allDocumentsInSameFolder(List<AnnotatedPluginDocument> docs) {
+    if (!docs.isEmpty()) {
+      Iterator<AnnotatedPluginDocument> iterator = docs.iterator();
+      DatabaseService db0 = iterator.next().getDatabase();
+      if (db0 != null && db0 instanceof WritableDatabaseService) {
+        while (iterator.hasNext()) {
+          if (!(iterator.next().getDatabase().equals(db0))) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Whether or not all of the provided documents are in the same database, implicitly testing that at least one document.
+   * 
+   * @param docs
+   * @return
+   */
+  public static boolean allDocumentsInSameDatabase(List<AnnotatedPluginDocument> docs) {
+    if (!docs.isEmpty()) {
+      Iterator<AnnotatedPluginDocument> iterator = docs.iterator();
+      DatabaseService db0 = iterator.next().getDatabase();
+      if (db0 != null && db0 instanceof WritableDatabaseService) {
+        db0 = ((WritableDatabaseService) db0).getPrimaryDatabaseRoot();
+        while (iterator.hasNext()) {
+          DatabaseService db1 = iterator.next().getDatabase();
+          if (db1 == null || !(db1 instanceof WritableDatabaseService)) {
+            return false;
+          }
+          db1 = ((WritableDatabaseService) db1).getPrimaryDatabaseRoot();
+          if (!db1.equals(db0)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Whether or not the provided folder is the ping folder or a subfolder of the ping folder.
+   * 
+   * @param folder
+   * @return
+   */
+  public static boolean isPingFolder(WritableDatabaseService folder) {
+    Check.notNull(folder, "folder");
+    do {
+      if (folder.getFolderName().equals(PingSequence.PING_FOLDER)) {
+        return true;
+      } else if (folder.getParentService() instanceof WritableDatabaseService) {
+        folder = (WritableDatabaseService) folder.getParentService();
+      } else {
+        break;
+      }
+    } while (folder != null);
+    return false;
   }
 
   /**
@@ -76,14 +150,11 @@ public class PluginUtils {
     if (apd.getDocumentClass() == DUMMY.getGeneiousType()) {
       // That's 100% certainty, but this class was only introduced in version 2 of the plugin.
       return DUMMY;
-    }
-    if (apd.getDocumentClass() == AB1.getGeneiousType()) {
+    } else if (apd.getDocumentClass() == AB1.getGeneiousType()) {
       return AB1;
-    }
-    if (apd.getDocumentClass() == CONTIG.getGeneiousType()) {
+    } else if (apd.getDocumentClass() == CONTIG.getGeneiousType()) {
       return CONTIG;
-    }
-    if (apd.getDocumentClass() == FASTA.getGeneiousType()) {
+    } else if (apd.getDocumentClass() == FASTA.getGeneiousType()) {
       if (note.isEmpty() || !note.get(NaturalisField.SEQ_MARKER).equals("Dum")) {
         return FASTA;
       }
@@ -140,6 +211,16 @@ public class PluginUtils {
     try (InputStreamReader r = new InputStreamReader(FileUtils.openInputStream(f))) {
       return (char) r.read();
     }
+  }
+
+  /**
+   * Returns the full path of the provided folder minus the "Shared Databases" prefix and minus any starting "/" or "\"
+   * 
+   * @param folder
+   * @return
+   */
+  public static String getPath(WritableDatabaseService folder) {
+    return StringMethods.lchop(folder.getFullPath(), false, "Shared Databases", "/", "\\");
   }
 
 }

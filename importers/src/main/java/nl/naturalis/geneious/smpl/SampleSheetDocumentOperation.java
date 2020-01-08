@@ -1,21 +1,18 @@
 package nl.naturalis.geneious.smpl;
 
 import static com.biomatters.geneious.publicapi.utilities.IconUtilities.getIconsFromJar;
-
 import java.util.List;
-
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperation;
 import com.biomatters.geneious.publicapi.plugin.DocumentOperationException;
 import com.biomatters.geneious.publicapi.plugin.DocumentSelectionSignature;
 import com.biomatters.geneious.publicapi.plugin.GeneiousActionOptions;
 import com.biomatters.geneious.publicapi.plugin.Options;
-
 import jebl.util.ProgressListener;
 
 /**
- * Hooks the Sample Sheet Import operation into the Geneious plugin architecture. Informs Geneious how to display and
- * kick off the Sample Sheet Import operation.
+ * Hooks the Sample Sheet Import operation into the Geneious plugin architecture. Informs Geneious how to display and kick off the Sample
+ * Sheet Import operation.
  * 
  * @author Ayco Holleman
  */
@@ -66,6 +63,13 @@ public class SampleSheetDocumentOperation extends DocumentOperation {
     SampleSheetSwingWorker importer = new SampleSheetSwingWorker(opts.configureOperation());
     importer.execute();
     return null;
+  }
+
+  @Override
+  public boolean isDocumentGenerator() {
+    // This operation does in fact generate documents (i.e. dummy documents), but this method only signals to Geneious that it should bring
+    // up a folder selection dialog, which is not what we want.
+    return false;
   }
 
 }

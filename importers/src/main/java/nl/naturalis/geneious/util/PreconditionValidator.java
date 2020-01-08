@@ -1,15 +1,12 @@
 package nl.naturalis.geneious.util;
 
+import static nl.naturalis.geneious.util.PluginUtils.allDocumentsInSameDatabase;
+import static nl.naturalis.geneious.util.PluginUtils.getPath;
+import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
 import java.util.Set;
-
-import org.apache.commons.collections4.CollectionUtils;
-
-import com.biomatters.geneious.publicapi.databaseservice.DatabaseService;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
-import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.Geneious;
 import com.biomatters.geneious.publicapi.plugin.Geneious.MajorVersion;
-
 import nl.naturalis.geneious.OperationConfig;
 import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.Precondition;
@@ -58,12 +55,14 @@ public class PreconditionValidator {
           checkValidTargetFolder();
           break;
         case AT_LEAST_ONE_DOCUMENT_SELECTED:
-          if (CollectionUtils.isEmpty(config.getSelectedDocuments())) {
+          if (config.getSelectedDocuments().isEmpty()) {
             smash("No documents selected");
           }
           break;
         case ALL_DOCUMENTS_IN_SAME_DATABASE:
-          checkAllDocsInSameDatabase();
+          if (!config.getSelectedDocuments().isEmpty() && !allDocumentsInSameDatabase(config.getSelectedDocuments())) {
+            smash("All selected documents must be in the same database");
+          }
           break;
       }
     }
@@ -85,37 +84,16 @@ public class PreconditionValidator {
 
   private void checkTargetDatabase() throws PreconditionException {
     if (config.getTargetDatabase() == null) {
-      smash("No database selected");
+      smash("Could not determine database on which to execute the operation");
     }
   }
 
   private void checkValidTargetFolder() throws PreconditionException {
-    WritableDatabaseService svc = config.getTargetFolder();
-    if (svc == null) {
+    WritableDatabaseService folder = config.getTargetFolder();
+    if (folder == null) {
       smash("Please select a target folder");
-    }
-    do {
-      if (svc.getFolderName().equals(PingSequence.PING_FOLDER)) {
-        smash("Illegal target folder: " + svc.getFullPath());
-      }
-      if (svc.getParentService() instanceof WritableDatabaseService) {
-        svc = (WritableDatabaseService) svc.getParentService();
-      } else {
-        break;
-      }
-    } while (svc != null);
-  }
-
-  private void checkAllDocsInSameDatabase() throws PreconditionException {
-    for (AnnotatedPluginDocument doc : config.getSelectedDocuments()) {
-      DatabaseService db = doc.getDatabase();
-      if (db == null /* huh? */ || !(db instanceof WritableDatabaseService)) {
-        smash(String.format("Document %s: database unknown or read-only"));
-      }
-      WritableDatabaseService wdb = ((WritableDatabaseService) db).getPrimaryDatabaseRoot();
-      if (!wdb.equals(config.getTargetDatabase())) {
-        smash("All selected documents must reside in the currently selected database (%s)", config.getTargetDatabaseName());
-      }
+    } else if (isPingFolder(folder)) {
+      smash("Illegal target folder: " + getPath(folder));
     }
   }
 

@@ -1,15 +1,20 @@
 package nl.naturalis.geneious.split;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.Precondition;
@@ -25,16 +30,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Error;
 import nl.naturalis.geneious.util.Messages.Info;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-
-import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
+import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * Manages and coordinates the Split Name operation.
@@ -87,7 +83,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
     Debug.collectingExtractIds(logger, "generated annotations");
     Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(toSet());
     Debug.collectedExtractIds(logger, ids);
-    Debug.searchingForDocuments(logger, config.getTargetDatabaseName());
+    Debug.searchingForDocuments(logger, PluginUtils.getPath(config.getTargetDatabase()));
     List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
     Debug.foundDocuments(logger, result);
     QueryCache queryCache = new QueryCache(result);

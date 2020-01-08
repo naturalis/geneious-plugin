@@ -66,7 +66,7 @@ public class Ab1FastaDocumentOperation extends DocumentOperation {
 
   @Override
   public boolean isDocumentGenerator() {
-    // This subclass does in fact generate documents, but this method only signals to Geneious that it should bring up a folder
+    // This operation does in fact generate documents, but this method only signals to Geneious that it should bring up a folder
     // selection dialog, which is not what we want.
     return false;
   }

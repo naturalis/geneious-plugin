@@ -1,15 +1,16 @@
 package nl.naturalis.geneious.name;
 
+import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
+import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
+import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.DocumentType;
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.OperationConfig;
@@ -20,10 +21,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
 import nl.naturalis.geneious.util.Messages.Debug;
 import nl.naturalis.geneious.util.Messages.Error;
 import nl.naturalis.geneious.util.Messages.Info;
-
-import static nl.naturalis.geneious.note.NaturalisField.DOCUMENT_VERSION;
-import static nl.naturalis.geneious.util.QueryUtils.deleteDocuments;
-import static nl.naturalis.geneious.util.QueryUtils.findByExtractId;
+import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * Manages the actual annotation process. It uses a {@link SequenceNameParser} to split the document names, queries the database for dummies
@@ -64,7 +62,7 @@ public class Annotator {
     Debug.collectingExtractIds(logger, "generated annotations");
     Set<String> ids = docs.stream().map(NameUtil::getExtractId).collect(Collectors.toSet());
     Debug.collectedExtractIds(logger, ids);
-    Debug.searchingForDocuments(logger, config.getTargetDatabaseName());
+    Debug.searchingForDocuments(logger, PluginUtils.getPath(config.getTargetDatabase()));
     List<AnnotatedPluginDocument> result = findByExtractId(config.getTargetDatabase(), ids);
     Debug.foundDocuments(logger, result);
     QueryCache queryCache = new QueryCache(result);

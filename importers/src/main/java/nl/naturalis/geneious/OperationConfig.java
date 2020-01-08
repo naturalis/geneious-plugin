@@ -18,6 +18,7 @@ public abstract class OperationConfig {
 
   private List<AnnotatedPluginDocument> selectedDocuments;
   private WritableDatabaseService targetFolder;
+  private WritableDatabaseService targetDatabase;
 
   public OperationConfig() {}
 
@@ -39,26 +40,12 @@ public abstract class OperationConfig {
     this.targetFolder = targetFolder;
   }
 
-  /**
-   * Returns the database containing the target folder.
-   * 
-   * @return
-   */
   public WritableDatabaseService getTargetDatabase() {
-    return targetFolder == null ? null : targetFolder.getPrimaryDatabaseRoot();
+    return targetDatabase;
   }
 
-  /**
-   * Returns name of the database that contains the folder that is currently selected by the user, or "&lt;no database selected&gt;" if no
-   * folder has been selected yet.
-   * 
-   * @return
-   */
-  public String getTargetDatabaseName() {
-    if (getTargetDatabase() == null) {
-      return "<no database selected>";
-    }
-    return getTargetDatabase().getFolderName();
+  public void setTargetDatabase(WritableDatabaseService pingDatabase) {
+    this.targetDatabase = pingDatabase;
   }
 
   /**
