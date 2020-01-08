@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
 
 import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
+import static nl.naturalis.geneious.Precondition.*;
 
 /**
  * Manages and coordinates the import of sample sheets into Geneious.
@@ -119,9 +119,9 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
   @Override
   protected Set<Precondition> getPreconditions() {
     if (config.isCreateDummies()) {
-      return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE);
+      return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE, VALID_TARGET_FOLDER);
     }
-    return EnumSet.of(AT_LEAST_ONE_DOCUMENT_SELECTED, ALL_DOCUMENTS_IN_SAME_DATABASE);
+    return EnumSet.of(ALL_DOCUMENTS_IN_SAME_DATABASE, AT_LEAST_ONE_DOCUMENT_SELECTED);
   }
 
 }

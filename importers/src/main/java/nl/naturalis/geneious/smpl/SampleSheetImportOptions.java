@@ -2,15 +2,18 @@ package nl.naturalis.geneious.smpl;
 
 import static com.biomatters.geneious.publicapi.plugin.PluginUtilities.getWritableDatabaseServiceRoots;
 import static nl.naturalis.geneious.util.PluginUtils.getPath;
+import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
 import nl.naturalis.geneious.csv.CsvImportOptions;
-import nl.naturalis.geneious.util.PluginUtils;
 
 /**
  * Underpins the user input dialog for the {@link SampleSheetDocumentOperation Sample Sheet Import} operation.
@@ -20,20 +23,20 @@ import nl.naturalis.geneious.util.PluginUtils;
  */
 class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
 
-  private static final String CREATE_DUMMIES_LABEL = "Create dummy sequences for rows containing new extract IDs";
-  private static final String FOLDER_LABEL0 = "Please select a folder for dummy documents";
+  private static final String CREATE_DUMMIES_LABEL = "Create dummy documents for rows containing new extract IDs";
+  private static final String FOLDER_LABEL0 = "Folder for dummy documents: (please select)";
   private static final String FOLDER_LABEL1 = "Folder for dummy documents: ";
-  private static final String FOLDER_LABEL2 = "Error: no documents selected and dummy document creation disabled ";
+  private static final String FOLDER_LABEL2 = "No documents selected and dummy document creation disabled!  ";
   private static final String FOLDER_LABEL3 = "Database for this operation: ";
 
   private final BooleanOption createDummies;
-  private final JLabel folderLabel;
+  private final JLabel folderDisplay;
   private final WritableDatabaseServiceTree folderTree;
 
   public SampleSheetImportOptions() {
     super("smpl");
     createDummies = addDummiesOption();
-    folderLabel = new JLabel(FOLDER_LABEL0);
+    folderDisplay = new JLabel(FOLDER_LABEL0);
     folderTree = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
     if (getTargetFolder() != null) {
       folderTree.setSelectedService(getTargetFolder());
@@ -41,12 +44,13 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     }
     folderTree.setBorder(BorderFactory.createLoweredBevelBorder());
     folderTree.addTreeSelectionListener(e -> {
-      setTargetFolder(folderTree.getSelectedService());
-      setTargetDatabase(folderTree.getSelectedService().getPrimaryDatabaseRoot());
-      folderLabel.setText(FOLDER_LABEL1 + PluginUtils.getPath(getTargetFolder()));
+      WritableDatabaseService folder = folderTree.getSelectedService();
+      setTargetFolder(folder);
+      setTargetDatabase(folder.getPrimaryDatabaseRoot());
+      setFolderDisplayText(isPingFolder(folder), FOLDER_LABEL1 + getPath(folder));
     });
     dummiesOptionChanged();
-    addCustomComponent(folderLabel);
+    addCustomComponent(folderDisplay);
     addCustomComponent(folderTree);
   }
 
@@ -63,7 +67,11 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     if (msg != null) {
       return msg;
     }
-    if (getSelectedDocuments().isEmpty() && !createDummies.getValue()) {
+    if (createDummies.getValue()) {
+      if (isPingFolder(getTargetFolder())) {
+        return "Illegal target folder: " + getPath(getTargetFolder());
+      }
+    } else if (getSelectedDocuments().isEmpty()) {
       return String.format("Please select at least one document or check \"%s\"", CREATE_DUMMIES_LABEL);
     }
     return null;
@@ -94,25 +102,35 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
   }
 
   private void dummiesOptionChanged() {
-    folderLabel.setForeground(Color.BLACK);
-    folderLabel.setFont(folderLabel.getFont().deriveFont(Font.PLAIN));
     if (createDummies.getValue()) {
       if (getTargetFolder() == null) {
         if (folderTree.getSelectedService() != null) {
-          folderLabel.setText(FOLDER_LABEL1 + getPath(folderTree.getSelectedService()));
+          WritableDatabaseService folder = folderTree.getSelectedService();
+          setFolderDisplayText(isPingFolder(folder), FOLDER_LABEL1 + getPath(folder));
         } else {
-          folderLabel.setText(FOLDER_LABEL0);
+          setFolderDisplayText(false, FOLDER_LABEL0);
         }
       } else {
-        folderLabel.setText(FOLDER_LABEL1 + getPath(getTargetFolder()));
+        setFolderDisplayText(isPingFolder(getTargetFolder()), FOLDER_LABEL1 + getPath(getTargetFolder()));
       }
     } else if (getSelectedDocuments().isEmpty()) {
-      folderLabel.setForeground(Color.RED);
-      folderLabel.setFont(folderLabel.getFont().deriveFont(Font.ITALIC));
-      folderLabel.setText(FOLDER_LABEL2);
+      setFolderDisplayText(true, FOLDER_LABEL2);
     } else {
-      folderLabel.setText(FOLDER_LABEL3 + getPath(getTargetDatabase()));
+      setFolderDisplayText(false, FOLDER_LABEL3 + getPath(getTargetDatabase()));
     }
+  }
+
+  private void setFolderDisplayText(boolean isWarning, String text) {
+    HashMap<TextAttribute, Object> attribs = new HashMap<TextAttribute, Object>();
+    if (isWarning) {
+      attribs.put(TextAttribute.FOREGROUND, Color.RED);
+      attribs.put(TextAttribute.FONT, Font.ITALIC);
+    } else {
+      attribs.put(TextAttribute.FOREGROUND, Color.BLACK);
+      attribs.put(TextAttribute.FONT, Font.PLAIN);
+    }
+    folderDisplay.setFont(folderDisplay.getFont().deriveFont(attribs));
+    folderDisplay.setText(text);
   }
 
   /*
