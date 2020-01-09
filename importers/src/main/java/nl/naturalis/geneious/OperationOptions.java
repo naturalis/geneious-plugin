@@ -7,6 +7,7 @@ import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
 import com.biomatters.geneious.publicapi.plugin.Options;
+import nl.naturalis.geneious.util.Ping;
 import nl.naturalis.geneious.util.PluginUtils;
 
 /**
@@ -58,14 +59,30 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
     return targetFolder;
   }
 
+  /**
+   * Sets the target folder.
+   * 
+   * @param targetFolder
+   */
   public void setTargetFolder(WritableDatabaseService targetFolder) {
     this.targetFolder = targetFolder;
   }
 
+  /**
+   * Returns the database that must be used for lookup queries and for the {@link Ping ping mechanism}. The target folder, if applicable,
+   * <i>must</i> always reside within the target database.
+   * 
+   * @return
+   */
   public WritableDatabaseService getTargetDatabase() {
     return targetDatabase;
   }
 
+  /**
+   * Sets the target database.
+   * 
+   * @param targetDatabase
+   */
   public void setTargetDatabase(WritableDatabaseService targetDatabase) {
     this.targetDatabase = targetDatabase;
   }
@@ -76,8 +93,11 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
     if (msg != null) {
       return msg;
     }
-    if (getTargetDatabase() == null) {
-      return "Could not determine database on which to execute the operation";
+    if (targetDatabase == null) {
+      return "Please select a database first";
+    }
+    if (targetFolder != null && !targetFolder.getPrimaryDatabaseRoot().equals(targetDatabase)) {
+      return "Target folder must be in the selected database";
     }
     return null;
   }

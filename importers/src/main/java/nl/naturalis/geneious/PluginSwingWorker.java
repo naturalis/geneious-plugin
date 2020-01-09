@@ -55,7 +55,7 @@ public abstract class PluginSwingWorker<T extends OperationConfig> extends Swing
   @Override
   protected Void doInBackground() {
     try (LogSession session = GuiLogManager.startSession(this, getLogTitle())) {
-      if (config.getTargetDatabase() == null) {
+      if (config.getTargetDatabase() == null) { // Should never happen, but let's deal with it anyhow.
         logger.error("Please select a database first");
       } else {
         if (Ping.resume(config.getTargetDatabase())) {

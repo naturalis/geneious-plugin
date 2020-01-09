@@ -15,7 +15,7 @@ import com.biomatters.geneious.publicapi.components.Dialogs.DialogIcon;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
 
 import nl.naturalis.geneious.PluginSwingWorker;
-import nl.naturalis.geneious.gui.GeneiousGUI;
+import nl.naturalis.geneious.gui.GuiUtils;
 
 /**
  * An Object defining the boundaries within which loggers can safely log messages. The boundaries are defined by the try-with-resources
@@ -72,7 +72,7 @@ public final class LogSession implements AutoCloseable {
     });
     dialog.setTitle(title);
     dialog.setContentPane(writer.getScrollPane());
-    GeneiousGUI.scale(dialog, .5, .4, 600, 400);
+    GuiUtils.scale(dialog, .5, .4, 600, 400);
     dialog.pack();
     dialog.setLocationRelativeTo(null);
     dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

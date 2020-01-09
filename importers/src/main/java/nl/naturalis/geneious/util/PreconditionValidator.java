@@ -84,7 +84,7 @@ public class PreconditionValidator {
 
   private void checkTargetDatabase() throws PreconditionException {
     if (config.getTargetDatabase() == null) {
-      smash("Could not determine database on which to execute the operation");
+      smash("Please select a database first");
     }
   }
 
