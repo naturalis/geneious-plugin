@@ -50,6 +50,17 @@
 		<url>http://www.naturalis.nl</url>
 	</organization>
 
+	<distributionManagement>
+		<repository>
+			<id>naturalis</id>
+			<url>http://145.136.242.169:8081/repository/naturalis</url>
+		</repository>
+		<snapshotRepository>
+			<id>naturalis</id>
+			<url>http://145.136.242.169:8081/repository/naturalis</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>geneious</groupId>
