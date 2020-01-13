@@ -1,27 +1,25 @@
 package nl.naturalis.geneious.seq;
 
-import static com.biomatters.geneious.publicapi.plugin.PluginUtilities.getWritableDatabaseServiceRoots;
-import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
+import static com.biomatters.geneious.publicapi.plugin.ServiceUtilities.getService;
+import static nl.naturalis.geneious.gui.ScrollableTreeViewer.isValidTargetFolder;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.ArrayUtils;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
-import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
-import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.OperationOptions;
 import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GuiUtils;
+import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.TextStyle;
+import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
  * Underpins the user input dialog for the {@link Ab1FastaDocumentOperation AB1/Fasta Import} operation.
@@ -32,12 +30,10 @@ import nl.naturalis.geneious.gui.TextStyle;
 class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
 
   private final StringOption ab1FastaDir;
-  private final StringOption targetFolderId;
-
   private final JTextField filesDisplay;
   private final JLabel fileCountDisplay;
-  private final JLabel folderDisplay;
-  private final WritableDatabaseServiceTree folderTree;
+  private final JLabel displayText;
+  private final ScrollableTreeViewer treeViewer;
 
   private File[] selectedFiles;
 
@@ -46,54 +42,38 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     ab1FastaDir = addStringOption("nl.naturalis.geneious.seq.dir", "", "");
     ab1FastaDir.setHidden();
 
-    targetFolderId = addStringOption("nl.naturalis.geneious.seq.target", "", "");
-    targetFolderId.setHidden();
-
     fileCountDisplay = new JLabel("0 files selected");
     fileCountDisplay.setForeground(Color.BLACK);
     fileCountDisplay.addMouseListener(getMouseListener());
 
     filesDisplay = new JTextField();
     filesDisplay.setEditable(false);
-    filesDisplay.setPreferredSize(new Dimension(450, filesDisplay.getPreferredSize().height));
+    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, filesDisplay.getPreferredSize().height);
+    filesDisplay.setPreferredSize(d);
     filesDisplay.addMouseListener(getMouseListener());
 
+    displayText = new JLabel("XYZ"); // Just some text to enforce a height
+    d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, displayText.getPreferredSize().height);
+    displayText.setPreferredSize(d);
 
-    if (getTargetFolder() == null) {
-      folderDisplay = new JLabel("Please select a target folder");
-    } else {
-      folderDisplay = new JLabel("Target folder: " + getTargetFolder().getFolderName());
-    }
-
-    folderTree = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
-    folderTree.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true));
-    folderTree.setPreferredSize(new Dimension(450, 200));
-    if (getTargetFolder() != null) {
-      folderTree.setSelectedService(getTargetFolder());
-      GuiUtils.paralyse(folderTree);
-    } else {
-      if (!StringMethods.isEmpty(targetFolderId.getValue())) {
-        try {
-          WritableDatabaseService last = (WritableDatabaseService) ServiceUtilities.getService(targetFolderId.getValue());
-          folderTree.setSelectedService(last);
-        } catch (Exception e) {
-          // Folder may have been deleted or something
-        }
-      }
-      folderTree.addTreeSelectionListener(e -> {
-        WritableDatabaseService folder = folderTree.getSelectedService();
-        setTargetFolder(folder);
-        targetFolderId.setValue(folder.getUniqueID());
-        setTargetDatabase(folder.getPrimaryDatabaseRoot());
-        TextStyle style = isPingFolder(folder) ? TextStyle.WARNING : TextStyle.NORMAL;
-        style.applyTo(folderDisplay, "Target folder: " + folder.getFolderName());
-      });
-    }
+    treeViewer = new ScrollableTreeViewer(this,
+        displayText,
+        () -> {
+          String folderId = RuntimeSettings.INSTANCE.getSeqLastSelectedTargetFolderId();
+          return folderId == null ? null : (WritableDatabaseService) getService(folderId);
+        },
+        folder -> {
+          if (folder == null) {
+            RuntimeSettings.INSTANCE.setSeqLastSelectedTargetFolderId(null);
+          } else {
+            RuntimeSettings.INSTANCE.setSeqLastSelectedTargetFolderId(folder.getUniqueID());
+          }
+        });
 
     addCustomComponent(fileCountDisplay);
     addCustomComponent(filesDisplay);
-    addCustomComponent(folderDisplay);
-    addCustomComponent(folderTree);
+    addCustomComponent(displayText);
+    addCustomComponent(treeViewer.getScrollPane());
 
   }
 
@@ -105,6 +85,9 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     }
     if (ArrayUtils.isEmpty(selectedFiles)) {
       return "Please select at least one AB1 or Fasta file";
+    }
+    if (!isValidTargetFolder(getTargetFolder())) {
+      return ScrollableTreeViewer.FOLDER_DISPLAY_TEXT0;
     }
     return null;
   }
@@ -147,7 +130,11 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
           if (selectedFiles.length > 10) {
             sb.append(" ... ").append(selectedFiles.length - 10).append(" more file(s)");
           }
-          fileCountDisplay.setText(String.format("%d file(s) selected", selectedFiles.length));
+          if (selectedFiles.length == 1) {
+            fileCountDisplay.setText("1 files selected");
+          } else {
+            fileCountDisplay.setText(String.format("%d files selected", selectedFiles.length));
+          }
           filesDisplay.setText(sb.toString());
           filesDisplay.setToolTipText(fileCountDisplay.getText());
           filesDisplay.setCaretPosition(0);

@@ -1,14 +1,17 @@
 package nl.naturalis.geneious.smpl;
 
+import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
+import static java.util.stream.Collectors.toList;
+import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
+import static nl.naturalis.geneious.Precondition.AT_LEAST_ONE_DOCUMENT_SELECTED;
+import static nl.naturalis.geneious.Precondition.VALID_TARGET_FOLDER;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
 import com.biomatters.geneious.publicapi.databaseservice.DatabaseServiceException;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
-
 import nl.naturalis.geneious.NonFatalException;
 import nl.naturalis.geneious.PluginSwingWorker;
 import nl.naturalis.geneious.Precondition;
@@ -20,13 +23,6 @@ import nl.naturalis.geneious.log.GuiLogManager;
 import nl.naturalis.geneious.log.GuiLogger;
 import nl.naturalis.geneious.util.DocumentLookupTable;
 import nl.naturalis.geneious.util.Messages.Info;
-
-import static java.util.stream.Collectors.toList;
-
-import static com.biomatters.geneious.publicapi.documents.DocumentUtilities.addAndReturnGeneratedDocuments;
-
-import static nl.naturalis.geneious.Precondition.ALL_DOCUMENTS_IN_SAME_DATABASE;
-import static nl.naturalis.geneious.Precondition.*;
 
 /**
  * Manages and coordinates the import of sample sheets into Geneious.
@@ -90,7 +86,7 @@ class SampleSheetSwingWorker extends PluginSwingWorker<SampleSheetImportConfig> 
       all = new ArrayList<>(runtime.countUpdatedDocuments() + importer.getNewDummies().size());
       runtime.getUpdatedDocuments().stream().map(StoredDocument::getGeneiousDocument).forEach(all::add);
       importer.getNewDummies().stream().map(StoredDocument::getGeneiousDocument).forEach(all::add);
-      all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
+      all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList(), config.getTargetFolder());
     }
     int unchanged = selectedDocuments.size() - runtime.countUpdatedDocuments() - importer.getUpdatedDummies().size();
     logger.info("Number of valid rows ................: %3d", runtime.countGoodRows());

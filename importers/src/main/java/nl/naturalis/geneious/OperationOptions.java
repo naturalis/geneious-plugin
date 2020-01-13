@@ -55,7 +55,7 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
    * 
    * @return
    */
-  protected WritableDatabaseService getTargetFolder() {
+  public WritableDatabaseService getTargetFolder() {
     return targetFolder;
   }
 

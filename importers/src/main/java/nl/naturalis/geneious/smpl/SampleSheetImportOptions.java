@@ -1,19 +1,14 @@
 package nl.naturalis.geneious.smpl;
 
-import static com.biomatters.geneious.publicapi.plugin.PluginUtilities.getWritableDatabaseServiceRoots;
-import static nl.naturalis.geneious.util.PluginUtils.getPath;
-import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
-import java.awt.Color;
+import static com.biomatters.geneious.publicapi.plugin.ServiceUtilities.getService;
+import static nl.naturalis.geneious.gui.ScrollableTreeViewer.isValidTargetFolder;
 import java.awt.Dimension;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
-import com.biomatters.geneious.publicapi.plugin.ServiceUtilities;
-import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
-import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.csv.CsvImportOptions;
-import nl.naturalis.geneious.gui.GuiUtils;
+import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.TextStyle;
+import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
  * Underpins the user input dialog for the {@link SampleSheetDocumentOperation Sample Sheet Import} operation.
@@ -23,57 +18,41 @@ import nl.naturalis.geneious.gui.TextStyle;
  */
 class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, SampleSheetImportConfig> {
 
-  private static final String CREATE_DUMMIES_LABEL = "Create dummy documents for new extract IDs";
+  private static final String CREATE_DUMMIES_LABEL = "Create dummies for new extract IDs";
 
-  private static final String FOLDER_DISPLAY_TEXT0 = "Please select a folder for the dummy documents";
-  private static final String FOLDER_DISPLAY_TEXT1 = "Target folder: ";
-  private static final String FOLDER_DISPLAY_TEXT2 = "No documents selected and dummy document creation disabled ";
-  private static final String FOLDER_DISPLAY_TEXT3 = "Database for this operation: ";
-
-  private final StringOption targetFolderId;
   private final BooleanOption createDummies;
-  private final JLabel folderDisplay;
-  private final WritableDatabaseServiceTree folderTree;
+  private final JLabel displayText;
+  private final ScrollableTreeViewer treeViewer;
 
   public SampleSheetImportOptions() {
 
     super("smpl");
 
-    targetFolderId = addStringOption("nl.naturalis.geneious.smpl.target", "", "");
-    targetFolderId.setHidden();
-
     createDummies = addDummiesOption();
 
-    folderDisplay = new JLabel(FOLDER_DISPLAY_TEXT0);
+    displayText = new JLabel("XYZ"); // Just some text to enforce a height
+    displayText.setToolTipText("Please select a folder for the dummy documents");
+    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, displayText.getPreferredSize().height);
+    displayText.setPreferredSize(d);
 
-    folderTree = new WritableDatabaseServiceTree(getWritableDatabaseServiceRoots(), false, null);
-    folderTree.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true));
-    folderTree.setPreferredSize(new Dimension(450, 200));
-    if (getTargetFolder() != null) {
-      folderTree.setSelectedService(getTargetFolder());
-      GuiUtils.paralyse(folderTree);
-    } else {
-      if (!StringMethods.isEmpty(targetFolderId.getValue())) {
-        try {
-          WritableDatabaseService last = (WritableDatabaseService) ServiceUtilities.getService(targetFolderId.getValue());
-          folderTree.setSelectedService(last);
-        } catch (Exception e) {
-          // Folder may have been deleted or something
-        }
-      }
-      folderTree.addTreeSelectionListener(e -> {
-        WritableDatabaseService folder = folderTree.getSelectedService();
-        setTargetFolder(folder);
-        setTargetDatabase(folder.getPrimaryDatabaseRoot());
-        TextStyle style = isPingFolder(folder) ? TextStyle.WARNING : TextStyle.NORMAL;
-        style.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT1 + folder.getFolderName());
-      });
-    }
+    treeViewer = new ScrollableTreeViewer(this,
+        displayText,
+        () -> {
+          String folderId = RuntimeSettings.INSTANCE.getSmplLastSelectedTargetFolderId();
+          return folderId == null ? null : (WritableDatabaseService) getService(folderId);
+        },
+        folder -> {
+          if (folder == null) {
+            RuntimeSettings.INSTANCE.setSmplLastSelectedTargetFolderId(null);
+          } else {
+            RuntimeSettings.INSTANCE.setSmplLastSelectedTargetFolderId(folder.getUniqueID());
+          }
+        });
 
-    createDummiesOptionChanged();
+    dummiesOptionChanged();
 
-    addCustomComponent(folderDisplay);
-    addCustomComponent(folderTree);
+    addCustomComponent(displayText);
+    addCustomComponent(treeViewer.getScrollPane());
   }
 
   @Override
@@ -89,10 +68,11 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     if (msg != null) {
       return msg;
     } else if (createDummies.getValue()) {
-      if (getTargetFolder() == null) {
-        return FOLDER_DISPLAY_TEXT0;
-      } else if (isPingFolder(getTargetFolder())) {
-        return "Illegal target folder: " + getPath(getTargetFolder());
+      if (!isValidTargetFolder(getTargetFolder())) {
+        if (createDummies.getValue()) {
+          return ScrollableTreeViewer.FOLDER_DISPLAY_TEXT0;
+        }
+        return ScrollableTreeViewer.DATABASE_DISPLAY_TEXT0;
       }
     } else if (getSelectedDocuments().isEmpty()) {
       return String.format("Please select at least one document or check \"%s\"", CREATE_DUMMIES_LABEL);
@@ -120,28 +100,16 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
         + "to yet-to-be imported AB1 or fasta sequences. The placeholder document then acquires the annotations "
         + "present in the sample sheet row. Once you import the real sequence, the annotations will be copied "
         + "from the placeholder document to the sequence document, and the placeholder document will be deleted.");
-    opt.addChangeListener(() -> createDummiesOptionChanged());
+    opt.addChangeListener(() -> dummiesOptionChanged());
     return opt;
   }
 
-  private void createDummiesOptionChanged() {
-    if (createDummies.getValue()) {
-      if (getTargetFolder() == null) {
-        if (folderTree.getSelectedService() != null) {
-          WritableDatabaseService folder = folderTree.getSelectedService();
-          TextStyle style = isPingFolder(folder) ? TextStyle.WARNING : TextStyle.NORMAL;
-          style.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT1 + folder.getFolderName());
-        } else {
-          TextStyle.NORMAL.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT0);
-        }
-      } else {
-        TextStyle style = isPingFolder(getTargetFolder()) ? TextStyle.WARNING : TextStyle.NORMAL;
-        style.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT1 + getTargetFolder().getFolderName());
-      }
-    } else if (getSelectedDocuments().isEmpty()) {
-      TextStyle.WARNING.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT2);
+  private void dummiesOptionChanged() {
+    treeViewer.selectsDatabaseOnly(!createDummies.getValue());
+    if (!createDummies.getValue() && getSelectedDocuments().isEmpty()) {
+      TextStyle.WARNING.applyTo(displayText, "Error: no documents selected! ");
     } else {
-      TextStyle.NORMAL.applyTo(folderDisplay, FOLDER_DISPLAY_TEXT3 + getTargetDatabase().getFolderName());
+      treeViewer.updateDisplayText();
     }
   }
 
