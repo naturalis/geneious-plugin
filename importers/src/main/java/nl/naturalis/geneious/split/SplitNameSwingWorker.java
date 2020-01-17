@@ -41,6 +41,8 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
 
   private static final GuiLogger logger = GuiLogManager.getLogger(SplitNameSwingWorker.class);
 
+  private int failures;
+
   public SplitNameSwingWorker(SplitNameConfig config) {
     super(config);
   }
@@ -56,10 +58,14 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
       all = addAndReturnGeneratedDocuments(all, true, Collections.emptyList());
     }
     int selected = config.getSelectedDocuments().size();
-    logger.info("Number of selected documents ..........: %3d", selected);
-    logger.info("Number of documents passing filters ...: %3d", docs.size());
-    logger.info("Total number of documents annotated ...: %3d", updated.size());
-    logger.info("Total number of annotation failures ...: %3d", docs.size() - updated.size());
+    int ignored = selected - docs.size();
+    int updates = updated.size();
+    int unchanged = selected - ignored - updates;
+    logger.info("Number of selected documents ....: %3d", selected);
+    logger.info("Number of ignored documents .....: %3d", ignored);
+    logger.info("Number of updated documents .....: %3d", updates);
+    logger.info("Number of update failures .......: %3d", failures);
+    logger.info("Number of unchanged documents ...: %3d", unchanged);
     Info.operationCompletedSuccessfully(logger, SplitNameDocumentOperation.NAME);
     return all == null ? Collections.emptyList() : all;
   }
@@ -99,7 +105,8 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
     return docs;
   }
 
-  private static ArrayList<StoredDocument> splitNames(List<StoredDocument> documents) {
+  private ArrayList<StoredDocument> splitNames(List<StoredDocument> documents) {
+    failures = 0;
     ArrayList<StoredDocument> docs = new ArrayList<>(documents.size());
     for (StoredDocument doc : documents) {
       String name = NameUtil.removeKnownSuffixes(doc.getName());
@@ -109,6 +116,7 @@ class SplitNameSwingWorker extends PluginSwingWorker<SplitNameConfig> {
         Debug.splittingName(logger, name);
         note = parser.parseName();
       } catch (NotParsableException e) {
+        ++failures;
         Error.nameParsingFailed(logger, doc.getName(), e);
         continue;
       }

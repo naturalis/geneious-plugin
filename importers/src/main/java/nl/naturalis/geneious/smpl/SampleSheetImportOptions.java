@@ -1,15 +1,12 @@
 package nl.naturalis.geneious.smpl;
 
-import static com.biomatters.geneious.publicapi.plugin.ServiceUtilities.getService;
 import static nl.naturalis.geneious.gui.ScrollableTreeViewer.isValidTargetFolder;
+import static nl.naturalis.geneious.util.HistorySetting.SMPL_LAST_SELECTED_GENEIOUS_FOLDER;
 import java.awt.Dimension;
 import javax.swing.JLabel;
-import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import nl.naturalis.geneious.csv.CsvImportOptions;
 import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.TextStyle;
-import static nl.naturalis.geneious.util.RuntimeSettings.*;
-import static nl.naturalis.geneious.util.RuntimeSetting.*;
 
 /**
  * Underpins the user input dialog for the {@link SampleSheetDocumentOperation Sample Sheet Import} operation.
@@ -36,13 +33,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
     Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, geneiousFolderDisplay.getPreferredSize().height);
     geneiousFolderDisplay.setPreferredSize(d);
 
-    treeViewer = new ScrollableTreeViewer(this,
-        geneiousFolderDisplay,
-        () -> {
-          String folderId = runtimeSettings().get(SMPL_LAST_SELECTED_GENEIOUS_FOLDER);
-          return folderId == null ? null : (WritableDatabaseService) getService(folderId);
-        },
-        folder -> runtimeSettings().write(SMPL_LAST_SELECTED_GENEIOUS_FOLDER, folder.getUniqueID()));
+    treeViewer = new ScrollableTreeViewer(this, geneiousFolderDisplay, SMPL_LAST_SELECTED_GENEIOUS_FOLDER);
 
     dummiesOptionChanged();
 

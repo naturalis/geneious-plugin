@@ -6,6 +6,7 @@ import static javax.swing.JOptionPane.OK_OPTION;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
+import java.io.File;
 import java.nio.charset.Charset;
 import org.virion.jam.framework.AbstractFrame;
 import com.biomatters.geneious.publicapi.utilities.GuiUtilities;
@@ -68,6 +69,12 @@ public class ShowDialog {
    */
   public static void pingHistoryCleared() {
     showMessageDialog(frame(), "Ping history cleared");
+  }
+
+  public static void errorLoadingPluginSettings(File settingsFile, Exception e) {
+    String fmt = "Error loading plugin settings file (%s): %s. Delete the settings file and try again";
+    String msg = String.format(fmt, settingsFile.getAbsolutePath(), e);
+    showMessageDialog(frame(), msg);
   }
 
   private static AbstractFrame frame() {

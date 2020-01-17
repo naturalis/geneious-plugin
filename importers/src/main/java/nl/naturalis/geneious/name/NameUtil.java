@@ -128,6 +128,10 @@ public class NameUtil {
   public static List<String> getCurrentAb1ExtensionsWithDot() {
     return getCurrentAb1Extensions().stream().map(s -> "." + s).collect(toList());
   }
+  
+  public static List<String> getDummyExtensions() {
+    return Arrays.asList(dummyExts);
+  }
 
   /**
    * Returns the fasta file extensions prefixed with a dot (like .fas).
@@ -137,7 +141,18 @@ public class NameUtil {
   public static List<String> getCurrentFastaExtensionsWithDot() {
     return getCurrentFastaExtensions().stream().map(s -> "." + s).collect(toList());
   }
+  
+  public static List<String> getDummyExtensionsWithDot() {
+    return getDummyExtensions().stream().map(s -> "." + s).collect(toList());
+  }
 
+  public static List<String> getAllKnownFileExtensionsWithDot() {
+    List<String> exts = new ArrayList<>();
+    exts.addAll(getCurrentAb1ExtensionsWithDot());
+    exts.addAll(getCurrentFastaExtensionsWithDot());
+    exts.addAll(getDummyExtensionsWithDot());
+    return exts;
+  }
   /**
    * Returns a list of all known file extensions for documents handled by the plugin, including those for dummy documents.
    * 
@@ -162,7 +177,7 @@ public class NameUtil {
    * @return
    */
   public static String removeKnownSuffixes(String name) {
-    return StringMethods.rchop(name, true, getAllKnownFileExtensions());
+    return StringMethods.rchop(name, true, getAllKnownFileExtensionsWithDot());
   }
 
   public static String getExtractId(StoredDocument doc) {

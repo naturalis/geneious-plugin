@@ -1,7 +1,5 @@
 package nl.naturalis.geneious.split;
 
-import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
-
 import nl.naturalis.geneious.OperationOptions;
 
 /**
@@ -29,10 +27,10 @@ class SplitNameOptions extends OperationOptions<SplitNameConfig> {
   @Override
   public String verifyOptionsAreValid() {
     String msg = super.verifyOptionsAreValid();
-    if(msg != null) {
+    if (msg != null) {
       return msg;
     }
-    if(DocumentUtilities.getSelectedDocuments().isEmpty()) {
+    if (getSelectedDocuments().isEmpty()) {
       return "Please select at least one document";
     }
     return null;

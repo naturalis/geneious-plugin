@@ -93,11 +93,9 @@ public abstract class OperationOptions<T extends OperationConfig> extends Option
     if (msg != null) {
       return msg;
     }
-    if (targetDatabase == null) {
-      return "Please select a database first";
-    }
-    if (targetFolder != null && !targetFolder.getPrimaryDatabaseRoot().equals(targetDatabase)) {
-      return "Target folder must be in the selected database";
+    if (targetDatabase != null && targetFolder != null && !targetFolder.getPrimaryDatabaseRoot().equals(targetDatabase)) {
+      // Don't know if you can even concoct this situation, but let's deal with it anyhow
+      return "Geneious target folder must be in the selected database";
     }
     return null;
   }

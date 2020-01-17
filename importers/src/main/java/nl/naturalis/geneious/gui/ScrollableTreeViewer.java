@@ -1,17 +1,18 @@
 package nl.naturalis.geneious.gui;
 
 import static com.biomatters.geneious.publicapi.plugin.PluginUtilities.getWritableDatabaseServiceRoots;
+import static com.biomatters.geneious.publicapi.plugin.ServiceUtilities.getService;
+import static nl.naturalis.geneious.util.History.history;
 import static nl.naturalis.geneious.util.PluginUtils.isPingFolder;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService;
 import com.biomatters.geneious.publicapi.plugin.WritableDatabaseServiceTree;
 import nl.naturalis.geneious.OperationOptions;
+import nl.naturalis.geneious.util.HistorySetting;
 
 /**
  * Shows a folder tree within which user can select the target folder for AB1/Fasta files (AB1/Fasta Import operation) or for dummy
@@ -22,8 +23,8 @@ import nl.naturalis.geneious.OperationOptions;
  */
 public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
 
-  public static final String FOLDER_DISPLAY_TEXT0 = "Please select a valid target folder";
-  public static final String FOLDER_DISPLAY_TEXT1 = "Target folder: ";
+  public static final String FOLDER_DISPLAY_TEXT0 = "Please select a valid Geneious target folder";
+  public static final String FOLDER_DISPLAY_TEXT1 = "Geneious target folder: ";
   public static final String DATABASE_DISPLAY_TEXT0 = "Please select a valid target database";
   public static final String DATABASE_DISPLAY_TEXT1 = "Target database: ";
 
@@ -34,9 +35,8 @@ public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
   }
 
   private final OperationOptions<?> options;
-  private final JLabel displayText;
-  private final Supplier<WritableDatabaseService> historyReader;
-  private final Consumer<WritableDatabaseService> historyWriter;
+  private final JLabel geneiousFolderDisplay;
+  private final HistorySetting setting;
 
   private boolean selectsDatabaseOnly;
 
@@ -46,17 +46,15 @@ public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
    * stored so it survives the operation and the current Geneious session.
    * 
    * @param options
-   * @param displayText
+   * @param geneiousFolderDisplay
    * @param historyReader
    * @param historyWriter
    */
-  public ScrollableTreeViewer(OperationOptions<?> options, JLabel displayText, Supplier<WritableDatabaseService> historyReader,
-      Consumer<WritableDatabaseService> historyWriter) {
+  public ScrollableTreeViewer(OperationOptions<?> options, JLabel geneiousFolderDisplay, HistorySetting toBeSaved) {
     super(getWritableDatabaseServiceRoots(), false, null);
     this.options = options;
-    this.displayText = displayText;
-    this.historyReader = historyReader;
-    this.historyWriter = historyWriter;
+    this.geneiousFolderDisplay = geneiousFolderDisplay;
+    this.setting = toBeSaved;
     setup();
   }
 
@@ -89,9 +87,9 @@ public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
     if (isValidTargetFolder(options.getTargetFolder())) {
       displayFolderName(options.getTargetFolder());
       setSelectedService(options.getTargetFolder());
-      historyWriter.accept(options.getTargetFolder());
+      history().save(setting, options.getTargetFolder().getUniqueID());
     } else {
-      WritableDatabaseService folder = historyReader.get();
+      WritableDatabaseService folder = getLastSelectedFolder();
       if (isValidTargetFolder(folder)) {
         displayFolderName(folder);
         setSelectedService(folder);
@@ -112,7 +110,7 @@ public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
       displayFolderName(folder);
       options.setTargetFolder(folder);
       options.setTargetDatabase(folder.getPrimaryDatabaseRoot());
-      historyWriter.accept(folder);
+      history().save(setting, folder.getUniqueID());
     } else {
       options.setTargetFolder(null);
       options.setTargetDatabase(null);
@@ -120,19 +118,26 @@ public class ScrollableTreeViewer extends WritableDatabaseServiceTree {
     }
   }
 
+  private WritableDatabaseService getLastSelectedFolder() {
+    String folderId = history().read(setting);
+    return folderId == null ? null : (WritableDatabaseService) getService(folderId);
+  }
+
   private void displayFolderName(WritableDatabaseService folder) {
+    String msg;
     if (selectsDatabaseOnly) {
-      TextStyle.NORMAL.applyTo(displayText, DATABASE_DISPLAY_TEXT1 + folder.getPrimaryDatabaseRoot().getFolderName());
+      msg = DATABASE_DISPLAY_TEXT1 + folder.getPrimaryDatabaseRoot().getFolderName();
     } else {
-      TextStyle.NORMAL.applyTo(displayText, FOLDER_DISPLAY_TEXT1 + folder.getFolderName());
+      msg = FOLDER_DISPLAY_TEXT1 + folder.getFolderName();
     }
+    TextStyle.NORMAL.applyTo(geneiousFolderDisplay, msg);
   }
 
   private void displayWarning() {
     if (selectsDatabaseOnly) {
-      TextStyle.WARNING.applyTo(displayText, DATABASE_DISPLAY_TEXT0);
+      TextStyle.WARNING.applyTo(geneiousFolderDisplay, DATABASE_DISPLAY_TEXT0);
     } else {
-      TextStyle.WARNING.applyTo(displayText, FOLDER_DISPLAY_TEXT0);
+      TextStyle.WARNING.applyTo(geneiousFolderDisplay, FOLDER_DISPLAY_TEXT0);
     }
   }
 

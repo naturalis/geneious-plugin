@@ -64,9 +64,8 @@ class FastaImporter {
           ++rejected;
           int i = matcher.start();
           char c = info.getSequence().charAt(i);
-          logger.error("Illegal character in nucletotide sequence at position %d: '%s'", i + 1, c);
+          logger.error("File %s: Illegal character in nucletotide sequence at position %d: '%s'", motherFile.getName(), i + 1, c);
         } else {
-          logger.info("Nucleotide sequence: %s", info.getSequence());
           sequence = new DefaultNucleotideSequence(info.getName(), null, info.getSequence(), date);
           apd = createAnnotatedPluginDocument(sequence);
           ++imported;

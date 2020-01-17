@@ -35,6 +35,7 @@ import nl.naturalis.geneious.note.NaturalisNote;
  */
 public class PluginUtils {
 
+  @SuppressWarnings("unused")
   private static final GuiLogger logger = GuiLogManager.getLogger(PluginUtils.class);
 
   private PluginUtils() {}
@@ -199,7 +200,6 @@ public class PluginUtils {
   public static boolean isFastaFile(File f) throws IOException {
     if (StringMethods.endsWith(f.getName(), true, getCurrentFastaExtensionsWithDot())) {
       if (firstChar(f) != '>') {
-        logger.warn("Invalid fasta file: %s. First character in fasta file must be '>'", f.getName());
         return false;
       }
       return true;

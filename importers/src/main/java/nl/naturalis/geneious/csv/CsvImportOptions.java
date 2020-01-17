@@ -4,7 +4,7 @@ import static com.biomatters.geneious.publicapi.components.Dialogs.showMessageDi
 import static java.util.Arrays.asList;
 import static nl.naturalis.geneious.csv.CsvImportUtil.isCsvFile;
 import static nl.naturalis.geneious.csv.CsvImportUtil.isSpreadsheet;
-import static nl.naturalis.geneious.util.RuntimeSettings.runtimeSettings;
+import static nl.naturalis.geneious.util.History.history;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -31,7 +31,7 @@ import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.ShowDialog;
 import nl.naturalis.geneious.gui.TextStyle;
 import nl.naturalis.geneious.util.CharsetDetector;
-import nl.naturalis.geneious.util.RuntimeSetting;
+import nl.naturalis.geneious.util.HistorySetting;
 
 /**
  * Abstract base class for classes underpinning a Geneious dialog that requests user input for the import of CSV-like files.
@@ -46,8 +46,6 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private static final String LINES_TO_SKIP = "nl.naturalis.geneious.%s.skip";
   private static final String DELIMITER = "nl.naturalis.geneious.%s.delim";
   private static final String SHEET_NAME = "nl.naturalis.geneious.%s.sheet";
-  private static final String SELECTED_DELIM = "nl.naturalis.geneious.%s.selectedDelim";
-  private static final String SELECTED_SHEET = "nl.naturalis.geneious.%s.selectedSheet";
 
   private static final OptionValue NOT_APPLICABLE = new OptionValue("-1", "  n/a  ");
   private static final OptionValue DELIM_INIT = new OptionValue("-1", "  --- csv/tsv/txt ---  ");
@@ -66,23 +64,17 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   private final IntegerOption linesToSkip;
   private final ComboBoxOption<OptionValue> delimiter;
   private final ComboBoxOption<OptionValue> sheet;
-  private final IntegerOption selectedDelim;
-  private final IntegerOption selectedSheet;
 
   private boolean sourceFileSelected = false;
   private String fileChangedErrorMessage = null;
 
   public CsvImportOptions(String identifier) {
     this.identifier = identifier;
-
     this.sourceFileDisplay = addFileSelectionOption();
     addCustomComponent(sourceFileDisplay);
-
     this.linesToSkip = addLinesToSkipOption();
     this.delimiter = addDelimiterOption();
     this.sheet = supportSpreadsheet() ? addSheetOption() : null;
-    this.selectedDelim = addSelectedDelimOption();
-    this.selectedSheet = addSelectedSheetOption();
   }
 
   /**
@@ -201,11 +193,13 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     opt.setDescription("The character used to separate values within a row");
     opt.setEnabled(false);
     opt.addChangeListener(() -> {
-      OptionValue v = opt.getPossibleOptionValues().get(0);
-      if (v != DELIM_INIT && v != NOT_APPLICABLE) {
+      OptionValue first = opt.getPossibleOptionValues().get(0);
+      if (first != DELIM_INIT && first != NOT_APPLICABLE) {
         for (int i = 0; i < opt.getPossibleOptionValues().size(); ++i) {
           if (opt.getPossibleOptionValues().get(i) == opt.getValue()) {
-            selectedDelim.setValue(i);
+            HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedDelimiter");
+            history().save(setting, String.valueOf(i));
+            break;
           }
         }
       }
@@ -219,27 +213,17 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
     opt.setDescription("The name of the sheet (a.k.a. tab) within the spreadsheet.");
     opt.setEnabled(false);
     opt.addChangeListener(() -> {
-      OptionValue v = opt.getPossibleOptionValues().get(0);
-      if (v != SHEET_INIT && v != NOT_APPLICABLE) {
+      OptionValue first = opt.getPossibleOptionValues().get(0);
+      if (first != SHEET_INIT && first != NOT_APPLICABLE) {
         for (int i = 0; i < opt.getPossibleOptionValues().size(); ++i) {
           if (opt.getPossibleOptionValues().get(i) == opt.getValue()) {
-            selectedSheet.setValue(i);
+            HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedSheet");
+            history().save(setting, String.valueOf(i));
+            break;
           }
         }
       }
     });
-    return opt;
-  }
-
-  private IntegerOption addSelectedDelimOption() {
-    IntegerOption opt = addIntegerOption(getOptionName(SELECTED_DELIM), "", Integer.MIN_VALUE);
-    opt.setHidden();
-    return opt;
-  }
-
-  private IntegerOption addSelectedSheetOption() {
-    IntegerOption opt = addIntegerOption(getOptionName(SELECTED_SHEET), "", Integer.MIN_VALUE);
-    opt.setHidden();
     return opt;
   }
 
@@ -251,8 +235,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
         if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
           if (fc.getSelectedFile() != null) {
             sourceFileSelected = true;
-            RuntimeSetting setting = RuntimeSetting.forPackage(identifier, "lastSelectedFileSystemFolder");
-            runtimeSettings().write(setting, (fc.getCurrentDirectory().getAbsolutePath()));
+            HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedFileSystemFolder");
+            history().save(setting, (fc.getCurrentDirectory().getAbsolutePath()));
             TextStyle.NORMAL.applyTo(sourceFileDisplay, fc.getSelectedFile().getName());
             sourceFileDisplay.setToolTipText(fc.getSelectedFile().getAbsolutePath());
             sourceFileChanged(fc.getSelectedFile().getAbsolutePath());
@@ -263,8 +247,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private JFileChooser newFileChooser() {
-    RuntimeSetting setting = RuntimeSetting.forPackage(identifier, "lastSelectedFileSystemFolder");
-    String initDir = runtimeSettings().getOrDefault(setting, System.getProperty("user.home"));
+    HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedFileSystemFolder");
+    String initDir = history().read(setting, System.getProperty("user.home"));
     JFileChooser fc = new JFileChooser(initDir);
     String fileType = getFileType();
     fc.setDialogTitle("Select " + fileType);
@@ -325,11 +309,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
   }
 
   private void loadDelimitersIntoComboBox() {
-    /*
-     * We must first store the value of selectedDelim and only then set the possible values for the combox! setPossibleValues() triggers the
-     * change listener on the combobox, which updates the value of selectedDelim.
-     */
-    int x = selectedDelim.getValue().intValue();
+    HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedDelimiter");
+    int x = history().readInt(setting);
     delimiter.setPossibleValues(DELIM_OPTIONS);
     if (x >= 0 && x < DELIM_OPTIONS.size()) {
       delimiter.setDefaultValue(DELIM_OPTIONS.get(x));
@@ -360,7 +341,8 @@ public abstract class CsvImportOptions<T extends Enum<T>, U extends CsvImportCon
       OptionValue opt = new OptionValue(String.valueOf(i), "  " + label + "  ");
       options.add(opt);
     }
-    int x = selectedSheet.getValue().intValue();
+    HistorySetting setting = HistorySetting.forPackage(identifier, "lastSelectedSheet");
+    int x = history().readInt(setting);
     sheet.setPossibleValues(options);
     if (x >= 0 && x < options.size()) {
       sheet.setDefaultValue(options.get(x));

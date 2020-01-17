@@ -10,9 +10,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import nl.naturalis.common.Check;
 import nl.naturalis.common.ExceptionMethods;
+import nl.naturalis.common.StringMethods;
 import nl.naturalis.geneious.GlobalOptions;
 import nl.naturalis.geneious.Settings;
+import nl.naturalis.geneious.gui.ShowDialog;
 
 /**
  * Maintains user-selected values and other data across operations and Geneious sessions. This class existed in the very early development
@@ -23,13 +26,16 @@ import nl.naturalis.geneious.Settings;
  * @author Ayco Holleman
  *
  */
-public class RuntimeSettings extends TreeMap<RuntimeSetting, String> {
+public class History extends TreeMap<HistorySetting, String> {
 
   // TreeMap rather than EnumMap so settings remain nicely alphabetically ordered
 
-  private static final RuntimeSettings instance = new RuntimeSettings();
+  private static History instance;
 
-  public static RuntimeSettings runtimeSettings() {
+  public static History history() {
+    if (instance == null) {
+      instance = new History();
+    }
     return instance;
   }
 
@@ -37,35 +43,60 @@ public class RuntimeSettings extends TreeMap<RuntimeSetting, String> {
   private final ObjectMapper mapper;
   private final ObjectWriter writer;
 
-  private RuntimeSettings() {
+  private History() {
     super((s1, s2) -> s1.toString().compareTo(s2.toString()));
     settingsFile = new File(System.getProperty("user.home") + "/.nbc-geneious-plugin.json");
     mapper = createObjectMapper();
-    writer = mapper.writerFor(RuntimeSettings.class).withDefaultPrettyPrinter();
+    writer = mapper.writerFor(History.class).withDefaultPrettyPrinter();
     if (settingsFile.exists()) {
       try {
         // First read into HashMap and only then convert to RuntimeSettings to get rid of junk settings (from previous versions)
         TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
         HashMap<String, String> temp = mapper.readValue(settingsFile, typeRef);
         for (Map.Entry<String, String> entry : temp.entrySet()) {
-          RuntimeSetting s = RuntimeSetting.parse(entry.getKey());
+          HistorySetting s = HistorySetting.parse(entry.getKey());
           if (s != null) { // no junk
             put(s, entry.getValue());
           }
         }
-      } catch (IOException e) {
-        throw ExceptionMethods.uncheck(e);
+      } catch (Exception e) {
+        ShowDialog.errorLoadingPluginSettings(settingsFile, e);
       }
     }
   }
 
-  public void write(RuntimeSetting setting, String value) {
-    if (value == null) {
+  public String read(HistorySetting setting) {
+    String val = super.get(setting);
+    if (val == null || val.isBlank()) {
+      return null;
+    }
+    return val;
+  }
+
+  public int readInt(HistorySetting setting) {
+    String val = super.get(setting);
+    if (val == null || val.isBlank()) {
+      return 0;
+    }
+    return Integer.parseInt(val);
+  }
+
+  public String read(HistorySetting setting, String dfault) {
+    Check.argument(StringMethods.isNotBlank(dfault), "dfault must not be blank");
+    String val = super.get(setting);
+    if (val == null || val.isBlank()) {
+      return dfault;
+    }
+    return val;
+  }
+
+  public void save(HistorySetting setting, String value) {
+    if (value == null || value.isBlank()) {
       if (containsKey(setting)) {
         remove(setting);
         save();
       }
-    } else if (!containsKey(setting) || !get(setting).equals(value)) {
+    } else if (!containsKey(setting) || !read(setting).equals(value)) {
       put(setting, value);
       save();
     }
