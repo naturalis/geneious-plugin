@@ -8,7 +8,8 @@ import com.biomatters.geneious.publicapi.databaseservice.WritableDatabaseService
 import nl.naturalis.geneious.csv.CsvImportOptions;
 import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.TextStyle;
-import nl.naturalis.geneious.util.RuntimeSettings;
+import static nl.naturalis.geneious.util.RuntimeSettings.*;
+import static nl.naturalis.geneious.util.RuntimeSetting.*;
 
 /**
  * Underpins the user input dialog for the {@link SampleSheetDocumentOperation Sample Sheet Import} operation.
@@ -21,7 +22,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
   private static final String CREATE_DUMMIES_LABEL = "Create dummies for new extract IDs";
 
   private final BooleanOption createDummies;
-  private final JLabel displayText;
+  private final JLabel geneiousFolderDisplay;
   private final ScrollableTreeViewer treeViewer;
 
   public SampleSheetImportOptions() {
@@ -30,28 +31,22 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
 
     createDummies = addDummiesOption();
 
-    displayText = new JLabel("XYZ"); // Just some text to enforce a height
-    displayText.setToolTipText("Please select a folder for the dummy documents");
-    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, displayText.getPreferredSize().height);
-    displayText.setPreferredSize(d);
+    geneiousFolderDisplay = new JLabel("XYZ"); // Just some text to enforce a height
+    geneiousFolderDisplay.setToolTipText("Please select a folder for the dummy documents");
+    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, geneiousFolderDisplay.getPreferredSize().height);
+    geneiousFolderDisplay.setPreferredSize(d);
 
     treeViewer = new ScrollableTreeViewer(this,
-        displayText,
+        geneiousFolderDisplay,
         () -> {
-          String folderId = RuntimeSettings.INSTANCE.getSmplLastSelectedTargetFolderId();
+          String folderId = runtimeSettings().get(SMPL_LAST_SELECTED_GENEIOUS_FOLDER);
           return folderId == null ? null : (WritableDatabaseService) getService(folderId);
         },
-        folder -> {
-          if (folder == null) {
-            RuntimeSettings.INSTANCE.setSmplLastSelectedTargetFolderId(null);
-          } else {
-            RuntimeSettings.INSTANCE.setSmplLastSelectedTargetFolderId(folder.getUniqueID());
-          }
-        });
+        folder -> runtimeSettings().write(SMPL_LAST_SELECTED_GENEIOUS_FOLDER, folder.getUniqueID()));
 
     dummiesOptionChanged();
 
-    addCustomComponent(displayText);
+    addCustomComponent(geneiousFolderDisplay);
     addCustomComponent(treeViewer.getScrollPane());
   }
 
@@ -107,7 +102,7 @@ class SampleSheetImportOptions extends CsvImportOptions<SampleSheetColumn, Sampl
   private void dummiesOptionChanged() {
     treeViewer.selectsDatabaseOnly(!createDummies.getValue());
     if (!createDummies.getValue() && getSelectedDocuments().isEmpty()) {
-      TextStyle.WARNING.applyTo(displayText, "Error: no documents selected! ");
+      TextStyle.WARNING.applyTo(geneiousFolderDisplay, "Error: no documents selected! ");
     } else {
       treeViewer.updateDisplayText();
     }

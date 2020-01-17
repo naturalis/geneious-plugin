@@ -2,6 +2,9 @@ package nl.naturalis.geneious.seq;
 
 import static com.biomatters.geneious.publicapi.plugin.ServiceUtilities.getService;
 import static nl.naturalis.geneious.gui.ScrollableTreeViewer.isValidTargetFolder;
+import static nl.naturalis.geneious.util.RuntimeSetting.SEQ_LAST_SELECTED_FILE_SYSTEM_FOLDER;
+import static nl.naturalis.geneious.util.RuntimeSetting.SEQ_LAST_SELECTED_GENEIOUS_FOLDER;
+import static nl.naturalis.geneious.util.RuntimeSettings.runtimeSettings;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -19,7 +22,6 @@ import nl.naturalis.geneious.gui.Ab1FastaFileFilter;
 import nl.naturalis.geneious.gui.GuiUtils;
 import nl.naturalis.geneious.gui.ScrollableTreeViewer;
 import nl.naturalis.geneious.gui.TextStyle;
-import nl.naturalis.geneious.util.RuntimeSettings;
 
 /**
  * Underpins the user input dialog for the {@link Ab1FastaDocumentOperation AB1/Fasta Import} operation.
@@ -29,50 +31,41 @@ import nl.naturalis.geneious.util.RuntimeSettings;
  */
 class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
 
-  private final StringOption ab1FastaDir;
-  private final JTextField filesDisplay;
+  private final JTextField sourceFilesDisplay;
   private final JLabel fileCountDisplay;
-  private final JLabel displayText;
+  private final JLabel geneiousFolderDisplay;
   private final ScrollableTreeViewer treeViewer;
 
   private File[] selectedFiles;
 
   Ab1FastaOptions() {
 
-    ab1FastaDir = addStringOption("nl.naturalis.geneious.seq.dir", "", "");
-    ab1FastaDir.setHidden();
-
     fileCountDisplay = new JLabel("0 files selected");
     fileCountDisplay.setForeground(Color.BLACK);
     fileCountDisplay.addMouseListener(getMouseListener());
 
-    filesDisplay = new JTextField();
-    filesDisplay.setEditable(false);
-    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, filesDisplay.getPreferredSize().height);
-    filesDisplay.setPreferredSize(d);
-    filesDisplay.addMouseListener(getMouseListener());
+    sourceFilesDisplay = new JTextField();
+    sourceFilesDisplay.setEditable(false);
+    Dimension d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, sourceFilesDisplay.getPreferredSize().height);
+    sourceFilesDisplay.setPreferredSize(d);
+    sourceFilesDisplay.addMouseListener(getMouseListener());
+    TextStyle.ENTER_VALUE.applyTo(sourceFilesDisplay, "Click to select AB1/Fasta files");
 
-    displayText = new JLabel("XYZ"); // Just some text to enforce a height
-    d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, displayText.getPreferredSize().height);
-    displayText.setPreferredSize(d);
+    geneiousFolderDisplay = new JLabel("XYZ"); // Just some text to enforce a height
+    d = new Dimension(ScrollableTreeViewer.PREFERRED_WIDTH, geneiousFolderDisplay.getPreferredSize().height);
+    geneiousFolderDisplay.setPreferredSize(d);
 
     treeViewer = new ScrollableTreeViewer(this,
-        displayText,
+        geneiousFolderDisplay,
         () -> {
-          String folderId = RuntimeSettings.INSTANCE.getSeqLastSelectedTargetFolderId();
+          String folderId = runtimeSettings().get(SEQ_LAST_SELECTED_GENEIOUS_FOLDER);
           return folderId == null ? null : (WritableDatabaseService) getService(folderId);
         },
-        folder -> {
-          if (folder == null) {
-            RuntimeSettings.INSTANCE.setSeqLastSelectedTargetFolderId(null);
-          } else {
-            RuntimeSettings.INSTANCE.setSeqLastSelectedTargetFolderId(folder.getUniqueID());
-          }
-        });
+        folder -> runtimeSettings().write(SEQ_LAST_SELECTED_GENEIOUS_FOLDER, folder.getUniqueID()));
 
     addCustomComponent(fileCountDisplay);
-    addCustomComponent(filesDisplay);
-    addCustomComponent(displayText);
+    addCustomComponent(sourceFilesDisplay);
+    addCustomComponent(geneiousFolderDisplay);
     addCustomComponent(treeViewer.getScrollPane());
 
   }
@@ -99,8 +92,9 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
     return config;
   }
 
-  private JFileChooser newFileChooser() {
-    JFileChooser fc = new JFileChooser(ab1FastaDir.getValue());
+  private static JFileChooser newFileChooser() {
+    String initDir = runtimeSettings().getOrDefault(SEQ_LAST_SELECTED_FILE_SYSTEM_FOLDER, System.getProperty("user.home"));
+    JFileChooser fc = new JFileChooser(initDir);
     fc.setDialogTitle("Select AB1/Fasta files");
     fc.setMultiSelectionEnabled(true);
     fc.addChoosableFileFilter(new Ab1FastaFileFilter(true, true));
@@ -118,7 +112,7 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
       public void mouseClicked(MouseEvent e) {
         JFileChooser fc = newFileChooser();
         if (fc.showOpenDialog(GuiUtilities.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-          ab1FastaDir.setValue(fc.getCurrentDirectory().getAbsolutePath());
+          runtimeSettings().write(SEQ_LAST_SELECTED_FILE_SYSTEM_FOLDER, (fc.getCurrentDirectory().getAbsolutePath()));
           selectedFiles = fc.getSelectedFiles();
           StringBuilder sb = new StringBuilder(64);
           for (int i = 0; i < Math.min(10, selectedFiles.length); ++i) {
@@ -135,9 +129,10 @@ class Ab1FastaOptions extends OperationOptions<Ab1FastaImportConfig> {
           } else {
             fileCountDisplay.setText(String.format("%d files selected", selectedFiles.length));
           }
-          filesDisplay.setText(sb.toString());
-          filesDisplay.setToolTipText(fileCountDisplay.getText());
-          filesDisplay.setCaretPosition(0);
+          sourceFilesDisplay.setText(sb.toString());
+          sourceFilesDisplay.setToolTipText(fileCountDisplay.getText());
+          sourceFilesDisplay.setCaretPosition(0);
+          TextStyle.NORMAL.applyTo(sourceFilesDisplay);
         }
       }
 

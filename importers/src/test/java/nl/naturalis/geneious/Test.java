@@ -1,5 +1,10 @@
 package nl.naturalis.geneious;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -8,9 +13,12 @@ import java.util.List;
 public class Test {
 
   public static void main(String[] args) {
-    List<String> l1 = Arrays.asList("1","2","3","4");
-    List<String> l2 = l1.subList(2, 2);
-    System.out.println(String.valueOf(4012524841L));
+//    Date d = new Date(1496858267470L);
+//    SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm");
+//    System.out.println("The date is: "+ df.format(d));
+    //1570085047432
+    Instant i = Instant.ofEpochMilli(1470208622364L);
+    System.out.println(DateTimeFormatter.ISO_INSTANT.format(i));
   }
 
 }

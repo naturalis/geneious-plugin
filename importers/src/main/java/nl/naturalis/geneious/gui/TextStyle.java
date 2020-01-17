@@ -2,6 +2,7 @@ package nl.naturalis.geneious.gui;
 
 import static java.awt.Color.BLACK;
 import static java.awt.Color.BLUE;
+import static java.awt.Color.LIGHT_GRAY;
 import static java.awt.Color.RED;
 import static java.awt.font.TextAttribute.FOREGROUND;
 import static java.awt.font.TextAttribute.UNDERLINE;
@@ -12,7 +13,9 @@ import java.awt.Font;
 import java.awt.font.TextAttribute;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import nl.naturalis.common.Tuple;
 
 /**
@@ -23,6 +26,7 @@ public enum TextStyle {
 
   NORMAL(tuple(FOREGROUND, BLACK), tuple(UNDERLINE, null)),
   WARNING(tuple(FOREGROUND, RED), tuple(UNDERLINE, null)),
+  ENTER_VALUE(tuple(FOREGROUND, LIGHT_GRAY), tuple(UNDERLINE, null)),
   HYPERLINK(tuple(FOREGROUND, BLUE), tuple(UNDERLINE, UNDERLINE_ON));
 
   private final HashMap<TextAttribute, Object> attribs;
@@ -35,25 +39,36 @@ public enum TextStyle {
     return attribs;
   }
 
-  public void applyTo(JLabel label) {
-    Font font = label.getFont();
-    if (this == WARNING) {
+  public void applyTo(JComponent component) {
+    Font font = component.getFont();
+    if (this == WARNING || this == ENTER_VALUE) {
       font = font.deriveFont(Font.ITALIC);
     } else {
       font = font.deriveFont(Font.PLAIN);
     }
-    label.setFont(font.deriveFont(attribs));
+    component.setFont(font.deriveFont(attribs));
   }
 
-  public void applyTo(JLabel label, String labelText) {
+  public void applyTo(JLabel label, String text) {
     Font font = label.getFont();
-    if (this == WARNING) {
+    if (this == WARNING || this == ENTER_VALUE) {
       font = font.deriveFont(Font.ITALIC);
     } else {
       font = font.deriveFont(Font.PLAIN);
     }
     label.setFont(font.deriveFont(attribs));
-    label.setText(labelText);
+    label.setText(text);
+  }
+
+  public void applyTo(JTextField field, String text) {
+    Font font = field.getFont();
+    if (this == WARNING || this == ENTER_VALUE) {
+      font = font.deriveFont(Font.ITALIC);
+    } else {
+      font = font.deriveFont(Font.PLAIN);
+    }
+    field.setFont(font.deriveFont(attribs));
+    field.setText(text);
   }
 
 }
