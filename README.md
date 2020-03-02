@@ -25,7 +25,7 @@ To develop and build the plugin the following is required
 ### Configure Maven (repository setup)
 The Geneious plugin has a dependency on naturalis-common, an in-house Java utilities library. 
 
-If you work outside Naturalis you must download the [source code](https://github.com/naturalis/naturalis-common) for the naturalis-common library first and do a maven build yourself.
+If you work outside Naturalis you must clone/download the [source code](https://github.com/naturalis/naturalis-common) for the naturalis-common library first and do a maven build yourself. Make sure to check out the right git tag. See the [pom file](importers/pom.xml) for the Geneious plugin project. 
 
 Otherwise this dependency is resolved through the Naturalis Maven repository. You need to make Maven aware of this repository through Maven's settings.xml file. Edit settings.xml as follows:
 
