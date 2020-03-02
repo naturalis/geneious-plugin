@@ -66,6 +66,8 @@ The Geneious plugin has a dependency on naturalis-common, an in-house Java utili
 
 The password of the Maven repository manager (defined in the ```<server>``` element) can be found in bitwarden.
 
+If you work outside Naturalis you can download the [https://github.com/naturalis/naturalis-common](source code of the naturalis-common library) and do a maven build yourself.
+
 ### Configure Maven (Geneious libraries)
 The Geneious plugin also has some dependencies on Geneious libraries. In order to make Maven pick these up properly, add the following extra lines to settings.xml:
 
